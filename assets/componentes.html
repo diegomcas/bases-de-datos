@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de diseño · Bases de Datos</title>
+<link rel="stylesheet" href="css/fuentes.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/taller.css">
+<style>
+  /* sólo para esta página de referencia */
+  .muestra {
+    border: 1px dashed rgba(255,255,255,.14);
+    border-radius: var(--radio);
+    padding: 24px;
+    margin: 14px 0 34px;
+  }
+  .muestra > h3 {
+    font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--text-muted); margin-bottom: 16px; font-weight: 600;
+  }
+  .paleta { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; }
+  .chip { border-radius: 10px; padding: 12px 14px; border: 1px solid var(--linea-sutil); }
+  .chip b { display: block; font-family: 'Outfit',sans-serif; font-size: .82rem; }
+  .chip span { font-family: 'Fira Code',monospace; font-size: .72rem; opacity: .75; }
+  .temas { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tema-demo {
+    border-radius: 10px; padding: 14px 18px; min-width: 150px;
+    border: 1px solid var(--linea-media);
+  }
+  .tema-demo b { font-family:'Outfit',sans-serif; display:block; font-size:.9rem; }
+  .tema-demo span { font-size:.75rem; color: var(--text-muted); font-family:'Fira Code',monospace; }
+  .nota-uso {
+    background: var(--velo-sutil); border-left: 3px solid var(--accent);
+    padding: 14px 18px; border-radius: 0 var(--radio) var(--radio) 0; margin: 18px 0;
+    font-size: .92rem; color: var(--text-body);
+  }
+  .nota-uso code { color: #ffd166; }
+  /* mapeo de bloques, como lo declara cada taller */
+  .block-demo-a { --c: var(--bloque-azul); }
+  .block-demo-b { --c: var(--bloque-verde); }
+  .block-demo-c { --c: var(--bloque-naranja); }
+</style>
+</head>
+<body data-tema="indice">
+
+<header>
+  <div class="header-container">
+    <span class="badge">Referencia interna</span>
+    <h1>Sistema de diseño</h1>
+    <p>Todas las piezas con las que se arma el material. Si vas a agregar una clase o un taller,
+       copiá de acá.</p>
+  </div>
+</header>
+
+<main>
+
+  <section class="block-card">
+    <div class="block-title" style="margin-bottom:12px">
+      <h2 style="font-size:1.6rem">Cómo se arma una página</h2>
+    </div>
+    <div class="nota-uso">
+      Tres hojas y un atributo. El <code>data-tema</code> del <code>&lt;body&gt;</code> decide el
+      color de acento y el degradado del encabezado; no hace falta declarar colores en la página.
+    </div>
+    <div class="code-container">
+      <div class="code-header"><span class="code-lang">HTML</span></div>
+<pre><code><span class="sql-comment">&lt;!-- en el &lt;head&gt; --&gt;</span>
+&lt;link rel="stylesheet" href="assets/css/fuentes.css"&gt;
+&lt;link rel="stylesheet" href="assets/css/base.css"&gt;
+&lt;link rel="stylesheet" href="assets/css/taller.css"&gt;   <span class="sql-comment">&lt;!-- sólo en talleres --&gt;</span>
+
+&lt;body data-tema="consigna"&gt;</code></pre>
+    </div>
+  </section>
+
+  <!-- ============ TEMAS ============ -->
+  <section class="block-card">
+    <div class="block-title" style="margin-bottom:12px"><h2 style="font-size:1.6rem">Temas de página</h2></div>
+    <div class="muestra">
+      <h3>data-tema</h3>
+      <div class="temas">
+        <div class="tema-demo" style="background:linear-gradient(135deg,#4c0519,#0b0f19);border-color:#d946ef">
+          <b style="color:#d946ef">consigna</b><span>#d946ef</span></div>
+        <div class="tema-demo" style="background:linear-gradient(135deg,#064e3b,#0b0f19);border-color:#10b981">
+          <b style="color:#10b981">resolucion</b><span>#10b981</span></div>
+        <div class="tema-demo" style="background:linear-gradient(135deg,#312e81,#0b0f19);border-color:#d946ef">
+          <b style="color:#d946ef">indice</b><span>#d946ef</span></div>
+        <div class="tema-demo" style="background:linear-gradient(135deg,#172554,#0b0f19);border-color:#3b82f6">
+          <b style="color:#3b82f6">apunte</b><span>#3b82f6</span></div>
+        <div class="tema-demo" style="background:linear-gradient(135deg,#164e63,#0b0f19);border-color:#06b6d4">
+          <b style="color:#06b6d4">presentacion</b><span>#06b6d4</span></div>
+      </div>
+    </div>
+
+    <div class="muestra">
+      <h3>Paleta de bloques temáticos</h3>
+      <div class="paleta">
+        <div class="chip" style="background:color-mix(in srgb,#3b82f6 15%,transparent)"><b style="color:#3b82f6">azul</b><span>#3b82f6</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#10b981 15%,transparent)"><b style="color:#10b981">verde</b><span>#10b981</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#f97316 15%,transparent)"><b style="color:#f97316">naranja</b><span>#f97316</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#a855f7 15%,transparent)"><b style="color:#a855f7">violeta</b><span>#a855f7</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#ec4899 15%,transparent)"><b style="color:#ec4899">rosa</b><span>#ec4899</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#06b6d4 15%,transparent)"><b style="color:#06b6d4">cian</b><span>#06b6d4</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#f43f5e 15%,transparent)"><b style="color:#f43f5e">carmín</b><span>#f43f5e</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#ef4444 15%,transparent)"><b style="color:#ef4444">rojo</b><span>#ef4444</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#eab308 15%,transparent)"><b style="color:#eab308">amarillo</b><span>#eab308</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#f59e0b 15%,transparent)"><b style="color:#f59e0b">ámbar</b><span>#f59e0b</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#d946ef 15%,transparent)"><b style="color:#d946ef">magenta</b><span>#d946ef</span></div>
+        <div class="chip" style="background:color-mix(in srgb,#64748b 15%,transparent)"><b style="color:#64748b">gris</b><span>#64748b</span></div>
+      </div>
+      <div class="nota-uso" style="margin-bottom:0">
+        Cada taller mapea sus nombres a estos colores con tres líneas:
+        <code>.block-agg { --c: var(--bloque-azul); }</code>. El resto lo resuelve el sistema.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BLOQUE TEMÁTICO ============ -->
+  <section class="block-card block-demo-a">
+    <div class="block-header">
+      <div class="block-num">01</div>
+      <div class="block-title">
+        <h2>Bloque temático</h2>
+        <p>La barra izquierda, el número y las etiquetas toman el color de <code>--c</code></p>
+      </div>
+    </div>
+
+    <div class="chat-martin">
+      <div class="avatar">M</div>
+      <div class="chat-content">
+        <h4>Martín dice:</h4>
+        <p>"El pedido del cliente en sus palabras. Con esto abre cada bloque: primero el problema
+           real, después la teoría."</p>
+      </div>
+    </div>
+
+    <div class="explicacion">
+      <div class="theory-box">
+        <h4>Sustento teórico</h4>
+        <ul>
+          <li>La caja donde va lo conceptual, antes de los ejercicios.</li>
+          <li>Admite <strong>negritas</strong>, <code>código</code> y listas anidadas.</li>
+        </ul>
+      </div>
+
+      <div class="analogia">
+        <strong>Analogía cotidiana:</strong> la comparación con algo de todos los días, que es lo
+        que después se acuerdan.
+      </div>
+
+      <div class="warning-box">
+        <strong>⚠️ Atención:</strong> para lo que se malinterpreta siempre.
+      </div>
+    </div>
+
+    <ul class="consignas-list">
+      <li class="consigna-item" id="reto-1-1">
+        <div class="consigna-header">
+          <span class="consigna-tag">Reto 1.1</span>
+          <span class="nivel-tag">Básico</span>
+          <h3>Título del ejercicio</h3>
+        </div>
+        <div class="consigna-body">
+          <p>La consigna. Puede tener <code>código</code> y <strong>énfasis</strong>.</p>
+          <div class="helper-box">
+            <h5>Andamiaje</h5>
+<pre><code><span class="sql-comment">-- una pista, cuando el salto es grande</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, orden_estado E
+<span class="sql-keyword">WHERE</span> O.id_orden_estado = E.id_orden_estado</code></pre>
+          </div>
+          <a class="salto-nav" href="#reto-1-1">Ver la resolución
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ RESOLUCIÓN ============ -->
+  <section class="block-card block-demo-b">
+    <div class="block-header">
+      <div class="block-num">02</div>
+      <div class="block-title">
+        <h2>Resolución</h2>
+        <p>Consulta, resultado verificado y explicación</p>
+      </div>
+    </div>
+
+    <div class="docente-tip">
+      <h4>Pedagogía en clase:</h4>
+      <p>La nota de cómo dar el tema. Sólo aparece en las resoluciones.</p>
+    </div>
+
+    <ul class="resolutions-list">
+      <li class="resolution-item">
+        <div class="resolution-header">
+          <span class="resolution-tag">Reto 1.1</span>
+          <span class="nivel-tag">Básico</span>
+          <h3>Título del ejercicio</h3>
+          <a class="salto-nav" href="#reto-1-1">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Volver a la consigna</a>
+        </div>
+        <div class="solution-box">
+          <span class="estrategia-label">Estrategia</span>
+          <div class="code-container">
+            <div class="code-header">
+              <span class="code-lang">SQL</span>
+              <button class="copy-btn">Copiar</button>
+            </div>
+<pre><code><span class="sql-comment">-- Facturación por cliente, sólo órdenes cerradas</span>
+<span class="sql-keyword">SELECT</span> C.nombre,
+       <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>,
+       <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>
+<span class="sql-keyword">FROM</span> cliente C, orden_servicio O
+<span class="sql-keyword">WHERE</span> C.id_cliente = O.id_cliente
+  <span class="sql-keyword">AND</span> O.id_orden_estado = <span class="sql-number">4</span>
+<span class="sql-keyword">GROUP BY</span> C.id_cliente
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(O.total) &gt; <span class="sql-number">15000</span>;</code></pre>
+          </div>
+
+          <div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>Cliente</th><th>Órdenes</th><th>Facturado</th></tr></thead>
+              <tbody>
+                <tr><td>Laura</td><td>3</td><td>48200.00</td></tr>
+                <tr><td>Martín</td><td>2</td><td>21500.00</td></tr>
+                <tr class="destacada"><td>Sin datos</td><td>0</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="result-caption">La fila marcada es la que hay que mirar: el caso que rompe la intuición.</p>
+
+          <p class="explanation-text">
+            <strong>Explicación:</strong> el texto que cierra el ejercicio y conecta con el concepto.
+          </p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ SQL ============ -->
+  <section class="block-card block-demo-c">
+    <div class="block-header">
+      <div class="block-num">03</div>
+      <div class="block-title">
+        <h2>Resaltado SQL</h2>
+        <p>Verificado AAA · mínimo 7,5:1 sobre el fondo de código</p>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="result-table">
+        <thead><tr><th>Rol</th><th>Clase</th><th>Color</th><th>Contraste</th><th>Señal extra</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sql-keyword">SELECT</span></td><td>.sql-keyword</td><td>#ff9ec9</td><td>10,4:1</td><td>negrita</td></tr>
+          <tr><td><span class="sql-string">'Facturado'</span></td><td>.sql-string</td><td>#ffd166</td><td>13,7:1</td><td>—</td></tr>
+          <tr><td><span class="sql-comment">-- nota</span></td><td>.sql-comment</td><td>#8fa2c4</td><td>7,7:1</td><td>itálica</td></tr>
+          <tr><td><span class="sql-number">15000</span></td><td>.sql-number</td><td>#8ceacf</td><td>13,9:1</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota-uso">
+      El brillo de cada rol está escalonado a propósito: con protanopia o deuteranopia el tono se
+      pierde y el brillo es lo único que queda. Antes de tocar un color, medilo.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Sistema de diseño · Bases de Datos · Ciclo 2026</p>
+</footer>
+
+</body>
+</html>

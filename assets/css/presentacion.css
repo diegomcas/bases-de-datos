@@ -1,0 +1,94 @@
+/* ==========================================================================
+   PRESENTACIÓN — diapositivas convertidas a página
+
+   Cada diapositiva es una sección apilada, no un carrusel: así se lee de
+   corrido, se busca con Ctrl+F y funciona en el celular. Se carga después de
+   base.css y apunte.css.
+   ========================================================================== */
+
+.diapositivas {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.diapositiva {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--linea-sutil);
+  border-radius: var(--radio);
+  padding: 28px 30px 26px 30px;
+  scroll-margin-top: 20px;
+}
+
+/* el número, arriba a la derecha */
+.diapo-num {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  opacity: 0.55;
+  letter-spacing: 0.05em;
+}
+
+.diapositiva h2 {
+  font-size: 1.4rem;
+  color: var(--text-main);
+  margin: 0 60px 14px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--linea-sutil);
+}
+
+.diapositiva p {
+  color: var(--text-body);
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+.diapositiva ul {
+  margin: 0 0 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-body);
+  line-height: 1.65;
+}
+
+.diapositiva li::marker { color: var(--accent); }
+
+.diapositiva strong { color: #fff; }
+
+.diapositiva figure {
+  margin: 18px 0 6px;
+  text-align: center;
+}
+
+.diapositiva img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radio-chico);
+  border: 1px solid var(--linea-sutil);
+}
+
+.diapositiva:last-child { margin-bottom: 0; }
+
+
+/* ==========================================================================
+   IMPRESIÓN Y PANTALLAS CHICAS
+   ========================================================================== */
+
+@media print {
+  .diapositiva {
+    background: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  .diapo-num { color: #666; }
+}
+
+@media (max-width: 640px) {
+  .diapositiva { padding: 22px 18px; }
+  .diapositiva h2 { font-size: 1.2rem; margin-right: 44px; }
+}

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La base en funcionamiento · El Chip</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <style>
+    .nivel { --c: var(--bloque-cian); }
+    .nivel-2 { --c: var(--bloque-violeta); }
+
+    .paso {
+        counter-increment: paso;
+        position: relative;
+        padding-left: 44px;
+        margin-bottom: 28px;
+    }
+    .paso::before {
+        content: counter(paso);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--c, var(--accent));
+        background: color-mix(in srgb, var(--c, var(--accent)) 15%, transparent);
+    }
+    .pasos { counter-reset: paso; margin-top: 20px; }
+    .paso h4 { margin: 4px 0 8px; font-size: 1.05rem; color: var(--text-main); }
+    .paso p { margin-bottom: 10px; }
+
+    .rutas { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0 6px; }
+    .ruta {
+        background: var(--velo-sutil);
+        border: 1px solid var(--linea-sutil);
+        border-radius: var(--radio-chico);
+        padding: 16px 18px;
+    }
+    .ruta h5 { font-family: 'Outfit', sans-serif; font-size: 0.95rem; margin-bottom: 6px; color: var(--text-main); }
+    .ruta p { font-size: 0.88rem; color: var(--text-muted); margin: 0; }
+    .ruta .marca { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--c); display: block; margin-bottom: 6px; }
+    </style>
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Caso de estudio</span>
+            <h1>La base en funcionamiento</h1>
+            <p>Cómo se ve El Chip desde un programa que la usa de verdad</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver al índice
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#casos">Casos de estudio</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">La base en funcionamiento</span>
+        </nav>
+
+        <article class="apunte">
+            <p>Hasta acá la base fue algo que se consulta desde el Workbench. Pero una base de datos
+            no existe sola: existe porque una aplicación la usa. Acá hay dos formas de verla
+            funcionando, de menor a mayor.</p>
+
+            <div class="rutas">
+                <div class="ruta nivel">
+                    <span class="marca">Primero</span>
+                    <h5>Un script de consola</h5>
+                    <p>Doscientas líneas de Python. Se entiende entero de una sentada y muestra el
+                       ABM completo: alta, baja, modificación y consulta.</p>
+                </div>
+                <div class="ruta nivel-2">
+                    <span class="marca">Después</span>
+                    <h5>Una aplicación web</h5>
+                    <p>El mismo caso resuelto como se haría en un trabajo real: Django, roles,
+                       reportes, tests y control de stock.</p>
+                </div>
+            </div>
+        </article>
+
+        <section class="block-card nivel" id="script" style="margin-top:40px">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>El script de consola</h2>
+                    <p>Lo mínimo para tocar la base desde un programa</p>
+                </div>
+            </div>
+
+            <div class="apunte">
+                <p>Es un solo archivo, <code>abm_elchip.py</code>, que se conecta a MySQL y ofrece
+                un menú de texto. No tiene framework ni dependencias raras: sirve para ver, sin
+                distracciones, que una consulta SQL y una llamada desde Python son la misma cosa.</p>
+
+                <div class="pasos">
+                    <div class="paso">
+                        <h4>Tener la base cargada</h4>
+                        <p>Si todavía no lo hiciste, corré los scripts del caso en este orden.
+                           Sin esto, el programa se conecta pero no encuentra las tablas.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">MySQL</span></div>
+<pre><code><span class="sql-keyword">SOURCE</span> ElChip.sql;
+<span class="sql-keyword">SOURCE</span> poblar_elchip.sql;</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Instalar el conector</h4>
+                        <p>Es la biblioteca que traduce entre Python y MySQL.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>pip install mysql-connector-python</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Pasar la contraseña por el entorno</h4>
+                        <p>El programa la busca en una variable de entorno. Si no la encuentra, te
+                           la pide al arrancar. <strong>Nunca la escribas dentro del archivo:</strong>
+                           lo que entra a un repositorio queda en el historial para siempre.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">PowerShell</span></div>
+<pre><code>$env:ELCHIP_DB_PASS = "tu_clave"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Ejecutarlo</h4>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>python abm_elchip.py</code></pre>
+                        </div>
+                        <p>Aparece el menú. Cada opción que elegís termina siendo un
+                           <code>SELECT</code>, un <code>INSERT</code>, un <code>UPDATE</code> o un
+                           <code>DELETE</code> de los que venimos escribiendo a mano.</p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Si falla la conexión:</strong> revisá que el servicio de MySQL esté
+                    corriendo y que el usuario y la base coincidan con los del entorno
+                    (<code>ELCHIP_DB_USER</code>, <code>ELCHIP_DB_NAME</code>). El error que
+                    devuelve el conector dice bastante: leelo antes de tocar nada.
+                </div>
+
+                <div class="descargas">
+                    <h4>El archivo</h4>
+                    <a href="abm_elchip.py" class="salto-nav">abm_elchip.py</a>
+                    <a href="el_chip.db" class="salto-nav">Base SQLite de ejemplo</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="block-card nivel-2" id="aplicacion">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>La aplicación web completa</h2>
+                    <p>El mismo caso, resuelto como en un trabajo real</p>
+                </div>
+            </div>
+
+            <div class="apunte">
+                <p>Es un sistema de gestión hecho con <strong>Django</strong> sobre el modelo de El
+                Chip: clientes con deduplicación, equipos, órdenes con máquina de estados, stock
+                por movimientos trazables, cobros y cinco reportes de gestión. Se desarrolló en
+                paralelo a la materia y sirve para ver adónde llega el modelo que diseñamos en la
+                Unidad II cuando se lo lleva hasta el final.</p>
+
+                <div class="theory-box">
+                    <h4>Qué mirar cuando lo abras</h4>
+                    <ul>
+                        <li><strong>Las tablas son las del DER.</strong> Cliente, equipo, orden,
+                            repuesto, pago: las mismas que modelaste, con los mismos nombres.</li>
+                        <li><strong>Los roles se aplican de verdad.</strong> Martín ve los reportes
+                            económicos; Sofía, la empleada, no. Es el requisito de seguridad del
+                            relato original, funcionando.</li>
+                        <li><strong>El stock no se edita, se mueve.</strong> Cada alta y cada baja
+                            deja un movimiento. Así se puede auditar por qué el stock dice lo que
+                            dice, que era el otro problema que Martín planteaba.</li>
+                        <li><strong>Los precios se congelan.</strong> Una orden vieja conserva el
+                            precio del día en que se hizo, no el actual.</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin-top:32px">Ponerlo a andar</h3>
+                <p>Hay dos caminos. El de SQLite no necesita instalar nada más y alcanza para
+                   recorrer el sistema; el de MySQL con Docker es la configuración de referencia.</p>
+
+                <div class="pasos">
+                    <div class="paso">
+                        <h4>Preparar el entorno</h4>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>cp .env.example .env
+python -m venv .venv
+.venv\Scripts\pip install -r requirements-dev.txt</code></pre>
+                        </div>
+                        <p>En Linux o Mac, el último comando es
+                           <code>.venv/bin/pip install -r requirements-dev.txt</code>.</p>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Elegir la base</h4>
+                        <p><strong>Camino corto, sin Docker:</strong> en el archivo
+                           <code>.env</code> dejá estas dos líneas activas y saltá el paso
+                           siguiente.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">.env</span></div>
+<pre><code>DB_ENGINE=django.db.backends.sqlite3
+DB_NAME=el_chip.sqlite3</code></pre>
+                        </div>
+                        <p><strong>Camino de referencia, con MySQL:</strong> dejá la configuración
+                           por defecto y levantá el contenedor.</p>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>docker compose up -d</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Crear las tablas y cargar datos</h4>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>python manage.py migrate
+python manage.py cargar_datos_iniciales --demo</code></pre>
+                        </div>
+                        <p>El <code>--demo</code> agrega datos de prueba y los dos usuarios. Sin esa
+                           opción sólo carga los catálogos, que es lo que se haría en producción.</p>
+                    </div>
+
+                    <div class="paso">
+                        <h4>Levantarlo</h4>
+                        <div class="code-container">
+                            <div class="code-header"><span class="code-lang">Consola</span></div>
+<pre><code>python manage.py runserver</code></pre>
+                        </div>
+                        <p>Y abrir <code>http://127.0.0.1:8000/</code></p>
+                    </div>
+                </div>
+
+                <h3>Usuarios de prueba</h3>
+                <div class="table-scroll">
+                    <table class="tabla-apunte">
+                        <thead>
+                            <tr><th>Usuario</th><th>Contraseña</th><th>Rol</th><th>Qué puede hacer</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>martin</code></td><td><code>elchip2026</code></td><td>Administrador</td><td>Todo, incluidos los reportes económicos</td></tr>
+                            <tr><td><code>sofia</code></td><td><code>elchip2026</code></td><td>Empleada</td><td>Órdenes y stock; <strong>no</strong> ve reportes ni costos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="font-size:.9rem;color:var(--text-muted)">Entrá con los dos y compará lo que
+                   ve cada uno. Esa diferencia es el requisito de seguridad del relato de Martín,
+                   implementado.</p>
+
+                <h3>Cómo está organizado</h3>
+                <div class="code-container">
+                    <div class="code-header"><span class="code-lang">Estructura</span></div>
+<pre><code>config/       proyecto Django: configuración y rutas
+core/         utilidades comunes y comandos de mantenimiento
+usuarios/     empleados y roles
+catalogos/    tablas maestras: marcas, tipos, estados, métodos de pago
+clientes/     clientes y sus contactos, con deduplicación
+equipos/      equipos, apropiación y venta de abandonados
+inventario/   repuestos, stock y movimientos
+ordenes/      órdenes, líneas, consumos, pagos y máquina de estados
+reportes/     los cinco informes de gestión
+templates/    HTML con HTMX, sin compilación de JavaScript</code></pre>
+                </div>
+                <p>La lógica de negocio vive en los <code>services.py</code> (lo que escribe) y
+                <code>selectors.py</code> (lo que lee) de cada módulo. Las vistas son finas: ninguna
+                toca un modelo directamente. Es una separación que vale la pena mirar aunque no
+                sepas Django.</p>
+
+                <div class="analogia">
+                    <strong>Dónde vive el código:</strong> el proyecto tiene su propio repositorio,
+                    aparte del de la materia, porque sigue su propio ritmo de cambios. El
+                    <code>README</code> de ahí tiene la versión corta de estas instrucciones y la
+                    lista completa de comandos de mantenimiento.
+                </div>
+            </div>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="../../unidades/04-sql/taller-vistas-procedimientos-triggers-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Vistas, procedimientos y triggers</strong>
+            </a>
+            <a class="pag-sig" href="../../proyecto/index.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Proyecto integrador</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026</p>
+    </footer>
+
+</body>
+</html>

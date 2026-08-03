@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de paletas SQL — prueba en el aula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@600;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-main:#0b0f19; --bg-card:#152033; --bg-code:#070a12;
+  --text-main:#f8fafc; --text-muted:#94a3b8; --accent:#d946ef;
+  --escala:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg-main);color:var(--text-main);line-height:1.6;padding-bottom:60px}
+h1,h2,h3{font-family:'Outfit',sans-serif;letter-spacing:-0.02em}
+
+header{padding:32px 20px 24px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)}
+header h1{font-size:2rem;margin-bottom:6px}
+header p{color:var(--text-muted);max-width:720px;margin:0 auto;font-size:1rem}
+
+.panel{position:sticky;top:0;z-index:20;background:rgba(11,15,25,.94);
+  backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);
+  padding:14px 20px;display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:center}
+.grupo{display:flex;align-items:center;gap:8px}
+.grupo > span{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600}
+button{font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;
+  padding:7px 14px;border-radius:50px;border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.04);color:var(--text-main);transition:all .2s}
+button:hover{background:rgba(255,255,255,.1)}
+button.on{background:var(--accent);border-color:var(--accent);color:#0b0f19}
+input[type=range]{width:150px;accent-color:var(--accent)}
+
+main{max-width:1500px;margin:32px auto 0;padding:0 20px}
+.comparacion{display:grid;grid-template-columns:repeat(auto-fit,minmax(430px,1fr));gap:22px}
+
+.col{background:var(--bg-card);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+.col-cab{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.06)}
+.col-cab h2{font-size:1.1rem}
+.etiqueta{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:3px 9px;border-radius:4px}
+.mala{background:rgba(244,63,94,.15);color:#fb7185;border:1px solid rgba(244,63,94,.35)}
+.buena{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.35)}
+
+/* el area de codigo replica exactamente la de los apuntes */
+.zona-codigo{position:relative;background:var(--bg-code);margin:18px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.05);overflow:hidden}
+.zona-codigo::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:#fff;opacity:0;transition:opacity .25s}
+body.sala .zona-codigo::after{opacity:.13}
+pre{padding:18px;white-space:pre-wrap;overflow-x:auto;
+  font-family:'Fira Code',monospace;font-size:calc(.88rem * var(--escala));line-height:1.65}
+
+/* ---------- paleta ACTUAL ---------- */
+.p-actual pre{color:#e2e8f0}
+.p-actual .k{color:#ff79c6;font-weight:600}
+.p-actual .s{color:#f1fa8c}
+.p-actual .c{color:#6272a4;font-style:italic}
+.p-actual .n{color:#bd93f9}
+
+/* ---------- paleta PROPUESTA ---------- */
+.p-nueva pre{color:#dbe4f0}
+.p-nueva .k{color:#ff9ec9;font-weight:700}
+.p-nueva .s{color:#ffd166}
+.p-nueva .c{color:#8fa2c4;font-style:italic}
+.p-nueva .n{color:#8ceacf}
+
+.leyenda{padding:0 20px 20px}
+.leyenda table{width:100%;border-collapse:collapse;font-size:.85rem}
+.leyenda th{text-align:left;padding:7px 10px;color:var(--text-muted);font-weight:600;
+  font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.leyenda td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:#cbd5e1}
+.chip{display:inline-block;width:15px;height:15px;border-radius:3px;vertical-align:-3px;margin-right:7px}
+.ok{color:#34d399;font-weight:600}
+.mal{color:#fb7185;font-weight:600}
+
+.nota{max-width:1500px;margin:34px auto 0;padding:0 20px}
+.nota-caja{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);
+  border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:20px 24px}
+.nota-caja h3{font-size:1.05rem;margin-bottom:10px}
+.nota-caja ul{margin-left:20px;color:#cbd5e1;font-size:.95rem;display:flex;flex-direction:column;gap:7px}
+.nota-caja code{font-family:'Fira Code',monospace;font-size:.85rem;color:#ffd166}
+
+/* filtros de daltonismo */
+body.prot main{filter:url(#protanopia)}
+body.deut main{filter:url(#deuteranopia)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="protanopia" color-interpolation-filters="linearRGB">
+    <feColorMatrix type="matrix" values="0.152 1.053 -0.205 0 0
+                                         0.115 0.786  0.099 0 0
+                                        -0.004 -0.048 1.052 0 0
+                                         0 0 0 1 0"/>
+  </filter>
+  <filter id="deuteranopia" color-interpolation-filters="linearRGB">
+    <feColorMatrix type="matrix" values="0.367 0.861 -0.228 0 0
+                                         0.280 0.673  0.047 0 0
+                                        -0.012 0.043  0.969 0 0
+                                         0 0 0 1 0"/>
+  </filter>
+</svg>
+
+<header>
+  <h1>Comparador de paletas SQL</h1>
+  <p>Abrilo <strong>en la TV del aula, desde la última fila</strong>. Es la única prueba que vale: los números de contraste dicen qué debería pasar, la pared dice qué pasa.</p>
+</header>
+
+<div class="panel">
+  <div class="grupo">
+    <span>Visión</span>
+    <button id="b-normal" class="on" onclick="vision('normal',this)">Normal</button>
+    <button onclick="vision('prot',this)">Protanopia</button>
+    <button onclick="vision('deut')">Deuteranopia</button>
+  </div>
+  <div class="grupo">
+    <span>Aula</span>
+    <button id="b-sala" onclick="sala(this)">Simular luz encendida</button>
+  </div>
+  <div class="grupo">
+    <span>Tamaño</span>
+    <input type="range" min="1" max="2.2" step="0.05" value="1"
+           oninput="document.documentElement.style.setProperty('--escala',this.value);
+                    document.getElementById('lbl').textContent=Math.round(this.value*100)+'%'">
+    <span id="lbl" style="min-width:44px">100%</span>
+  </div>
+</div>
+
+<main>
+<div class="comparacion">
+
+  <!-- ACTUAL -->
+  <section class="col p-actual">
+    <div class="col-cab">
+      <h2>Paleta actual</h2>
+      <span class="etiqueta mala">comentarios 4,1:1</span>
+    </div>
+    <div class="zona-codigo">
+<pre><span class="c">-- Facturación por cliente, solo órdenes cerradas</span>
+<span class="k">SELECT</span> C.nombre, C.apellido,
+       <span class="k">COUNT</span>(*)          <span class="k">AS</span> <span class="s">'Órdenes'</span>,
+       <span class="k">SUM</span>(O.total)      <span class="k">AS</span> <span class="s">'Facturado'</span>,
+       <span class="k">ROUND</span>(<span class="k">AVG</span>(O.total), <span class="n">2</span>) <span class="k">AS</span> <span class="s">'Ticket promedio'</span>
+<span class="k">FROM</span> cliente C, orden_servicio O
+<span class="k">WHERE</span> C.id_cliente = O.id_cliente
+  <span class="k">AND</span> O.id_orden_estado = <span class="n">4</span>          <span class="c">-- 4 = Entregada</span>
+<span class="k">GROUP BY</span> C.id_cliente, C.nombre, C.apellido
+<span class="k">HAVING</span> <span class="k">SUM</span>(O.total) &gt; <span class="n">15000</span>
+<span class="k">ORDER BY</span> <span class="s">'Facturado'</span> <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="n">5</span>;</pre>
+    </div>
+    <div class="leyenda">
+      <table>
+        <thead><tr><th>Rol</th><th>Color</th><th>Contraste</th><th>WCAG</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip" style="background:#ff79c6"></span>Palabra clave</td><td>#ff79c6</td><td>8,1:1</td><td class="ok">AAA</td></tr>
+          <tr><td><span class="chip" style="background:#f1fa8c"></span>Literal</td><td>#f1fa8c</td><td>17,4:1</td><td class="ok">AAA</td></tr>
+          <tr><td><span class="chip" style="background:#6272a4"></span>Comentario</td><td>#6272a4</td><td>4,1:1</td><td class="mal">falla AA</td></tr>
+          <tr><td><span class="chip" style="background:#bd93f9"></span>Número</td><td>#bd93f9</td><td>8,1:1</td><td class="ok">AAA</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PROPUESTA -->
+  <section class="col p-nueva">
+    <div class="col-cab">
+      <h2>Paleta propuesta</h2>
+      <span class="etiqueta buena">todo AAA · mín. 7,5:1</span>
+    </div>
+    <div class="zona-codigo">
+<pre><span class="c">-- Facturación por cliente, solo órdenes cerradas</span>
+<span class="k">SELECT</span> C.nombre, C.apellido,
+       <span class="k">COUNT</span>(*)          <span class="k">AS</span> <span class="s">'Órdenes'</span>,
+       <span class="k">SUM</span>(O.total)      <span class="k">AS</span> <span class="s">'Facturado'</span>,
+       <span class="k">ROUND</span>(<span class="k">AVG</span>(O.total), <span class="n">2</span>) <span class="k">AS</span> <span class="s">'Ticket promedio'</span>
+<span class="k">FROM</span> cliente C, orden_servicio O
+<span class="k">WHERE</span> C.id_cliente = O.id_cliente
+  <span class="k">AND</span> O.id_orden_estado = <span class="n">4</span>          <span class="c">-- 4 = Entregada</span>
+<span class="k">GROUP BY</span> C.id_cliente, C.nombre, C.apellido
+<span class="k">HAVING</span> <span class="k">SUM</span>(O.total) &gt; <span class="n">15000</span>
+<span class="k">ORDER BY</span> <span class="s">'Facturado'</span> <span class="k">DESC</span>
+<span class="k">LIMIT</span> <span class="n">5</span>;</pre>
+    </div>
+    <div class="leyenda">
+      <table>
+        <thead><tr><th>Rol</th><th>Color</th><th>Contraste</th><th>WCAG</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip" style="background:#ff9ec9"></span>Palabra clave</td><td>#ff9ec9</td><td>10,4:1</td><td class="ok">AAA</td></tr>
+          <tr><td><span class="chip" style="background:#ffd166"></span>Literal</td><td>#ffd166</td><td>13,7:1</td><td class="ok">AAA</td></tr>
+          <tr><td><span class="chip" style="background:#8fa2c4"></span>Comentario</td><td>#8fa2c4</td><td>7,7:1</td><td class="ok">AAA</td></tr>
+          <tr><td><span class="chip" style="background:#8ceacf"></span>Número</td><td>#8ceacf</td><td>13,9:1</td><td class="ok">AAA</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<div class="nota">
+  <div class="nota-caja">
+    <h3>Qué mirar en cada botón</h3>
+    <ul>
+      <li><strong>Luz encendida:</strong> simula el lavado del proyector con las luces del aula prendidas. Es donde el comentario azul de la paleta actual desaparece del todo.</li>
+      <li><strong>Protanopia / deuteranopia:</strong> ~8% de los varones. En la paleta actual, <em>rosa</em> y <em>violeta</em> colapsan al mismo color: la palabra clave y el número dejan de distinguirse. En la propuesta el número pasa a verde agua y además cada rol tiene un brillo distinto, que es la única pista que sobrevive.</li>
+      <li><strong>Tamaño:</strong> el código de los apuntes está a <code>0.88rem</code> (~14&nbsp;px). Subilo hasta que se lea desde el fondo del aula y fijate en qué porcentaje quedó cómodo.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+function vision(modo, btn){
+  document.body.classList.remove('prot','deut');
+  if(modo!=='normal') document.body.classList.add(modo);
+  document.querySelectorAll('.grupo:first-child button').forEach(function(b){b.classList.remove('on')});
+  (btn || event.target).classList.add('on');
+}
+function sala(btn){
+  document.body.classList.toggle('sala');
+  btn.classList.toggle('on');
+}
+</script>
+</body>
+</html>

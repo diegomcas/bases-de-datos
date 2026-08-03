@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-index     { --c: var(--bloque-verde); }
+    .block-sp        { --c: var(--bloque-naranja); }
+    .block-trigger   { --c: var(--bloque-rosa); }
+    .block-view      { --c: var(--bloque-azul); }
+
+    /* propio de esta página */
+    h1, h2, h3, h4 {
+                font-family: 'Outfit', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Modo Taller</span>
+            <h1>Herramientas SQL Avanzadas para Martín</h1>
+            <p>Vistas, Índices, Procedimientos y Triggers aplicados al servicio técnico "El Chip"</p>
+            <a href="taller-vistas-procedimientos-triggers-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Vistas, procedimientos y triggers</span>
+        </nav>
+
+        <!-- BLOQUE 1: VISTAS -->
+        <section class="block-card block-view" id="vistas">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Vistas (Views)</h2>
+                    <p>Facilitar el acceso a los datos y cuidar la privacidad</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Hola chicos. En el local, cuando viene un cliente, le tomamos los datos y abrimos una orden. El tema es que para ver los datos completos de una orden con su cliente, equipo, marca y problema, mis empleados se vuelven locos buscando en un montón de tablas separadas. Además, no quiero que los recepcionistas anden viendo los totales cobrados o los descuentos, pero sí necesitan ver los datos de contacto y el estado de la reparación. ¿Cómo resolvemos esto?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <p><strong>El truco de las Vistas:</strong> Una vista es como una "tabla virtual". No duplica la información ni ocupa espacio extra; es simplemente una consulta SQL compleja guardada en el servidor con un nombre. Quien la use puede consultarla como si fuera una tabla normal y corriente con un simple <code>SELECT</code>, sin tener que saber hacer uniones raras (JOINs) y viendo solo la información que nosotros permitamos.</p>
+                <div class="analogia">
+                    <strong>Analogía:</strong> Es como tener una ventana que da hacia una habitación desordenada. En lugar de entrar a buscar las cosas entre el desorden, simplemente mirás por la ventana que ya te enfoca el objeto que necesitás.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Chusmear la vista ya existente</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>El administrador del sistema ya nos dejó creada una vista llamada <code>orden_servicio_completa</code>. Escribe una consulta sencilla para ver todo lo que tiene guardado esta vista.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Búsqueda rápida de clientes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Llama un cliente por teléfono y dice: <em>"Hola, soy García. ¿Mi equipo está listo?"</em>. Escribe una consulta sobre la vista para encontrar qué órdenes pertenecen a este cliente, qué equipos dejó y cuál es su estado actual.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>Ver la actualización en tiempo real</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Las vistas no guardan datos "congelados", sino que muestran lo que pasa en las tablas base al instante. Vamos a probarlo siguiendo estos pasos en tu consola de SQL:</p>
+                        <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.95rem; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                            <li>Primero busca a la cliente "Laura Fernández" en la vista. ¿Aparece algo? (Debería dar 0 filas).</li>
+                            <li>Ahora registra a Laura Fernández en la tabla <code>cliente</code> con un <code>INSERT</code> normal.</li>
+                            <li>Vuelve a buscar en la vista. ¿Apareció? <em>(Pensá por qué todavía no aparece. Pista: ¿Tiene alguna orden de reparación creada en la tabla de órdenes?)</em></li>
+                            <li>Registra una orden para Laura en la tabla <code>orden_servicio</code> (la base te asignará el número 4 si sigues el orden).</li>
+                            <li>Asóciale su equipo y su problema en la tabla de relación (un celular Samsung con pantalla rota).</li>
+                            <li>Por último, vuelve a consultar la vista. ¡Comprueba la magia!</li>
+                        </ol>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.4</span>
+                        <h3>Crear tu propia vista de catálogo</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín nos pide: <em>"Quiero que los técnicos tengan una vista rápida de los repuestos y sus precios para pasar presupuestos, pero no quiero que vean cuánto stock nos queda en depósito"</em>.</p>
+                        <p>Crea una vista llamada <code>vista_catalogo_repuestos</code> que muestre únicamente el <code>nombre</code> del repuesto y su <code>precio_unitario</code> de la tabla <code>repuesto</code>. Luego escribe un SELECT para comprobar que el stock quedó bien oculto.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-1-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: INDICES -->
+        <section class="block-card block-index" id="indices">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Índices (Indexes)</h2>
+                    <p>Acelerar el motor de búsqueda de la base de datos</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, a veces cuando busco a un cliente por apellido para ver si ya vino antes, el sistema tarda un poquito en responder. Ahora tenemos pocos clientes cargados, pero me da miedo que cuando tengamos miles de registros el sistema se ponga lentísimo y la gente tenga que esperar en el local."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <p><strong>El truco de los Índices:</strong> Si buscas una palabra en un libro de 500 páginas que no tiene índice, te toca revisar hoja por hoja (en bases de datos esto se llama <strong>Full Table Scan</strong> o escaneo completo). Pero si el libro tiene un índice al final, buscas la letra por la que empieza la palabra, ves el número de página y vas directo. Un índice en SQL hace exactamente eso: crea un atajo ordenado para que el motor vaya directo al dato sin leer toda la tabla.</p>
+                <div class="analogia">
+                    <strong>Analogía:</strong> Es como ordenar alfabéticamente un tarjetero físico. Si no estuviera ordenado, tendrías que revisar tarjeta por tarjeta hasta dar con el cliente. Si está ordenado, vas directo a la letra correspondiente.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Ver cómo busca MySQL por defecto</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Vamos a usar el comando mágico <code>EXPLAIN</code>. Si se lo pones antes de tu consulta, MySQL te dirá exactamente cómo planea buscar los datos en el disco.</p>
+                        <p>Ejecuta la búsqueda del cliente con apellido 'García' anteponiendo el <code>EXPLAIN</code>. Presta atención a las columnas <code>type</code> (¿dice <code>ALL</code>?) y <code>rows</code> (¿cuántas filas tuvo que mirar MySQL para encontrar a García?).</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Crear el atajo (Índice)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Crea un índice en la tabla <code>cliente</code> que actúe sobre la columna <code>apellido</code> para que MySQL no tenga que hacer búsquedas a ciegas.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <h3>Comprobar la mejora de velocidad</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Vuelve a ejecutar la consulta del Reto 2.1 (usando <code>EXPLAIN</code>) y compara los resultados. ¿Qué dice ahora la columna <code>type</code>? ¿Cuántas filas (<code>rows</code>) tuvo que revisar MySQL esta vez? Explica la diferencia con tus palabras.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: PROCEDIMIENTOS ALMACENADOS -->
+        <section class="block-card block-sp" id="procedimientos">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Procedimientos Almacenados (Stored Procedures)</h2>
+                    <p>Encapsular procesos repetitivos y evitar errores humanos</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Muchachos, por la inflación, los precios de los repuestos suben todas las semanas. Para cambiarlos, mis empleados tienen que escribir una consulta UPDATE a mano. El otro día, un chico se olvidó de poner la parte del WHERE y casi me cambia el precio de TODOS los repuestos del local al mismo precio. ¡Casi me muero del susto! ¿No podemos automatizar este cambio para que solo pongan el código del repuesto y el precio nuevo sin riesgos?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <p><strong>El truco de los Procedimientos:</strong> Un procedimiento almacenado es una consulta o grupo de consultas SQL que guardamos bajo un nombre único en el servidor. En lugar de escribir el código desde cero y arriesgarnos a cometer errores fatales (como olvidarse de un <code>WHERE</code>), los empleados simplemente llaman al procedimiento usando <code>CALL nombre_procedimiento(datos)</code>.</p>
+                <div class="analogia">
+                    <strong>Analogía:</strong> Es como programar un botón de marcado rápido en el teléfono. En lugar de marcar los 10 dígitos del número del cliente uno por uno cada vez, tocás el botón "Llamar a Martín" y el teléfono hace todo el proceso de marcado por vos.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Crear un procedimiento de actualización segura</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Crea un procedimiento almacenado llamado <code>cambiar_precio_repuesto</code> que reciba dos parámetros: el ID del repuesto y su nuevo precio unitario. Dentro del procedimiento, debe ejecutarse un <code>UPDATE</code> que modifique el precio únicamente del repuesto con ese ID.</p>
+                        
+                        <div class="helper-box">
+                            <h5>💡 Ayuda para la consola de MySQL</h5>
+                            <p style="font-size: 0.88rem; margin-bottom: 8px; color: var(--text-muted);">Como el procedimiento tiene varias líneas de código, recuerda usar el cambiador de delimitadores para que la consola no se confunda:</p>
+                            <pre><span class="sql-keyword">DELIMITER</span> //
+<span class="sql-keyword">CREATE PROCEDURE</span> ...
+<span class="sql-keyword">BEGIN</span>
+    <span class="sql-comment">-- Tu código UPDATE aquí</span>
+<span class="sql-keyword">END</span> //
+<span class="sql-keyword">DELIMITER</span> ;</pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Ejecutar y probar la actualización segura</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Usa el comando <code>CALL</code> para probar tu procedimiento almacenado. Cambia el precio del repuesto con ID 1 ("Módulo Samsung S21 Original") a <code>48000.00</code>. Compara con un SELECT antes y después para ver que todo funcione correctamente.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4: TRIGGERS -->
+        <section class="block-card block-trigger" id="triggers">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Triggers (Disparadores)</h2>
+                    <p>Las alarmas y automatizaciones automáticas de la base de datos</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Gente, les cuento otro dolor de cabeza. A veces un técnico comete un error al registrar una reparación y pone que el stock de un repuesto quede en negativo (por ejemplo, -2 pantallas en el depósito). ¡Físicamente eso es imposible! O tengo repuestos o no tengo. Necesito que la base de datos impida guardar un stock menor a cero automáticamente."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <p><strong>El truco de los Triggers:</strong> Un Trigger (o disparador) es un bloque de código SQL que se ejecuta <strong>automáticamente</strong> cuando ocurre un evento en una tabla específica (al hacer un <code>INSERT</code>, <code>UPDATE</code> o <code>DELETE</code>). Nadie lo llama con <code>CALL</code>; el propio motor SQL lo dispara solo. Lo usamos mucho para revisar que los datos tengan sentido físico antes de que se guarden en el disco rígido.</p>
+                <div class="analogia">
+                    <strong>Analogía:</strong> Es como un sensor de movimiento en un pasillo. No necesitas presionar un interruptor para encender la luz; el sensor detecta que pasaste y enciende la bombilla por su cuenta.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <h3>Crear un Trigger anticaídas de stock</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Crea un trigger llamado <code>trg_control_stock_negativo</code> que se active <code>BEFORE UPDATE</code> (antes de que se actualicen los datos) en la tabla <code>repuesto</code>. Si el stock nuevo (que en triggers se lee con <code>NEW.stock</code>) es menor a 0, debe interrumpir la consulta y arrojar un mensaje de error personalizado.</p>
+                        
+                        <div class="helper-box">
+                            <h5>💡 Ayuda para interrumpir la consulta en MySQL</h5>
+                            <p style="font-size: 0.88rem; margin-bottom: 8px; color: var(--text-muted);">Puedes usar la siguiente sentencia especial para frenar todo y tirar un error en pantalla:</p>
+                            <pre><span class="sql-keyword">SIGNAL SQLSTATE</span> <span class="sql-string">'45000'</span>
+<span class="sql-keyword">SET MESSAGE_TEXT</span> = <span class="sql-string">'¡Tu mensaje de error personalizado aquí!'</span>;</pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <h3>Intentar romper la base de datos</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Intenta actualizar el stock del repuesto con ID 1 a <code>-5</code> usando un <code>UPDATE</code> común. Observa el mensaje de error en tu cliente de base de datos. Luego escribe un <code>SELECT</code> para asegurarte de que el stock del repuesto no haya cambiado de su valor original.</p>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="compendio-subconsultas-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Compendio de subconsultas</strong>
+            </a>
+            <a class="pag-sig" href="../../casos/el-chip/aplicacion.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>La base en funcionamiento</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-vistas-procedimientos-triggers-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

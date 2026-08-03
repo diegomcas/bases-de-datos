@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Subconsultas - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-corr      { --c: var(--bloque-naranja); }
+    .block-list      { --c: var(--bloque-verde); }
+    .block-scalar    { --c: var(--bloque-azul); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 1</span>
+            <h1>Subconsultas en SQL: Cruzando tablas sin usar JOINs</h1>
+            <p>Aprende a anidar consultas para resolver necesidades complejas de información en "El Chip"</p>
+            <a href="taller-subconsultas-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de subconsultas</span>
+        </nav>
+
+        <!-- INTRODUCCIÓN TEÓRICA -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
+                    ¿Qué es una Subconsulta en SQL?
+                </h2>
+            </div>
+            <div class="explicacion">
+                <p>Una <strong>Subconsulta</strong> (o consulta anidada) es simplemente una consulta <code>SELECT</code> metida dentro de los paréntesis de otra consulta SQL más grande.</p>
+                
+                <p>En el flujo de ejecución, el motor de base de datos resuelve primero la consulta que está adentro de los paréntesis (llamada <strong>consulta interna</strong>) y pasa el resultado a la consulta de afuera (llamada <strong>consulta externa</strong>) para que esta pueda terminar de ejecutarse.</p>
+                
+                <p><strong>¿Por qué las usamos hoy?</strong> Cuando la información que buscamos está repartida en múltiples tablas (ej. buscar el número de teléfono de un cliente filtrando por su apellido), la forma clásica es usar un <code>JOIN</code>. Sin embargo, si aún no conocemos los JOINs o queremos escribir consultas modulares y ordenadas, las subconsultas son nuestra herramienta indispensable para relacionar tablas de forma indirecta.</p>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: SUBCONSULTAS ESCALARES -->
+        <section class="block-card block-scalar" id="escalares">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Subconsultas Escalares</h2>
+                    <p>Comparaciones directas con un único valor de respuesta</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, con los aumentos de precios, necesito saber cuáles de nuestros repuestos en stock tienen un precio unitario mayor que el promedio de todos los repuestos del local. Así los identificamos rápido para cuidarlos en el depósito. ¿Cómo lo sacamos si el promedio cambia todas las semanas?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Sustento Teórico: Subconsultas Escalares
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> Son aquellas subconsultas diseñadas para devolver **exactamente una fila y una columna** (una única celda con un valor).</li>
+                        <li><strong>Operadores compatibles:</strong> Al devolver un único valor, podemos compararlo directamente usando operadores de comparación clásicos: <code>=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, o <code>!=</code>.</li>
+                        <li><strong>Ubicación típica:</strong> Se colocan generalmente en la cláusula <code>WHERE</code> para actuar como filtros condicionales.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Imagina que querés comprar un alfajor que cueste menos que el "precio promedio de los alfajores del kiosco". Primero tenés que contar y promediar los precios de la vidriera (consulta interna) y, una vez que sabes que el promedio es $800, buscas en tu bolsillo los alfajores que estén por debajo de ese número (consulta externa).
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ ¡Cuidado con el error más común!</strong> Si tu subconsulta escalar está usando operadores como <code>=</code> o <code>&gt;</code>, y por error la consulta interna devuelve **más de una fila** (dos o más repuestos, por ejemplo), MySQL detendrá la ejecución arrojando el error: <code>Error 1242: Subquery returns more than 1 row</code>.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Repuestos por encima del promedio</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que busque el nombre y precio unitario de los repuestos de la tabla <code>repuesto</code> cuyo precio sea estrictamente mayor al precio promedio de todos los repuestos cargados.</p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Buscar la marca de un equipo sin usar JOINs</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber el nombre de la marca del equipo que está asociado a la orden número 1. Sabemos que en la tabla <code>orden_servicio_has_equipo</code> podemos averiguar el ID del equipo asociado a la orden 1, y en la tabla <code>equipo</code> podemos averiguar el <code>id_marca</code> de dicho equipo. </p>
+                        <p>Escribe una consulta anidada sobre la tabla <code>marca</code> que traiga el nombre de la marca filtrando por el ID de marca obtenido desde la subconsulta de equipos.</p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: SUBCONSULTAS DE LISTA (IN / NOT IN) -->
+        <section class="block-card block-list" id="listas">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Subconsultas de Lista</h2>
+                    <p>Verificación de pertenencia a conjuntos con IN y NOT IN</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, quiero armar dos campañas de WhatsApp. Para la primera, necesito los nombres y apellidos de todos los clientes que **tengan registrada alguna orden** en el local (mis clientes activos). Para la segunda, quiero el listado de clientes registrados que **nunca nos dejaron nada a reparar**, para mandarles un descuento de bienvenida. Recuerden que no sabemos usar JOINs aún."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Sustento Teórico: Comparación de conjuntos con IN y NOT IN
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> Son subconsultas que devuelven **una sola columna con múltiples filas** (es decir, una lista vertical de valores).</li>
+                        <li><strong>Operador IN:</strong> Evalúa si el valor de la fila externa coincide con **al menos uno** de los valores devueltos por el conjunto de la subconsulta. Es equivalente a escribir múltiples condiciones unidas por <code>OR</code>.</li>
+                        <li><strong>Operador NOT IN:</strong> Evalúa que el valor de la fila externa **no coincida con ninguno** de los elementos de la subconsulta (es equivalente a múltiples exclusiones unidas por <code>AND</code>).</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Es como si el portero de un boliche tuviera una lista impresa de invitados (la subconsulta) y te dijera: *"Vos entrás si tu nombre está en (IN) esta lista"* o *"Vos no entrás si tu nombre no está en (NOT IN) esta lista"*.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El peligro oculto del NULL con NOT IN:</strong> Si la subconsulta de un <code>NOT IN</code> llega a devolver un valor <code>NULL</code> dentro de la lista, la consulta externa **devolverá 0 registros** (vacía). Esto se debe a la lógica trivalente de SQL, donde comparar cualquier valor contra <code>NULL</code> da como resultado <code>UNKNOWN</code> (desconocido), anulando toda la condición. ¡Asegúrate siempre de filtrar los NULLs en tu consulta interna!
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Clientes con órdenes activas (Pertenencia)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que devuelva el nombre y apellido de la tabla <code>cliente</code> para todos aquellos clientes cuyo <code>id_cliente</code> se encuentre dentro del listado de clientes que tienen registros en la tabla <code>orden_servicio</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Clientes sin visitas registradas (Exclusión)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que devuelva el nombre y apellido de los clientes cargados en <code>cliente</code> que <strong>no</strong> tengan ninguna orden de servicio registrada en la tabla <code>orden_servicio</code>.</p>
+                        <p style="font-size: 0.88rem; color: var(--text-muted);"><em>Tip de seguridad: En la subconsulta, agrega un filtro <code>WHERE id_cliente IS NOT NULL</code> por seguridad.</em></p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: SUBCONSULTAS CORRELACIONADAS Y EXISTENCIA (EXISTS) -->
+        <section class="block-card block-corr" id="existencia">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Subconsultas Correlacionadas y EXISTS</h2>
+                    <p>Evaluación de existencia y enlace dinámico fila por fila</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, para ordenar nuestra comunicación con el cliente: necesito un listado de los clientes que **tienen cargado al menos un teléfono** en el sistema. Y también, por el contrario, quiero saber quiénes no tienen cargado **ningún correo electrónico** para pedirles el email la próxima vez que vengan. ¿Podemos resolverlo usando EXISTS?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Sustento Teórico: Correlación y el operador EXISTS
+                    </h4>
+                    <ul>
+                        <li><strong>Subconsulta Correlacionada:</strong> A diferencia de las subconsultas comunes (que se ejecutan una sola vez al principio), una subconsulta correlacionada hace referencia a una columna de la tabla externa. Esto obliga al motor a **ejecutar la subconsulta una vez por cada fila** que procesa la consulta externa.</li>
+                        <li><strong>Operador EXISTS:</strong> Evalúa si la subconsulta devuelve **al menos una fila** (da igual qué valor devuelva en sus columnas). Si encuentra coincidencia, devuelve <code>TRUE</code> y la fila externa se incluye en el resultado; de lo contrario devuelve <code>FALSE</code>.</li>
+                        <li><strong>Optimización (SELECT 1):</strong> Como a <code>EXISTS</code> solo le importa si se devuelve o no alguna fila (existencia), en la subconsulta se suele usar <code>SELECT 1</code> o <code>SELECT *</code> en lugar de nombres de columnas. La base de datos no gasta procesamiento en estructurar columnas.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Es como si tuvieras una lista de carpetas de clientes. Por cada carpeta de cliente (fila externa), mandas a un asistente al archivo de teléfonos a preguntar: *"¿Hay algún número telefónico registrado para este cliente?"* Si el asistente te dice *"Sí, encontré al menos uno"*, apartas la carpeta para la lista final.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Clientes con teléfonos cargados (EXISTS)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que muestre el apellido y nombre de los clientes de la tabla <code>cliente c</code> donde <strong>exista (EXISTS)</strong> al menos un registro telefónico asociado en la tabla <code>telefono t</code> (comparando los IDs de cliente).</p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Clientes sin correo electrónico (NOT EXISTS)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que muestre el apellido y nombre de los clientes en la tabla <code>cliente c</code> donde <strong>no exista (NOT EXISTS)</strong> ningún correo electrónico registrado a su nombre en la tabla <code>email e</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="compendio-agrupacion-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Compendio de agrupación</strong>
+            </a>
+            <a class="pag-sig" href="compendio-subconsultas-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Compendio de subconsultas</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-subconsultas-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

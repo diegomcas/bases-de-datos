@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Del dibujo a la tabla · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clases 6 y 7</span>
+            <h1>Del dibujo a la tabla</h1>
+            <p>Las reglas para convertir un DER en tablas y claves foráneas</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad II · Diseño de datos
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u2">Unidad II · Diseño de datos</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Del dibujo a la tabla</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>En esta clase</h2>
+            <ol>
+                <li><a href="#objetivo-de-la-clase">Objetivo de la Clase</a></li>
+                <li><a href="#introduccion-por-que-transformar">Introducción: ¿Por qué transformar?</a></li>
+                <li><a href="#idea-clave">Idea clave</a></li>
+                <li><a href="#reglas-de-transformacion-notacion-clara-y-consistente">Reglas de transformación (notación clara y consistente)</a></li>
+                <li><a href="#regla-1-entidades-fuertes-tablas">Regla 1: Entidades fuertes → Tablas</a></li>
+                <li><a href="#regla-2-relaciones-1-n-clave-foranea">Regla 2: Relaciones 1:N → Clave foránea</a></li>
+                <li><a href="#regla-3-relaciones-n-m-tabla-intermedia">Regla 3: Relaciones N:M → Tabla intermedia</a></li>
+                <li><a href="#regla-4-entidades-debiles">Regla 4: Entidades débiles</a></li>
+                <li><a href="#regla-5-atributos-especiales">Regla 5: Atributos especiales</a></li>
+                <li><a href="#caso-practico-el-chip">Caso práctico: “El Chip”</a></li>
+                <li><a href="#paso-1-entidades-tablas">Paso 1: Entidades → Tablas</a></li>
+                <li><a href="#paso-2-relaciones-1-n">Paso 2: Relaciones 1:N</a></li>
+                <li><a href="#paso-3-relaciones-n-m">Paso 3: Relaciones N:M</a></li>
+                <li><a href="#el-esquema-final-diccionario-de-datos">El Esquema Final (Diccionario de Datos)</a></li>
+                <li><a href="#actividad-de-taller-la-gran-transformacion">Actividad de Taller: "La Gran Transformación"</a></li>
+            </ol>
+        </nav>
+
+
+        <article class="apunte">
+            <h2 id="objetivo-de-la-clase">Objetivo de la Clase</h2>
+            <p>Aprender a transformar un modelo conceptual (Diagrama Entidad-Relación) en un modelo lógico (Esquema Relacional o de Tablas), aplicando las reglas de normalización implícita y propagación de claves.</p>
+            <hr>
+            
+            <p><br></p>
+            <h2 id="introduccion-por-que-transformar">Introducción: ¿Por qué transformar?</h2>
+            <p>El DER nos permite entender el problema y comunicarnos con el cliente. Sin embargo, los sistemas gestores de bases de datos (SGBD) trabajan con:</p>
+            <ul>
+              <li>Tablas </li>
+              <li>Filas (registros) </li>
+              <li>Columnas (atributos) </li>
+            </ul>
+            <p>Por eso necesitamos traducir el DER al modelo relacional.</p>
+            <p>Este proceso se llama mapeo al modelo relacional y puede expresarse en un conjunto definido de reglas que se desarrollarán en este documento.</p>
+            <h2 id="idea-clave">Idea clave</h2>
+            <p>Antes de ver las reglas, anotemos una idea una idea central:</p>
+            <p><em><strong>En el modelo relacional, las relaciones se representan mediante claves foráneas (FK)</strong></em></p>
+            <h2 id="reglas-de-transformacion-notacion-clara-y-consistente">Reglas de transformación (notación clara y consistente)</h2>
+            <p>Convenciones que vamos a utilizar para evitar confusión, usamos siempre esta notación:</p>
+            <ul>
+              <li>Entidades: CLIENTE, ORDEN -&gt; Se convierte en -&gt; Tablas: cliente, orden_servicio </li>
+              <li>PK: subrayada o indicada como (PK) (Preferentemente especificada como PK)</li>
+              <li>FK: indicada como (FK) </li>
+              <li>Cardinalidad: </li>
+              <li>= uno </li>
+              <li>(N) = muchos </li>
+              <li>Ejemplo: A (1) ───── (N) B</li>
+            </ul>
+            <h3 id="regla-1-entidades-fuertes-tablas">Regla 1: Entidades fuertes → Tablas</h3>
+            <p>DER: CLIENTE &lt;-&gt; Relacional: cliente(id_cliente (PK), nombre, …, apellido, email)</p>
+            <ul>
+              <li>Cada entidad genera una tabla</li>
+              <li>Su identificador se convierte en PK</li>
+            </ul>
+            <h3 id="regla-2-relaciones-1-n-clave-foranea">Regla 2: Relaciones 1:N → Clave foránea</h3>
+            <p>DER: CLIENTE (1) ───── (N) EQUIPO</p>
+            <p>Regla: La PK del lado (1) se agrega como FK en la tabla del lado (N)</p>
+            <p>Relacional: equipo(id_equipo (PK), ..., id_cliente (FK))</p>
+            <ul>
+              <li>No se crea tabla nueva</li>
+              <li>La FK siempre queda del lado “muchos”</li>
+            </ul>
+            <p>Forma de pensarlo: “Cada equipo pertenece a un cliente → el equipo guarda el id del cliente”</p>
+            <h3 id="regla-3-relaciones-n-m-tabla-intermedia">Regla 3: Relaciones N:M → Tabla intermedia</h3>
+            <p>DER: ORDEN (N) ───── (M) EQUIPO</p>
+            <p>Regla: Se crea una nueva tabla que representa la relación</p>
+            <p>Relacional: orden_equipo (nro_orden (PK)(FK), id_equipo (PK)(FK))</p>
+            <ul>
+              <li>Se crea una tabla nueva</li>
+              <li>La PK es compuesta por las PK de las entidades que se relacionan</li>
+              <li>Cada campo de la relación es también FK</li>
+            </ul>
+            <p>Forma de pensarlo: “La relación pasa a ser una entidad”</p>
+            <h3 id="regla-4-entidades-debiles">Regla 4: Entidades débiles</h3>
+            <p>DER: FACTURA (1) ───── (N) ITEM_FACTURA</p>
+            <p>Regla: La entidad débil usa una PK compuesta</p>
+            <p>Relacional: item_factura(nro_factura (PK)(FK), nro_item (PK), cantidad)</p>
+            <ul>
+              <li>Depende de otra entidad</li>
+              <li>No tiene identidad completa por sí sola</li>
+            </ul>
+            <h3 id="regla-5-atributos-especiales">Regla 5: Atributos especiales</h3>
+            <h4 id="atributo-compuesto">Atributo compuesto</h4>
+            <p>DER: direccion = (calle, numero)</p>
+            <p>Relacional: cliente(..., calle, numero)</p>
+            <h4 id="atributo-multivaluado">Atributo multivaluado</h4>
+            <p>DER: CLIENTE → telefono {multiple}</p>
+            <p>Relacional: cliente_telefono(id_cliente (FK), telefono)</p>
+            <h4 id="atributo-derivado">Atributo derivado</h4>
+            <p>DER: edad (derivado de fecha_nacimiento)</p>
+            <p>Relacional: NO se almacena</p>
+            <h2 id="caso-practico-el-chip">Caso práctico: “El Chip”</h2>
+            <p>Aplicamos las reglas paso a paso.</p>
+            <h3 id="paso-1-entidades-tablas">Paso 1: Entidades → Tablas</h3>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th>Entidad</th>
+            <th>Tabla</th>
+            <th>PK</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>CLIENTE</td>
+            <td>cliente</td>
+            <td>id_cliente</td>
+            </tr>
+            <tr>
+            <td>EQUIPO</td>
+            <td>equipo</td>
+            <td>id_equipo</td>
+            </tr>
+            <tr>
+            <td>EMPLEADO</td>
+            <td>empleado</td>
+            <td>id_empleado</td>
+            </tr>
+            <tr>
+            <td>ORDEN</td>
+            <td>orden_servicio</td>
+            <td>nro_orden</td>
+            </tr>
+            <tr>
+            <td>REPUESTO</td>
+            <td>repuesto</td>
+            <td>id_repuesto</td>
+            </tr>
+            <tr>
+            <td>PROBLEMA</td>
+            <td>problema</td>
+            <td>id_problema</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h3 id="paso-2-relaciones-1-n">Paso 2: Relaciones 1:N</h3>
+            <p>CLIENTE (1) —— (N) EQUIPO</p>
+            <p>EMPLEADO (1) —— (N) ORDEN</p>
+            <h3 id="paso-3-relaciones-n-m">Paso 3: Relaciones N:M</h3>
+            <p>ORDEN —— EQUIPO</p>
+            <p>ORDEN / EQUIPO —— PROBLEMA</p>
+            <p>PROBLEMA —— REPUESTO</p>
+            <h2 id="el-esquema-final-diccionario-de-datos">El Esquema Final (Diccionario de Datos)</h2>
+            <ul>
+              <li><strong>clientes</strong> (<strong>id_cliente</strong>, nombre, apellido, telefono, email)</li>
+              <li><strong>equipos</strong> (<strong>id_equipo</strong>, tipo, marca, modelo, nro_serie, <em>id_cliente</em>)</li>
+              <li><strong>empleados</strong> (<strong>id_empleado</strong>, usuario, password, rol)</li>
+              <li><strong>ordenes_servicio</strong> (<strong>nro_orden</strong>, fecha_ingreso, fecha_entrega, estado, mano_obra, metodo_pago, descuento, total, <em>id_equipo</em>, <em>id_empleado</em>)</li>
+              <li><strong>repuestos</strong> (<strong>id_repuesto</strong>, nombre, stock, precio_unitario)</li>
+              <li><strong>problemas</strong> (<strong>id_problema</strong>, descripcion)</li>
+              <li><strong>ordenes_repuestos</strong> (<strong>nro_orden</strong>, <strong>id_repuesto</strong>, cantidad)</li>
+              <li><strong>ordenes_problemas</strong> (<strong>nro_orden</strong>, <strong>id_problema</strong>)</li>
+            </ul>
+            <hr>
+            
+            <h2 id="actividad-de-taller-la-gran-transformacion">Actividad de Taller: "La Gran Transformación"</h2>
+            <ol>
+              <li>Tomar el DER diseñado en la Clase 6 (Sistema de Biblioteca o Videoclub).</li>
+              <li>Dibujar en papel o herramienta digital el esquema de tablas resultante.</li>
+              <li>Identificar claramente con una flecha cada <strong>Clave Foránea (FK)</strong> y a qué <strong>Clave Primaria (PK)</strong> apunta.</li>
+              <li><strong>Bonus:</strong> Instalar <a href="https://dev.mysql.com/downloads/workbench/">MySQL Workbench</a> para la próxima clase.</li>
+            </ol>
+            <hr>
+            <p><em>Material preparado para la Cátedra de Bases de Datos - Ciclo 2026</em></p>
+        </article>
+
+        <div class="descargas">
+            <h4>Descargar este apunte</h4>
+            <a href="../../descargas/clase-07-del-dibujo-a-la-tabla.pdf" class="salto-nav">PDF</a>
+            <a href="../../descargas/clase-07-del-dibujo-a-la-tabla.docx" class="salto-nav">DOCX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="clase-06-modelado-conceptual.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Modelado conceptual: el DER</strong>
+            </a>
+            <a class="pag-sig" href="../03-calidad/reglas-de-codd.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Las reglas de Edgar Codd</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · revisión 1.0.0</p>
+    </footer>
+
+</body>
+</html>

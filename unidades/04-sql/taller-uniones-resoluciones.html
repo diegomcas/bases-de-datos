@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Uniones sin JOIN - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-cross     { --c: var(--bloque-azul); }
+    .block-equi      { --c: var(--bloque-verde); }
+    .block-nonequi   { --c: var(--bloque-rosa); }
+    .block-self      { --c: var(--bloque-naranja); }
+    .block-trap      { --c: var(--bloque-violeta); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Taller de Uniones sin JOIN</h1>
+            <p>Respuestas exactas, resultados esperados sobre la base poblada y consejos pedagógicos para la clase</p>
+            <a href="taller-uniones-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: uniones sin JOIN · resoluciones</span>
+        </nav>
+
+        <!-- RESOLUCIONES 1: PRODUCTO CARTESIANO -->
+        <section class="block-card block-cross" id="cartesiano">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>El Producto Cartesiano - Resoluciones</h2>
+                    <p>Todas las combinaciones posibles antes de cualquier restricción</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Arrancá el taller <strong>en el pizarrón, sin computadora</strong>: escribí dos tablitas de 3 y 2 filas y pedí que dibujen a mano el resultado del cruce. Cuando lo terminen y cuenten 6 filas, recién ahí pasá a la consola. La cardinalidad multiplicativa se entiende con la mano antes que con el motor. Un cierre efectivo del bloque: hacé que calculen cuántas filas tendría el cartesiano completo de las 5 tablas más grandes de una base real de facturación; el número absurdo que sale es lo que se les va a quedar grabado.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>La planilla en blanco del mostrador</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, MP.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Método de Pago'</span>
+<span class="sql-keyword">FROM</span> cliente C, metodo_pago MP
+<span class="sql-keyword">ORDER BY</span> C.apellido, MP.nombre;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado esperado: 20 filas</strong> (5 clientes × 4 métodos de pago). Cada cliente aparece exactamente 4 veces. Notar que <code>C.nombre</code> y <code>MP.nombre</code> se llaman igual: sin los alias de tabla, MySQL devolvería el error 1052 de ambigüedad. Es el primer contacto de la clase con ese error, y conviene provocarlo a propósito borrando los prefijos.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Contar sin mirar</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Filas del cartesiano'</span>
+<span class="sql-keyword">FROM</span> equipo, problema;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado esperado: 30.</strong> La base tiene 5 equipos y 6 problemas: 5 × 6 = 30. Cada equipo se apareja con los 6 problemas, aunque en la realidad ese equipo nunca haya tenido ese problema. Es el punto clave del bloque: <strong>el producto cartesiano no representa hechos, representa posibilidades</strong>. Verificá con la clase que ningún alumno haya intentado sumar 5 + 6.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <h3>Tres tablas, un solo cartesiano</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> R.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Rol'</span>,
+       OE.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Estado'</span>,
+       MP.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Método de Pago'</span>
+<span class="sql-keyword">FROM</span> rol R, orden_estado OE, metodo_pago MP;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado esperado: 32 filas</strong> (2 roles × 4 estados × 4 métodos de pago). La coma es asociativa: el motor produce el cartesiano de las dos primeras y ese resultado lo cruza con la tercera. Aprovechá para anticipar el bloque 5: si esto fueran tablas transaccionales de una empresa, acabamos de escribir en una línea la consulta que voltea el servidor.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 2: RESTRICCIÓN / EQUI-JOIN -->
+        <section class="block-card block-equi" id="restriccion">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Restricción e Intersección - Resoluciones</h2>
+                    <p>El WHERE como filtro sobre el producto, no como buscador</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>La confusión más frecuente es creer que el <code>WHERE</code> "va a buscar" el cliente correspondiente. No busca: <strong>descarta</strong>. Para instalarlo, pedí que ejecuten el Reto 2.2 primero <em>sin</em> el WHERE (35 filas) y después <em>con</em> el WHERE (5 filas), y que identifiquen en la primera salida las 5 filas que sobrevivieron. Ver las 30 filas descartadas con sus propios ojos vale más que cualquier definición. La regla N−1 conviene escribirla en el pizarrón y dejarla ahí todo el taller: es el chequeo mecánico que después les salva el parcial.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>Órdenes con nombre y apellido del cliente</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, O.fecha_ingreso,
+       <span class="sql-keyword">CONCAT</span>(C.apellido, <span class="sql-string">', '</span>, C.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>Cliente</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>2026-05-01 10:00:00</td><td>Pérez, Juan</td></tr>
+                                <tr><td>2</td><td>2026-05-02 11:30:00</td><td>García, María</td></tr>
+                                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>Rossi, Diego</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el motor concibe 15 combinaciones (3 órdenes × 5 clientes) y retiene las 3 donde la clave foránea coincide con la primaria. El plan de ejecución (<code>EXPLAIN</code>) es idéntico al del <code>INNER JOIN</code>: mostralo en pantalla si hay tiempo, cierra el argumento de que no es "una versión peor".
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>Equipos con su marca</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E.tipo, M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, E.modelo, E.nro_serie
+<span class="sql-keyword">FROM</span> equipo E, marca M
+<span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Con WHERE: 5 filas. Sin WHERE: 35 filas</strong> (5 equipos × 7 marcas). Las 30 filas de diferencia son combinaciones falsas como "Galaxy S21 de marca Sony". La restricción no agregó información: <strong>sacó la que era mentira</strong>. Esta comparación es el corazón conceptual del taller.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <h3>El tablero completo de Martín (4 tablas)</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden,
+       C.apellido <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>,
+       OE.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Estado'</span>,
+       EM.usuario <span class="sql-keyword">AS</span> <span class="sql-string">'Recibido por'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C, orden_estado OE, empleado EM
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+  <span class="sql-keyword">AND</span> O.id_orden_estado = OE.id_orden_estado
+  <span class="sql-keyword">AND</span> O.id_empleado = EM.id_empleado;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>Cliente</th><th>Estado</th><th>Recibido por</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>Entregado</td><td>tecnico_juan</td></tr>
+                                <tr><td>2</td><td>García</td><td>Entregado</td><td>tecnico_ana</td></tr>
+                                <tr><td>3</td><td>Rossi</td><td>Pendiente</td><td>tecnico_juan</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Regla N−1 verificada:</strong> 4 tablas → 3 condiciones de igualdad. Si un alumno escribe solo 2, la consulta <em>corre igual</em> y devuelve 9 filas en lugar de 3. Hacé que alguien lo pruebe borrando una línea: no hay error, hay datos inflados. Ese silencio es exactamente lo que vamos a atacar en el bloque 5.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.4</span>
+                        <h3>Atravesar una tabla puente N:M</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-2-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden,
+       M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>,
+       E.modelo,
+       P.descripcion <span class="sql-keyword">AS</span> <span class="sql-string">'Problema'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, orden_servicio_has_equipo OSE,
+     equipo E, marca M, problema P
+<span class="sql-keyword">WHERE</span> O.nro_orden = OSE.nro_orden
+  <span class="sql-keyword">AND</span> OSE.id_equipo = E.id_equipo
+  <span class="sql-keyword">AND</span> E.id_marca = M.id_marca
+  <span class="sql-keyword">AND</span> OSE.id_problema = P.id_problema;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>Marca</th><th>modelo</th><th>Problema</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Samsung</td><td>Galaxy S21</td><td>Pantalla rota / Cambio de modulo</td></tr>
+                                <tr><td>2</td><td>Apple</td><td>iPhone 13</td><td>Pantalla rota / Cambio de modulo</td></tr>
+                                <tr><td>3</td><td>Xiaomi</td><td>Mi Band 7</td><td>Limpieza y mantenimiento preventivo</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> 5 tablas → 4 condiciones. La tabla puente <code>orden_servicio_has_equipo</code> es el eje: no aporta ninguna columna al <code>SELECT</code>, pero sin ella no hay camino entre la orden y el equipo. Señalá que el cartesiano crudo de estas 5 tablas sería 3 × 3 × 5 × 7 × 6 = <strong>1.890 filas</strong>, de las cuales las condiciones dejan 3.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.5</span>
+                        <h3>Unión + filtro de negocio en el mismo WHERE</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-2-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, OSP.monto
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C, orden_servicio_pago OSP, metodo_pago MP
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente              <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> O.nro_orden = OSP.nro_orden              <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> OSP.id_metodo_pago = MP.id_metodo_pago  <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> MP.nombre = <span class="sql-string">'Efectivo'</span>;                  <span class="sql-comment">-- filtro de negocio</span></code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>monto</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>20000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> 4 tablas → 3 uniones + 1 filtro. Este es el reto que justifica todo SQL-92: las tres primeras condiciones son <em>plomería estructural</em> y la cuarta es <em>una pregunta del negocio</em>, pero sintácticamente son indistinguibles. En la versión con <code>JOIN ... ON</code>, las uniones viven en los <code>ON</code> y el <code>WHERE</code> queda con una sola línea: la que realmente le importa a Martín.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 3: AUTOUNIÓN -->
+        <section class="block-card block-self" id="autounion">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Autounión (SELF JOIN) - Resoluciones</h2>
+                    <p>Dos alias, una sola tabla física</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>El truco didáctico que mejor funciona: <strong>imprimí o proyectá la tabla <code>equipo</code> dos veces, una al lado de la otra</strong>, y rotulá una "E1" y la otra "E2". Los alumnos tienen que ver dos objetos, no uno. Después trabajá los duplicados en tres pasos incrementales sobre el Reto 3.1: primero sin ninguna condición extra (aparecen los A–A y los pares espejados), después con <code>&lt;&gt;</code> (desaparecen los A–A pero quedan los espejos), y recién al final con <code>&lt;</code>. Que vean cómo baja la cantidad de filas en cada paso: 5 → 6 → 3. Esa progresión explica el <code>&lt;</code> mejor que cualquier justificación teórica.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>Equipos que comparten estante</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E1.modelo <span class="sql-keyword">AS</span> <span class="sql-string">'Equipo A'</span>,
+       E2.modelo <span class="sql-keyword">AS</span> <span class="sql-string">'Equipo B'</span>,
+       E1.tipo <span class="sql-keyword">AS</span> <span class="sql-string">'Tipo compartido'</span>
+<span class="sql-keyword">FROM</span> equipo E1, equipo E2
+<span class="sql-keyword">WHERE</span> E1.tipo = E2.tipo
+  <span class="sql-keyword">AND</span> E1.id_equipo &lt; E2.id_equipo;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Equipo A</th><th>Equipo B</th><th>Tipo compartido</th></tr></thead>
+                            <tbody>
+                                <tr><td>Galaxy S21</td><td>iPhone 13</td><td>Celular</td></tr>
+                                <tr><td>Galaxy S21</td><td>Edge 30</td><td>Celular</td></tr>
+                                <tr><td>iPhone 13</td><td>Edge 30</td><td>Celular</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Resultado: 3 filas.</strong> Solo hay tres celulares (Galaxy S21, iPhone 13, Edge 30); la Tab P11 y la Mi Band 7 son únicas en su tipo y por eso no forman ninguna pareja. Con <code>&lt;&gt;</code> en vez de <code>&lt;</code> saldrían 6 filas: cada pareja duplicada al revés. Con <code>=</code> permitido saldrían 5 más, las de cada equipo consigo mismo.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>Compañeros de rol</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E1.usuario <span class="sql-keyword">AS</span> <span class="sql-string">'Empleado A'</span>,
+       E2.usuario <span class="sql-keyword">AS</span> <span class="sql-string">'Empleado B'</span>,
+       R.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Rol compartido'</span>
+<span class="sql-keyword">FROM</span> empleado E1, empleado E2, rol R
+<span class="sql-keyword">WHERE</span> E1.id_rol = E2.id_rol        <span class="sql-comment">-- autounión</span>
+  <span class="sql-keyword">AND</span> E1.id_rol = R.id_rol        <span class="sql-comment">-- equi-join común</span>
+  <span class="sql-keyword">AND</span> E1.id_empleado &lt; E2.id_empleado;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Empleado A</th><th>Empleado B</th><th>Rol compartido</th></tr></thead>
+                            <tbody>
+                                <tr><td>tecnico_juan</td><td>tecnico_ana</td><td>Tecnico</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Resultado: 1 fila.</strong> Solo hay dos técnicos y un único administrador, que por lo tanto no tiene par. Punto para remarcar: la tabla <code>rol</code> se une por <code>E1.id_rol</code>, pero daría lo mismo usar <code>E2.id_rol</code> — <em>porque la primera condición ya garantizó que son iguales</em>. Es un buen momento para hablar de transitividad en las condiciones de unión.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <h3>Probá el error a propósito</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Esto falla:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> equipo, equipo;
+<span class="sql-comment">-- ERROR 1066 (42000): Not unique table/alias: 'equipo'</span>
+
+<span class="sql-comment">-- Esto funciona:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> equipo E1, equipo E2;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el nombre de una tabla dentro de una consulta funciona como un identificador único. Si aparece dos veces, el motor no tiene forma de saber a cuál de las dos copias se refiere <code>equipo.modelo</code>. El alias le da a cada copia una identidad propia. La versión corregida devuelve 25 filas (5 × 5): es el cartesiano de la tabla consigo misma, la materia prima que los retos anteriores filtraron.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.4</span>
+                        <h3>Clientes homónimos (el control de calidad)</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-3-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C1.id_cliente, C1.nombre, C2.id_cliente, C2.nombre, C1.apellido
+<span class="sql-keyword">FROM</span> cliente C1, cliente C2
+<span class="sql-keyword">WHERE</span> C1.apellido = C2.apellido
+  <span class="sql-keyword">AND</span> C1.id_cliente &lt; C2.id_cliente;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado esperado: 0 filas</strong>, porque los cinco clientes cargados tienen apellidos distintos. <strong>Y eso es una respuesta válida, no un error.</strong> Trabajá este punto: una consulta de auditoría que devuelve vacío está diciendo "no encontré inconsistencias". Para que no quede la duda de si la consulta funciona, insertá en vivo un cliente <code>('José', 'Pérez')</code> y volvé a ejecutarla: aparece la fila. Después borralo. Esa demostración enseña a validar una consulta de control provocando el caso que debe detectar.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 4: NO-EQUI-JOINS -->
+        <section class="block-card block-nonequi" id="nonequi">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>No-Equi-Joins - Resoluciones</h2>
+                    <p>Unir por rango, por desigualdad y por comparación de magnitudes</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Este bloque suele ser el que más se resiste porque rompe el modelo mental de "una unión es una FK con su PK". Atacalo de frente con una pregunta al aire antes de mostrar nada: <em>"¿cómo harían para poner la nota conceptual (Insuficiente, Bueno, Muy Bueno) al lado de cada nota numérica, si la escala está en otra tabla?"</em>. Nadie propone un <code>=</code>. Cuando llegan solos al <code>BETWEEN</code>, el concepto ya está instalado. En el Reto 4.1, dejá deliberadamente un hueco en la escala (por ejemplo, poner el máximo del primer rango en 9998) y hacé que descubran que el repuesto de $9.999 desapareció del reporte: la lección sobre los bordes se aprende una sola vez y no se olvida.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <h3>La escala de precios de los repuestos</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> R.nombre, R.precio_unitario, ESC.categoria
+<span class="sql-keyword">FROM</span> repuesto R,
+     (<span class="sql-keyword">SELECT</span> <span class="sql-string">'Económico'</span> <span class="sql-keyword">AS</span> categoria, <span class="sql-number">0</span> <span class="sql-keyword">AS</span> minimo, <span class="sql-number">9999</span> <span class="sql-keyword">AS</span> maximo
+      <span class="sql-keyword">UNION ALL</span> <span class="sql-keyword">SELECT</span> <span class="sql-string">'Intermedio'</span>, <span class="sql-number">10000</span>, <span class="sql-number">29999</span>
+      <span class="sql-keyword">UNION ALL</span> <span class="sql-keyword">SELECT</span> <span class="sql-string">'Premium'</span>, <span class="sql-number">30000</span>, <span class="sql-number">9999999</span>) <span class="sql-keyword">AS</span> ESC
+<span class="sql-keyword">WHERE</span> R.precio_unitario <span class="sql-keyword">BETWEEN</span> ESC.minimo <span class="sql-keyword">AND</span> ESC.maximo
+<span class="sql-keyword">ORDER BY</span> R.precio_unitario <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th><th>precio_unitario</th><th>categoria</th></tr></thead>
+                            <tbody>
+                                <tr><td>Módulo Samsung S21 Original</td><td>45000.00</td><td>Premium</td></tr>
+                                <tr><td>Módulo iPhone 13 Genérico</td><td>32000.00</td><td>Premium</td></tr>
+                                <tr><td>Módulo Motorola Edge 30</td><td>28000.00</td><td>Intermedio</td></tr>
+                                <tr><td>Batería iPhone 11/12</td><td>12000.00</td><td>Intermedio</td></tr>
+                                <tr><td>Batería Samsung Serie A</td><td>9500.00</td><td>Económico</td></tr>
+                                <tr><td>Pin de carga Universal USB-C</td><td>1500.00</td><td>Económico</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Resultado: 6 filas</strong>, una por repuesto. El cartesiano intermedio era de 18 filas (6 repuestos × 3 escalas) y el <code>BETWEEN</code> retuvo exactamente una por repuesto <em>porque los rangos son disjuntos y cubren todo el dominio</em>. Si alguien escribe el segundo rango como <code>9999–29999</code>, el resultado pasa a 6 filas igual pero con un repuesto en dos categorías el día que aparezca un precio de $9.999: hacé la prueba en vivo insertando ese precio.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.2</span>
+                        <h3>Auditoría de mano de obra</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-4-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> P.descripcion <span class="sql-keyword">AS</span> <span class="sql-string">'Problema'</span>,
+       R.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Repuesto'</span>,
+       P.mano_obra <span class="sql-keyword">AS</span> <span class="sql-string">'Mano de obra de lista'</span>,
+       PHR.mano_obra <span class="sql-keyword">AS</span> <span class="sql-string">'Mano de obra pactada'</span>
+<span class="sql-keyword">FROM</span> problema P, problema_has_repuesto PHR, repuesto R
+<span class="sql-keyword">WHERE</span> P.id_problema = PHR.id_problema      <span class="sql-comment">-- equi-join</span>
+  <span class="sql-keyword">AND</span> PHR.id_repuesto = R.id_repuesto      <span class="sql-comment">-- equi-join</span>
+  <span class="sql-keyword">AND</span> P.mano_obra &lt;&gt; PHR.mano_obra;        <span class="sql-comment">-- NO-EQUI: la desigualdad</span></code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Problema</th><th>Repuesto</th><th>De lista</th><th>Pactada</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pantalla rota / Cambio de modulo</td><td>Módulo iPhone 13 Genérico</td><td>8500.00</td><td>8000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Resultado: 1 fila.</strong> De las cuatro combinaciones cargadas en <code>problema_has_repuesto</code>, tres respetan el precio de lista y una cobró $500 menos. Lo importante conceptualmente: acá conviven los dos tipos de unión en el mismo <code>WHERE</code>. Las dos igualdades <em>arman</em> la fila; la desigualdad <em>selecciona</em> cuáles importan. Preguntá qué pasaría con <code>=</code> en vez de <code>&lt;&gt;</code>: salen las 3 correctas, es decir, el reporte inverso.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.3</span>
+                        <h3>Repuestos más baratos que la mano de obra</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-4-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> R.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Repuesto'</span>, R.precio_unitario,
+       P.descripcion <span class="sql-keyword">AS</span> <span class="sql-string">'Problema'</span>, P.mano_obra
+<span class="sql-keyword">FROM</span> repuesto R, problema P
+<span class="sql-keyword">WHERE</span> R.precio_unitario &lt; P.mano_obra
+<span class="sql-keyword">ORDER BY</span> P.mano_obra <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado: 6 filas</strong>, todas del <em>Pin de carga Universal USB-C</em> ($1.500), que es el único repuesto más barato que cualquier mano de obra del listado. El segundo más barato es la Batería Samsung ($9.500) y la mano de obra más cara es $8.500, así que no califica.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El punto conceptual fuerte del bloque:</strong> entre <code>repuesto</code> y <code>problema</code> <em>no hay ninguna clave foránea</em>. Nada en el modelo dice que estas tablas se relacionen directamente. La unión existe únicamente porque nosotros definimos un criterio de comparación. Esto rompe la idea de que "solo se pueden unir tablas relacionadas": se puede unir cualquier par de tablas por cualquier condición evaluable. El DER dice qué uniones son <em>significativas</em>, no qué uniones son <em>posibles</em>.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.4</span>
+                        <h3>Repuestos más caros que uno dado (autounión + desigualdad)</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-4-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> R1.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Repuesto'</span>,
+       R1.precio_unitario <span class="sql-keyword">AS</span> <span class="sql-string">'Precio'</span>,
+       R2.precio_unitario <span class="sql-keyword">AS</span> <span class="sql-string">'Precio de referencia'</span>
+<span class="sql-keyword">FROM</span> repuesto R1, repuesto R2
+<span class="sql-keyword">WHERE</span> R2.nombre = <span class="sql-string">'Batería Samsung Serie A'</span>
+  <span class="sql-keyword">AND</span> R1.precio_unitario &gt; R2.precio_unitario
+<span class="sql-keyword">ORDER BY</span> R1.precio_unitario <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Repuesto</th><th>Precio</th><th>Precio de referencia</th></tr></thead>
+                            <tbody>
+                                <tr><td>Módulo Samsung S21 Original</td><td>45000.00</td><td>9500.00</td></tr>
+                                <tr><td>Módulo iPhone 13 Genérico</td><td>32000.00</td><td>9500.00</td></tr>
+                                <tr><td>Módulo Motorola Edge 30</td><td>28000.00</td><td>9500.00</td></tr>
+                                <tr><td>Batería iPhone 11/12</td><td>12000.00</td><td>9500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Resultado: 4 filas.</strong> El alias <code>R2</code> queda "clavado" en una sola fila por el filtro sobre el nombre, y <code>R1</code> recorre los seis repuestos comparándose contra ella. Es exactamente lo que hace una subconsulta escalar (<code>WHERE precio &gt; (SELECT precio FROM ...)</code>), pero resuelto con una unión. Conectá explícitamente con el <strong>Taller 1 de Subconsultas</strong>: la misma pregunta admite las dos herramientas, y en muchos motores el optimizador termina reescribiendo una en la otra.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 5: TRAMPAS -->
+        <section class="block-card block-trap" id="trampas">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Trampas y criterio profesional - Resoluciones</h2>
+                    <p>El cierre que justifica por qué hoy escribimos JOIN</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Este bloque es el cierre argumentativo del taller y conviene darlo <strong>como un caso de peritaje</strong>, no como teoría. Presentá la consulta del Reto 5.1 sin decir que está mal: pedí que la ejecuten y que verifiquen los totales contra la tabla <code>orden_servicio_pago</code> a ojo. Cuando alguien detecte que Rossi factura $94.000 sin haber pagado nunca nada, ya ganaste la clase. El mensaje final que tienen que llevarse es doble: <em>escribir</em> con la sintaxis vieja es una mala práctica, pero <em>saber leerla</em> es una competencia profesional, porque el código heredado existe y alguien lo va a tener que mantener.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-5-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.1</span>
+                        <h3>El reporte que no cierra con la caja</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-5-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <p class="explanation-text" style="margin-top:0;"><strong>El diagnóstico:</strong> hay 3 tablas en el <code>FROM</code> y una sola condición de unión. Por la regla N−1 hacían falta 2. La tabla <code>orden_servicio_pago</code> quedó <strong>suelta</strong>: cada orden se cruza con los 3 pagos de la base, no con los suyos. El resultado son 9 filas en vez de 3, y cada cliente termina sumando la totalidad de la caja del local ($94.000).</p>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>Total Facturado (mal)</th><th>Total real</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>94000.00</td><td>53500.00</td></tr>
+                                <tr><td>García</td><td>94000.00</td><td>40500.00</td></tr>
+                                <tr><td>Rossi</td><td>94000.00</td><td>sin pagos</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL — Corregida</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">SUM</span>(OSP.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Total Facturado'</span>
+<span class="sql-keyword">FROM</span> cliente C, orden_servicio O, orden_servicio_pago OSP
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+  <span class="sql-keyword">AND</span> OSP.nro_orden = O.nro_orden   <span class="sql-comment">-- la condición que faltaba</span>
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Resultado corregido: Pérez $53.500 y García $40.500</strong>, que sí cierra con la caja. Notá que Rossi <em>desaparece</em> del reporte: su orden todavía no tiene pagos y la unión interna la descarta. Eso no es un error de esta consulta, es la semántica del INNER JOIN — y es justamente la puerta de entrada al Reto 5.3.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>La moraleja:</strong> el error no produjo ningún mensaje. Una consulta que "no da error" no es una consulta correcta. Con <code>INNER JOIN ... ON</code> este bug es sintácticamente imposible de escribir: el motor exige un <code>ON</code> por cada tabla que se suma.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.2</span>
+                        <h3>Traducir del 89 al 92</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-5-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>,
+       E.modelo, P.descripcion <span class="sql-keyword">AS</span> <span class="sql-string">'Problema'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> orden_servicio_has_equipo OSE <span class="sql-keyword">ON</span> OSE.nro_orden = O.nro_orden
+<span class="sql-keyword">INNER JOIN</span> equipo E   <span class="sql-keyword">ON</span> E.id_equipo = OSE.id_equipo
+<span class="sql-keyword">INNER JOIN</span> marca M    <span class="sql-keyword">ON</span> M.id_marca = E.id_marca
+<span class="sql-keyword">INNER JOIN</span> problema P <span class="sql-keyword">ON</span> P.id_problema = OSE.id_problema;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Mismas 3 filas, mismo plan de ejecución.</strong> La diferencia es de lectura: en la versión SQL-92 cada tabla trae pegada, en la misma línea, la razón por la que entra a la consulta. En la versión con coma hay que ir y venir entre el <code>FROM</code> y el <code>WHERE</code> reconstruyendo mentalmente el grafo de relaciones. Con 5 tablas es incómodo; con 12 es inviable.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Dato para mencionar al pasar:</strong> la coma tiene <em>menor precedencia</em> que el operador <code>JOIN</code>. Mezclar ambas sintaxis en una misma consulta produce resultados sorprendentes y errores de columna desconocida. Regla práctica: elegí una y no las combines.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.3</span>
+                        <h3>El límite de la coma</h3>
+                    
+                        <a class="salto-nav" href="taller-uniones-consignas.html#reto-5-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <p class="explanation-text" style="margin-top:0;"><strong>La respuesta corta: no se puede.</strong> Con producto cartesiano + restricción, una fila de <code>orden_servicio</code> que no tenga ninguna pareja en <code>orden_servicio_pago</code> nunca llega a formar una combinación, y por lo tanto no hay condición del <code>WHERE</code> capaz de rescatarla. El álgebra de este taller genera únicamente <em>intersecciones</em>. La orden 3 de Rossi es exactamente ese caso.</p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL — Con LEFT JOIN</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, OSP.monto
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago OSP <span class="sql-keyword">ON</span> OSP.nro_orden = O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>monto</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>20000.00</td></tr>
+                                <tr><td>1</td><td>Pérez</td><td>33500.00</td></tr>
+                                <tr><td>2</td><td>García</td><td>40500.00</td></tr>
+                                <tr><td>3</td><td>Rossi</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el <code>LEFT JOIN</code> conserva la fila de la izquierda aunque no encuentre pareja y rellena con <code>NULL</code>. Esa fabricación de <code>NULL</code> es una operación que el producto cartesiano <strong>no puede realizar</strong>: solo combina filas que existen. Por eso el estándar SQL-92 no fue una mejora cosmética, sino una ampliación real del poder expresivo del lenguaje.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Contexto histórico para cerrar el taller:</strong> antes de 1992, Oracle resolvía esto con <code>WHERE O.nro_orden = OSP.nro_orden (+)</code> y SQL Server con <code>*=</code>. Eran extensiones propietarias, incompatibles entre sí y con casos ambiguos sin solución. Ese caos es la razón concreta por la que el comité del estándar creó la sintaxis <code>JOIN ... ON</code> que usamos hoy.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-uniones-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

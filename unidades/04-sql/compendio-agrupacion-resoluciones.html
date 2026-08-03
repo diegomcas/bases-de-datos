@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compendio de Agrupación - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-agg       { --c: var(--bloque-azul); }
+    .block-edge      { --c: var(--bloque-carmin); }
+    .block-filtro    { --c: var(--bloque-cian); }
+    .block-group     { --c: var(--bloque-verde); }
+    .block-having    { --c: var(--bloque-naranja); }
+    .block-multi     { --c: var(--bloque-violeta); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Compendio de Agrupación</h1>
+            <p>Los 24 retos resueltos, con resultados verificados sobre la base ampliada y notas de clase</p>
+            <a href="compendio-agrupacion-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Compendio de agrupación · resoluciones</span>
+        </nav>
+
+        <!-- NOTA DE CALIBRACIÓN -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Antes de dar la clase</h2>
+            </div>
+            <div class="explanation-text">
+                <p style="margin-bottom: 12px;"><strong>Dataset:</strong> este compendio está calibrado sobre la <strong>base ampliada</strong> — <code>ElChip.sql</code> + <code>poblar_elchip.sql</code> + <code>poblar_elchip_compendio.sql</code>. Es el mismo dataset del Compendio de Subconsultas, así que si ya lo diste, la base está lista. <strong>No</strong> es el dataset del Taller 2 original, que tiene 5 clientes y 3 órdenes; sobre aquél, la mitad de estos retos devuelve una sola fila o ninguna.</p>
+                <p style="margin-bottom: 12px;">Todos los resultados de esta guía fueron <strong>ejecutados y verificados</strong> contra una réplica exacta de ese dataset. Si en clase te dan otros números, lo primero a revisar es la carga de datos, no la consulta.</p>
+                <p style="margin-bottom: 12px;"><strong>Los casos negativos son deliberados</strong> y no hay que "completarlos": las marcas Google y Sony sin equipos, los métodos Cheque y Crédito en cuenta sin uso, el problema "Cámara principal no enfoca" nunca detectado y las órdenes 3 y 7 sin pagos son exactamente lo que hace posible el Bloque 06.</p>
+                <div class="warning-box">
+                    <strong>⚠️ Sobre <code>fecha_pago</code>:</strong> los tres pagos del dataset base se insertan sin fecha explícita, así que toman <code>CURRENT_TIMESTAMP</code> — es decir, el día en que se cargó la base, no mayo de 2026. Por eso ningún reto de este compendio agrupa ni filtra por <code>fecha_pago</code>: los cortes temporales usan <code>orden_servicio.fecha_ingreso</code>, que sí está cargada explícitamente. Si algún alumno arma un reporte por mes sobre <code>fecha_pago</code>, va a obtener resultados distintos a los de esta guía, y la explicación es ésa.
+                </div>
+                <p style="margin-top: 12px;"><strong>Recorrido sugerido:</strong> los bloques 01 a 05 son el hilo principal y se pueden dar de corrido. El bloque 06 es el que deja huella, así que conviene reservarle tiempo real y no dejarlo como "si llegamos". Si la clase es corta, es preferible saltear el 05 y dar el 06 completo.</p>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1 -->
+        <section class="block-card block-agg" id="agregacion">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Funciones de Agregación - Resoluciones</h2>
+                    <p>Retos 1.1 a 1.4</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>El corazón del bloque es el Reto 1.2, no el 1.1. Casi todos creen que <code>COUNT(*)</code> y <code>COUNT(columna)</code> son sinónimos, y esta base tiene el contraejemplo perfecto: <code>COUNT(fecha_entrega)</code> da <strong>0</strong> sobre 8 órdenes. Pedí que anoten su predicción antes de ejecutar; el contraste entre lo que anotaron y lo que salió es lo que fija el concepto.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Panorama del depósito en una sola fila</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">COUNT</span>(*)                              <span class="sql-keyword">AS</span> <span class="sql-string">'Repuestos en catálogo'</span>,
+    <span class="sql-keyword">SUM</span>(stock)                            <span class="sql-keyword">AS</span> <span class="sql-string">'Unidades físicas'</span>,
+    <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(precio_unitario), <span class="sql-number">2</span>)      <span class="sql-keyword">AS</span> <span class="sql-string">'Precio promedio'</span>,
+    <span class="sql-keyword">MAX</span>(precio_unitario)                  <span class="sql-keyword">AS</span> <span class="sql-string">'Más caro'</span>,
+    <span class="sql-keyword">MIN</span>(precio_unitario)                  <span class="sql-keyword">AS</span> <span class="sql-string">'Más barato'</span>
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Repuestos en catálogo</th><th>Unidades físicas</th><th>Precio promedio</th><th>Más caro</th><th>Más barato</th></tr></thead>
+                            <tbody>
+                                <tr><td>9</td><td>194</td><td>18777.78</td><td>45000.00</td><td>800.00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> las cinco funciones recorren la misma tabla una sola vez y devuelven una fila. Sin <code>GROUP BY</code>, la tabla entera <em>es</em> el grupo.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Distinción que hay que forzar:</strong> <code>COUNT(*)</code> da 9 y <code>SUM(stock)</code> da 194. Preguntá cuál de los dos números contesta "cuántos repuestos tengo". Depende de qué signifique "repuesto": 9 productos <em>distintos</em> en el catálogo, 194 <em>unidades</em> en las estanterías. Es el mismo tipo de ambigüedad que van a encontrar en cualquier pedido real de un cliente.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Las tres formas de contar</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">COUNT</span>(*)              <span class="sql-keyword">AS</span> <span class="sql-string">'Filas'</span>,
+    <span class="sql-keyword">COUNT</span>(total)          <span class="sql-keyword">AS</span> <span class="sql-string">'Con total cargado'</span>,
+    <span class="sql-keyword">COUNT</span>(fecha_entrega)  <span class="sql-keyword">AS</span> <span class="sql-string">'Con fecha de entrega'</span>
+<span class="sql-keyword">FROM</span> orden_servicio;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Filas</th><th>Con total cargado</th><th>Con fecha de entrega</th></tr></thead>
+                            <tbody>
+                                <tr><td>8</td><td>8</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> <code>COUNT(*)</code> cuenta filas y siempre da 8. <code>COUNT(total)</code> también da 8 porque la columna tiene <code>DEFAULT 0.00</code> y nunca queda nula — <strong>ojo con esto: cero no es NULL</strong>, y por eso las órdenes con total 0.00 se cuentan igual. <code>COUNT(fecha_entrega)</code> da <strong>0</strong>: ninguna de las 8 órdenes tiene fecha de entrega cargada.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lo que dice del negocio:</strong> hay 4 órdenes en estado "Entregado" y ninguna tiene <code>fecha_entrega</code>. El dato existe como columna pero nadie lo completa. Es exactamente la inconsistencia que apareció en la práctica de DML (el desafío de las órdenes no entregadas), y acá se cuantifica de un saque: <em>una consulta de agregación es también una herramienta de auditoría de datos</em>. Si un campo tiene <code>COUNT</code> muy por debajo de <code>COUNT(*)</code>, o nadie lo usa o el sistema no lo está completando.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Clientes que vinieron vs. clientes registrados</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">COUNT</span>(*)                     <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>,
+    <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> id_cliente) <span class="sql-keyword">AS</span> <span class="sql-string">'Clientes que vinieron'</span>
+<span class="sql-keyword">FROM</span> orden_servicio;
+
+<span class="sql-comment">-- Y para comparar contra el padrón completo:</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Clientes registrados'</span> <span class="sql-keyword">FROM</span> cliente;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Órdenes</th><th>Clientes que vinieron</th><th>Clientes registrados</th></tr></thead>
+                            <tbody>
+                                <tr><td>8</td><td>5</td><td>8</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Los tres números, en castellano:</strong> el taller hizo <strong>8 trabajos</strong>, esos trabajos vinieron de <strong>5 personas distintas</strong>, y en el sistema hay <strong>8 personas cargadas</strong>. O sea: 3 clientes registrados nunca trajeron nada, y los que sí vinieron promedian 1,6 órdenes cada uno.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué <code>DISTINCT</code> es imprescindible acá:</strong> sin él, <code>COUNT(id_cliente)</code> daría 8, porque cuenta una vez por orden y el cliente 1 tiene tres. Contaríamos tres veces a la misma persona. La pregunta "cuántos clientes" y la pregunta "cuántas órdenes" se responden sobre la misma columna y solo las distingue el <code>DISTINCT</code>.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.4</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Capital inmovilizado en el depósito</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-1-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">SUM</span>(stock * precio_unitario)            <span class="sql-keyword">AS</span> <span class="sql-string">'Capital en depósito'</span>,
+    <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(stock * precio_unitario), <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> <span class="sql-string">'Promedio por renglón'</span>
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Capital en depósito</th><th>Promedio por renglón</th></tr></thead>
+                            <tbody>
+                                <tr><td>799000.00</td><td>88777.78</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el motor calcula <code>stock * precio_unitario</code> <em>fila por fila</em> y recién después suma los nueve resultados. Es un error frecuente pensar que hace <code>SUM(stock) * SUM(precio)</code>, que daría 194 × 169000 = 32.786.000, un disparate. Vale la pena escribir las dos en el pizarrón y comparar.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lectura de negocio:</strong> los $799.000 no están distribuidos parejo. El "Vidrio templado universal" aporta 100 unidades pero solo $80.000, mientras que el "Módulo Samsung S21" aporta 5 unidades y $225.000. Ese contraste es la puerta de entrada al Bloque 02: <em>el número global esconde la estructura</em>.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2 -->
+        <section class="block-card block-group" id="agrupamiento">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Agrupar con GROUP BY - Resoluciones</h2>
+                    <p>Retos 2.1 a 2.4</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Hacé el contraejemplo del <code>ONLY_FULL_GROUP_BY</code> en vivo, con el Reto 2.1: escribí <code>SELECT tipo, modelo, COUNT(*) FROM equipo GROUP BY tipo;</code> y mostrá el error. Después preguntá: "de los 5 celulares, ¿cuál de los 5 modelos debería mostrar el motor en esa columna?". Cuando alguien contesta "y… no sabe", el concepto quedó. El Reto 2.4 es el más importante del bloque: ahí aparecen por primera vez los clientes que <em>no están</em> en el resultado, que es todo el tema del Bloque 06.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Parque de equipos por tipo</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> tipo, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad'</span>
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">GROUP BY</span> tipo
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, tipo;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>tipo</th><th>Cantidad</th></tr></thead>
+                            <tbody>
+                                <tr><td>Celular</td><td>5</td></tr>
+                                <tr><td>Tablet</td><td>2</td></tr>
+                                <tr><td>Notebook</td><td>1</td></tr>
+                                <tr><td>Smartwatch</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">4 grupos, 9 equipos en total (5+2+1+1). Ese control de suma conviene hacerlo siempre.</p>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> las 9 filas se reparten en 4 montones según el valor de <code>tipo</code>, y <code>COUNT(*)</code> mide cada montón. El desempate por <code>tipo</code> en el <code>ORDER BY</code> no es decorativo: Notebook y Smartwatch tienen ambos 1, y sin él el orden entre ellos quedaría a criterio del motor.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ El contraejemplo obligatorio:</strong> <code>SELECT tipo, modelo, COUNT(*) FROM equipo GROUP BY tipo;</code> falla con <code>ERROR 1055 (42000): Expression #2 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'el_chip.equipo.modelo'...</code>. El grupo "Celular" tiene 5 modelos distintos y una sola celda para mostrarlos: no hay respuesta correcta, así que MySQL 8 se niega en lugar de elegir uno al azar. Versiones viejas de MySQL sí elegían uno arbitrario, y ésa fue la fuente de miles de reportes silenciosamente mal.
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Tablero de estados de las órdenes</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Versión 1 — sin unión, agrupando por el ID</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_orden_estado, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad'</span>
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> id_orden_estado
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Versión 2 — con la tabla maestra, mostrando el nombre</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Estado'</span>, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, orden_estado E
+<span class="sql-keyword">WHERE</span> O.id_orden_estado = E.id_orden_estado
+<span class="sql-keyword">GROUP BY</span> E.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, E.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+                            <tbody>
+                                <tr><td>Entregado</td><td>4</td></tr>
+                                <tr><td>Pendiente</td><td>2</td></tr>
+                                <tr><td>Abandonado</td><td>1</td></tr>
+                                <tr><td>Reparado</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> las dos versiones cuentan lo mismo; la segunda es legible para Martín. Notá que la unión se resuelve <em>antes</em> de agrupar (paso 1), así que para el <code>GROUP BY</code> es como si <code>nombre</code> hubiera estado siempre en la tabla de órdenes.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Se puede agrupar por <code>E.id_orden_estado</code> y mostrar <code>E.nombre</code>:</strong> MySQL lo acepta aunque <code>ONLY_FULL_GROUP_BY</code> esté activo, porque <code>id_orden_estado</code> es clave primaria de <code>orden_estado</code> y entonces el nombre queda <em>funcionalmente determinado</em> — dentro de un grupo no puede haber dos nombres distintos. Es un detalle fino que vale la pena mencionar sin detenerse demasiado.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Guardá este resultado:</strong> lo vas a comparar contra el del Reto 3.1, donde una de estas cuatro filas desaparece.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Cierre de caja por método de pago</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    M.nombre        <span class="sql-keyword">AS</span> <span class="sql-string">'Método'</span>,
+    <span class="sql-keyword">COUNT</span>(*)        <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad de pagos'</span>,
+    <span class="sql-keyword">SUM</span>(P.monto)    <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span>,
+    <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(P.monto), <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> <span class="sql-string">'Pago promedio'</span>
+<span class="sql-keyword">FROM</span> orden_servicio_pago P, metodo_pago M
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Método</th><th>Cantidad de pagos</th><th>Recaudado</th><th>Pago promedio</th></tr></thead>
+                            <tbody>
+                                <tr><td>Tarjeta</td><td>3</td><td>65500.00</td><td>21833.33</td></tr>
+                                <tr><td>Efectivo</td><td>4</td><td>49000.00</td><td>12250.00</td></tr>
+                                <tr><td>Transferencia</td><td>2</td><td>45500.00</td><td>22750.00</td></tr>
+                                <tr><td>Billetera Virtual</td><td>1</td><td>8500.00</td><td>8500.00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="result-caption">4 filas — pero hay 6 métodos de pago cargados. Ver Reto 6.2.</p>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> Efectivo se usó más veces (4) pero Tarjeta recaudó más ($65.500). La columna "Pago promedio" lo explica sola: el efectivo se usa para montos chicos ($12.250 promedio) y la tarjeta para los grandes ($21.833). <em>Frecuencia y volumen son dos preguntas distintas</em>, y agrupar permite responder las dos en la misma consulta.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Control de consistencia:</strong> 65500 + 49000 + 45500 + 8500 = <strong>168.500</strong>, que es exactamente <code>SELECT SUM(monto) FROM orden_servicio_pago;</code>. Agrupar reparte el total, nunca lo altera. Es la verificación que hay que enseñarles a hacer siempre.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.4</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Facturación por cliente (y los que faltan)</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-2-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">CONCAT</span>(C.apellido, <span class="sql-string">', '</span>, C.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>,
+    <span class="sql-keyword">COUNT</span>(*)      <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>,
+    <span class="sql-keyword">SUM</span>(O.total)  <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Cliente</th><th>Órdenes</th><th>Facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez, Juan</td><td>3</td><td>99000.00</td></tr>
+                                <tr><td>García, María</td><td>2</td><td>60500.00</td></tr>
+                                <tr><td>Rossi, Sofía</td><td>1</td><td>9000.00</td></tr>
+                                <tr><td>Rossi, Diego</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>Pérez, Juan</td><td>1</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">5 filas sobre 8 clientes. Las dos últimas empatan en 0.00 y su orden relativo puede variar.</p>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> faltan <strong>López, Martínez y Ferreyra</strong>. No es un error: es el comportamiento correcto de <code>GROUP BY</code>. Los grupos se arman con las filas que hay en <code>orden_servicio</code>, y esos tres clientes no tienen ninguna, así que no generan grupo. <strong>Un cliente sin órdenes no produce una fila con cero: no produce nada.</strong>
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué importa muchísimo:</strong> si Martín usa este reporte para decidir a quién llamar, los tres clientes que <em>nunca volvieron</em> — que son justamente los que habría que llamar — son invisibles. El reporte no está mal calculado; está mal planteado. La solución es el <code>LEFT JOIN</code> del Bloque 06, y conviene anunciarlo acá para generar la intriga.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Dos detalles del resultado:</strong> aparecen <em>dos</em> "Pérez, Juan" distintos, que son los clientes homónimos que va a cazar el Reto 4.4. Y hay clientes con órdenes cuya facturación es <code>0.00</code>, porque sus órdenes están pendientes: eso motiva el Reto 3.3.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué se agrupa por <code>C.id_cliente</code> y no por el nombre:</strong> si agrupáramos por apellido y nombre, los dos Juan Pérez se fundirían en un solo grupo de 4 órdenes. Agrupar por la clave primaria los mantiene separados, que es lo correcto: son dos personas distintas en el sistema.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3 -->
+        <section class="block-card block-filtro" id="filtro">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Filtrar antes de agrupar - Resoluciones</h2>
+                    <p>Retos 3.1 a 3.3</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Poné los resultados del 2.2 y del 3.1 uno al lado del otro en la pantalla. Que vean con los ojos que una fila entera del tablero desapareció por efecto del <code>WHERE</code>. Ése es el momento exacto para instalar la pregunta que los va a salvar en el examen: <em>"cuando una categoría no está en mi reporte, ¿es porque no tiene datos o porque la filtré?"</em>. Es la misma pregunta del Bloque 06 pero llegando desde el otro lado.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Cierre del mes de mayo por estado</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    E.nombre       <span class="sql-keyword">AS</span> <span class="sql-string">'Estado'</span>,
+    <span class="sql-keyword">COUNT</span>(*)       <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>,
+    <span class="sql-keyword">SUM</span>(O.total)   <span class="sql-keyword">AS</span> <span class="sql-string">'Monto'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, orden_estado E
+<span class="sql-keyword">WHERE</span> O.id_orden_estado = E.id_orden_estado
+  <span class="sql-keyword">AND</span> O.fecha_ingreso &gt;= <span class="sql-string">'2026-05-01'</span>
+  <span class="sql-keyword">AND</span> O.fecha_ingreso &lt;  <span class="sql-string">'2026-06-01'</span>
+<span class="sql-keyword">GROUP BY</span> E.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, E.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Estado</th><th>Órdenes</th><th>Monto</th></tr></thead>
+                            <tbody>
+                                <tr><td>Entregado</td><td>4</td><td>141000.00</td></tr>
+                                <tr><td>Pendiente</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>Reparado</td><td>1</td><td>18500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">3 filas: en el Reto 2.2 había 4.</p>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> desapareció <strong>Abandonado</strong>. La única orden abandonada es la nro. 8, que ingresó el 10 de marzo, así que el <code>WHERE</code> la descartó en el paso 2 y el estado "Abandonado" se quedó sin ninguna fila que agrupar. También bajó "Pendiente" de 2 a 1, porque la orden 7 es de junio.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El punto conceptual:</strong> el <code>WHERE</code> no filtra el reporte, filtra <em>la materia prima</em> del reporte. Puede hacer desaparecer categorías enteras, y ese comportamiento es correcto: si en mayo no hubo órdenes abandonadas, no hay nada que informar sobre ellas.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué el rango y no <code>MONTH()</code>:</strong> escribir <code>WHERE MONTH(fecha_ingreso) = 5</code> funciona, pero tiene dos problemas. Uno conceptual: mezclaría mayo de 2025 con mayo de 2026. Uno de rendimiento: al aplicar una función sobre la columna, el motor no puede usar un índice sobre <code>fecha_ingreso</code> y se ve obligado a recorrer toda la tabla. Con dos órdenes no se nota; con dos millones, sí.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Competencia entre marcas, solo en celulares</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Celulares'</span>
+<span class="sql-keyword">FROM</span> equipo E, marca M
+<span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca
+  <span class="sql-keyword">AND</span> E.tipo = <span class="sql-string">'Celular'</span>
+<span class="sql-keyword">GROUP BY</span> M.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Marca</th><th>Celulares</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>2</td></tr>
+                                <tr><td>Samsung</td><td>2</td></tr>
+                                <tr><td>Motorola</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> de los 9 equipos, el <code>WHERE</code> deja pasar solo los 5 celulares, y esos 5 se reparten en 3 marcas. Lenovo y Xiaomi tienen equipos en el taller pero ninguno es celular, así que no aparecen.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Comparación que vale la pena hacer en vivo:</strong> sacá el <code>AND E.tipo = 'Celular'</code> y el resultado pasa a Apple 3, Lenovo 2, Samsung 2, Motorola 1, Xiaomi 1. Apple sube a 3 porque suma el iPad. Es la demostración más directa de que el <code>WHERE</code> cambia tanto los números como la cantidad de grupos.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Facturación real por cliente</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">CONCAT</span>(C.apellido, <span class="sql-string">', '</span>, C.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>,
+    <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes entregadas'</span>,
+    <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C, orden_estado E
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+  <span class="sql-keyword">AND</span> O.id_orden_estado = E.id_orden_estado
+  <span class="sql-keyword">AND</span> E.nombre = <span class="sql-string">'Entregado'</span>
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Cliente</th><th>Órdenes entregadas</th><th>Facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez, Juan</td><td>2</td><td>80500.00</td></tr>
+                                <tr><td>García, María</td><td>2</td><td>60500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">Solo 2 clientes, contra los 5 del Reto 2.4.</p>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> filtrar por estado "Entregado" deja 4 órdenes de 8, repartidas entre 2 clientes. Juan Pérez baja de $99.000 a $80.500 porque su orden reparada (la nro. 4, de $18.500) todavía no se entregó, y Sofía Rossi desaparece: su única orden está abandonada.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>La conversación de negocio:</strong> ¿cuál de los dos reportes es "el correcto", éste o el del 2.4? Ninguno: responden preguntas distintas. El 2.4 dice cuánto trabajo entró; el 3.3, cuánto se cobró. La diferencia entre ambos ($159.500 contra $141.000) es plata comprometida que todavía no está en la caja. Enseñarles a preguntar <em>qué significa exactamente</em> lo que pide el cliente vale tanto como la sintaxis.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Variante más robusta:</strong> filtrar por <code>E.nombre = 'Entregado'</code> en vez de <code>O.id_orden_estado = 3</code> hace que la consulta siga funcionando si mañana cambian los IDs. Cuesta una unión más y se lee mucho mejor.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4 -->
+        <section class="block-card block-having" id="having">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Filtrar después de agrupar - Resoluciones</h2>
+                    <p>Retos 4.1 a 4.4</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Escribí <code>WHERE COUNT(*) &gt; 1</code> a propósito frente a la clase y mostrá el <code>ERROR 1111</code>. Después explicá el error desde el ciclo de vida: el <code>WHERE</code> corre en el paso 2 y el <code>COUNT</code> no existe hasta el paso 4. No es que MySQL "no lo permita": es que lógicamente no puede. El Reto 4.4 es el que más rinde profesionalmente — <code>HAVING COUNT(*) &gt; 1</code> es la herramienta con la que van a auditar duplicados en cualquier base durante el resto de su carrera.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Clientes que volvieron</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">CONCAT</span>(C.apellido, <span class="sql-string">', '</span>, C.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>,
+    <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Cliente</th><th>Órdenes</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez, Juan</td><td>3</td></tr>
+                                <tr><td>García, María</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> se arman los 5 grupos del Reto 2.4 y el <code>HAVING</code> descarta los 3 que tienen una sola orden. Solo dos clientes volvieron.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Nota para quien haya dado el Taller 2 original:</strong> este mismo reto, sobre el dataset chico, devolvía <strong>cero filas</strong>, porque allí ningún cliente tenía más de una orden. Es una de las razones por las que existe la base ampliada. Si alguien tiene el apunte viejo y le da vacío, no está equivocado: le falta cargar <code>poblar_elchip_compendio.sql</code>.
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.2</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Métodos de pago relevantes</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-4-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Método'</span>, <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio_pago P, metodo_pago M
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(P.monto) &gt; <span class="sql-number">20000</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Método</th><th>Recaudado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Tarjeta</td><td>65500.00</td></tr>
+                                <tr><td>Efectivo</td><td>49000.00</td></tr>
+                                <tr><td>Transferencia</td><td>45500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> queda afuera Billetera Virtual, con $8.500. La condición se evalúa sobre el <em>resultado del grupo</em>, no sobre los pagos individuales.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Distinción clave para dejar anotada:</strong> <code>HAVING SUM(P.monto) &gt; 20000</code> significa "métodos que <em>acumularon</em> más de 20.000". Si en cambio escribieran <code>WHERE P.monto &gt; 20000</code>, estarían pidiendo "métodos usados en <em>algún pago individual</em> mayor a 20.000", que es otra pregunta y da otro resultado (Tarjeta y Transferencia, sin Efectivo). Vale la pena ejecutar las dos y comparar: es la mejor síntesis del bloque.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>WHERE y HAVING en la misma consulta</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-4-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Celulares'</span>
+<span class="sql-keyword">FROM</span> equipo E, marca M
+<span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca
+  <span class="sql-keyword">AND</span> E.tipo = <span class="sql-string">'Celular'</span>          <span class="sql-comment">-- filtra FILAS (paso 2)</span>
+<span class="sql-keyword">GROUP BY</span> M.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt;= <span class="sql-number">2</span>          <span class="sql-comment">-- filtra GRUPOS (paso 5)</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Marca</th><th>Celulares</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>2</td></tr>
+                                <tr><td>Samsung</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Quién hace qué:</strong> el <code>WHERE</code> mira cada equipo por separado y se pregunta "¿sos un celular?" — de 9 equipos pasan 5. El <code>HAVING</code> mira cada marca ya armada y se pregunta "¿tenés 2 o más?" — de 3 marcas pasan 2. Ninguna de las dos condiciones podría ocupar el lugar de la otra: <code>HAVING E.tipo = 'Celular'</code> no tiene sentido (el tipo no es una propiedad del grupo) y <code>WHERE COUNT(*) &gt;= 2</code> es directamente un error.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lectura de negocio:</strong> a Martín le conviene stockear módulos de Apple y Samsung. Motorola tiene un solo equipo: comprarle repuesto es inmovilizar plata para un cliente eventual. La consulta contesta una decisión de compra concreta, no un ejercicio.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.4</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Cazar clientes duplicados</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-4-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">a) Apellidos repetidos</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Veces'</span>
+<span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">GROUP BY</span> apellido
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>Veces</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>2</td></tr>
+                                <tr><td>Rossi</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+
+                        <span class="estrategia-label">b) Homónimos exactos (nombre + apellido)</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre, apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Veces'</span>,
+       <span class="sql-keyword">GROUP_CONCAT</span>(id_cliente <span class="sql-keyword">ORDER BY</span> id_cliente) <span class="sql-keyword">AS</span> <span class="sql-string">'IDs involucrados'</span>
+<span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">GROUP BY</span> nombre, apellido
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th><th>apellido</th><th>Veces</th><th>IDs involucrados</th></tr></thead>
+                            <tbody>
+                                <tr><td>Juan</td><td>Pérez</td><td>2</td><td>1,6</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> el punto (a) marca dos apellidos, pero uno es un <strong>falso positivo</strong>: Diego Rossi y Sofía Rossi comparten apellido y son personas distintas — probablemente familiares, que es lo más común en un taller de barrio. El punto (b) usa la combinación completa como clave de agrupamiento y deja solo el caso real: dos clientes llamados <em>Juan Pérez</em>, con IDs 1 y 6.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El concepto que hay que subrayar:</strong> <code>GROUP BY a, b</code> agrupa por la <em>combinación</em>. Cuanto más específica es la clave, menos falsos positivos y más falsos negativos. Es la misma tensión de cualquier detector: si Martín cargó al mismo cliente como "Juan Pérez" y "Juan Perez" sin tilde, ¿los detecta? Sí — por la collation <code>ai_ci</code> que ya vieron. ¿Y si lo cargó como "J. Pérez"? No. Ningún detector de duplicados por igualdad exacta es perfecto, y conviene decirlo.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Cierre profesional:</strong> este patrón — <code>GROUP BY (las columnas que deberían ser únicas) HAVING COUNT(*) &gt; 1</code> — es literalmente lo primero que se corre al auditar una base ajena, y es también cómo se verifica si una columna puede recibir una restricción <code>UNIQUE</code>: si esta consulta devuelve filas, el <code>ALTER TABLE</code> va a fallar.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 5 -->
+        <section class="block-card block-multi" id="multi">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Multi-columna, ranking y expresiones - Resoluciones</h2>
+                    <p>Retos 5.1 a 5.4</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>El Reto 5.2 tiene una trampa de negocio que conviene no adelantar: el "podio" incluye a Sofía Rossi con una orden <em>abandonada</em>. Dejá que armen el ranking, que lo miren orgullosos, y recién ahí preguntá si Martín debería llamarla para agradecerle. La consulta está bien; la pregunta estaba mal formulada. Es el mismo aprendizaje del 3.3 pero ahora lo descubren ellos.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-5-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.1</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Equipos por tipo y marca</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-5-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E.tipo, M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad'</span>
+<span class="sql-keyword">FROM</span> equipo E, marca M
+<span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca
+<span class="sql-keyword">GROUP BY</span> E.tipo, M.nombre
+<span class="sql-keyword">ORDER BY</span> E.tipo, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>tipo</th><th>Marca</th><th>Cantidad</th></tr></thead>
+                            <tbody>
+                                <tr class="destacada"><td>Celular</td><td>Apple</td><td>2</td></tr>
+                                <tr><td>Celular</td><td>Motorola</td><td>1</td></tr>
+                                <tr class="destacada"><td>Celular</td><td>Samsung</td><td>2</td></tr>
+                                <tr><td>Notebook</td><td>Lenovo</td><td>1</td></tr>
+                                <tr><td>Smartwatch</td><td>Xiaomi</td><td>1</td></tr>
+                                <tr><td>Tablet</td><td>Apple</td><td>1</td></tr>
+                                <tr><td>Tablet</td><td>Lenovo</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">7 combinaciones distintas para 9 equipos. Las destacadas son las que sobreviven al HAVING.</p>
+
+                        <span class="estrategia-label">Con el filtro de combinaciones repetidas</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> E.tipo, M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad'</span>
+<span class="sql-keyword">FROM</span> equipo E, marca M
+<span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca
+<span class="sql-keyword">GROUP BY</span> E.tipo, M.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, E.tipo, M.nombre;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el grupo ya no es "Celular" ni "Apple", sino el par <em>(Celular, Apple)</em>. Por eso Apple aparece dos veces en el resultado completo: una vez como celular y otra como tablet. Son combinaciones distintas y por lo tanto grupos distintos.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Ojo con esta confusión frecuente:</strong> agrupar por <code>tipo, marca</code> <em>no</em> es lo mismo que hacer dos consultas, una por tipo y otra por marca. Aquéllas darían 4 y 5 filas respectivamente; ésta da 7. Cada consulta contesta una pregunta diferente: "cuántos celulares hay", "cuántos Apple hay" y "cuántos celulares Apple hay".
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lectura de negocio:</strong> las dos filas destacadas son los modelos donde el taller repite marca y tipo, o sea donde un mismo repuesto puede servir para más de un cliente. Es la información que justifica una compra de stock.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>El podio de clientes</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-5-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">CONCAT</span>(C.apellido, <span class="sql-string">', '</span>, C.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Cliente'</span>,
+    <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>,
+    <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">3</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Cliente</th><th>Facturado</th><th>Órdenes</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez, Juan</td><td>99000.00</td><td>3</td></tr>
+                                <tr><td>García, María</td><td>60500.00</td><td>2</td></tr>
+                                <tr class="destacada"><td>Rossi, Sofía</td><td>9000.00</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> el tercer puesto es engañoso. La única orden de Sofía Rossi está <strong>abandonada</strong>: esos $9.000 nunca entraron a la caja. El ranking está bien calculado sobre <code>total</code>, pero <code>total</code> mide lo facturado, no lo cobrado. Para que le sirva a Martín hay que agregar el filtro del Reto 3.3 (<code>AND E.nombre = 'Entregado'</code>), y entonces el podio se queda con dos personas.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Sobre el <code>ORDER BY</code> con agregados:</strong> se puede ordenar por <code>SUM(O.total)</code> o directamente por el alias <code>'Facturado'</code>, porque el ordenamiento (paso 7) ocurre después de que el <code>SELECT</code> creó los alias (paso 6). Es la única cláusula que puede usarlos: por eso <code>WHERE Facturado &gt; 100</code> no funciona nunca.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El detalle de los empates:</strong> <code>LIMIT 3</code> corta por posición. Si el cuarto tuviera exactamente el mismo monto que el tercero, quedaría afuera sin aviso y sin criterio. Un ranking honesto agrega un desempate explícito en el <code>ORDER BY</code> (por ejemplo, cantidad de órdenes y después apellido) para que al menos el resultado sea reproducible.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Evolución mes a mes</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-5-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">DATE_FORMAT</span>(fecha_ingreso, <span class="sql-string">'%Y-%m'</span>) <span class="sql-keyword">AS</span> <span class="sql-string">'Mes'</span>,
+    <span class="sql-keyword">COUNT</span>(*)    <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes'</span>,
+    <span class="sql-keyword">SUM</span>(total)  <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> <span class="sql-keyword">DATE_FORMAT</span>(fecha_ingreso, <span class="sql-string">'%Y-%m'</span>)
+<span class="sql-keyword">ORDER BY</span> <span class="sql-string">'Mes'</span>;
+
+<span class="sql-comment">-- Variante con año y mes en columnas separadas:</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">YEAR</span>(fecha_ingreso) <span class="sql-keyword">AS</span> anio, <span class="sql-keyword">MONTH</span>(fecha_ingreso) <span class="sql-keyword">AS</span> mes,
+       <span class="sql-keyword">COUNT</span>(*), <span class="sql-keyword">SUM</span>(total)
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> <span class="sql-keyword">YEAR</span>(fecha_ingreso), <span class="sql-keyword">MONTH</span>(fecha_ingreso)
+<span class="sql-keyword">ORDER BY</span> anio, mes;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Mes</th><th>Órdenes</th><th>Facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>2026-03</td><td>1</td><td>9000.00</td></tr>
+                                <tr><td>2026-05</td><td>6</td><td>159500.00</td></tr>
+                                <tr><td>2026-06</td><td>1</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el <code>GROUP BY</code> no está usando una columna sino el <em>resultado de una función</em> sobre una columna. El motor calcula la clave fila por fila y agrupa por ese valor calculado. Es exactamente el mismo mecanismo, solo que la clave se fabrica al vuelo.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué el año tiene que estar en la clave:</strong> si agruparan solo por <code>MONTH(fecha_ingreso)</code>, mayo de 2025 y mayo de 2026 caerían en el mismo grupo. Con estos datos no se notaría — son todos de 2026 —, y por eso hay que decirlo explícitamente: es un error que no se manifiesta hasta que la base tiene dos años de historia y para entonces el reporte lleva meses mintiendo.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lo que falta y no se ve:</strong> abril no aparece porque no hubo órdenes. En un gráfico de evolución eso rompe la escala temporal — la línea salta de marzo a mayo como si fueran meses contiguos. Los meses sin datos no se resuelven con <code>GROUP BY</code>: hacen falta una tabla de calendario o el armado del eje desde la aplicación. Es la misma limitación del Bloque 06 aplicada al tiempo, y vale la pena señalar la conexión.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.4</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Productividad de los técnicos</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-5-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    EM.usuario                  <span class="sql-keyword">AS</span> <span class="sql-string">'Técnico'</span>,
+    <span class="sql-keyword">COUNT</span>(*)                    <span class="sql-keyword">AS</span> <span class="sql-string">'Órdenes recibidas'</span>,
+    <span class="sql-keyword">SUM</span>(O.total)                <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>,
+    <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(O.total), <span class="sql-number">2</span>)      <span class="sql-keyword">AS</span> <span class="sql-string">'Ticket promedio'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, empleado EM
+<span class="sql-keyword">WHERE</span> O.id_empleado = EM.id_empleado
+<span class="sql-keyword">GROUP BY</span> EM.id_empleado, EM.usuario
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Técnico</th><th>Órdenes recibidas</th><th>Facturado</th><th>Ticket promedio</th></tr></thead>
+                            <tbody>
+                                <tr><td>tecnico_juan</td><td>5</td><td>101000.00</td><td>20200.00</td></tr>
+                                <tr><td>tecnico_ana</td><td>3</td><td>67500.00</td><td>22500.00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="result-caption">Falta "admin": nunca recibió una orden, así que no genera grupo (otra vez el tema del Bloque 06).</p>
+                        <p class="explanation-text">
+                            <strong>La respuesta a la consigna:</strong> Juan recibió más órdenes (5 contra 3) y facturó más en total, pero Ana tiene mejor ticket promedio ($22.500 contra $20.200). Cantidad y valor son dimensiones independientes: premiar solo por volumen castiga a quien atiende trabajos más grandes y menos frecuentes; premiar solo por promedio castiga a quien absorbe todos los trabajos chicos.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Y una advertencia sobre los datos, que es lo más importante:</strong> el promedio está calculado sobre <em>todas</em> las órdenes, incluidas las pendientes con total 0.00. Juan tiene una orden en $0 que le hunde el promedio. Con <code>AVG</code> conviene siempre preguntarse qué filas entran en el denominador — es el mismo cuidado del Reto 1.2, pero ahora el problema no son los NULL sino los ceros, que <code>AVG</code> sí cuenta.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 6 -->
+        <section class="block-card block-edge" id="limite">
+            <div class="block-header">
+                <div class="block-num">06</div>
+                <div class="block-title">
+                    <h2>Casos límite - Resoluciones</h2>
+                    <p>Retos 6.1 a 6.5</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Este bloque justifica el compendio entero. La consigna dice explícitamente que resuelvan <em>primero mal</em> (con <code>COUNT(*)</code> y sin <code>COALESCE</code>) y recién después bien: no te saltees ese paso, porque el aprendizaje está en ver el resultado incorrecto que <strong>no da error</strong>. Cerrá el bloque con una frase para el cuaderno: <em>"si el reporte tiene menos filas de las que esperabas, no es que falten datos: es que el SQL solo puede agrupar lo que existe"</em>.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-6-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 6.1</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Cuánto se pagó de cada orden (incluidas las que no pagaron)</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-6-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Primero, la versión ingenua (para mirarla, no para usarla)</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, O.total, <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> pagado, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> pagos
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">GROUP BY</span> O.nro_orden, O.total;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>total</th><th>pagado</th><th>pagos <span style="color:#f43f5e">(mal)</span></th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>53500.00</td><td>53500.00</td><td>2</td></tr>
+                                <tr><td>2</td><td>40500.00</td><td>40500.00</td><td>1</td></tr>
+                                <tr class="destacada"><td>3</td><td>0.00</td><td>NULL</td><td>1</td></tr>
+                                <tr><td>4</td><td>18500.00</td><td>18500.00</td><td>2</td></tr>
+                                <tr><td>5</td><td>27000.00</td><td>27000.00</td><td>1</td></tr>
+                                <tr><td>6</td><td>20000.00</td><td>20000.00</td><td>2</td></tr>
+                                <tr class="destacada"><td>7</td><td>0.00</td><td>NULL</td><td>1</td></tr>
+                                <tr><td>8</td><td>9000.00</td><td>9000.00</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="result-caption">Las órdenes 3 y 7 no tienen ningún pago, pero la columna dice 1.</p>
+
+                        <span class="estrategia-label">La versión correcta</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    O.nro_orden                        <span class="sql-keyword">AS</span> <span class="sql-string">'Orden'</span>,
+    O.total                            <span class="sql-keyword">AS</span> <span class="sql-string">'Facturado'</span>,
+    <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>)       <span class="sql-keyword">AS</span> <span class="sql-string">'Cobrado'</span>,
+    <span class="sql-keyword">COUNT</span>(P.monto)                     <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad de pagos'</span>,
+    O.total - <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> <span class="sql-string">'Saldo'</span>
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">GROUP BY</span> O.nro_orden, O.total
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Orden</th><th>Facturado</th><th>Cobrado</th><th>Cantidad de pagos</th><th>Saldo</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>53500.00</td><td>53500.00</td><td>2</td><td>0.00</td></tr>
+                                <tr><td>2</td><td>40500.00</td><td>40500.00</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>3</td><td>0.00</td><td>0.00</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>4</td><td>18500.00</td><td>18500.00</td><td>2</td><td>0.00</td></tr>
+                                <tr><td>5</td><td>27000.00</td><td>27000.00</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>6</td><td>20000.00</td><td>20000.00</td><td>2</td><td>0.00</td></tr>
+                                <tr><td>7</td><td>0.00</td><td>0.00</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>8</td><td>9000.00</td><td>9000.00</td><td>2</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Los dos errores de la versión ingenua, por separado:</strong>
+                        </p>
+                        <p class="explanation-text">
+                            <strong>1) <code>SUM</code> devuelve <code>NULL</code>, no 0.</strong> Para las órdenes 3 y 7 no hay ni un monto que sumar, y la suma de un conjunto vacío es "indefinida", no cero. Se arregla en la presentación con <code>COALESCE(SUM(...), 0)</code> — o <code>IFNULL()</code>, que en MySQL hace lo mismo con dos argumentos. Que no dé cero es <em>correcto</em> conceptualmente; lo que está mal es mostrarlo así en un reporte.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>2) <code>COUNT(*)</code> cuenta la fila fantasma.</strong> El <code>LEFT JOIN</code> conserva la orden 3 aunque no tenga pagos, completando las columnas de <code>orden_servicio_pago</code> con <code>NULL</code>. Esa fila existe, así que <code>COUNT(*)</code> la cuenta y devuelve 1. <code>COUNT(P.monto)</code>, en cambio, ignora los <code>NULL</code> y devuelve 0, que es la verdad. <strong>Regla para el cuaderno: en un <code>LEFT JOIN</code>, siempre contar una columna de la tabla de la derecha, nunca <code>*</code>.</strong>
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Sobre la columna Saldo:</strong> da 0 en todas las órdenes, lo cual dice algo bueno de esta base — el <code>total</code> y la suma de pagos están consistentes en los 8 casos. En una base real, esa columna es el primer lugar donde aparecen los errores de carga, y por eso conviene dejarla en el reporte aunque hoy dé todo cero.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-6-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 6.2</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Los métodos de pago que nadie usa</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-6-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    M.nombre                      <span class="sql-keyword">AS</span> <span class="sql-string">'Método'</span>,
+    <span class="sql-keyword">COUNT</span>(P.nro_orden)            <span class="sql-keyword">AS</span> <span class="sql-string">'Veces usado'</span>,
+    <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>)  <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span>
+<span class="sql-keyword">FROM</span> metodo_pago M
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.id_metodo_pago, M.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(P.nro_orden) <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Método</th><th>Veces usado</th><th>Recaudado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Efectivo</td><td>4</td><td>49000.00</td></tr>
+                                <tr><td>Tarjeta</td><td>3</td><td>65500.00</td></tr>
+                                <tr><td>Transferencia</td><td>2</td><td>45500.00</td></tr>
+                                <tr><td>Billetera Virtual</td><td>1</td><td>8500.00</td></tr>
+                                <tr class="destacada"><td>Cheque</td><td>0</td><td>0.00</td></tr>
+                                <tr class="destacada"><td>Crédito en cuenta</td><td>0</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">6 filas, contra las 4 del Reto 2.3.</p>
+
+                        <span class="estrategia-label">Lo mismo con las marcas</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Marca'</span>, <span class="sql-keyword">COUNT</span>(E.id_equipo) <span class="sql-keyword">AS</span> <span class="sql-string">'Equipos'</span>
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">GROUP BY</span> M.id_marca, M.nombre
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(E.id_equipo) <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Marca</th><th>Equipos</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>3</td></tr>
+                                <tr><td>Lenovo</td><td>2</td></tr>
+                                <tr><td>Samsung</td><td>2</td></tr>
+                                <tr><td>Motorola</td><td>1</td></tr>
+                                <tr><td>Xiaomi</td><td>1</td></tr>
+                                <tr class="destacada"><td>Google</td><td>0</td></tr>
+                                <tr class="destacada"><td>Sony</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>El cambio de mentalidad:</strong> hasta acá todas las consultas empezaban por la tabla de hechos (los pagos, los equipos). Para ver los ceros hay que <strong>dar vuelta la consulta y empezar por la tabla maestra</strong>, trayendo los hechos con <code>LEFT JOIN</code>. La tabla maestra aporta el universo completo de categorías; el <code>LEFT JOIN</code> garantiza que ninguna se pierda por no tener hechos asociados.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>La trampa que pedía la consigna:</strong> con <code>COUNT(*)</code>, Cheque y Crédito en cuenta muestran <strong>1</strong> en lugar de 0, y Google y Sony también. El reporte no da error, no da cero filas: <em>miente por uno</em>. Y un "1" en un tablero de gestión no despierta ninguna sospecha, a diferencia de un error de sintaxis. Es exactamente la clase de bug que sobrevive años en producción.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Para qué sirve de verdad:</strong> con este reporte Martín puede decidir dar de baja el cheque como medio de pago, o darse cuenta de que nunca le entró un equipo Google y no tiene sentido stockear el "Módulo Google Pixel 7" que sí figura en el depósito. <em>La información valiosa estaba en las filas que el reporte anterior no mostraba.</em>
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-6-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 6.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>El diagnóstico que nunca apareció</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-6-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    P.descripcion             <span class="sql-keyword">AS</span> <span class="sql-string">'Problema'</span>,
+    P.mano_obra               <span class="sql-keyword">AS</span> <span class="sql-string">'Mano de obra'</span>,
+    <span class="sql-keyword">COUNT</span>(OSE.nro_orden)      <span class="sql-keyword">AS</span> <span class="sql-string">'Veces detectado'</span>
+<span class="sql-keyword">FROM</span> problema P
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo OSE <span class="sql-keyword">ON</span> OSE.id_problema = P.id_problema
+<span class="sql-keyword">GROUP BY</span> P.id_problema, P.descripcion, P.mano_obra
+<span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(OSE.nro_orden) <span class="sql-keyword">DESC</span>, P.descripcion;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Problema</th><th>Mano de obra</th><th>Veces detectado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Limpieza y mantenimiento preventivo</td><td>3000.00</td><td>3</td></tr>
+                                <tr><td>Pantalla rota / Cambio de modulo</td><td>8500.00</td><td>3</td></tr>
+                                <tr><td>Batería agotada / Cambio de batería</td><td>4500.00</td><td>2</td></tr>
+                                <tr><td>Error de Software / Reinstalación</td><td>6000.00</td><td>2</td></tr>
+                                <tr><td>Pin de carga dañado</td><td>5000.00</td><td>1</td></tr>
+                                <tr class="destacada"><td>Cámara principal no enfoca</td><td>7500.00</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="result-caption">Las 6 detecciones suman 11, que es el total de filas de orden_servicio_has_equipo.</p>
+
+                        <span class="estrategia-label">Solo el caso sin uso, con HAVING</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> P.descripcion <span class="sql-keyword">AS</span> <span class="sql-string">'Nunca detectado'</span>
+<span class="sql-keyword">FROM</span> problema P
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo OSE <span class="sql-keyword">ON</span> OSE.id_problema = P.id_problema
+<span class="sql-keyword">GROUP BY</span> P.id_problema, P.descripcion
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(OSE.nro_orden) = <span class="sql-number">0</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> "Cámara principal no enfoca" está en el catálogo de problemas pero nunca se usó en ninguna orden. Solo aparece porque la consulta arranca desde <code>problema</code> con <code>LEFT JOIN</code>; si arrancara desde el detalle de órdenes, sería invisible.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El detalle fino de <code>HAVING COUNT(...) = 0</code>:</strong> esto <em>solo</em> funciona porque se cuenta una columna de la tabla de la derecha. Con <code>HAVING COUNT(*) = 0</code> el resultado sería vacío, porque todo grupo que existe tiene al menos una fila. Es la misma lección del 6.1 y del 6.2, ahora en la cláusula de filtrado: el <code>HAVING</code> hereda el error del <code>COUNT</code> mal escrito.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Lectura de negocio:</strong> puede ser que nadie traiga la cámara rota, o que los técnicos lo carguen como "Error de Software" por comodidad. Los dos escenarios le interesan a Martín y son distintos: uno es información de mercado y el otro es un problema de proceso interno. El dato en cero es lo que abre la pregunta.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-6-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 6.4</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Un renglón por orden con todos sus métodos de pago</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-6-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    P.nro_orden <span class="sql-keyword">AS</span> <span class="sql-string">'Orden'</span>,
+    <span class="sql-keyword">GROUP_CONCAT</span>(<span class="sql-keyword">DISTINCT</span> M.nombre
+                 <span class="sql-keyword">ORDER BY</span> M.nombre <span class="sql-keyword">SEPARATOR</span> <span class="sql-string">' + '</span>) <span class="sql-keyword">AS</span> <span class="sql-string">'Métodos usados'</span>,
+    <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Pagos'</span>,
+    <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Cobrado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio_pago P, metodo_pago M
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> P.nro_orden
+<span class="sql-keyword">ORDER BY</span> P.nro_orden;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>Orden</th><th>Métodos usados</th><th>Pagos</th><th>Cobrado</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Efectivo + Tarjeta</td><td>2</td><td>53500.00</td></tr>
+                                <tr><td>2</td><td>Transferencia</td><td>1</td><td>40500.00</td></tr>
+                                <tr><td>4</td><td>Billetera Virtual + Efectivo</td><td>2</td><td>18500.00</td></tr>
+                                <tr><td>5</td><td>Tarjeta</td><td>1</td><td>27000.00</td></tr>
+                                <tr><td>6</td><td>Efectivo + Tarjeta</td><td>2</td><td>20000.00</td></tr>
+                                <tr><td>8</td><td>Efectivo + Transferencia</td><td>2</td><td>9000.00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="result-caption">6 filas: las órdenes 3 y 7 no aparecen porque no tienen pagos (comparar con el Reto 6.1).</p>
+                        <p class="explanation-text">
+                            <strong>El concepto:</strong> <code>GROUP_CONCAT</code> es una función de agregación como <code>SUM</code>, solo que en lugar de reducir el grupo a un número lo reduce a un <em>texto</em>. Colapsa las N filas del grupo en una sola cadena, y por eso permite un listado maestro-detalle sin repetir la cabecera en cada línea.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Los tres modificadores importan:</strong> <code>DISTINCT</code> evita repetir un método si se usó dos veces en la misma orden; <code>ORDER BY</code> hace que el texto sea estable entre ejecuciones (sin él, "Efectivo + Tarjeta" podría salir invertido y dos reportes idénticos parecerían distintos); <code>SEPARATOR</code> reemplaza la coma por defecto.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Límite silencioso:</strong> <code>GROUP_CONCAT</code> trunca el resultado a <code>group_concat_max_len</code> bytes (1024 por defecto) <strong>sin lanzar error</strong> — a lo sumo un warning. Con 2 métodos de pago no pasa nada; con una lista de 300 productos, el texto se corta y nadie se entera. Se consulta con <code>SELECT @@group_concat_max_len;</code> y se amplía con <code>SET SESSION group_concat_max_len = 100000;</code>. Vale la pena mostrarlo: es el tipo de detalle que separa una consulta que anda de una que anda siempre.
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-6-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 6.5</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Reporte con subtotales y total general</h3>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-consignas.html#reto-6-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Versión simple</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> <span class="sql-string">'Método'</span>,
+       <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Pagos'</span>,
+       <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio_pago P, metodo_pago M
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.nombre <span class="sql-keyword">WITH ROLLUP</span>;</code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Con la fila de total etiquetada</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span>
+    <span class="sql-keyword">IF</span>(<span class="sql-keyword">GROUPING</span>(M.nombre), <span class="sql-string">'TOTAL GENERAL'</span>, M.nombre) <span class="sql-keyword">AS</span> <span class="sql-string">'Método'</span>,
+    <span class="sql-keyword">COUNT</span>(*)     <span class="sql-keyword">AS</span> <span class="sql-string">'Pagos'</span>,
+    <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span>
+<span class="sql-keyword">FROM</span> orden_servicio_pago P, metodo_pago M
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.nombre <span class="sql-keyword">WITH ROLLUP</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>Método</th><th>Pagos</th><th>Recaudado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Billetera Virtual</td><td>1</td><td>8500.00</td></tr>
+                                <tr><td>Efectivo</td><td>4</td><td>49000.00</td></tr>
+                                <tr><td>Tarjeta</td><td>3</td><td>65500.00</td></tr>
+                                <tr><td>Transferencia</td><td>2</td><td>45500.00</td></tr>
+                                <tr class="destacada"><td>TOTAL GENERAL</td><td>10</td><td>168500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">La fila de total la calcula el motor. Sin la etiqueta, esa celda aparecería como NULL.</p>
+                        <p class="explanation-text">
+                            <strong>Qué hace <code>WITH ROLLUP</code>:</strong> agrega, después de los grupos normales, una fila de resumen donde la columna de agrupamiento "colapsa" a <code>NULL</code> y las agregaciones se recalculan sobre <em>todas</em> las filas. Con dos o más columnas de agrupamiento genera además subtotales intermedios: <code>GROUP BY tipo, marca WITH ROLLUP</code> da el detalle por par, el subtotal por tipo y el total general.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué hace falta <code>GROUPING()</code>:</strong> la fila de total trae <code>NULL</code> en la columna del método, y ese <code>NULL</code> es indistinguible de un <code>NULL</code> que viniera de los datos. <code>GROUPING(columna)</code> devuelve 1 solo cuando el <code>NULL</code> fue puesto por el <code>ROLLUP</code>, y es la forma correcta de etiquetar. Usar <code>IFNULL(M.nombre, 'TOTAL')</code> parece funcionar acá y falla apenas la columna admita nulos reales.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Verificación:</strong> los 10 pagos y los $168.500 de la fila de total coinciden con <code>SELECT COUNT(*), SUM(monto) FROM orden_servicio_pago;</code> — el mismo control de consistencia del Reto 2.3, ahora hecho por el motor dentro de la consulta.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Dos advertencias sobre ROLLUP:</strong> primero, el orden de las filas lo maneja el <code>ROLLUP</code>, y combinarlo con <code>ORDER BY</code> puede mover la fila de total al medio del reporte (ordená por <code>GROUPING(...)</code> primero si necesitás las dos cosas). Segundo, este reporte usa la unión con coma, así que <strong>solo aparecen los 4 métodos con pagos</strong>: Cheque y Crédito en cuenta siguen sin figurar. Para el reporte completo con ceros hay que combinar el <code>LEFT JOIN</code> del Reto 6.2 con el <code>WITH ROLLUP</code> de éste — buen ejercicio integrador para cerrar la clase.
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- CIERRE -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Respuestas de la autoevaluación</h2>
+            </div>
+            <div class="explanation-text">
+                <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <li><strong>WHERE vs HAVING con COUNT:</strong> el <code>WHERE</code> se evalúa en el paso 2, cuando todavía no se formaron los grupos y por lo tanto no existe ningún <code>COUNT</code>. El <code>HAVING</code> se evalúa en el paso 5, con las agregaciones ya calculadas. MySQL responde <code>ERROR 1111 (HY000): Invalid use of group function</code>.</li>
+                    <li><strong>COUNT(*) vs COUNT(columna):</strong> difieren cuando la columna tiene <code>NULL</code>. Dos casos vistos: <code>COUNT(fecha_entrega)</code> = 0 sobre 8 órdenes (Reto 1.2), y el <code>LEFT JOIN</code> donde <code>COUNT(*)</code> devuelve 1 para un padre sin hijos (Retos 6.1 a 6.3). Se usa <code>COUNT(*)</code> para contar filas y <code>COUNT(columna)</code> para contar valores presentes.</li>
+                    <li><strong>Categoría ausente:</strong> no se puede saber mirando solo el resultado, y ése es el punto. Hay que revisar si el <code>WHERE</code> la eliminó (Reto 3.1, "Abandonado") o si nunca tuvo filas (Reto 6.2, "Cheque"). La única forma de distinguir los dos casos en el reporte es partir de la tabla maestra con <code>LEFT JOIN</code>: entonces la categoría aparece con 0 y la ausencia se vuelve visible.</li>
+                    <li><strong>SUM() = NULL:</strong> porque los <code>NULL</code> se ignoran y sumar un conjunto vacío no da cero, da indefinido. Cero significa "sumé y el resultado fue 0"; <code>NULL</code> significa "no había nada que sumar". Se presenta con <code>COALESCE(SUM(x), 0)</code>.</li>
+                    <li><strong>Columnas permitidas en el SELECT agrupado:</strong> las del <code>GROUP BY</code>, las funciones de agregación, y las que quedan funcionalmente determinadas por la clave de agrupamiento (como el nombre respecto de su ID primario). Cualquier otra es ambigua: el grupo tiene varios valores posibles y ningún criterio para elegir uno. <code>ONLY_FULL_GROUP_BY</code> lo hace cumplir.</li>
+                    <li><strong>Agrupar por dos columnas:</strong> genera un grupo por cada <em>combinación</em> existente, no la intersección de dos agrupamientos separados. En el Reto 5.1: 4 tipos, 5 marcas con equipos, pero 7 combinaciones reales.</li>
+                </ol>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="compendio-agrupacion-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

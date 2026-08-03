@@ -1,0 +1,59 @@
+# ==========================================================================
+#  Qué NO se publica
+#
+#  Este repositorio es público y se sirve por GitHub Pages. Todo lo que se
+#  versiona queda accesible en internet, y el historial de git conserva lo
+#  que alguna vez se subió aunque después se borre.
+#
+#  Antes de agregar algo nuevo, preguntarse si puede leerlo cualquiera.
+# ==========================================================================
+
+
+# --- Datos personales de estudiantes. Nunca. -----------------------------
+Alumnos/
+TP/
+Examenes/
+respuesta_yolanda.txt
+
+
+# --- Material docente: claves, exámenes y guiones ------------------------
+_docente/
+
+# El programa analítico es un documento institucional de la escuela: lleva la
+# plantilla de la EIS y el nombre de la Jefa de Departamento. No es material
+# propio y no se publica sin su acuerdo.
+descargas/programa-analitico.pdf
+
+
+# --- Versiones anteriores y duplicados -----------------------------------
+# El historial de git ya cumple esta función.
+_archivo/
+_backup/
+
+
+# --- Credenciales ---------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credenciales*
+secretos*
+
+
+# --- Bases de datos locales ----------------------------------------------
+# el_chip.db sí se versiona: es el ejemplo del caso de estudio.
+*.sqlite3
+*.mwb.bak
+
+
+# --- Restos del sistema y de las herramientas ----------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+Thumbs.db
+desktop.ini
+.DS_Store
+~$*
+*.tmp

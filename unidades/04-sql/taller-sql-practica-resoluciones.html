@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica SQL: DML Básico - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-delete    { --c: var(--bloque-rojo); }
+    .block-insert    { --c: var(--bloque-verde); }
+    .block-limit     { --c: var(--bloque-violeta); }
+    .block-select    { --c: var(--bloque-azul); }
+    .block-update    { --c: var(--bloque-ambar); }
+
+    /* propio de esta página */
+    .origen-tag {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 7px;
+                border-radius: 4px;
+                color: var(--text-muted);
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                letter-spacing: 0.03em;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones de la Práctica de DML</h1>
+            <p>Respuestas exactas, resultados esperados sobre el dataset base y consejos pedagógicos para la clase</p>
+            <a href="taller-sql-practica-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: primeras consultas · resoluciones</span>
+        </nav>
+
+        <!-- NOTA DE CALIBRACIÓN -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Antes de dar la clase: sobre qué datos corre esto</h2>
+            </div>
+            <div class="explanation-text">
+                <p style="margin-bottom: 12px;">Todos los resultados esperados de esta guía están calculados sobre el <strong>dataset base</strong>: <code>ElChip.sql</code> (estructura) + <code>poblar_elchip.sql</code> (datos). Son 5 clientes, 3 órdenes, 5 equipos, 6 repuestos y 6 problemas. <strong>No</strong> corre sobre <code>poblar_elchip_compendio.sql</code>.</p>
+                <p style="margin-bottom: 12px;">Un detalle de secuencia importante: los bloques 02, 03 y 04 <strong>modifican</strong> la base. Los resultados del bloque 03 y del bloque 05 suponen que los alumnos ya ejecutaron los <code>INSERT</code> del bloque 02. Si alguien se salteó un bloque, sus números van a diferir, y eso es esperable: conviene anticiparlo en voz alta.</p>
+                <p style="margin-bottom: 12px;">Para volver al punto de partida en cualquier momento, basta con re-ejecutar los dos scripts en orden (<code>ElChip.sql</code> recrea el esquema desde cero).</p>
+                <div class="warning-box">
+                    <strong>⚠️ Errata del material original:</strong> en el PDF de origen, el desafío del aumento general de precios figura rotulado como "Desafío H", repitiendo la letra del primer desafío de <code>INSERT</code>. Acá se lo renombró <strong>Desafío K</strong> para respetar la secuencia H, I, J, K, L, M, N, Ñ, O, P. Si usás el PPT en pantalla, avisá del salto.
+                </div>
+            </div>
+        </section>
+
+        <!-- RESOLUCIONES 1: SELECT -->
+        <section class="block-card block-select" id="select">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Lectura y Exploración - Resoluciones</h2>
+                    <p>Proyección, selección y ordenamiento sobre una sola tabla</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>El Reto 1.1 esconde el concepto más valioso del bloque: se ordena por una columna que no se muestra. Casi todos los alumnos van a agregar <code>precio_unitario</code> al <code>SELECT</code> "porque si no, no puedo ordenar". Dejalos hacerlo, y después sacá la columna del <code>SELECT</code> dejando el <code>ORDER BY</code> intacto y mostrá que sigue funcionando. Ahí se entiende que <code>SELECT</code> y <code>ORDER BY</code> son etapas distintas del procesamiento.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <span class="origen-tag">Desafío A</span>
+                        <h3>Repuestos con stock crítico</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre, stock
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> stock &lt; <span class="sql-number">5</span>
+<span class="sql-keyword">ORDER BY</span> precio_unitario <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th><th>stock</th></tr></thead>
+                            <tbody>
+                                <tr><td>Módulo iPhone 13 Genérico</td><td>3</td></tr>
+                                <tr><td>Módulo Motorola Edge 30</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el <code>WHERE</code> descarta las filas con stock de 5 o más (ojo: <code>&lt; 5</code> es estricto, el Módulo Samsung S21 con stock 5 <strong>no</strong> aparece). El <code>ORDER BY precio_unitario DESC</code> funciona aunque el precio no esté proyectado, porque el ordenamiento se aplica sobre las filas completas, antes de recortar las columnas que se muestran.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <span class="origen-tag">Desafío B</span>
+                        <h3>Buscar un cliente por apellido</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> apellido
+<span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">WHERE</span> apellido = <span class="sql-string">'Perez'</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>La sorpresa didáctica:</strong> el dato está guardado como <code>'Pérez'</code> con tilde, y sin embargo la consulta con <code>'Perez'</code> lo encuentra. Esto pasa porque MySQL 8 usa por defecto la collation <code>utf8mb4_0900_ai_ci</code>: <strong>ai</strong> = <em>accent insensitive</em> (ignora tildes) y <strong>ci</strong> = <em>case insensitive</em> (ignora mayúsculas). Por eso <code>'perez'</code> y <code>'PEREZ'</code> también funcionan.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Para no dejarlo como magia:</strong> aclará que esto es una propiedad de <em>esta</em> configuración, no de SQL en general. Con una collation <code>_cs</code> (case sensitive) o <code>_bin</code> (binaria), la misma consulta devolvería cero filas. Se puede demostrar en el momento:
+                        </p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL — Demostración</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Comparación binaria: distingue tildes y mayúsculas. Devuelve 0 filas.</span>
+<span class="sql-keyword">SELECT</span> apellido <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido = <span class="sql-keyword">BINARY</span> <span class="sql-string">'Perez'</span>;
+
+<span class="sql-comment">-- Búsqueda parcial, útil cuando no sabemos cómo está escrito:</span>
+<span class="sql-keyword">SELECT</span> apellido <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido <span class="sql-keyword">LIKE</span> <span class="sql-string">'Per%'</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <span class="origen-tag">Desafío C</span>
+                        <h3>Reparaciones caras de mano de obra</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_problema, descripcion, mano_obra
+<span class="sql-keyword">FROM</span> problema
+<span class="sql-keyword">WHERE</span> mano_obra &gt; <span class="sql-number">5000</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>id_problema</th><th>descripcion</th><th>mano_obra</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pantalla rota / Cambio de modulo</td><td>8500.00</td></tr>
+                                <tr><td>5</td><td>Error de Software / Reinstalación</td><td>6000.00</td></tr>
+                                <tr><td>6</td><td>Cámara principal no enfoca</td><td>7500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>El borde a discutir:</strong> "Pin de carga dañado" cuesta exactamente $5000 y <strong>no</strong> aparece, porque <code>&gt;</code> es estricto. Preguntá a la clase si Martín, cuando dice "superior a $5000", querría verlo o no. Es la conversación que enseña la diferencia entre <code>&gt;</code> y <code>&gt;=</code> mejor que cualquier definición.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.4</span>
+                        <span class="origen-tag">Desafío D</span>
+                        <h3>Catálogo de tipos de equipo</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT DISTINCT</span> tipo
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">ORDER BY</span> tipo <span class="sql-keyword">ASC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>tipo</th></tr></thead>
+                            <tbody>
+                                <tr><td>Celular</td></tr>
+                                <tr><td>Smartwatch</td></tr>
+                                <tr><td>Tablet</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> la tabla tiene 5 equipos, pero tres de ellos son celulares. <code>DISTINCT</code> colapsa las filas repetidas y deja un catálogo de 3 valores. Sin <code>DISTINCT</code>, "Celular" aparecería tres veces.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Momento de diseño:</strong> aprovechá para señalar que <code>tipo</code> es un texto libre dentro de <code>equipo</code>. Si mañana alguien carga "celular" en minúscula o "Teléfono", el catálogo se ensucia. La solución normalizada sería una tabla <code>equipo_tipo</code>, igual que ya existe <code>marca</code>. Es un buen puente hacia la clase de normalización.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.5</span>
+                        <span class="origen-tag">Desafío E</span>
+                        <h3>Rango de mano de obra</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Estrategia 1 — BETWEEN</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> descripcion, mano_obra
+<span class="sql-keyword">FROM</span> problema
+<span class="sql-keyword">WHERE</span> mano_obra <span class="sql-keyword">BETWEEN</span> <span class="sql-number">2000</span> <span class="sql-keyword">AND</span> <span class="sql-number">8000</span>;</code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Estrategia 2 — Doble comparación con AND</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> descripcion, mano_obra
+<span class="sql-keyword">FROM</span> problema
+<span class="sql-keyword">WHERE</span> mano_obra &gt;= <span class="sql-number">2000</span>
+  <span class="sql-keyword">AND</span> mano_obra &lt;= <span class="sql-number">8000</span>;</code></pre>
+                        </div>
+
+                        <table class="result-table">
+                            <thead><tr><th>descripcion</th><th>mano_obra</th></tr></thead>
+                            <tbody>
+                                <tr><td>Batería agotada / Cambio de batería</td><td>4500.00</td></tr>
+                                <tr><td>Pin de carga dañado</td><td>5000.00</td></tr>
+                                <tr><td>Limpieza y mantenimiento preventivo</td><td>3000.00</td></tr>
+                                <tr><td>Error de Software / Reinstalación</td><td>6000.00</td></tr>
+                                <tr><td>Cámara principal no enfoca</td><td>7500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">5 filas. Queda afuera únicamente "Pantalla rota" ($8500).</p>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> las dos consultas son equivalentes: <code>BETWEEN a AND b</code> es azúcar sintáctico de <code>&gt;= a AND &lt;= b</code>, con <strong>ambos extremos incluidos</strong>. Confirmalo con "Pin de carga dañado", que vale exactamente $5000, y con el hecho de que $8000 también entraría si existiera un problema con ese valor.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Trampa a nombrar:</strong> <code>BETWEEN 8000 AND 2000</code> (al revés) devuelve cero filas, no da error. El primer valor debe ser el menor.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-6">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.6</span>
+                        <span class="origen-tag">Desafío F</span>
+                        <h3>Órdenes todavía no entregadas</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Estrategia 1 — Por la fecha de entrega</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso, fecha_entrega, id_orden_estado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_entrega <span class="sql-keyword">IS NULL</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>fecha_entrega</th><th>id_orden_estado</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>2026-05-01 10:00:00</td><td>NULL</td><td>3</td></tr>
+                                <tr><td>2</td><td>2026-05-02 11:30:00</td><td>NULL</td><td>3</td></tr>
+                                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>NULL</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">3 filas: devuelve TODAS las órdenes de la base.</p>
+
+                        <span class="estrategia-label">Estrategia 2 — Por el estado de la orden</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Primero averiguamos qué id corresponde a 'Entregado':</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_estado;   <span class="sql-comment">-- Entregado = 3</span>
+
+<span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso, id_orden_estado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> id_orden_estado &lt;&gt; <span class="sql-number">3</span>;
+
+<span class="sql-comment">-- Versión sin números mágicos, usando una subconsulta:</span>
+<span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso, id_orden_estado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> id_orden_estado &lt;&gt; (
+    <span class="sql-keyword">SELECT</span> id_orden_estado <span class="sql-keyword">FROM</span> orden_estado <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">'Entregado'</span>
+);</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>id_orden_estado</th></tr></thead>
+                            <tbody>
+                                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">1 fila: solo la orden pendiente.</p>
+
+                        <div class="warning-box">
+                            <strong>⚠️ Este reto es el más importante del bloque y hay que dedicarle tiempo:</strong> las dos estrategias <strong>dan resultados distintos</strong> (3 filas contra 1 fila), y eso no es un error de los alumnos. Las órdenes 1 y 2 están marcadas con estado "Entregado" pero <em>nunca se les cargó la <code>fecha_entrega</code></em>. Los datos son internamente inconsistentes.
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Cómo capitalizarlo:</strong> la respuesta correcta según el negocio es la <strong>Estrategia 2</strong>, porque el estado es el campo que el taller mantiene al día. Pero la conclusión que se llevan los alumnos es más grande que este ejercicio: <em>cuando la misma pregunta se puede responder desde dos columnas distintas, la base tarde o temprano se va a contradecir</em>. La solución de fondo no es elegir mejor la consulta, es que un <code>TRIGGER</code> (o la aplicación) complete la <code>fecha_entrega</code> cuando el estado pasa a "Entregado". Eso enlaza directo con el taller de Triggers.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Error clásico a provocar:</strong> pedile a alguien que escriba <code>WHERE fecha_entrega = NULL</code>. Devuelve cero filas <em>sin dar error</em>, que es lo peligroso. <code>NULL</code> significa "desconocido", y comparar dos desconocidos nunca da verdadero: por eso existe <code>IS NULL</code>.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-7">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.7</span>
+                        <span class="origen-tag">Desafío G</span>
+                        <h3>Equipos de marcas puntuales</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-1-7"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Estrategia 1 — IN</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_equipo, tipo, modelo, id_marca
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">WHERE</span> id_marca <span class="sql-keyword">IN</span> (<span class="sql-number">1</span>, <span class="sql-number">3</span>, <span class="sql-number">5</span>);</code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Estrategia 2 — Cadena de OR</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_equipo, tipo, modelo, id_marca
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">WHERE</span> id_marca = <span class="sql-number">1</span>
+   <span class="sql-keyword">OR</span> id_marca = <span class="sql-number">3</span>
+   <span class="sql-keyword">OR</span> id_marca = <span class="sql-number">5</span>;</code></pre>
+                        </div>
+
+                        <table class="result-table">
+                            <thead><tr><th>id_equipo</th><th>tipo</th><th>modelo</th><th>id_marca</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Celular</td><td>Galaxy S21</td><td>1</td></tr>
+                                <tr><td>3</td><td>Tablet</td><td>Tab P11</td><td>3</td></tr>
+                                <tr><td>5</td><td>Smartwatch</td><td>Mi Band 7</td><td>5</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> <code>IN (lista)</code> es exactamente una cadena de <code>OR</code> comprimida. Con tres valores la diferencia es estética; con veinte, el <code>OR</code> se vuelve ilegible y propenso a errores.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>El error que hay que provocar a propósito:</strong> muchos alumnos escriben <code>WHERE id_marca = 1 OR 3 OR 5</code>. Eso <em>no</em> da error de sintaxis: MySQL lo evalúa como <code>(id_marca = 1) OR (3) OR (5)</code>, y como cualquier número distinto de cero es verdadero, <strong>devuelve la tabla entera</strong>. Es el ejemplo perfecto de por qué "no dio error" nunca significa "está bien".
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Bonus si sobra tiempo:</strong> mostrá la versión que no depende de recordar IDs, <code>WHERE id_marca IN (SELECT id_marca FROM marca WHERE nombre IN ('Samsung','Lenovo','Xiaomi'))</code>, y anticipá que ese es el tema del taller de subconsultas.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 2: INSERT -->
+        <section class="block-card block-insert" id="insert">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Inserción de Datos - Resoluciones</h2>
+                    <p>Altas, valores por defecto y dependencias entre tablas</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Los retos 2.1 y 2.2 salen solos; el 2.3 es el que enseña. Dejá que intenten <code>INSERT INTO orden_servicio (cliente) VALUES ('Carlos López');</code> y que choquen con el error. Ahí se ve, en un caso concreto, para qué sirvió todo el trabajo de normalización: la orden no guarda un nombre, guarda una <em>referencia</em>. Hacé que ejecuten <code>DESCRIBE orden_servicio;</code> y lean juntos qué columnas son <code>NOT NULL</code> antes de escribir nada.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <span class="origen-tag">Desafío H</span>
+                        <h3>Alta de un repuesto</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">INSERT INTO</span> repuesto (nombre, stock, precio_unitario)
+<span class="sql-keyword">VALUES</span> (<span class="sql-string">'Modulo Pantalla Samsung A54'</span>, <span class="sql-number">10</span>, <span class="sql-number">15000.00</span>);
+
+<span class="sql-comment">-- Verificación:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">WHERE</span> nombre <span class="sql-keyword">LIKE</span> <span class="sql-string">'%A54%'</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> no escribimos <code>id_repuesto</code> porque es <code>AUTO_INCREMENT</code>: el motor le asigna el 7. Se puede confirmar en el momento con <code>SELECT LAST_INSERT_ID();</code>, que devuelve el ID generado por la última inserción de esta sesión.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Detalle a mencionar:</strong> el nombre va tal como lo pidió Martín, "Modulo" sin tilde. Guardalo así a propósito: en el Reto 3.2 vamos a buscar <code>LIKE '%Módulo%'</code> <em>con</em> tilde y esta fila va a aparecer igual. Ese es el enganche.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <span class="origen-tag">Desafío I</span>
+                        <h3>Alta de una marca</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">INSERT INTO</span> marca (nombre) <span class="sql-keyword">VALUES</span> (<span class="sql-string">'LG'</span>);
+
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">LAST_INSERT_ID</span>();   <span class="sql-comment">-- Devuelve 8</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> marca;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> la tabla trae 7 marcas cargadas (Samsung, Apple, Lenovo, Motorola, Xiaomi, Google, Sony), así que LG queda con <code>id_marca = 8</code>.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Experimento de 30 segundos:</strong> hacé que ejecuten el mismo <code>INSERT</code> dos veces. La segunda falla con <code>ERROR 1062 (23000): Duplicate entry 'LG' for key 'marca.nombre_UNIQUE'</code>, porque la columna tiene un índice <code>UNIQUE</code>. Es la primera restricción de integridad que van a ver en acción, y prepara el terreno para el bloque 04.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <span class="origen-tag">Desafío J</span>
+                        <h3>Alta de una orden de servicio</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <span class="estrategia-label">Paso 1 — Averiguar los IDs</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_cliente, nombre, apellido <span class="sql-keyword">FROM</span> cliente;  <span class="sql-comment">-- Carlos López = 3</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_estado;                        <span class="sql-comment">-- Pendiente = 1</span>
+<span class="sql-keyword">SELECT</span> id_empleado, usuario <span class="sql-keyword">FROM</span> empleado;        <span class="sql-comment">-- tecnico_juan = 2</span></code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Paso 2 — La inserción (versión directa)</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">INSERT INTO</span> orden_servicio (fecha_ingreso, id_empleado, id_cliente, id_orden_estado)
+<span class="sql-keyword">VALUES</span> (<span class="sql-keyword">NOW</span>(), <span class="sql-number">2</span>, <span class="sql-number">3</span>, <span class="sql-number">1</span>);</code></pre>
+                        </div>
+
+                        <span class="estrategia-label">Paso 2 bis — La misma inserción, sin números mágicos</span>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">INSERT INTO</span> orden_servicio (fecha_ingreso, id_empleado, id_cliente, id_orden_estado)
+<span class="sql-keyword">VALUES</span> (
+    <span class="sql-keyword">NOW</span>(),
+    (<span class="sql-keyword">SELECT</span> id_empleado <span class="sql-keyword">FROM</span> empleado <span class="sql-keyword">WHERE</span> usuario = <span class="sql-string">'tecnico_juan'</span>),
+    (<span class="sql-keyword">SELECT</span> id_cliente <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">'Carlos'</span> <span class="sql-keyword">AND</span> apellido = <span class="sql-string">'López'</span>),
+    (<span class="sql-keyword">SELECT</span> id_orden_estado <span class="sql-keyword">FROM</span> orden_estado <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">'Pendiente'</span>)
+);
+
+<span class="sql-comment">-- Verificación:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio <span class="sql-keyword">ORDER BY</span> nro_orden <span class="sql-keyword">DESC</span> <span class="sql-keyword">LIMIT</span> <span class="sql-number">1</span>;</code></pre>
+                        </div>
+
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>fecha_entrega</th><th>descuento</th><th>total</th><th>id_empleado</th><th>id_cliente</th><th>id_orden_estado</th></tr></thead>
+                            <tbody>
+                                <tr><td>4</td><td>(fecha y hora de hoy)</td><td>NULL</td><td>0.00</td><td>0.00</td><td>2</td><td>3</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p class="explanation-text">
+                            <strong>Por qué hay que nombrar tantas columnas:</strong> <code>id_empleado</code>, <code>id_cliente</code> e <code>id_orden_estado</code> son <code>NOT NULL</code> y no tienen valor por defecto, así que sin ellas la fila se rechaza. En cambio <code>descuento</code> y <code>total</code> tienen <code>DEFAULT 0.00</code> y <code>fecha_entrega</code> admite nulos: los omitimos sin problema. La orden nace sin fecha de entrega, que es justamente lo correcto.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Sobre <code>fecha_ingreso</code>:</strong> la columna está declarada <code>DEFAULT CURRENT_TIMESTAMP</code>, así que también valdría omitirla y el motor pondría la fecha y hora actuales. Escribir <code>NOW()</code> explícito hace visible la intención de la consigna ("la fecha de ingreso debe ser la de hoy"), y es buena excusa para mostrar la diferencia con <code>CURDATE()</code>, que devuelve solo la fecha, sin hora.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>La versión con subconsultas vale oro:</strong> es más larga, sí, pero no se rompe si mañana los IDs son otros y se lee como la frase del cliente: "una orden para Carlos López, en estado Pendiente, recibida por tecnico_juan". Mostrá las dos y dejá que elijan.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Error esperable:</strong> si alguien pone un <code>id_cliente</code> que no existe (por ejemplo, 99), obtiene <code>ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails</code>. Es el mismo mecanismo del bloque 04 pero al insertar: la base no permite una orden de un cliente inexistente.
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 3: UPDATE -->
+        <section class="block-card block-update" id="update">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Actualización de Datos - Resoluciones</h2>
+                    <p>Modificaciones masivas, selectivas y puntuales</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Instalá el reflejo del <code>SELECT</code> previo y no lo sueltes en toda la clase: <em>toda</em> sentencia <code>UPDATE</code> se escribe primero como <code>SELECT</code> con el mismo <code>WHERE</code>. Pedí que antes de ejecutar el 3.2 cada uno anote en el cuaderno cuántas filas cree que va a tocar; después comparan contra el <code>Rows matched</code> que informa MySQL. Los que anoten 3 (contando solo los "Módulo" con tilde) van a descubrir solos el efecto de la collation.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <span class="origen-tag">Desafío K</span>
+                        <h3>Aumento general del 10%</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Paso 1: mirar el estado actual</span>
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario <span class="sql-keyword">FROM</span> repuesto;
+
+<span class="sql-comment">-- Paso 2: el aumento (sin WHERE: alcanza a todas las filas, a propósito)</span>
+<span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> precio_unitario = precio_unitario * <span class="sql-number">1.10</span>;
+
+<span class="sql-comment">-- Paso 3: verificar</span>
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario <span class="sql-keyword">FROM</span> repuesto;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th><th>precio anterior</th><th>precio nuevo</th></tr></thead>
+                            <tbody>
+                                <tr><td>Módulo Samsung S21 Original</td><td>45000.00</td><td>49500.00</td></tr>
+                                <tr><td>Módulo iPhone 13 Genérico</td><td>32000.00</td><td>35200.00</td></tr>
+                                <tr><td>Batería iPhone 11/12</td><td>12000.00</td><td>13200.00</td></tr>
+                                <tr><td>Pin de carga Universal USB-C</td><td>1500.00</td><td>1650.00</td></tr>
+                                <tr><td>Módulo Motorola Edge 30</td><td>28000.00</td><td>30800.00</td></tr>
+                                <tr><td>Batería Samsung Serie A</td><td>9500.00</td><td>10450.00</td></tr>
+                                <tr><td>Modulo Pantalla Samsung A54</td><td>15000.00</td><td>16500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">7 filas afectadas (la séptima es la que se insertó en el Reto 2.1).</p>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el motor lee el precio viejo de cada fila, lo multiplica y escribe el resultado en la misma columna. Como <code>precio_unitario</code> es <code>DECIMAL(10,2)</code>, el resultado se redondea a dos decimales al guardarse. Esto es relevante en importes que no son redondos: si el precio fuera 1499.99, el 10% daría 1649.989 y quedaría almacenado como 1649.99.
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Si en lugar del cliente de consola usan MySQL Workbench,</strong> este <code>UPDATE</code> sin <code>WHERE</code> es rechazado por el modo seguro: <code>Error Code: 1175. You are using safe update mode...</code>. Se destraba con <code>SET SQL_SAFE_UPDATES = 0;</code> o agregando un <code>WHERE id_repuesto &gt; 0;</code>. Vale la pena mostrarlo: esa protección existe justamente porque el <code>UPDATE</code> sin <code>WHERE</code> es una de las formas más habituales de arruinar una base en producción.
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <span class="origen-tag">Desafío L</span>
+                        <h3>Aumento selectivo por nombre</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Paso 1: ver a quiénes va a alcanzar</span>
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> nombre <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Módulo%'</span>;
+
+<span class="sql-comment">-- Paso 2: el mismo WHERE, ahora con UPDATE</span>
+<span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> precio_unitario = precio_unitario * <span class="sql-number">1.10</span>
+<span class="sql-keyword">WHERE</span> nombre <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Módulo%'</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th><th>antes del 3.2</th><th>después del 3.2</th></tr></thead>
+                            <tbody>
+                                <tr><td>Módulo Samsung S21 Original</td><td>49500.00</td><td>54450.00</td></tr>
+                                <tr><td>Módulo iPhone 13 Genérico</td><td>35200.00</td><td>38720.00</td></tr>
+                                <tr><td>Módulo Motorola Edge 30</td><td>30800.00</td><td>33880.00</td></tr>
+                                <tr><td>Modulo Pantalla Samsung A54</td><td>16500.00</td><td>18150.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">4 filas afectadas. Las dos baterías y el pin de carga quedan intactos.</p>
+                        <p class="explanation-text">
+                            <strong>La sorpresa:</strong> buscamos <code>'%Módulo%'</code> <em>con</em> tilde y aun así aparece "Modulo Pantalla Samsung A54", que se cargó <em>sin</em> tilde en el Reto 2.1. Es la misma collation <code>ai_ci</code> del Reto 1.2 actuando ahora dentro de un <code>LIKE</code>: para MySQL, en esta configuración, "Modulo" y "Módulo" son la misma palabra.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Los comodines:</strong> <code>%</code> reemplaza cualquier cantidad de caracteres (incluida ninguna) y <code>_</code> exactamente uno. Por eso <code>LIKE 'Módulo%'</code> (sin el <code>%</code> inicial) traería solo los que <em>empiezan</em> con esa palabra: en este caso, los cuatro igual. Probalo en vivo para que se vea la diferencia entre "contiene" y "empieza con".
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Nota de continuidad:</strong> si se ejecutan 3.1 y 3.2 seguidos, los módulos acumulan dos aumentos (un 21% total). Aclaralo, porque si no los números de la pantalla no cierran con lo que espera la clase.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <span class="origen-tag">Desafío M</span>
+                        <h3>Corrección de un dato mal cargado</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Paso 1: identificar la fila</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;
+
+<span class="sql-comment">-- Paso 2: corregir</span>
+<span class="sql-keyword">UPDATE</span> cliente
+<span class="sql-keyword">SET</span> nombre = <span class="sql-string">'Juan Carlos'</span>
+<span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Juan Carlos</td><td>Pérez</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el <code>WHERE</code> apunta a la clave primaria, que es la forma más segura de modificar exactamente una fila. MySQL responde <code>Rows matched: 1  Changed: 1</code>.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Detalle fino que suele preguntarse:</strong> si volvés a ejecutar el mismo <code>UPDATE</code>, MySQL informa <code>Rows matched: 1  Changed: 0</code>. Encontró la fila, pero el valor ya era ese y no la reescribió. "Matched" y "changed" son cosas distintas y conviene que lo sepan leer.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Contraejemplo para cerrar el bloque:</strong> preguntá qué habría pasado con <code>WHERE nombre = 'Juan'</code> en lugar del ID. En esta base funcionaría por casualidad (hay un solo Juan), pero el día que entre otro cliente llamado Juan, la misma sentencia le cambia el nombre a dos personas. Los nombres no identifican; las claves primarias, sí.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 4: DELETE -->
+        <section class="block-card block-delete" id="delete">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Borrado de Datos - Resoluciones</h2>
+                    <p>Cuándo la base deja borrar y cuándo se planta</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Este bloque está diseñado para que uno funcione y el otro falle. No adelantes el final: pediles que ejecuten los dos y que ellos mismos formulen la hipótesis de por qué el segundo se niega. El error <code>1451</code> es el protagonista de la clase, no un accidente. Y remarcá el contraste con el bloque 03: un <code>UPDATE</code> mal apuntado <em>se ejecuta igual</em> y arruina datos en silencio; este <code>DELETE</code>, en cambio, es la base cuidándote.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <span class="origen-tag">Desafío N</span>
+                        <h3>Borrar la marca recién creada</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Paso 1: confirmar qué vamos a borrar</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> marca <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">'LG'</span>;
+
+<span class="sql-comment">-- Paso 2: borrar</span>
+<span class="sql-keyword">DELETE FROM</span> marca <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">'LG'</span>;
+
+<span class="sql-comment">-- Equivalente, apuntando a la clave primaria:</span>
+<span class="sql-comment">-- DELETE FROM marca WHERE id_marca = 8;</span></code></pre>
+                        </div>
+                        <p class="result-caption">Query OK, 1 row affected.</p>
+                        <p class="explanation-text">
+                            <strong>Por qué este sí funciona:</strong> LG se creó hace cinco minutos y <strong>ningún equipo la referencia</strong>. La fila no tiene "hijos", así que borrarla no deja nada colgado. Verificalo antes con <code>SELECT * FROM equipo WHERE id_marca = 8;</code>, que devuelve 0 filas.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Nota:</strong> el <code>AUTO_INCREMENT</code> no retrocede. Si después insertan otra marca, va a recibir el ID 9, no el 8. Los identificadores no se reciclan, y está bien que así sea.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.2</span>
+                        <span class="origen-tag">Desafío Ñ</span>
+                        <h3>Borrar el cliente 1 (y entender el error)</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-4-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">DELETE FROM</span> cliente <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">Salida de MySQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code>ERROR 1451 (23000): Cannot delete or update a parent row:
+a foreign key constraint fails
+(`el_chip`.`telefono`, CONSTRAINT `fk_telefono_cliente`
+ FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`))</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Por qué falló:</strong> el cliente 1 es una fila <em>padre</em>. Otras tablas guardan su <code>id_cliente</code> como clave foránea y esas FK están declaradas <code>ON DELETE NO ACTION</code> (que en InnoDB se comporta como <code>RESTRICT</code>). Antes de borrar, el motor revisa si alguien lo referencia; como sí, aborta la operación completa. El mensaje nombra la <em>primera</em> restricción que encontró, no todas: la de <code>telefono</code>.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Que lo demuestren ellos.</strong> Estas tres consultas muestran quiénes dependen del cliente 1:
+                        </p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL — Diagnóstico</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> telefono        <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;  <span class="sql-comment">-- 1 fila</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> email           <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;  <span class="sql-comment">-- 1 fila</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio  <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;  <span class="sql-comment">-- 1 fila (la orden 1)</span></code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>La pregunta que hay que hacer:</strong> ¿qué pasaría si la base <em>dejara</em> borrarlo? La orden 1 quedaría a nombre del cliente 1, que ya no existe. Sería una orden fantasma: cobrada, pagada, con equipos asociados, y sin dueño. Ese estado se llama <em>fila huérfana</em>, y evitarlo es exactamente la razón de ser de la integridad referencial.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Las tres salidas posibles</strong> (mostralas como decisiones de negocio, no como trucos de SQL):
+                        </p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL — Alternativas</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- 1) Borrado en cascada MANUAL: primero los hijos, después el padre.</span>
+<span class="sql-comment">--    Funciona, pero destruye el historial comercial del taller.</span>
+<span class="sql-keyword">DELETE FROM</span> telefono <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;
+<span class="sql-keyword">DELETE FROM</span> email    <span class="sql-keyword">WHERE</span> id_cliente = <span class="sql-number">1</span>;
+<span class="sql-comment">--    ...y todavía faltarían la orden 1, sus pagos y sus equipos asociados.</span>
+
+<span class="sql-comment">-- 2) Cambiar la política de la FK al diseñar el modelo (ON DELETE CASCADE):</span>
+<span class="sql-comment">--    el motor borraría los hijos solo. Cómodo y peligrosísimo en tablas</span>
+<span class="sql-comment">--    con historial: un DELETE se lleva puestos años de datos.</span>
+
+<span class="sql-comment">-- 3) BAJA LÓGICA (lo que hace un sistema real): no se borra, se marca.</span>
+<span class="sql-comment">--    Requiere una columna 'activo' o 'fecha_baja' en cliente.</span>
+<span class="sql-comment">--    UPDATE cliente SET activo = 0 WHERE id_cliente = 1;</span></code></pre>
+                        </div>
+                        <div class="warning-box">
+                            <strong>⚠️ No dejes que "resuelvan" el reto borrando todo lo que cuelga del cliente.</strong> Si alguien lo hace, la base queda sin la orden 1 y los resultados del resto de la clase dejan de coincidir. Además, la respuesta correcta a la consigna no es lograr el borrado: es explicar por qué el motor se niega. La opción 3 (baja lógica) es la que usan los sistemas de verdad, y conviene que se la lleven anotada.
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 5: LIMIT / OFFSET -->
+        <section class="block-card block-limit" id="paginacion">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Navegación de Datos - Resoluciones</h2>
+                    <p>Paginación con LIMIT y OFFSET</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Dibujá la tabla completa ordenada en el pizarrón y tachá físicamente las filas que el <code>OFFSET</code> descarta. Es un tema que se entiende en diez segundos de forma visual y que se enreda si se explica solo con palabras. Cerrá pidiendo la fórmula general: si en el examen aparece "páginas de 20 registros, quiero la página 7", tienen que poder responder <code>LIMIT 20 OFFSET 120</code> sin dudar.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-5-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.1</span>
+                        <span class="origen-tag">Desafío O</span>
+                        <h3>La primera página</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-5-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> *
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> nombre <span class="sql-keyword">ASC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">2</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>#</th><th>nombre</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Batería iPhone 11/12</td></tr>
+                                <tr><td>2</td><td>Batería Samsung Serie A</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> el motor ordena primero <em>todas</em> las filas por nombre y recién después corta las 2 primeras. El <code>LIMIT</code> es la última etapa del procesamiento, por eso no "interfiere" con el orden.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-5-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.2</span>
+                        <span class="origen-tag">Desafío P</span>
+                        <h3>Simulando la página 2</h3>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-consignas.html#reto-5-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Página 2 (tamaño de página = 2): salteo 2, traigo 2</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> nombre <span class="sql-keyword">ASC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">2</span> <span class="sql-keyword">OFFSET</span> <span class="sql-number">2</span>;
+
+<span class="sql-comment">-- Página 3: salteo 4, traigo 2</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> nombre <span class="sql-keyword">ASC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">2</span> <span class="sql-keyword">OFFSET</span> <span class="sql-number">4</span>;
+
+<span class="sql-comment">-- Sintaxis abreviada de MySQL (¡el orden se invierte!):</span>
+<span class="sql-comment">-- LIMIT 2, 2  →  saltea 2, trae 2   (equivale a LIMIT 2 OFFSET 2)</span>
+<span class="sql-comment">-- LIMIT 4, 2  →  saltea 4, trae 2   (equivale a LIMIT 2 OFFSET 4)</span></code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>página</th><th>filas devueltas</th></tr></thead>
+                            <tbody>
+                                <tr><td>1 (OFFSET 0)</td><td>Batería iPhone 11/12 · Batería Samsung Serie A</td></tr>
+                                <tr><td>2 (OFFSET 2)</td><td>Módulo iPhone 13 Genérico · Módulo Motorola Edge 30</td></tr>
+                                <tr><td>3 (OFFSET 4)</td><td>Modulo Pantalla Samsung A54 · Módulo Samsung S21 Original</td></tr>
+                                <tr><td>4 (OFFSET 6)</td><td>Pin de carga Universal USB-C</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="result-caption">Con los 7 repuestos (6 originales + el del Reto 2.1). Si el grupo no hizo el INSERT del bloque 02, son 6 repuestos y la última página trae "Módulo Samsung S21 Original" y "Pin de carga Universal USB-C".</p>
+                        <p class="explanation-text">
+                            <strong>La fórmula:</strong> <code>OFFSET = (número_de_página − 1) × tamaño_de_página</code>. Con páginas de 2: página 1 → offset 0, página 2 → offset 2, página 3 → offset 4. Es la cuenta que hace cualquier framework web por detrás cuando armás una tabla paginada.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Sobre la inconsistencia del PPT original:</strong> la diapositiva pide "los siguientes 2 (del 3 al 4)" pero el ejemplo de sintaxis muestra <code>LIMIT 5 OFFSET 5</code>. No es un error a corregir en silencio: usalo. Preguntá qué devuelve <code>LIMIT 5 OFFSET 5</code> sobre esta tabla y van a ver que trae solo 2 filas (la 6.ª y la 7.ª), porque no hay más registros. Que la última página venga incompleta es normal y hay que preverlo.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Por qué el orden de "Modulo Pantalla" sorprende:</strong> aparece entre "Módulo Motorola" y "Módulo Samsung" aunque esté escrito sin tilde. Otra vez la collation <code>ai_ci</code>: para ordenar, MySQL trata "Modulo" y "Módulo" como iguales y desempata por la palabra siguiente (iPhone, Motorola, Pantalla, Samsung).
+                        </p>
+                        <div class="warning-box">
+                            <strong>⚠️ Sin <code>ORDER BY</code> no hay paginación:</strong> si sacás el <code>ORDER BY</code>, MySQL puede devolver las filas en cualquier orden y no está obligado a mantener el mismo entre una consulta y la siguiente. La "página 2" podría repetir filas de la "página 1" y saltearse otras. <code>ORDER BY</code> no es un adorno acá: es lo que hace que la paginación signifique algo.
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-sql-practica-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

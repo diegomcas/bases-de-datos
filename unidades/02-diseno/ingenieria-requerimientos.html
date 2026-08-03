@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingeniería de requerimientos · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 5</span>
+            <h1>Ingeniería de requerimientos</h1>
+            <p>La presentación de la clase</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad II · Diseño de datos
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u2">Unidad II · Diseño de datos</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Requerimientos: la presentación</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#las-12-reglas-de-codd-en-criollo">Las 12 Reglas de Codd (En criollo)</a></li>
+                <li><a href="#integridad">Integridad</a></li>
+                <li><a href="#el-triangulo-de-la-integridad-para-que-una-base-de">El Triángulo de la Integridad. Para que una base de datos sea confiable, debe cumplir con tres pilares fundamentales:</a></li>
+                <li><a href="#pensemos-un-ratito-auditoria-de-datos-el-chip-roto">Pensemos un ratito: "Auditoría de Datos" (El Chip Roto)</a></li>
+            </ol>
+        </nav>
+
+
+        <div class="diapositivas">
+            <section class="diapositiva" id="las-12-reglas-de-codd-en-criollo">
+              <div class="diapo-num">01</div>
+              <h2>Las 12 Reglas de Codd (En criollo)</h2>
+              <ul>
+                <li>0. Regla Fundamental</li>
+                <li>Información</li>
+                <li>Acceso Garantizado</li>
+                <li>Tratamiento del NULL</li>
+                <li>Catálogo en Línea</li>
+                <li>Sublenguaje de Datos</li>
+                <li>Actualización de Vistas</li>
+                <li>Inserción, Actualización y Borrado</li>
+                <li>Independencia Física</li>
+                <li>Independencia Lógica</li>
+                <li>Integridad</li>
+                <li>Distribución</li>
+                <li>No Subversión</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="integridad">
+              <div class="diapo-num">02</div>
+              <h2>Integridad</h2>
+            
+            </section>
+            
+            <section class="diapositiva" id="el-triangulo-de-la-integridad-para-que-una-base-de">
+              <div class="diapo-num">03</div>
+              <h2>El Triángulo de la Integridad. Para que una base de datos sea confiable, debe cumplir con tres pilares fundamentales:</h2>
+              <ul>
+                <li>Integridad de Entidad</li>
+                <li>(La Regla de la PK)  </li>
+                <li><em><strong>Regla</strong></em>: Toda tabla debe tener una Clave Primaria (PK).</li>
+                <li><em><strong>Restricción</strong></em>: Ningún valor de la PK puede ser **NULL**.</li>
+                <li><em><strong>¿Por qué?</strong></em>: Si no sé quién es la entidad, no puedo diferenciarla de las demás.</li>
+              </ul>
+              <ul>
+                <li>B. Integridad Referencial<br>(La Regla de la FK)</li>
+                <li><em><strong>Regla</strong></em>: Si existe una Clave Foránea (FK) en una tabla, su valor debe:</li>
+                <li style="margin-left:1em">Coincidir con un valor existente de la PK en la tabla relacionada.</li>
+                <li style="margin-left:1em">O ser **NULL** (si la relación es opcional).</li>
+                <li><em><strong>Estado Prohibido</strong></em>: El "Huérfano".</li>
+                <li>(Ej: Un equipo que pertenece al cliente ID 99, pero el cliente 99 no existe).</li>
+              </ul>
+              <ul>
+                <li>C. Integridad de Dominio</li>
+                <li><em><strong>Regla</strong></em>: Los valores de una columna deben pertenecer a un conjunto definido.</li>
+                <li><em><strong>Ejemplos</strong></em>:</li>
+                <li>Tipo de dato (Entero, Texto, Fecha).</li>
+                <li>Rangos (La edad no puede ser negativa).</li>
+                <li>Opciones (El estado de una orden solo puede ser 'Pendiente', 'En Proceso' o 'Terminado').</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="pensemos-un-ratito-auditoria-de-datos-el-chip-roto">
+              <div class="diapo-num">04</div>
+              <h2>Pensemos un ratito: "Auditoría de Datos" (El Chip Roto)</h2>
+              <ul>
+                <li>Caso 1: Violación de Integridad de Entidad (La PK nula)</li>
+                <li>  En este caso, el error es la fila con el ID vacío.</li>
+              </ul>
+              <figure><img src="../../assets/img/ingenieria-requerimientos-01.png" alt=""></figure>
+              <ul>
+                <li>Caso 2: Violación de Integridad Referencial (El "Huérfano")</li>
+                <li>  Aquí el error es el Cliente 99, que no existe en nuestra base.</li>
+              </ul>
+              <figure><img src="../../assets/img/ingenieria-requerimientos-02.png" alt=""></figure>
+              <ul>
+                <li>Caso 3: Integridad de Dominio (Restricción ENUM)</li>
+                <li>  Tabla: empleado</li>
+                <li>  El rol es un ENUM('Administrador', 'Tecnico’). Cualquier otro valor es una violación de dominio.</li>
+              </ul>
+              <ul>
+                <li>Caso Bonus (Integridad de Dominio - Precios)</li>
+                <li>  Tabla: orden_servicio</li>
+                <li>  Las columnas mano_obra y total son DECIMAL(10,2). Una violación aquí sería intentar ingresar texto o un valor que no respete el formato numérico.</li>
+              </ul>
+              <figure><img src="../../assets/img/ingenieria-requerimientos-03.png" alt=""></figure>
+              <figure><img src="../../assets/img/ingenieria-requerimientos-04.png" alt=""></figure>
+            </section>
+        </div>
+
+        <div class="descargas">
+            <h4>Descargar la presentación</h4>
+            <a href="../../descargas/ingenieria-requerimientos.pptx" class="salto-nav">PPTX</a>
+            <a href="../../descargas/ingenieria-requerimientos.pdf" class="salto-nav">PDF</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="clase-05-requerimientos.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Ingeniería de requerimientos</strong>
+            </a>
+            <a class="pag-sig" href="clase-06-modelado-conceptual.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Modelado conceptual: el DER</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · 4 diapositivas</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Sumarizar y Agrupar - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-agg       { --c: var(--bloque-azul); }
+    .block-group     { --c: var(--bloque-verde); }
+    .block-having    { --c: var(--bloque-naranja); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 2</span>
+            <h1>Agrupar y Sumarizar datos en SQL</h1>
+            <p>Aprende a generar reportes financieros, contar stock y resumir estadísticas en "El Chip"</p>
+            <a href="taller-agrupacion-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de agrupación</span>
+        </nav>
+
+        <!-- INTRODUCCIÓN AL CICLO DE EJECUCIÓN -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
+                    El Ciclo de Vida de una Consulta SQL
+                </h2>
+            </div>
+            <div class="explicacion">
+                <p>Para entender el agrupamiento, primero debemos saber en qué orden resuelve las cosas el motor de base de datos. No se ejecuta en el orden en que lo escribimos. El orden real es:</p>
+                <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.98rem; display: flex; flex-direction: column; gap: 8px; margin: 15px 0 15px 20px;">
+                    <li><strong>1. FROM:</strong> Se identifica qué tablas se van a leer.</li>
+                    <li><strong>2. WHERE:</strong> Se filtran las filas individuales (una por una) antes de agrupar o sumar.</li>
+                    <li><strong>3. GROUP BY:</strong> Se agrupan los registros restantes según las columnas elegidas.</li>
+                    <li><strong>4. HAVING:</strong> Se filtran los grupos creados en base a los resultados de las sumas/promedios.</li>
+                    <li><strong>5. SELECT:</strong> Se seleccionan las columnas finales y se aplican las funciones de agregación.</li>
+                    <li><strong>6. ORDER BY:</strong> Se ordenan las filas del reporte final.</li>
+                </ol>
+                <p>Mantener este orden en mente es fundamental para evitar mezclar el funcionamiento de <code>WHERE</code> y <code>HAVING</code>.</p>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: FUNCIONES DE AGREGACIÓN -->
+        <section class="block-card block-agg" id="agregacion">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Funciones de Agregación</h2>
+                    <p>Reducir un conjunto de filas a un solo valor de resumen</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, necesito un cierre rápido del estado físico del depósito. Quiero saber cuánto dinero exacto tenemos invertido en el stock de repuestos (sumando las cantidades por sus precios), cuál es el repuesto más caro y el más barato que tenemos, y cuántos clientes registrados tenemos en total."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Sustento Teórico: Funciones de Agregación
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> Son funciones que toman un conjunto de valores (varias filas de una columna) y devuelven **un solo valor condensado**.</li>
+                        <li><strong>Funciones estándar:</strong>
+                            <ul>
+                                <li><code>SUM(columna)</code>: Suma todos los valores numéricos.</li>
+                                <li><code>AVG(columna)</code>: Calcula el promedio.</li>
+                                <li><code>COUNT(columna/*)</code>: Cuenta el número de registros. <code>COUNT(*)</code> incluye filas nulas, mientras que <code>COUNT(columna)</code> solo cuenta filas donde la columna no es NULL.</li>
+                                <li><code>MAX(columna)</code> / <code>MIN(columna)</code>: Devuelve el valor más alto y más bajo respectivamente.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Es como seleccionar una fila de celdas en una planilla de Excel y mirar el cuadro de estadísticas rápido que aparece abajo en la pantalla (Suma: 2400, Promedio: 400, Recuento: 6).
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ La reglaONLY_FULL_GROUP_BY de MySQL 8:</strong> En MySQL 8, si intentas seleccionar un campo individual (como el nombre de un repuesto) junto con una función de agregación (como <code>SUM</code>), por ejemplo: <code>SELECT nombre, SUM(precio_unitario) FROM repuesto;</code> sin usar un <code>GROUP BY</code>, el motor rechazará la consulta lanzando un error. SQL no puede mostrar en la misma pantalla una columna con 10 nombres y otra columna con 1 sola celda de suma global.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Valor total del stock en depósito</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que calcule el valor monetario total de todo el stock de repuestos en el local, multiplicando el <code>stock</code> de cada repuesto por su <code>precio_unitario</code> y sumando todos los resultados.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Extremos de precios en repuestos</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que traiga el precio unitario del repuesto más caro y el del más barato guardados en la tabla <code>repuesto</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>Cantidad total de clientes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta para saber cuántos clientes tenemos registrados en total en la tabla <code>cliente</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: AGRUPAMIENTO (GROUP BY) -->
+        <section class="block-card block-group" id="agrupamiento">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Agrupar Datos con GROUP BY</h2>
+                    <p>Separar resúmenes según categorías y campos definidos</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, no me sirve de mucho saber la cantidad total de equipos si no sé de qué tipo son. ¿Podemos ver cuántos equipos tenemos registrados pero separados por tipo (celular, tablet, smartwatch)? Además, para el balance de caja, quiero saber cuánto cobramos en total separado por cada método de pago."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Sustento Teórico: La Cláusula GROUP BY
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> Agrupa las filas de una consulta que tienen los mismos valores en las columnas indicadas, para poder aplicarles funciones de agregación a cada grupo por separado.</li>
+                        <li><strong>La regla fundamental del SELECT agrupado:</strong> Al usar <code>GROUP BY columna_A</code>, las únicas columnas que puedes colocar en el <code>SELECT</code> son:
+                            <ol style="margin-left: 20px; margin-top: 5px;">
+                                <li>La propia columna de agrupamiento (<code>columna_A</code>).</li>
+                                <li>Funciones de agregación aplicadas a otros campos (como <code>COUNT(columna_B)</code> o <code>SUM(columna_C)</code>).</li>
+                            </ol>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Imagina que tienes una pila de billetes mezclados en una mesa. El agrupamiento es el paso en el que separas los billetes en montones según su valor (los de $1000 en un montón, los de $2000 en otro) y luego aplicas la suma individual a cada montón.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Equipos separados por tipo</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta que muestre el <code>tipo</code> de equipo y cuántos equipos tenemos registrados de cada tipo en la tabla <code>equipo</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Facturación total por método de pago</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta sobre la tabla <code>orden_servicio_pago</code> que muestre el ID del método de pago (<code>id_metodo_pago</code>) y la suma acumulada de dinero cobrada en la columna <code>monto</code> para cada uno.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: FILTRAR GRUPOS (HAVING) -->
+        <section class="block-card block-having" id="filtrado">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Filtrado de Grupos con HAVING</h2>
+                    <p>Diferenciar el alcance de WHERE y HAVING en los filtros</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, para premiar la fidelidad: quiero saber qué clientes nos han dejado más de una orden en el local. Además, en el balance de caja, solo me interesan los métodos de pago donde hayamos cobrado un acumulado total que supere los 20.000 pesos. ¿Cómo filtramos esos reportes agrupados?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Sustento Teórico: WHERE vs HAVING
+                    </h4>
+                    <ul>
+                        <li><strong>Diferencia temporal clave:</strong>
+                            <ul>
+                                <li><code>WHERE</code> filtra **filas individuales antes** de que se agrupen los datos. No puede evaluar funciones de agregación (escribir <code>WHERE SUM(monto) &gt; 10</code> dará error).</li>
+                                <li><code>HAVING</code> filtra **los grupos resultantes después** de aplicar el <code>GROUP BY</code>. Su condición evalúa el resultado de las funciones de agregación de los grupos.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> Imagina que tienes alumnos y los quieres agrupar por curso.
+                    <ul>
+                        <li><strong>WHERE:</strong> *"Antes de agruparlos, saca de la fila a los alumnos menores de 15 años"* (actúa sobre el individuo).</li>
+                        <li><strong>HAVING:</strong> *"Junta a los alumnos por curso y solo muestra los salones que tengan más de 20 alumnos"* (actúa sobre el grupo ya consolidado).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Clientes recurrentes (Fidelidad)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta sobre la tabla <code>orden_servicio</code> que muestre el <code>id_cliente</code> y la cantidad de órdenes que tiene registradas. Filtra el reporte para que solo aparezcan aquellos clientes que tengan cargada <strong>más de una orden</strong> en la base de datos.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Métodos de pago con alta recaudación</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribe una consulta sobre la tabla <code>orden_servicio_pago</code> que traiga el <code>id_metodo_pago</code> y la suma de lo recaudado, pero filtrando los resultados de manera que solo exponga los métodos cuyo cobro acumulado sea **mayor a 20.000** pesos.</p>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-uniones-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller: uniones sin JOIN</strong>
+            </a>
+            <a class="pag-sig" href="compendio-agrupacion-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Compendio de agrupación</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-agrupacion-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

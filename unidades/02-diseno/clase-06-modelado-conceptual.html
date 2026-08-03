@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelado conceptual: el DER · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 6</span>
+            <h1>Modelado conceptual: el DER</h1>
+            <p>Entidades, atributos, relaciones y cardinalidad</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad II · Diseño de datos
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u2">Unidad II · Diseño de datos</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Modelado conceptual: el DER</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>En esta clase</h2>
+            <ol>
+                <li><a href="#introduccion">Introducción</a></li>
+                <li><a href="#que-estamos-modelando">¿Qué estamos modelando?</a></li>
+                <li><a href="#entidades-y-atributos">Entidades y Atributos</a></li>
+                <li><a href="#entidades">Entidades</a></li>
+                <li><a href="#atributos">Atributos</a></li>
+                <li><a href="#relaciones">Relaciones</a></li>
+                <li><a href="#reglas-del-negocio-cardinalidad-y-participacion">Reglas del Negocio: Cardinalidad y Participación</a></li>
+                <li><a href="#cardinalidad-cuantos">Cardinalidad (cuántos)</a></li>
+                <li><a href="#participacion-obligatoriedad">Participación (obligatoriedad)</a></li>
+                <li><a href="#notacion-min-max">Notación (mín, máx)</a></li>
+                <li><a href="#problema-de-identificacion-claves">Problema de Identificación: Claves</a></li>
+                <li><a href="#a-tipos-de-claves">A. Tipos de Claves</a></li>
+                <li><a href="#claves-compuestas">Claves Compuestas</a></li>
+                <li><a href="#clave-natural-vs-subrogada">Clave Natural vs Subrogada</a></li>
+                <li><a href="#6-entidades-debiles-formalizacion">6. Entidades Débiles (Formalización)</a></li>
+                <li><a href="#atributos-derivados">Atributos Derivados</a></li>
+                <li><a href="#relaciones-con-atributos-y-decisiones-de-modelado">Relaciones con Atributos y Decisiones de Modelado</a></li>
+                <li><a href="#jerarquias-generalizacion-especializacion">Jerarquías (Generalización / Especialización)</a></li>
+                <li><a href="#metodologia-de-modelado">Metodología de Modelado</a></li>
+                <li><a href="#preguntas-clave-al-cliente">Preguntas Clave al Cliente</a></li>
+                <li><a href="#ejemplo-integrador">Ejemplo Integrador</a></li>
+                <li><a href="#ejemplo-el-chip">Ejemplo (El Chip)</a></li>
+                <li><a href="#empleados-que-trabajan">Empleados que trabajan </a></li>
+                <li><a href="#entidades">ENTIDADES</a></li>
+                <li><a href="#atributos">ATRIBUTOS</a></li>
+                <li><a href="#simples">Simples</a></li>
+                <li><a href="#relaciones">RELACIONES</a></li>
+                <li><a href="#cardinalidad">CARDINALIDAD</a></li>
+                <li><a href="#participacion">PARTICIPACIÓN</a></li>
+                <li><a href="#claves">CLAVES</a></li>
+                <li><a href="#entidades-debiles">ENTIDADES DÉBILES</a></li>
+                <li><a href="#relaciones-con-atributos">  RELACIONES CON ATRIBUTOS</a></li>
+                <li><a href="#atributos-derivados">  ATRIBUTOS DERIVADOS</a></li>
+                <li><a href="#11-decisiones-de-modelado">  11. DECISIONES DE MODELADO</a></li>
+                <li><a href="#errores-comunes">  ERRORES COMUNES</a></li>
+                <li><a href="#metodologia-de-modelado">METODOLOGÍA DE MODELADO</a></li>
+            </ol>
+        </nav>
+
+
+        <article class="apunte">
+            <h2 id="introduccion"><br>Introducción</h2>
+            <p>En informática, un <strong>diagrama</strong> es una representación gráfica que permite modelar, simplificar y comunicar estructuras, procesos o sistemas complejos. Su objetivo principal es facilitar la comprensión y el análisis mediante elementos visuales estandarizados, reduciendo ambigüedades y permitiendo que distintos actores (analistas, desarrolladores y clientes) compartan un mismo entendimiento del problema.</p>
+            <p>Dentro de este contexto, el <strong>Diagrama Entidad-Relación (DER)</strong> es una herramienta de modelado conceptual utilizada en bases de datos para representar la estructura de la información de un sistema. A través de entidades, atributos y relaciones, el DER permite abstraer la realidad del dominio del problema y definir cómo se organizan y vinculan los datos, constituyendo el punto de partida para el diseño lógico y la implementación de la base de datos.</p>
+            <p>Objetivo de la Clase: Dominar el <strong>Diagrama Entidad-Relación (DER)</strong> como herramienta para analizar, abstraer y representar formalmente la realidad, garantizando una base sólida para el diseño lógico de bases de datos.</p>
+            <h2 id="que-estamos-modelando">¿Qué estamos modelando?</h2>
+            <p>Un sistema de información representa una <strong>porción de la realidad</strong> que se desea gestionar.</p>
+            <p>El proceso de modelado implica:</p>
+            <ul>
+              <li><strong>Observar el mundo real</strong> </li>
+              <li><strong>Seleccionar qué información es relevante</strong> </li>
+              <li><strong>Representarla de forma estructurada</strong> </li>
+            </ul>
+            <p>Este proceso se denomina <strong>abstracción</strong>.</p>
+            <p><em><strong>No todo lo real se modela: el diseñador decide qué incluir según los objetivos del sistema.</strong></em></p>
+            <h2 id="entidades-y-atributos">Entidades y Atributos</h2>
+            <h3 id="entidades">Entidades</h3>
+            <p>Son objetos del mundo real (concretos o abstractos) sobre los cuales se desea almacenar información.</p>
+            <p><strong>Tipos:</strong></p>
+            <ul>
+              <li><strong>Entidades Fuertes:</strong></li>
+              <li>Existen de manera independiente dentro del sistema.</li>
+              <li>Ej: ALUMNO, CLIENTE, PRODUCTO.</li>
+              <li><strong>Entidades Débiles:</strong></li>
+              <li>Dependen de otra entidad para existir.</li>
+              <li>Ej: CUOTA depende de ALUMNO.</li>
+              <li>Interpretación conceptual:</li>
+              <li>No tienen sentido por sí solas.</li>
+              <li>Representan partes o detalles de otra entidad.</li>
+            </ul>
+            <h3 id="atributos">Atributos</h3>
+            <p>Son propiedades que describen a una entidad.</p>
+            <p><strong>Tipos:</strong></p>
+            <ul>
+              <li><strong>Simples (atómicos):</strong></li>
+              <li>No se pueden descomponer.</li>
+              <li>Ej: Nombre </li>
+              <li><strong>Compuestos:</strong></li>
+              <li>Se dividen en subatributos.</li>
+              <li>Ej: Dirección → Calle, Número, Ciudad.</li>
+              <li><strong>Multivaluados:</strong></li>
+              <li>Admiten múltiples valores.</li>
+              <li>Ej: Teléfono.</li>
+            </ul>
+            <h2 id="relaciones">Relaciones</h2>
+            <p>Las relaciones representan asociaciones entre entidades.</p>
+            <p>Ejemplo:</p>
+            <p>ALUMNO — CURSA — MATERIA</p>
+            <p>Las relaciones pueden:</p>
+            <ul>
+              <li>Vincular dos o más entidades </li>
+              <li>Tener atributos propios </li>
+            </ul>
+            <p>Ejemplo:</p>
+            <p>INSCRIPCIÓN → FechaInscripción</p>
+            <p>En algunos casos, cuando una relación tiene atributos propios, puede ser necesario analizar si debe modelarse como una estructura independiente en etapas posteriores.</p>
+            <h2 id="reglas-del-negocio-cardinalidad-y-participacion">Reglas del Negocio: Cardinalidad y Participación</h2>
+            <p>Las relaciones entre entidades están determinadas por reglas del negocio.</p>
+            <p>Estas reglas se expresan mediante:</p>
+            <ul>
+              <li><strong>Cardinalidad</strong> </li>
+              <li><strong>Participación</strong> </li>
+            </ul>
+            <h3 id="cardinalidad-cuantos">Cardinalidad (cuántos)</h3>
+            <p>Indica el número máximo de instancias de una entidad que pueden relacionarse con otra.</p>
+            <ul>
+              <li><strong>1:1</strong> → Un DIRECTOR dirige una ESCUELA </li>
+              <li><strong>1:N</strong> → Un CLIENTE realiza muchos PEDIDOS </li>
+              <li><strong>N:M</strong> → Muchos ALUMNOS cursan muchas MATERIAS </li>
+            </ul>
+            <h3 id="participacion-obligatoriedad">Participación (obligatoriedad)</h3>
+            <p>Indica si una entidad debe o no participar en una relación</p>
+            <ul>
+              <li><strong>Total (obligatoria):</strong><strong> </strong>Todas las instancias participan</li>
+              <li><strong>Parcial (opcional):</strong><strong> </strong>Algunas instancias pueden no participar</li>
+            </ul>
+            <h3 id="notacion-min-max">Notación (mín, máx)</h3>
+            <p>Una forma más precisa de representar estas reglas es mediante pares (mín, máx):</p>
+            <ul>
+              <li>(0,1) → opcional, máximo uno </li>
+              <li>(1,1) → obligatorio, uno </li>
+              <li>(0,N) → opcional, muchos </li>
+              <li>(1,N) → obligatorio, muchos </li>
+            </ul>
+            <p>La notación (mín, máx) integra cardinalidad y participación en una sola expresión.</p>
+            <h2 id="problema-de-identificacion-claves">Problema de Identificación: Claves</h2>
+            <p>En un sistema real puede ocurrir:</p>
+            <p>Dos entidades distintas con los mismos atributos visibles.</p>
+            <p>Ejemplo: Dos alumnos con el mismo nombre.</p>
+            <p>Esto plantea un problema:</p>
+            <p>¿Cómo identificamos de forma única cada instancia?</p>
+            <h3 id="a-tipos-de-claves">A. Tipos de Claves</h3>
+            <ul>
+              <li><strong>Superclave</strong><strong>:</strong><strong> </strong>Conjunto de atributos que permite identificar unívocamente una entidad</li>
+              <li><strong>Clave Candidata:</strong><strong> </strong>Superclave mínima (sin atributos redundantes)</li>
+              <li><strong>Clave Primaria (PK):</strong><strong> </strong>Clave elegida como identificador principal</li>
+            </ul>
+            <p>Debe cumplir:</p>
+            <ul>
+              <li>Ser única </li>
+              <li>No ser nula </li>
+              <li>Ser estable en el tiempo </li>
+            </ul>
+            <h3 id="claves-compuestas">Claves Compuestas</h3>
+            <p>Una clave puede estar formada por más de un atributo.</p>
+            <p>Ejemplo: INSCRIPCIÓN → (id_alumno, id_materia)</p>
+            <p>Este tipo de clave surge cuando una relación entre entidades requiere una identificación propia.</p>
+            <h3 id="clave-natural-vs-subrogada">Clave Natural vs Subrogada</h3>
+            <ul>
+              <li><strong>Clave Natural:</strong><strong> </strong>Proviene del mundo real. Ej: DNI</li>
+              <li><strong>Clave Subrogada:</strong><strong> </strong>Generada por el sistema. Ej: id_alumno</li>
+            </ul>
+            <p>En sistemas reales se suelen preferir claves subrogadas por su estabilidad.</p>
+            <h2 id="6-entidades-debiles-formalizacion">6. Entidades Débiles (Formalización)</h2>
+            <p>Las entidades débiles presentan un problema de identificación: No pueden identificarse por sí solas.</p>
+            <p>Por eso:</p>
+            <ul>
+              <li>Se identifican utilizando: </li>
+              <li>La clave de la entidad fuerte </li>
+              <li>Un atributo propio (clave parcial) </li>
+            </ul>
+            <p>Ejemplo: CUOTA → (id_alumno, número_cuota)</p>
+            <p>Esta identificación se establece mediante una <strong>relación identificadora</strong>.</p>
+            <h2 id="atributos-derivados">Atributos Derivados</h2>
+            <p>Algunos atributos pueden obtenerse a partir de otros.</p>
+            <p>Ejemplo:</p>
+            <ul>
+              <li>Edad a partir de FechaNacimiento</li>
+            </ul>
+            <p>Esto plantea una decisión de diseño:</p>
+            <ul>
+              <li><strong>Almacenar el valor</strong> </li>
+              <li><strong>Calcularlo cuando se necesite</strong> </li>
+            </ul>
+            <p>La elección depende de:</p>
+            <ul>
+              <li>Frecuencia de uso </li>
+              <li>Costos de cálculo </li>
+              <li>Consistencia de los datos </li>
+            </ul>
+            <h2 id="relaciones-con-atributos-y-decisiones-de-modelado">Relaciones con Atributos y Decisiones de Modelado</h2>
+            <p>Cuando una relación posee atributos propios, puede comportarse conceptualmente como una entidad.</p>
+            <p>Ejemplo:INSCRIPCIÓN:<br></p>
+            <ul>
+              <li>relaciona ALUMNO y MATERIA </li>
+              <li>tiene atributo FechaInscripción </li>
+            </ul>
+            <p>En estos casos, el diseñador debe decidir:</p>
+            <ul>
+              <li>Mantenerla como relación </li>
+              <li>modelarla como una entidad independiente </li>
+            </ul>
+            <p>Esta decisión impacta directamente en el diseño posterior.</p>
+            <h2 id="jerarquias-generalizacion-especializacion">Jerarquías (Generalización / Especialización)</h2>
+            <p>Permiten representar relaciones de tipo “es un”.</p>
+            <p>Ejemplo:</p>
+            <ul>
+              <li>EMPLEADO </li>
+              <li>DOCENTE </li>
+              <li>ADMINISTRATIVO </li>
+            </ul>
+            <p>Tipos:</p>
+            <ul>
+              <li><strong>Total / Parcial:</strong><strong> </strong>Todas o algunas instancias pertenecen a una subclase </li>
+              <li><strong>Disjunta / Superpuesta:</strong><strong> </strong>Una instancia pertenece a una o varias subclases </li>
+            </ul>
+            <h2 id="metodologia-de-modelado">Metodología de Modelado</h2>
+            <p>Proceso recomendado:</p>
+            <ol>
+              <li>Identificar entidades (sustantivos) </li>
+              <li>Identificar relaciones (verbos) </li>
+              <li>Definir cardinalidades </li>
+              <li>Definir participación </li>
+              <li>Asignar atributos </li>
+              <li>Definir claves </li>
+              <li>Validar con reglas del negocio </li>
+            </ol>
+            <p>Este proceso es iterativo: el modelo se ajusta a medida que se comprende mejor el dominio.</p>
+            <h2 id="preguntas-clave-al-cliente">Preguntas Clave al Cliente</h2>
+            <ul>
+              <li>¿Puede existir X sin Y? </li>
+              <li>¿Cuántos X pueden relacionarse con Y? </li>
+              <li>¿Qué identifica de forma única a X? </li>
+              <li>¿Este dato puede tener múltiples valores? </li>
+              <li>¿Este dato se puede calcular? </li>
+            </ul>
+            <h2 id="ejemplo-integrador">Ejemplo Integrador</h2>
+            <h3 id="ejemplo-el-chip">Ejemplo (El Chip)</h3>
+            <p>Del relato del cliente se identifican:</p>
+            <ul>
+              <li>Clientes que traen equipos </li>
+              <li>Equipos a reparar </li>
+              <li>Órdenes de reparación </li>
+              <li>Problemas detectados </li>
+              <li>Reparaciones realizadas </li>
+              <li>Repuestos utilizados </li>
+            </ul>
+            <h3 id="empleados-que-trabajan">Empleados que trabajan </h3>
+            <h4 id="decision-de-abstraccion">Decisión de abstracción</h4>
+            <p><em>Abstracción: La abstracción es el proceso mediante el cual se seleccionan y representan únicamente los aspectos relevantes de un sistema, ignorando los detalles innecesarios para el objetivo que se persigue.</em></p>
+            <p><em>En informática, la abstracción permite simplificar la complejidad del mundo real para poder modelarlo, analizarlo y resolver problemas de manera más eficiente.</em></p>
+            <p>Se incluyen:</p>
+            <ul>
+              <li>CLIENTE </li>
+              <li>ORDEN_REPARACION </li>
+              <li>EQUIPO </li>
+              <li>REPARACION </li>
+              <li>REPUESTO </li>
+            </ul>
+            <p>No se incluyen:</p>
+            <ul>
+              <li>proveedores </li>
+              <li>facturación detallada </li>
+              <li>caja diaria </li>
+            </ul>
+            <h3 id="entidades">ENTIDADES</h3>
+            <p>Una entidad es un objeto del mundo real con existencia independiente.</p>
+            <ul>
+              <li><strong>Ejemplos:</strong></li>
+              <li><strong>CLIENTE</strong> → persona que deja equipos </li>
+              <li><strong>EQUIPO</strong> → celular, tablet, smartwatch </li>
+              <li><strong>ORDEN_REPARACION</strong> → registro del ingreso </li>
+              <li><strong>REPARACION</strong> → trabajo realizado </li>
+              <li><strong>REPUESTO</strong> → componente utilizado </li>
+            </ul>
+            <h3 id="atributos">ATRIBUTOS</h3>
+            <p>Los atributos describen características de las entidades.</p>
+            <p><strong>CLIENTE</strong></p>
+            <ul>
+              <li>nombre </li>
+              <li>teléfono </li>
+              <li>DNI (clave candidata) </li>
+            </ul>
+            <p><strong>EQUIPO</strong></p>
+            <ul>
+              <li>tipo </li>
+              <li>marca </li>
+              <li>modelo </li>
+              <li>número de serie (clave candidata) </li>
+            </ul>
+            <p><strong>ORDEN_REPARACION</strong></p>
+            <ul>
+              <li>fecha_ingreso </li>
+              <li>estado </li>
+              <li>fecha_retiro </li>
+            </ul>
+            <h4 id="tipos-de-atributos">Tipos de atributos</h4>
+            <h3 id="simples">Simples</h3>
+            <ul>
+              <li>nombre </li>
+              <li>estado </li>
+            </ul>
+            <p><strong>Compuestos</strong></p>
+            <ul>
+              <li>dirección (calle, número, ciudad) </li>
+            </ul>
+            <p><strong>Multivaluados</strong></p>
+            <ul>
+              <li>teléfono (un cliente puede tener varios) </li>
+            </ul>
+            <p><strong>Derivados</strong></p>
+            <ul>
+              <li>precio total de reparación </li>
+            </ul>
+            <h3 id="relaciones">RELACIONES</h3>
+            <p>Las relaciones vinculan entidades.</p>
+            <ul>
+              <li>CLIENTE — DEJA — ORDEN </li>
+              <li>ORDEN — INCLUYE — EQUIPO </li>
+              <li>REPARACION — UTILIZA — REPUESTO </li>
+            </ul>
+            <h3 id="cardinalidad">CARDINALIDAD</h3>
+            <p>Define cuántas ocurrencias participan en una relación.</p>
+            <h5 id="1-n">1:N</h5>
+            <p>Un cliente puede tener muchas órdenesCada orden pertenece a un cliente</p>
+            <p>CLIENTE (0,N) — ORDEN (1,1)</p>
+            <h5 id="n-m">N:M</h5>
+            <p>Una reparación puede usar varios repuestosUn repuesto puede usarse en muchas reparaciones</p>
+            <p>REPARACION (N) — REPUESTO (M)</p>
+            <h3 id="participacion">PARTICIPACIÓN</h3>
+            <p>Indica si una entidad participa obligatoriamente en una relación.</p>
+            <ul>
+              <li>Una orden <strong>debe</strong> tener cliente → participación total </li>
+              <li>Un cliente <strong>puede no tener órdenes</strong> → participación parcial </li>
+            </ul>
+            <h3 id="claves">CLAVES</h3>
+            <p>Permiten identificar de forma única una entidad.</p>
+            <h5 id="clave-primaria">Clave primaria</h5>
+            <ul>
+              <li>id_cliente </li>
+              <li>id_orden </li>
+            </ul>
+            <h5 id="claves-candidatas">Claves candidatas</h5>
+            <ul>
+              <li>DNI (cliente) </li>
+              <li>número de serie (equipo) </li>
+            </ul>
+            <h3 id="entidades-debiles">ENTIDADES DÉBILES</h3>
+            <p>Son entidades que dependen de otra para existir.</p>
+            <p><strong>DIRECCIÓN</strong></p>
+            <ul>
+              <li>No existe sin CLIENTE </li>
+              <li>Se identifica con: </li>
+              <li>id_cliente + datos de dirección </li>
+            </ul>
+            <h3 id="relaciones-con-atributos">  RELACIONES CON ATRIBUTOS</h3>
+            <p>Algunas relaciones tienen información propia.</p>
+            <p>REPARACION — UTILIZA — REPUESTO</p>
+            <p>Atributo:</p>
+            <ul>
+              <li>cantidad </li>
+            </ul>
+            <p>No pertenece ni a reparación ni a repuesto, sino a la relación</p>
+            <h3 id="atributos-derivados">  ATRIBUTOS DERIVADOS</h3>
+            <p>Se calculan a partir de otros datos.</p>
+            <p>Precio total:</p>
+            <ul>
+              <li>suma de mano de obra + repuestos </li>
+              <li>descuento si es efectivo </li>
+            </ul>
+            <p>No es necesario almacenarlo</p>
+            <h3 id="11-decisiones-de-modelado">  11. DECISIONES DE MODELADO</h3>
+            <p>El diseño implica tomar decisiones.</p>
+            <ul>
+              <li>¿REPARACION es entidad o relación?</li>
+              <li>Se modela como entidad </li>
+              <li>¿Una orden puede tener varios equipos?</li>
+              <li>Sí → relación ORDEN–EQUIPO </li>
+              <li>¿Cómo modelar repuestos?</li>
+              <li>Con una relación N:M </li>
+            </ul>
+            <h3 id="errores-comunes">  ERRORES COMUNES</h3>
+            <ul>
+              <li>Duplicar clientes por no usar DNI </li>
+              <li>No separar ORDEN y REPARACION </li>
+              <li>No modelar la relación N:M con repuestos </li>
+              <li>No registrar cantidad de repuestos </li>
+            </ul>
+            <h3 id="metodologia-de-modelado">METODOLOGÍA DE MODELADO</h3>
+            <h5 id="paso-1-identificar-sustantivos">Paso 1: identificar sustantivos</h5>
+            <p>cliente, equipo, reparación, repuesto</p>
+            <h5 id="paso-2-identificar-verbos">Paso 2: identificar verbos</h5>
+            <p>deja, incluye, utiliza</p>
+            <h5 id="paso-3-definir-relaciones">Paso 3: definir relaciones</h5>
+            <p>CLIENTE — DEJA — ORDEN</p>
+            <h5 id="paso-4-definir-cardinalidades">Paso 4: definir cardinalidades</h5>
+            <h5 id="paso-5-validar-con-reglas-del-negocio">Paso 5: validar con reglas del negocio</h5>
+        </article>
+
+        <div class="descargas">
+            <h4>Descargar este apunte</h4>
+            <a href="../../descargas/clase-06-modelado-conceptual.pdf" class="salto-nav">PDF</a>
+            <a href="../../descargas/clase-06-modelado-conceptual.docx" class="salto-nav">DOCX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="ingenieria-requerimientos.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Requerimientos: la presentación</strong>
+            </a>
+            <a class="pag-sig" href="clase-07-del-dibujo-a-la-tabla.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Del dibujo a la tabla</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · revisión 1.0.0</p>
+    </footer>
+
+</body>
+</html>

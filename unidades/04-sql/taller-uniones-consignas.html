@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Uniones sin JOIN - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-cross     { --c: var(--bloque-azul); }
+    .block-equi      { --c: var(--bloque-verde); }
+    .block-nonequi   { --c: var(--bloque-rosa); }
+    .block-self      { --c: var(--bloque-naranja); }
+    .block-trap      { --c: var(--bloque-violeta); }
+
+    /* propio de esta página */
+    .demo-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 0.85rem;
+                font-family: 'Fira Code', monospace;
+            }
+    .demo-table th {
+                background: rgba(255, 255, 255, 0.04);
+                color: var(--text-muted);
+                text-align: left;
+                padding: 8px 12px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+    .demo-table td {
+                padding: 7px 12px;
+                color: #cbd5e1;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+    .demo-table tr.match td,
+            .demo-table td.match {
+                background: rgba(16, 185, 129, 0.08);
+                color: #a7f3d0;
+            }
+    .demo-caption {
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                font-style: italic;
+                margin-top: -5px;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 3</span>
+            <h1>Uniones de tablas sin escribir JOIN</h1>
+            <p>El producto cartesiano, la restricción y el álgebra relacional que hay detrás de todo cruce de datos en "El Chip"</p>
+            <a href="taller-uniones-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: uniones sin JOIN</span>
+        </nav>
+
+        <!-- INTRODUCCIÓN: EL ÁLGEBRA RELACIONAL DETRÁS DEL JOIN -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
+                    Antes del JOIN existía la coma
+                </h2>
+            </div>
+            <div class="explicacion">
+                <p>La palabra <code>JOIN</code> recién aparece en el estándar <strong>SQL-92</strong>. Sin embargo, las bases de datos relacionales cruzaban tablas desde 1974. ¿Cómo lo hacían? Con dos operaciones del <strong>álgebra relacional</strong> de Codd combinadas:</p>
+                <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.98rem; display: flex; flex-direction: column; gap: 8px; margin: 15px 0 15px 20px;">
+                    <li><strong>1. Producto cartesiano (×):</strong> combina <em>cada</em> fila de la tabla A con <em>cada</em> fila de la tabla B. En SQL se escribe con una simple <strong>coma</strong> en el <code>FROM</code>.</li>
+                    <li><strong>2. Restricción o Selección (σ):</strong> descarta las filas de ese resultado gigante que no cumplen una condición. En SQL es el <code>WHERE</code>.</li>
+                    <li><strong>3. Proyección (π):</strong> elige qué columnas se muestran. En SQL es la lista del <code>SELECT</code>.</li>
+                </ol>
+                <p>La equivalencia fundamental que vamos a trabajar en todo el taller es esta:</p>
+                <div class="helper-box">
+                    <h5>La misma consulta, dos sintaxis</h5>
+                    <pre><code><span class="sql-comment">-- Sintaxis SQL-92 (la que ya conocen)</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O <span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente;
+
+<span class="sql-comment">-- Sintaxis SQL-89: producto cartesiano + restricción</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O, cliente C <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente;</code></pre>
+                </div>
+                <p>El motor de MySQL genera <strong>exactamente el mismo plan de ejecución</strong> para ambas. No es una versión "peor" ni más lenta: es la misma operación escrita de otra manera. Entenderla explica de una vez por qué un <code>INNER JOIN</code> a veces devuelve más filas de las esperadas y por qué olvidar una condición puede colgar el servidor.</p>
+
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
+                        El vocabulario que vamos a usar
+                    </h4>
+                    <ul>
+                        <li><strong>Producto cartesiano / CROSS JOIN:</strong> todas las combinaciones posibles. Si A tiene <em>n</em> filas y B tiene <em>m</em>, el resultado tiene <strong>n × m</strong> filas.</li>
+                        <li><strong>Intersección o Equi-Join (INNER JOIN):</strong> el producto cartesiano restringido a las filas donde una clave foránea <strong>es igual</strong> a su clave primaria.</li>
+                        <li><strong>Autounión (SELF JOIN):</strong> una tabla combinada consigo misma, usando dos alias distintos, para comparar sus propias filas entre sí.</li>
+                        <li><strong>No-Equi-Join:</strong> la condición de unión usa <code>&gt;</code>, <code>&lt;</code>, <code>&lt;&gt;</code> o <code>BETWEEN</code> en lugar de <code>=</code>. Sirve para clasificar por rangos y comparar magnitudes.</li>
+                        <li><strong>Theta-Join (θ):</strong> el nombre formal de cualquier unión cuya condición es un operador de comparación arbitrario. El equi-join es apenas el caso particular en que θ es "=".</li>
+                    </ul>
+                </div>
+
+                <p>Trabajaremos sobre la base <code>el_chip</code>. Tené el DER a mano: en este taller las claves foráneas son el mapa del territorio.</p>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: PRODUCTO CARTESIANO -->
+        <section class="block-card block-cross" id="cartesiano">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>El Producto Cartesiano</h2>
+                    <p>Cruzar todo contra todo: la materia prima de cualquier unión</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, quiero rediseñar el mostrador. Necesito imprimir una planilla en blanco donde figure cada cliente cruzado con cada método de pago que aceptamos, así el chico de recepción tilda a mano con qué paga cada uno. No quiero los pagos reales todavía, quiero <em>todas las combinaciones posibles</em>."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Sustento Teórico: la coma en el FROM
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> al escribir <code>FROM tabla_a, tabla_b</code> le pedimos al motor que apareje cada fila de <code>tabla_a</code> con todas las de <code>tabla_b</code>. No hace falta que exista ninguna relación ni clave foránea entre ellas.</li>
+                        <li><strong>Cardinalidad del resultado:</strong> es multiplicativa. 5 clientes × 4 métodos de pago = 20 filas. 5 clientes × 5 equipos × 6 problemas = 150 filas.</li>
+                        <li><strong>Equivalencia moderna:</strong> <code>FROM a, b</code> ≡ <code>FROM a CROSS JOIN b</code>. Son sinónimos exactos en MySQL.</li>
+                        <li><strong>Uso legítimo:</strong> generar grillas, calendarios, matrices de posibilidades o combinatorias de prueba. No es siempre un error: es un error solo cuando no fue intencional.</li>
+                    </ul>
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr><th colspan="2">cliente (2 filas) × telefonotipo (3 filas) = 6 filas</th></tr>
+                        <tr><th>apellido</th><th>tipo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Pérez</td><td>Celular</td></tr>
+                        <tr><td>Pérez</td><td>Fijo</td></tr>
+                        <tr><td>Pérez</td><td>Trabajo</td></tr>
+                        <tr><td>García</td><td>Celular</td></tr>
+                        <tr><td>García</td><td>Fijo</td></tr>
+                        <tr><td>García</td><td>Trabajo</td></tr>
+                    </tbody>
+                </table>
+                <p class="demo-caption">Ninguna fila es "verdadera" ni "falsa" todavía: son posibilidades. El significado lo aporta recién el WHERE.</p>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es el menú de una rotisería que ofrece 4 tipos de milanesa y 3 guarniciones. El cartel dice "12 combinaciones". Nadie pidió esos 12 platos: son todos los pedidos <em>posibles</em>. El cliente que efectivamente eligió una combinación es lo que veremos en el bloque siguiente.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Cuidado con el volumen:</strong> el producto cartesiano crece de forma multiplicativa, no aditiva. Dos tablas de 10.000 filas cada una producen <strong>cien millones</strong> de filas. En una base real, ejecutar esto sin querer bloquea el servidor y llena el disco de archivos temporales. En "El Chip" las tablas son chicas y podés experimentar tranquilo, pero el reflejo de contar antes de ejecutar hay que construirlo acá.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>La planilla en blanco del mostrador</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí una consulta que muestre el <code>apellido</code> y <code>nombre</code> de cada cliente cruzado con el <code>nombre</code> de cada método de pago disponible, sin ninguna condición. Antes de ejecutarla, <strong>anotá en papel cuántas filas esperás</strong> y después verificalo.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Contar sin mirar</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Sin ejecutar nada todavía, calculá mentalmente cuántas filas devuelve <code>SELECT * FROM equipo, problema;</code>. Después escribí una consulta que use <code>COUNT(*)</code> sobre ese producto cartesiano para comprobar tu cálculo. Explicá con tus palabras de dónde sale ese número.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>Tres tablas, un solo cartesiano</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí una consulta que produzca el producto cartesiano de <code>rol</code>, <code>orden_estado</code> y <code>metodo_pago</code> mostrando el nombre de cada uno. ¿Cuántas filas dio? Verificá que el número coincida con la multiplicación de las tres cardinalidades.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: RESTRICCIÓN / EQUI-JOIN -->
+        <section class="block-card block-equi" id="restriccion">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Restricción: del cartesiano a la intersección</h2>
+                    <p>El WHERE que convierte combinaciones posibles en datos verdaderos</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Che, la planilla anterior no me sirve para atender. Ahora necesito lo real: el listado de las órdenes con el apellido del cliente, el estado en que está cada una y qué técnico la tomó. Los números de ID no me dicen nada, quiero ver los nombres."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Sustento Teórico: la selección σ sobre el producto
+                    </h4>
+                    <ul>
+                        <li><strong>La fórmula:</strong> un INNER JOIN es <code>σ<sub>condición</sub>(A × B)</code>. Primero se conciben todas las combinaciones, después se retienen solo aquellas donde la clave foránea coincide con la clave primaria referenciada.</li>
+                        <li><strong>Regla de las N−1 condiciones:</strong> para unir N tablas correctamente hacen falta al menos <strong>N−1 condiciones de igualdad</strong> en el <code>WHERE</code>. Si unís 4 tablas y solo escribiste 2 condiciones, tenés un cartesiano parcial escondido y tus números van a estar inflados.</li>
+                        <li><strong>Alias de tabla:</strong> <code>FROM orden_servicio O, cliente C</code> permite escribir <code>O.id_cliente</code> y <code>C.id_cliente</code>. Con tablas que comparten nombres de columna, calificar con el alias deja de ser opcional.</li>
+                        <li><strong>Filtros mezclados:</strong> en esta sintaxis el <code>WHERE</code> contiene <em>dos cosas distintas</em> revueltas: las condiciones de unión (<code>O.id_cliente = C.id_cliente</code>) y los filtros de negocio (<code>C.apellido = 'Pérez'</code>). Es exactamente lo que SQL-92 vino a separar con el <code>ON</code>.</li>
+                    </ul>
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr><th colspan="3">orden_servicio × cliente, con la fila que sobrevive al WHERE resaltada</th></tr>
+                        <tr><th>O.nro_orden</th><th>O.id_cliente</th><th>C.id_cliente / C.apellido</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="match"><td>1</td><td>1</td><td>1 — Pérez</td></tr>
+                        <tr><td>1</td><td>1</td><td>2 — García</td></tr>
+                        <tr><td>1</td><td>1</td><td>3 — López</td></tr>
+                        <tr><td>2</td><td>2</td><td>1 — Pérez</td></tr>
+                        <tr class="match"><td>2</td><td>2</td><td>2 — García</td></tr>
+                        <tr><td>2</td><td>2</td><td>3 — López</td></tr>
+                    </tbody>
+                </table>
+                <p class="demo-caption">El motor no "busca" al cliente: descarta todas las parejas que no cumplen O.id_cliente = C.id_cliente.</p>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> imaginá el bingo. El producto cartesiano es el bolillero con todas las combinaciones de cartón y número posibles. La restricción es el momento en que solo te quedás con los cartones donde el número cantado <em>efectivamente</em> figura. Nadie recorre el bolillero: se descarta lo que no coincide.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Error 1052 — Column 'id_cliente' in field list is ambiguous:</strong> si dos tablas del <code>FROM</code> tienen una columna con el mismo nombre y la nombrás sin prefijo, MySQL aborta porque no puede adivinar cuál querés. La solución es siempre la misma: usar alias cortos y calificar cada columna (<code>C.id_cliente</code>). Acostumbrate a calificar <em>todas</em> las columnas, incluso las que hoy no son ambiguas: el día que se agregue una columna nueva a otra tabla, tu consulta no se va a romper.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Órdenes con nombre y apellido del cliente</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Usando únicamente coma y <code>WHERE</code> (prohibido escribir la palabra <code>JOIN</code>), listá el <code>nro_orden</code>, la <code>fecha_ingreso</code> y el apellido y nombre del cliente de cada orden de servicio. Usá alias de tabla de una o dos letras.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Equipos con su marca</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá el <code>tipo</code>, <code>modelo</code> y <code>nro_serie</code> de cada equipo junto al <code>nombre</code> de su marca. Después ejecutá la misma consulta <strong>borrando el WHERE</strong> y compará la cantidad de filas: ese es el cartesiano que la restricción estaba conteniendo.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <h3>El tablero completo de Martín (4 tablas)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Armá el listado que pidió Martín: <code>nro_orden</code>, apellido del cliente, nombre del estado de la orden y usuario del empleado que la tomó. Son 4 tablas: <code>orden_servicio</code>, <code>cliente</code>, <code>orden_estado</code> y <code>empleado</code>. Antes de ejecutar, contá cuántas condiciones de igualdad necesitás según la regla N−1.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.4</span>
+                        <h3>Atravesar una tabla puente N:M</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá, para cada orden, qué marca y modelo de equipo ingresó y con qué problema. La relación pasa por la tabla puente <code>orden_servicio_has_equipo</code>, así que vas a necesitar cruzar <code>orden_servicio</code>, <code>orden_servicio_has_equipo</code>, <code>equipo</code>, <code>marca</code> y <code>problema</code>: cinco tablas.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-2-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.5</span>
+                        <h3>Unión + filtro de negocio en el mismo WHERE</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá el <code>nro_orden</code>, el apellido del cliente y el <code>monto</code> de cada pago, pero solo de aquellos pagos hechos con el método <code>'Efectivo'</code>. Prestá atención a cuáles de tus condiciones son <em>uniones</em> y cuáles son <em>filtros</em>: marcalas con un comentario <code>--</code> en el código.</p>
+                        <div class="helper-box">
+                            <h5>Punto de partida</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> ...
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C, orden_servicio_pago OSP, metodo_pago MP
+<span class="sql-keyword">WHERE</span> ... <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> ... <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> ... <span class="sql-comment">-- unión</span>
+  <span class="sql-keyword">AND</span> ...;<span class="sql-comment"> -- filtro de negocio</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-2-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: AUTOUNIÓN / SELF JOIN -->
+        <section class="block-card block-self" id="autounion">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Autounión (SELF JOIN)</h2>
+                    <p>Una tabla mirándose al espejo para comparar sus propias filas</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, tengo un problema de organización del taller. Quiero saber qué equipos son del mismo tipo entre sí, para agruparlos en el mismo estante. Y también qué empleados comparten el mismo rol, para armar los turnos sin que queden dos administradores juntos. Ojo: no quiero una lista de tipos, quiero ver las <em>parejas</em>."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><rect x="3" y="6" width="6" height="12" rx="1"/><rect x="15" y="6" width="6" height="12" rx="1"/></svg>
+                        Sustento Teórico: la tabla como dos tablas
+                    </h4>
+                    <ul>
+                        <li><strong>La idea:</strong> nombrar dos veces la misma tabla en el <code>FROM</code> con alias distintos. Para el motor son dos conjuntos de filas independientes que se combinan como cualquier otro par de tablas: <code>FROM equipo E1, equipo E2</code>.</li>
+                        <li><strong>Por qué hace falta:</strong> las funciones de agregación resumen filas <em>hacia abajo</em>, pero no permiten comparar una fila contra otra <em>a lo ancho</em>. Cuando la pregunta es "¿cuál fila se parece a cuál?" o "¿cuál supera a cuál?", la única herramienta es la autounión.</li>
+                        <li><strong>Los alias dejan de ser opcionales:</strong> sin ellos, MySQL lanza <code>Error 1066: Not unique table/alias</code>. Y toda columna debe calificarse, porque <em>todas</em> están duplicadas.</li>
+                        <li><strong>El problema de los duplicados y el reflejo:</strong> una autounión ingenua devuelve tres tipos de basura: la fila comparada consigo misma (A–A), y cada pareja repetida en los dos órdenes (A–B y B–A). Se limpian con la condición <code>E1.id &lt; E2.id</code>, que de un saque descarta el reflejo y una de las dos direcciones.</li>
+                    </ul>
+                </div>
+
+                <table class="demo-table">
+                    <thead>
+                        <tr><th colspan="2">equipo E1, equipo E2 filtrando por mismo tipo — con y sin control de duplicados</th></tr>
+                        <tr><th>Con E1.id_equipo = E2.id_equipo permitido</th><th>Con E1.id_equipo &lt; E2.id_equipo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Galaxy S21 — Galaxy S21 <em>(basura: es él mismo)</em></td><td class="match">Galaxy S21 — iPhone 13</td></tr>
+                        <tr><td>Galaxy S21 — iPhone 13</td><td class="match">Galaxy S21 — Edge 30</td></tr>
+                        <tr><td>iPhone 13 — Galaxy S21 <em>(basura: pareja repetida)</em></td><td class="match">iPhone 13 — Edge 30</td></tr>
+                        <tr><td>iPhone 13 — iPhone 13 <em>(basura)</em></td><td>—</td></tr>
+                    </tbody>
+                </table>
+                <p class="demo-caption">El operador &lt; no ordena nada: se usa como criterio para quedarse con una sola de las dos versiones de cada pareja.</p>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la lista de partidos de un torneo. Si tenés 4 equipos y los cruzás a todos contra todos sin cuidado, aparece "Boca vs Boca" y aparecen "Boca vs River" y "River vs Boca" como si fueran dos partidos distintos. La condición <code>&lt;</code> es la regla del fixture: cada par juega una sola vez y nadie juega contra sí mismo.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Nota sobre este esquema:</strong> el caso de autounión más famoso es el de la jerarquía (empleado y su jefe en la misma tabla, con una FK apuntando a sí misma). La tabla <code>empleado</code> de "El Chip" <strong>no tiene</strong> esa columna, así que acá vamos a practicar la otra familia de autouniones: comparar filas por <em>atributos compartidos</em> y por <em>magnitudes relativas</em>. La técnica —dos alias, condición entre ellos— es idéntica.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Equipos que comparten estante</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá todas las parejas de equipos <strong>distintos</strong> que sean del mismo <code>tipo</code>, mostrando el modelo de cada uno y el tipo compartido. Cada pareja debe aparecer <strong>una sola vez</strong>.</p>
+                        <div class="helper-box">
+                            <h5>Esqueleto</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> E1.modelo, E2.modelo, E1.tipo
+<span class="sql-keyword">FROM</span> equipo E1, equipo E2
+<span class="sql-keyword">WHERE</span> ... <span class="sql-comment">-- que compartan el tipo</span>
+  <span class="sql-keyword">AND</span> ...; <span class="sql-comment">-- que no se repitan ni se comparen consigo mismos</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Compañeros de rol</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá las parejas de empleados distintos que comparten el mismo <code>id_rol</code>, mostrando ambos <code>usuario</code> y el <code>nombre</code> del rol (que está en la tabla <code>rol</code>). Ojo: acá combinás una autounión con un equi-join común, en el mismo <code>WHERE</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <h3>Probá el error a propósito</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ejecutá <code>SELECT * FROM equipo, equipo;</code> y anotá textualmente el error que devuelve MySQL. Después arreglalo con alias y explicá en una línea por qué el motor no puede resolverlo sin ellos.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.4</span>
+                        <h3>Clientes homónimos (el control de calidad)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín sospecha que el recepcionista cargó clientes duplicados. Escribí una autounión sobre <code>cliente</code> que detecte parejas de clientes con <strong>distinto</strong> <code>id_cliente</code> pero <strong>igual</strong> <code>apellido</code>. Interpretá el resultado: ¿qué significa que la consulta devuelva cero filas?</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-3-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4: NO-EQUI-JOINS -->
+        <section class="block-card block-nonequi" id="nonequi">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>No-Equi-Joins: unir por rango y desigualdad</h2>
+                    <p>Cuando la relación entre dos tablas no es una igualdad de claves</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Necesito clasificar los repuestos en categorías de precio: económico, intermedio y premium, para armar la lista de precios del local. Y otra cosa que me preocupa: quiero detectar los casos donde le cobramos al cliente una mano de obra distinta a la que figura en la lista oficial del problema. Eso no está bien y quiero verlo."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+                        Sustento Teórico: theta-join con operadores de comparación
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> un no-equi-join es una unión cuya condición usa <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>&lt;&gt;</code> o <code>BETWEEN</code>. La relación entre las filas no es "esta clave apunta a esta otra", sino "este valor cae dentro de este rango" o "este valor supera a aquel".</li>
+                        <li><strong>Caso típico 1 — tabla de escalas:</strong> una tabla (o subconsulta) con las columnas <code>categoria</code>, <code>minimo</code> y <code>maximo</code> se une a los datos con <code>valor BETWEEN minimo AND maximo</code>. Es el patrón clásico de las categorías de sueldo, de las escalas impositivas y de los rangos de descuento.</li>
+                        <li><strong>Caso típico 2 — comparación de magnitudes:</strong> unir dos tablas donde una columna debe ser mayor o distinta a la otra, para auditar inconsistencias o detectar oportunidades.</li>
+                        <li><strong>Caso típico 3 — rangos de fechas:</strong> unir un hecho con un período usando <code>fecha BETWEEN inicio AND fin</code>. Es la base de todo reporte de vigencias y de precios históricos.</li>
+                        <li><strong>Importante:</strong> el motor <em>no puede</em> usar índices de la misma forma que en un equi-join. Los no-equi-joins son legítimos y necesarios, pero son la operación de unión más costosa que existe.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> el boletín de notas. Para saber si un 8 es "Muy Bueno" no hay una tabla que diga "8 = Muy Bueno" fila por fila: hay una escala que dice "de 7 a 8,99 es Muy Bueno". Ninguna clave se toca con otra; lo que se evalúa es si el número cae dentro del intervalo.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El riesgo de la explosión de filas:</strong> si los rangos de la escala <em>se solapan</em> (por ejemplo, una categoría de 0 a 10000 y otra de 5000 a 20000), un repuesto de $8000 va a aparecer <strong>dos veces</strong> en el resultado. En un equi-join contra una clave primaria eso no puede pasar; en un no-equi-join es responsabilidad tuya que los rangos sean disjuntos y cubran todo el dominio. Revisá siempre los bordes.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <h3>La escala de precios de los repuestos</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Clasificá cada repuesto en una categoría de precio según esta escala: <strong>Económico</strong> hasta $9.999, <strong>Intermedio</strong> de $10.000 a $29.999 y <strong>Premium</strong> de $30.000 en adelante. Mostrá el nombre del repuesto, su <code>precio_unitario</code> y la categoría. Como no existe una tabla de escalas en la base, la vas a construir con una <strong>subconsulta en el FROM</strong> (tabla derivada) y la vas a unir por rango.</p>
+                        <div class="helper-box">
+                            <h5>La tabla derivada de escalas</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> R.nombre, R.precio_unitario, ESC.categoria
+<span class="sql-keyword">FROM</span> repuesto R,
+     (<span class="sql-keyword">SELECT</span> <span class="sql-string">'Económico'</span> <span class="sql-keyword">AS</span> categoria, <span class="sql-number">0</span> <span class="sql-keyword">AS</span> minimo, <span class="sql-number">9999</span> <span class="sql-keyword">AS</span> maximo
+      <span class="sql-keyword">UNION ALL</span> <span class="sql-keyword">SELECT</span> <span class="sql-string">'Intermedio'</span>, <span class="sql-number">10000</span>, <span class="sql-number">29999</span>
+      <span class="sql-keyword">UNION ALL</span> <span class="sql-keyword">SELECT</span> <span class="sql-string">'Premium'</span>, <span class="sql-number">30000</span>, <span class="sql-number">9999999</span>) <span class="sql-keyword">AS</span> ESC
+<span class="sql-keyword">WHERE</span> ...; <span class="sql-comment">-- la condición de rango va acá</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <h3>Auditoría de mano de obra</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>La tabla <code>problema</code> tiene la mano de obra <em>de lista</em> y la tabla <code>problema_has_repuesto</code> guarda la mano de obra <em>efectivamente pactada</em> en cada combinación de problema y repuesto. Detectá los casos donde ambas <strong>no coinciden</strong>, mostrando la descripción del problema, el monto de lista y el monto pactado. Necesitás un equi-join (por <code>id_problema</code>) y un no-equi-join (la desigualdad) en el mismo <code>WHERE</code>.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.3</span>
+                        <h3>Repuestos más baratos que la mano de obra</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber en qué casos el repuesto sale menos que el trabajo de instalarlo. Listá todas las combinaciones de repuesto y problema donde el <code>precio_unitario</code> del repuesto sea <strong>menor</strong> que la <code>mano_obra</code> del problema. Fijate que entre <code>repuesto</code> y <code>problema</code> no hay ninguna clave foránea directa: la única relación es la comparación de importes.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-4-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.4</span>
+                        <h3>Repuestos más caros que uno dado (autounión + desigualdad)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Sin usar subconsultas, listá todos los repuestos cuyo <code>precio_unitario</code> supere al del repuesto llamado <code>'Batería Samsung Serie A'</code>. Resolvelo con una <strong>autounión</strong> sobre <code>repuesto</code>: un alias identifica el repuesto de referencia y el otro recorre los candidatos. Este reto combina los bloques 3 y 4.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-4-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 5: TRAMPAS Y CRITERIO PROFESIONAL -->
+        <section class="block-card block-trap" id="trampas">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Trampas y criterio profesional</h2>
+                    <p>Por qué SQL-92 inventó el JOIN y cuándo la coma se te da vuelta</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, el sistema viejo que me dejó el programador anterior tira un reporte de facturación con números altísimos, no cierran con la caja. Le pedí que lo mire y me dijo que la consulta 'está bien porque no da error'. ¿Me lo pueden revisar ustedes?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        Sustento Teórico: los tres límites de la sintaxis con coma
+                    </h4>
+                    <ul>
+                        <li><strong>1. El cartesiano accidental es silencioso:</strong> olvidar una condición de unión no produce ningún error. La consulta corre, devuelve filas, y los <code>SUM</code> quedan multiplicados. Con <code>INNER JOIN ... ON</code>, en cambio, olvidarse el <code>ON</code> es un error de sintaxis: la propia gramática te obliga a declarar la relación.</li>
+                        <li><strong>2. No existe el OUTER JOIN:</strong> con la coma <em>no hay forma</em> de escribir un <code>LEFT JOIN</code>. Si necesitás las órdenes que todavía no tienen ningún pago, esta sintaxis no te alcanza. Oracle inventó el operador <code>(+)</code> y SQL Server el <code>*=</code> como parches propietarios, ambos hoy en desuso. Esa es la razón histórica más fuerte por la que apareció SQL-92.</li>
+                        <li><strong>3. Legibilidad y mantenimiento:</strong> el <code>WHERE</code> mezcla la <em>plomería</em> (qué se une con qué) y la <em>lógica de negocio</em> (qué se filtra). En una consulta de 8 tablas, distinguir una cosa de la otra a simple vista es imposible.</li>
+                        <li><strong>Entonces, ¿para qué aprender esto?</strong> Porque explica qué hace el motor por debajo, porque vas a encontrar esta sintaxis en sistemas heredados y en informes viejos, y porque el álgebra relacional se evalúa así. Escribirla es cosa del pasado; <strong>leerla y entenderla</strong> es parte del oficio.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la diferencia entre un tornillo y un clavo. Con la coma, todo se une con clavos: funciona, pero nada te avisa si te olvidaste de clavar una tabla. El <code>ON</code> es el tornillo con rosca: no entra si no lo alineás bien, y esa "molestia" es exactamente lo que te salva.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-5-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.1</span>
+                        <h3>El reporte que no cierra con la caja</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Esta es la consulta del sistema viejo. Ejecutala, detectá por qué el total está inflado, explicá el mecanismo exacto del error y corregila.</p>
+                        <div class="helper-box">
+                            <h5>Consulta a auditar</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">SUM</span>(OSP.monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Total Facturado'</span>
+<span class="sql-keyword">FROM</span> cliente C, orden_servicio O, orden_servicio_pago OSP
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-5-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.2</span>
+                        <h3>Traducir del 89 al 92</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Tomá tu solución del <strong>Reto 2.4</strong> (las cinco tablas de la relación N:M) y reescribila con la sintaxis <code>INNER JOIN ... ON</code>. Compará ambas versiones y respondé: ¿cuál te resulta más fácil de leer para saber qué tabla se une con cuál, y por qué?</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-5-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.3</span>
+                        <h3>El límite de la coma</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere el listado de <strong>todas</strong> las órdenes, incluyendo las que todavía no registraron ningún pago (deberían aparecer con el monto vacío). Intentá resolverlo con coma y <code>WHERE</code>. Cuando compruebes que no se puede, escribí la versión correcta con <code>LEFT JOIN</code> y explicá en dos líneas por qué la sintaxis vieja no alcanza.</p>
+                    
+                        <a class="salto-nav" href="taller-uniones-resoluciones.html#reto-5-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-sql-practica-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller: primeras consultas</strong>
+            </a>
+            <a class="pag-sig" href="taller-agrupacion-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller de agrupación</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="taller-uniones-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

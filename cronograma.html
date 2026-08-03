@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma del ciclo · Bases de Datos</title>
+    <link rel="stylesheet" href="assets/css/fuentes.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/apunte.css">
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">En revisión</span>
+            <h1>Cronograma del ciclo</h1>
+            <p>Las 39 clases con su objetivo y sus ejes temáticos, trimestre por trimestre</p>
+            <a href="index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver al índice
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="index.html#partida">Punto de partida</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Cronograma del ciclo</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Contenido</h2>
+            <ol>
+                <li><a href="#1-trimestre-el-arte-de-modelar-la-realidad">1° TRIMESTRE: "El Arte de Modelar la Realidad"</a></li>
+                <li><a href="#2-trimestre-la-teoria-de-la-calidad">2° TRIMESTRE: "La Teoría de la Calidad"</a></li>
+                <li><a href="#receso-invernal-0607---1707">RECESO INVERNAL (06/07 - 17/07)</a></li>
+                <li><a href="#3-trimestre-programacion-optimizacion-y-proyecto-final">3° TRIMESTRE: "Programación, Optimización y Proyecto Final"</a></li>
+            </ol>
+        </nav>
+
+
+        <article class="apunte">
+            <p>Este documento detalla la planificación pedagógica semana a semana, especificando el carácter de la clase, los objetivos, los ejes temáticos y la actividad de taller propuesta.</p>
+            <hr>
+            <h2 id="1-trimestre-el-arte-de-modelar-la-realidad">🟢 1° TRIMESTRE: "El Arte de Modelar la Realidad"</h2>
+            <h3 id="clase-1-el-valor-de-los-datos-0203---0603">Clase 1: El Valor de los Datos (02/03 - 06/03)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Diferenciar técnicamente entre dato, información y conocimiento.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Definiciones base: ¿Qué es un dato? ¿Cuándo se convierte en información?</li>
+              <li>El ciclo de procesamiento: Entrada -&gt; Proceso -&gt; Salida.</li>
+              <li>Contextualización: Los datos en una institución escolar (Ej: Una nota vs. el promedio anual).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Mapeo de Realidad". Los alumnos identifican en un ticket de supermercado o una libreta de calificaciones qué es dato crudo y qué información procesada.</li>
+            </ul>
+            <h3 id="clase-2-del-archivo-a-la-base-de-datos-0903---1303">Clase 2: Del Archivo a la Base de Datos (09/03 - 13/03)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico (T).</li>
+              <li><strong>Objetivo:</strong> Comprender las limitaciones de los sistemas de archivos tradicionales y la necesidad de un DBMS.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Problemas de los archivos planos: Redundancia, inconsistencia, dificultad de acceso y aislamiento.</li>
+              <li>Definición de <strong>DBMS (SGBD)</strong>: El software que hace de "aduana" entre el usuario y los datos.</li>
+              <li>Ventajas competitivas: Integridad, seguridad y concurrencia.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> Análisis de caso. Comparar una planilla Excel compartida por 5 personas vs. una base de datos centralizada.</li>
+            </ul>
+            <h3 id="clase-3-la-arquitectura-de-los-datos-1603---2003">Clase 3: La Arquitectura de los Datos (16/03 - 20/03)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Entender los niveles de abstracción para garantizar la independencia de datos.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li><strong>Modelo ANSI/SPARC:</strong> Nivel Interno (bits/discos), Conceptual (lógica de negocio) y Externo (vistas de usuario).</li>
+              <li>Independencia Física vs. Independencia Lógica.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Taller de Capas". Dibujar cómo un cambio en el formato de un número de teléfono afecta (o no) a la aplicación visual y al almacenamiento en disco.</li>
+            </ul>
+            <h3 id="clase-4-roles-etica-y-seguridad-2303---2703">Clase 4: Roles, Ética y Seguridad (23/03 - 27/03)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Debate / Práctico (P).</li>
+              <li><strong>Objetivo:</strong> Identificar a los actores del ecosistema de datos y la responsabilidad legal/ética.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Usuarios de BD: El DBA (Administrador), el Desarrollador y el Usuario Final.</li>
+              <li>Seguridad Básica: Confidencialidad, Integridad y Disponibilidad (Tríada CIA).</li>
+              <li>Ética: Manejo de datos sensibles y privacidad (Ley de Protección de Datos Personales).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> Debate guiado. "El dilema del DBA": ¿Qué hacer si se detecta un acceso no autorizado de un directivo a sueldos de colegas?</li>
+            </ul>
+            <h3 id="clase-5-ingenieria-de-requerimientos-3003---0304">Clase 5: Ingeniería de Requerimientos (30/03 - 03/04)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Taller de Análisis (T-P).</li>
+              <li><strong>Objetivo:</strong> Aprender a extraer la lógica de negocio de una entrevista o texto.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Requerimientos Funcionales vs No Funcionales.</li>
+              <li>Identificación de Reglas de Negocio.</li>
+              <li>La ambigüedad del lenguaje natural y cómo resolverla.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Caza de Reglas". Se entrega un texto desordenado de un cliente y los alumnos deben listar las 10 reglas de datos más importantes.</li>
+            </ul>
+            <h3 id="clase-6-modelado-conceptual-integral-der-0604---1004">Clase 6: Modelado Conceptual Integral (DER) (06/04 - 10/04)</h3>
+            <p>https://app.diagrams.net/</p>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Dominar la abstracción gráfica de la realidad mediante el modelo Entidad-Relación completo.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li><strong>Componentes del DER:</strong> Entidades (Fuertes/Débiles), Atributos (Simples, Compuestos, Multivaluados) y Relaciones.</li>
+              <li><strong>Cardinalidad y Participación:</strong> 1:1, 1:N, N:M y restricciones de participación (Total/Parcial).</li>
+              <li><strong>El Poder de las Claves:</strong> Superclave, Clave Candidata y Clave Primaria (PK). Claves Naturales vs. Subrogadas.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Modelado Express". Los alumnos deben diseñar el DER completo de un sistema de biblioteca o videoclub en una sola sesión, identificando entidades, relaciones, cardinalidades y claves.</li>
+            </ul>
+            <h3 id="clase-7-del-dibujo-a-la-tabla-1304---1704">Clase 7: Del Dibujo a la Tabla (13/04 - 17/04)</h3>
+            <p>https://dev.mysql.com/downloads/installer/ https://dev.mysql.com/downloads/workbench/</p>
+            <ul>
+              <li><strong>Carácter:</strong> Técnico (T-P).</li>
+              <li><strong>Objetivo:</strong> Ejecutar el pasaje del modelo conceptual (DER) al modelo lógico (Relacional).</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Reglas de Transformación: Conversión de relaciones N:M y 1:N.</li>
+              <li>Propagación de Claves: La aparición de la Clave Foránea (FK).</li>
+              <li>Tratamiento de atributos complejos en el modelo de tablas.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "La Gran Transformación". Los alumnos pasan su DER de papel a un esquema de tablas (filas y columnas).</li>
+            </ul>
+            <h3 id="clase-8-diseno-fisico-e-indices-2004---2404">Clase 8: Diseño Físico e Índices (20/04 - 24/04)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Entender cómo se guardan los datos en el hardware.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Tipos de datos según el motor (VARCHAR, INT, DECIMAL).</li>
+              <li>¿Qué es un Índice? Analogía con el índice de un libro.</li>
+              <li>Costo de almacenamiento vs Velocidad de consulta.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Diccionario de Datos". Crear un documento técnico que especifique el tipo exacto y longitud de cada campo de la BD escolar.</li>
+            </ul>
+            <h3 id="clase-9-taller-de-refuerzo---modelado-y-pasaje-2704---0105">Clase 9: Taller de Refuerzo - Modelado y Pasaje (27/04 - 01/05)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Taller Intensivo (P).</li>
+              <li><strong>Objetivo:</strong> Consolidar la lógica de diseño y la transformación a tablas con casos complejos.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Resolución de dudas sobre cardinalidades complejas.</li>
+              <li>Práctica de normalización intuitiva durante el pasaje a tablas.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Desafío de Diseño". Modelar un sistema de turnos médicos con múltiples especialidades y obras sociales.</li>
+            </ul>
+            <h3 id="clase-10-clinica-de-diseno-y-pre-parcial-0405---0805">Clase 10: Clínica de Diseño y Pre-Parcial (04/05 - 08/05)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Consulta / Simulacro (P).</li>
+              <li><strong>Objetivo:</strong> Pulir detalles finales y prepararse para la evaluación.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Repaso general de la Unidad I y II.</li>
+              <li>Simulacro de examen con corrección en tiempo real.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Auditoría de Pares". Los alumnos intercambian sus diseños y deben encontrar errores de lógica o violaciones de reglas de negocio.</li>
+            </ul>
+            <h3 id="clase-11-repaso-e-integracion-1105---1505">Clase 11: Repaso e Integración (11/05 - 15/05)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Evaluación.</li>
+              <li><strong>Objetivo:</strong> Validar los conocimientos de diseño y modelado de la primera etapa.</li>
+              <li><strong>Actividad Taller:</strong> <strong>1er EXAMEN PARCIAL (Diseño y Modelado).</strong></li>
+            </ul>
+            <hr>
+            <h2 id="2-trimestre-la-teoria-de-la-calidad">🟡2° TRIMESTRE: "La Teoría de la Calidad"</h2>
+            <h3 id="clase-12-las-reglas-de-edgar-codd-1805---2205">Clase 12: Las Reglas de Edgar Codd (18/05 - 22/05)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico (T).</li>
+              <li><strong>Objetivo:</strong> Comprender el rigor científico detrás del modelo relacional.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Historia: El paper de 1970 de IBM.</li>
+              <li>Integridad de Entidad (No PK nula) e Integridad Referencial (No FK huérfana).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Auditoría de Datos". Se entrega una base "rota" y los alumnos deben señalar qué reglas de integridad se están violando.</li>
+            </ul>
+            <h3 id="clase-13-algebra-relacional-i-2505---2905">Clase 13: Álgebra Relacional I (25/05 - 29/05)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Matemático (T-P).</li>
+              <li><strong>Objetivo:</strong> Pensar en conjuntos antes de escribir SQL.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Operaciones Unarias: Selección ($\sigma$) y Proyección ($\pi$).</li>
+              <li>Operaciones Binarias: Unión, Diferencia y Producto Cartesiano.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Consultas en Papel". Resolver pedidos usando símbolos matemáticos.</li>
+            </ul>
+            <h3 id="clase-14-algebra-relacional-ii-joins-0106---0506">Clase 14: Álgebra Relacional II: Joins (01/06 - 05/06)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Práctico (P).</li>
+              <li><strong>Objetivo:</strong> Dominar la operación de reunión de tablas.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Natural Join, Theta Join y Outer Joins.</li>
+              <li>Intersección y División relacional.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Cruzando Datos". Escribir las expresiones algebraicas para unir <code>ALUMNOS</code> con <code>NOTAS</code>.</li>
+            </ul>
+            <h3 id="clase-15-normalizacion-i-el-caos-de-la-redundancia-0806---12">Clase 15: Normalización I: El Caos de la Redundancia (08/06 - 12/06)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Clínica de Datos (T-P).</li>
+              <li><strong>Objetivo:</strong> Identificar por qué los datos repetidos destruyen sistemas.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Anomalías de Inserción, Modificación y Borrado.</li>
+              <li>Concepto de Atomicidad y <strong>Primera Forma Normal (1FN).</strong></li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Desarmando el Excel". Llevar una planilla de asistencia gigante a 1FN eliminando grupos repetidos.</li>
+            </ul>
+            <hr>
+            <h3 id="clase-16-dependencias-funcionales-1506---1906">Clase 16: Dependencias Funcionales (15/06 - 19/06)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Identificar los vínculos lógicos entre atributos que determinan la estructura de una tabla.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Definición de DF: Determinante y Dependiente.</li>
+              <li>Tipos de dependencias: Parcial, Transitiva y Completa.</li>
+              <li>Axiomas de Armstrong y Cálculo de cierres de atributos.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Cierre de Atributos". Ejercicios en pizarra para identificar claves candidatas a partir de un conjunto de dependencias.</li>
+            </ul>
+            <h3 id="clase-17-normalizacion-ii-2fn-y-3fn-2206---2606">Clase 17: Normalización II: 2FN y 3FN (22/06 - 26/06)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Refinar el diseño eliminando dependencias parciales y transitivas para evitar anomalías.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li><strong>Segunda Forma Normal (2FN):</strong> Eliminación de dependencias parciales.</li>
+              <li><strong>Tercera Forma Normal (3FN):</strong> Eliminación de dependencias transitivas.</li>
+              <li>Descomposición sin pérdida de información (Lossless Join).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Resolución de Anomalías". Aplicar 2FN y 3FN a un caso de "Gestión de Pedidos" con redundancia evidente.</li>
+            </ul>
+            <h3 id="clase-18-normalizacion-iii-forma-normal-boyce-codd-2906---03">Clase 18: Normalización III: Forma Normal Boyce-Codd (29/06 - 03/07)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Alcanzar el máximo rigor de integridad en esquemas con múltiples claves candidatas superpuestas.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Limitaciones de la 3FN.</li>
+              <li>Definición de <strong>FNBC (BCNF)</strong>: Todo determinante debe ser clave candidata.</li>
+              <li>Análisis de casos complejos de superposición de claves.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "El Desafío de Codd". Resolver casos "bordes" donde la 3FN falla y la FNBC es necesaria para garantizar la consistencia.</li>
+            </ul>
+            <hr>
+            <h2 id="receso-invernal-0607---1707">❄️ RECESO INVERNAL (06/07 - 17/07)</h2>
+            <p><em>Pausa lectiva para la consolidación de conceptos y descanso.</em></p>
+            <hr>
+            <h3 id="clase-21-desnormalizacion-y-performance-2007---2407">Clase 21: Desnormalización y Performance (20/07 - 24/07)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Estratégico (T).</li>
+              <li><strong>Objetivo:</strong> Entender cuándo y por qué sacrificar la pureza del diseño en favor de la velocidad de lectura.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>El costo de los Joins en sistemas de gran escala.</li>
+              <li>Concepto de redundancia controlada.</li>
+              <li>Casos de uso: Data Warehousing y reportes de alta performance.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> Debate guiado: "Pureza vs. Velocidad". Analizar un sistema que requiere miles de lecturas por segundo frente a uno de alta transaccionalidad.</li>
+            </ul>
+            <h3 id="clase-22-sql-i-definicion-de-datos-ddl-2707---3107">Clase 22: SQL I: Definición de Datos (DDL) (27/07 - 31/07)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Traducir el modelo físico a sentencias ejecutables en un motor real (MySQL).</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Tipos de datos en SQL (INT, VARCHAR, DATE, DECIMAL).</li>
+              <li>Sentencias base: <code>CREATE</code>, <code>ALTER</code> y <code>DROP</code>.</li>
+              <li>Restricciones de integridad: <code>NOT NULL</code>, <code>UNIQUE</code>, <code>DEFAULT</code>, <code>CHECK</code>.</li>
+              <li>Definición de PK y FK por script.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Script de Nacimiento". Los alumnos escriben el código SQL completo para crear la base de datos de su proyecto escolar.</li>
+            </ul>
+            <h3 id="clase-23-sql-ii-manipulacion-basica-dml-0308---0708">Clase 23: SQL II: Manipulación Básica (DML) (03/08 - 07/08)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Aprender las operaciones fundamentales de persistencia y consulta simple.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Operaciones de actualización: <code>INSERT</code>, <code>UPDATE</code> y <code>DELETE</code>.</li>
+              <li>Consulta básica: <code>SELECT</code>, <code>FROM</code> y alias.</li>
+              <li>Filtrado con <code>WHERE</code> y operadores lógicos/comparativos.</li>
+              <li>Ordenamiento con <code>ORDER BY</code>.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Poblando el Sistema". Insertar datos reales en las tablas creadas y realizar las primeras búsquedas de información específica.</li>
+            </ul>
+            <h3 id="clase-24-consolidacion-y-2do-examen-1008---1408">Clase 24: Consolidación y 2do Examen (10/08 - 14/08)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Evaluación.</li>
+              <li><strong>Objetivo:</strong> Validar el dominio de la Normalización, Álgebra Relacional y SQL básico.</li>
+              <li><strong>Actividad Taller:</strong> <strong>2do EXAMEN PARCIAL (Teoría Relacional, Normalización y SQL Inicial).</strong></li>
+            </ul>
+            <h3 id="clase-25-sql-iii-el-poder-de-los-joins-1708---2108">Clase 25: SQL III: El Poder de los Joins (17/08 - 21/08)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Consultar múltiples tablas simultáneamente de forma eficiente.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Inner Joins vs. Outer Joins (<code>LEFT</code>, <code>RIGHT</code>, <code>FULL</code>).</li>
+              <li>Joins de múltiples tablas y Self-joins.</li>
+              <li>Manejo de valores <code>NULL</code> en consultas de unión.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Cruce de Datos Maestro". Resolver un set de 15 consultas complejas que requieren vincular al menos 3 tablas para obtener la respuesta.</li>
+            </ul>
+            <h3 id="clase-26-sql-iv-agregacion-y-grupos-2408---2808">Clase 26: SQL IV: Agregación y Grupos (24/08 - 28/08)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Obtener métricas y resúmenes estadísticos directamente del motor de BD.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Funciones de agregado: <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>.</li>
+              <li>Agrupamiento de datos: <code>GROUP BY</code>.</li>
+              <li>Filtrado de grupos: <code>HAVING</code>.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Tablero de Control". Generar reportes de gestión: promedios por curso, totales de ventas mensuales y detección de máximos/mínimos.</li>
+            </ul>
+            <hr>
+            <h2 id="3-trimestre-programacion-optimizacion-y-proyecto-final">🟠 3° TRIMESTRE: "Programación, Optimización y Proyecto Final"</h2>
+            <h3 id="clase-27-sql-v-subconsultas-y-logica-avanzada-3108---0409">Clase 27: SQL V: Subconsultas y Lógica Avanzada (31/08 - 04/09)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Técnico (T-P).</li>
+              <li><strong>Objetivo:</strong> Resolver problemas de negocio complejos mediante la anidación de consultas.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Subconsultas escalares, de lista y de tabla.</li>
+              <li>Operadores <code>IN</code>, <code>EXISTS</code>, <code>ANY</code>, <code>ALL</code>.</li>
+              <li>Subconsultas correlacionadas vs. Joins: ¿Cuándo usar cada una?</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Inception SQL". Resolver desafíos del tipo "¿Quiénes tienen un promedio superior al promedio general de su curso?".</li>
+            </ul>
+            <h3 id="clase-28-vistas-y-seguridad-de-acceso-0709---1109">Clase 28: Vistas y Seguridad de Acceso (07/09 - 11/09)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Técnico (T-P).</li>
+              <li><strong>Objetivo:</strong> Abstraer la complejidad para el usuario y proteger datos sensibles.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Creación y gestión de <strong>Vistas (VIEW)</strong>.</li>
+              <li>Gestión de Usuarios y Roles.</li>
+              <li>Control de acceso: Sentencias <code>GRANT</code> y <code>REVOKE</code>.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Capas de Seguridad". Diseñar vistas específicas para que diferentes roles (Profesor, Alumno, Administrativo) vean solo lo que les corresponde.</li>
+            </ul>
+            <h3 id="clase-29-transacciones-y-propiedades-acid-1409---1809">Clase 29: Transacciones y Propiedades ACID (14/09 - 18/09)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Práctico (T-P).</li>
+              <li><strong>Objetivo:</strong> Garantizar la consistencia de los datos en entornos concurrentes y ante fallos.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Concepto de Transacción: Inicio, <code>COMMIT</code> y <code>ROLLBACK</code>.</li>
+              <li>Propiedades <strong>ACID</strong> (Atomicidad, Consistencia, Aislamiento, Durabilidad).</li>
+              <li>Niveles de aislamiento y bloqueos (Locks).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "El Simulacro del Cajero". Ejecutar manualmente una transferencia bancaria simulando una caída del servidor a mitad del proceso para verificar la recuperación.</li>
+            </ul>
+            <h3 id="clase-30-programacion-en-bd-stored-procedures-i-2109---2509">Clase 30: Programación en BD: Stored Procedures I (21/09 - 25/09)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Programación (P).</li>
+              <li><strong>Objetivo:</strong> Automatizar lógica de negocio dentro del motor de base de datos.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Introducción a SQL Procedural (PL/SQL o MySQL Scripts).</li>
+              <li>Variables, tipos de datos locales y parámetros (<code>IN</code>, <code>OUT</code>).</li>
+              <li>Estructuras de decisión: <code>IF-THEN-ELSE</code> y <code>CASE</code>.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Procedimientos Base". Crear un SP para registrar una venta que valide el stock disponible antes de realizar el <code>INSERT</code>.</li>
+            </ul>
+            <h3 id="clase-31-programacion-en-bd-stored-procedures-ii-2809---0210">Clase 31: Programación en BD: Stored Procedures II (28/09 - 02/10)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Programación (P).</li>
+              <li><strong>Objetivo:</strong> Manejar flujos de datos iterativos y control de errores.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Bucles: <code>WHILE</code>, <code>LOOP</code> y <code>REPEAT</code>.</li>
+              <li>Manejo de Excepciones y Handlers.</li>
+              <li>Introducción al uso de Cursores.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Procesamiento en Lote". Desarrollar un procedimiento que recorra todas las facturas impagas y genere automáticamente una nota de débito por mora.</li>
+            </ul>
+            <h3 id="clase-32-triggers-el-motor-reactivo-0510---0910">Clase 32: Triggers: El Motor Reactivo (05/10 - 09/10)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Programación (P).</li>
+              <li><strong>Objetivo:</strong> Implementar reglas de integridad automática que reaccionan a eventos de datos.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Eventos <code>BEFORE</code> / <code>AFTER</code> para <code>INSERT</code>, <code>UPDATE</code> y <code>DELETE</code>.</li>
+              <li>Uso de pseudo-filas <code>NEW</code> y <code>OLD</code>.</li>
+              <li>Casos de uso: Auditoría, sincronización de datos y reglas de negocio complejas.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Log de Auditoría". Programar un trigger que guarde en una tabla secundaria cada cambio realizado en la tabla de sueldos (quién, cuándo y valor anterior).</li>
+            </ul>
+            <h3 id="clase-33-optimizacion-de-consultas-1210---1610">Clase 33: Optimización de Consultas (12/10 - 16/10)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Laboratorio (P).</li>
+              <li><strong>Objetivo:</strong> Diagnosticar y corregir cuellos de botella en el rendimiento de la BD.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Análisis de planes de ejecución (<code>EXPLAIN</code>).</li>
+              <li>Optimización de Índices (B-Tree vs. Hash).</li>
+              <li>Buenas prácticas en la escritura de SQL (Sargability).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Carrera de Consultas". Comparar el tiempo de ejecución de una consulta ineficiente sobre un millón de registros antes y después de aplicar índices estratégicos.</li>
+            </ul>
+            <h3 id="clase-34-introduccion-al-mundo-nosql-1910---2310">Clase 34: Introducción al Mundo NoSQL (19/10 - 23/10)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico-Exploratorio (T).</li>
+              <li><strong>Objetivo:</strong> Conocer alternativas al modelo relacional para datos no estructurados.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>El Teorema CAP y la consistencia eventual.</li>
+              <li>Tipos de NoSQL: Documentales (MongoDB), Clave-Valor (Redis), Grafos (Neo4j).</li>
+              <li>Estructuras JSON y BSON.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Modelado Documental". Traducir un DER relacional pequeño a una estructura de documentos JSON jerárquicos.</li>
+            </ul>
+            <h3 id="clase-35-business-intelligence-y-etl-2610---3010">Clase 35: Business Intelligence y ETL (26/10 - 30/10)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Teórico (T).</li>
+              <li><strong>Objetivo:</strong> Entender el ciclo de vida del dato para la toma de decisiones.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>OLTP vs. OLAP.</li>
+              <li>El proceso <strong>ETL</strong> (Extraer, Transformar y Cargar).</li>
+              <li>Modelado Dimensional: El Modelo Estrella (Star Schema).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Diseño de Cubo". Diseñar las dimensiones y la tabla de hechos para analizar las ventas históricas de una cadena de retail.</li>
+            </ul>
+            <h3 id="clase-36-tpi-lanzamiento-e-integracion-0211---0611">Clase 36: TPI: Lanzamiento e Integración (02/11 - 06/11)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Taller de Proyecto (P).</li>
+              <li><strong>Objetivo:</strong> Iniciar la construcción final del Trabajo Práctico Integrador.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Arquitectura del proyecto.</li>
+              <li>Carga de datos de prueba volumétricos (Mock Data).</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> Setup inicial: Creación del repositorio, ejecución del script DDL final y carga masiva de datos para pruebas de stress.</li>
+            </ul>
+            <h3 id="clase-37-tpi-implementacion-logica-y-programacion-0911---131">Clase 37: TPI: Implementación Lógica y Programación (09/11 - 13/11)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Taller de Proyecto (P).</li>
+              <li><strong>Objetivo:</strong> Integrar la lógica procedural y reactiva en el proyecto.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Desarrollo de SP y Triggers críticos.</li>
+              <li>Validación de Reglas de Negocio en el motor.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> Codificación intensiva de la capa de programación de la base de datos, asegurando que toda la lógica resida en el motor.</li>
+            </ul>
+            <h3 id="clase-38-tpi-testing-seguridad-y-documentacion-1611---2011">Clase 38: TPI: Testing, Seguridad y Documentación (16/11 - 20/11)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Taller de Proyecto (P).</li>
+              <li><strong>Objetivo:</strong> Asegurar la calidad técnica y la entregabilidad del producto.</li>
+              <li><strong>Ejes Temáticos:</strong></li>
+            <ul>
+              <li>Pruebas de integridad referencial.</li>
+              <li>Documentación técnica: Diccionario de Datos y Diagrama Final.</li>
+            </ul>
+              <li><strong>Actividad Taller:</strong> "Control de Calidad". Pruebas cruzadas entre grupos para detectar fallos de seguridad o inconsistencias en los datos.</li>
+            </ul>
+            <h3 id="clase-39-defensa-final-y-cierre-del-ciclo-2311---2711">Clase 39: Defensa Final y Cierre del Ciclo (23/11 - 27/11)</h3>
+            <ul>
+              <li><strong>Carácter:</strong> Evaluación Final.</li>
+              <li><strong>Objetivo:</strong> Demostrar las competencias adquiridas mediante la defensa del proyecto integrador.</li>
+              <li><strong>Actividad Taller:</strong> <strong>PRESENTACIÓN Y DEFENSA ORAL DEL TPI.</strong> Demostración funcional del sistema y respuesta a consultas técnicas del tribunal docente.</li>
+            </ul>
+        </article>
+    </main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026</p>
+    </footer>
+
+</body>
+</html>

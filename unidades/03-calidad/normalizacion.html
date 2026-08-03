@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normalización · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clases 15 a 18</span>
+            <h1>Normalización</h1>
+            <p>De la planilla caótica a la tercera forma normal</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad III · Calidad del modelo
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u3">Unidad III · Calidad del modelo</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Normalización</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#dependencias-funcionales">Dependencias Funcionales</a></li>
+                <li><a href="#dependencias-funcionales-de-claves-candidatas-comp">Dependencias Funcionales de Claves Candidatas Compuestas</a></li>
+                <li><a href="#dependencias-funcionales-de-claves-candidatas-comp-2">Dependencias Funcionales de Claves Candidatas Compuestas y 2da Forma Normal</a></li>
+                <li><a href="#dependencias-funcionales-triviales-y-no-triviales">Dependencias Funcionales Triviales y No Triviales</a></li>
+                <li><a href="#dependencias-funcionales-completamente-no-triviale">Dependencias Funcionales Completamente No Triviales</a></li>
+                <li><a href="#dependencias-transitivas">Dependencias Transitivas</a></li>
+                <li><a href="#determinantes-y-superclaves">Determinantes y Superclaves</a></li>
+            </ol>
+        </nav>
+
+
+        <div class="diapositivas">
+            <section class="diapositiva" id="dependencias-funcionales">
+              <div class="diapo-num">01</div>
+              <h2>Dependencias Funcionales</h2>
+              <ul>
+                <li>Ejemplos:</li>
+                <li>A es el DETERMINANTE: El que manda (ej: un DNI).</li>
+                <li>B es el DEPENDIENTE: El que obedece (ej: un Nombre).</li>
+              </ul>
+              <ul>
+                <li>Notación:</li>
+                <li>A → B (A determina a B)</li>
+              </ul>
+              <ul>
+                <li>La teoría dice:</li>
+                <li><em><strong>Existe una dependencia funcional si todo atributo B depende funcionalmente de un atributo A.</strong></em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dependencias-funcionales-de-claves-candidatas-comp">
+              <div class="diapo-num">02</div>
+              <h2>Dependencias Funcionales de Claves Candidatas Compuestas</h2>
+              <ul>
+                <li>Como pensarlo:</li>
+                <li>(A, B) → C: Si necesito A y B para saber C =&gt; OK.</li>
+                <li>(A, B) → C: Si solo con A o con B ya sé C =&gt; Dependencia Parcial.</li>
+              </ul>
+              <ul>
+                <li>Notación:</li>
+                <li>A, B → C (A y B determinan a C)</li>
+              </ul>
+              <ul>
+                <li>Qué?</li>
+                <li><em><strong>Un atributo tiene dependencia funcional total si necesita de TODOS los componentes de la clave para ser determinado. Si se quita un pedazo de la clave, el atributo ya no se puede identificar.</strong></em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dependencias-funcionales-de-claves-candidatas-comp-2">
+              <div class="diapo-num">03</div>
+              <h2>Dependencias Funcionales de Claves Candidatas Compuestas y 2da Forma Normal</h2>
+              <ul>
+                <li>La 2da Forma Normal dice:</li>
+                <li>"Ningún atributo que no sea parte de la clave puede depender de solo una parte de la clave".</li>
+              </ul>
+              <ul>
+                <li>Análisis de dependencias:</li>
+                <li>Horas_Trabajo: Depende de la combinación. (Técnico X tardó 2hs en poner el Repuesto Y).</li>
+                <li>Nombre_Tecnico: ¿Depende del Repuesto? NO. Depende solo de ID_Tecnico. PARCIAL.</li>
+                <li>Precio_Repuesto: ¿Depende del Técnico? NO. Depende solo de ID_Repuesto. PARCIAL.</li>
+              </ul>
+              <p>Ejemplo: (registrar qué técnico usó qué repuesto)</p>
+              <figure><img src="../../assets/img/normalizacion-01.png" alt=""></figure>
+            </section>
+            
+            <section class="diapositiva" id="dependencias-funcionales-triviales-y-no-triviales">
+              <div class="diapo-num">04</div>
+              <h2>Dependencias Funcionales Triviales y No Triviales</h2>
+              <ul>
+                <li>Ejemplos en El_Chip:</li>
+                <li>(ID_Cliente, Nombre) -&gt; ID_Cliente</li>
+                <li>Lógica: Si sé el ID y el Nombre de alguien, ¡obviamente sé su ID! No aporta ninguna información nueva.</li>
+                <li>(Nro_Orden, Fecha, ID_Equipo) -&gt; Fecha</li>
+                <li>Lógica: Si conozco la orden completa, conozco su fecha. Es una verdad matemática, no una regla de diseño.</li>
+              </ul>
+              <ul>
+                <li>Según la matemática:</li>
+                <li>X → Y es trivial si Y ⊆ X.</li>
+              </ul>
+              <ul>
+                <li>Definición:</li>
+                <li><em><strong>Una dependencia es </strong></em><em><strong>TRIVIAL</strong></em><em><strong> cuando el atributo de la derecha (el dependiente) ya está incluido en el atributo de la izquierda (el determinante).</strong></em></li>
+              </ul>
+              <ul>
+                <li>Ejemplos en El_Chip:</li>
+                <li>ID_Cliente -&gt; Apellido</li>
+                <li>Lógica: El apellido no es parte del ID. Esta es una regla de negocio: un ID identifica a una persona.</li>
+                <li>Nro_Serie -&gt; Modelo</li>
+                <li>Lógica: El modelo es un dato extra que el Nro_Serie nos permite conocer.</li>
+              </ul>
+              <ul>
+                <li>Definición:</li>
+                <li><em><strong>Una dependencia es NO TRIVIAL cuando el atributo de la derecha NO es parte del atributo de la izquierda.</strong></em></li>
+              </ul>
+              <ul>
+                <li>Según la matemática:</li>
+                <li>X → Y es trivial si Y ⊆ X.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dependencias-funcionales-completamente-no-triviale">
+              <div class="diapo-num">05</div>
+              <h2>Dependencias Funcionales Completamente No Triviales</h2>
+              <ul>
+                <li>Ejemplos en El_Chip:</li>
+                <li>Nro_Orden -&gt; Fecha_Ingreso</li>
+                <li>Lógica: No hay ninguna intersección entre el número y la fecha. El número de orden "determina" en qué fecha entró</li>
+              </ul>
+              <ul>
+                <li>Definición:</li>
+                <li><em><strong>Una dependencia es COMPLETAMENTE NO TRIVIAL cuando el atributo de la derecha NO tiene absolutamente nada que ver con el atributo de la izquierda.</strong></em></li>
+              </ul>
+              <ul>
+                <li>Según la matemática:</li>
+                <li>X → Y  si X ∩ Y = ∅</li>
+              </ul>
+              <ul>
+                <li>Dato:</li>
+                <li>Las Dependencias Completamente No Triviales expresan las Reglas de Negocio.</li>
+              </ul>
+              <ul>
+                <li>La regla de negocio: "Cada modelo de dispositivo pertenece a una y solo una marca" (si es un 'Galaxy S21', la marca es sí o sí 'Samsung’).</li>
+                <li>La regla de negocio: "Una orden de servicio del taller pertenece a un único cliente".</li>
+                <li>La regla de negocio: "Cada repuesto en inventario tiene un precio de lista predefinido".</li>
+                <li>En resumen: No son una obviedad matemática; es una regla del mercado, del negocio, de las ciencias que la base de datos debe respetar.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dependencias-transitivas">
+              <div class="diapo-num">06</div>
+              <h2>Dependencias Transitivas</h2>
+              <ul>
+                <li>Definición:</li>
+                <li><em>La Dependencia Transitiva ocurre cuando un atributo depende de la clave primaria, pero no de forma directa, sino a través de otro atributo intermedio que tampoco es clave</em></li>
+              </ul>
+              <p>Si  es la Clave Primaria, e  y  son atributos comunes, entonces  depende de la clave  <em>a través</em> de .</p>
+              <ul>
+                <li>Según la matemática:</li>
+                <li>X → Y e Y → Z =&gt; X → Z</li>
+                <li>Es lo mismo que decir: X → Y → Z =&gt; X → Z</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="determinantes-y-superclaves">
+              <div class="diapo-num">07</div>
+              <h2>Determinantes y Superclaves</h2>
+              <ul>
+                <li>Definición:</li>
+                <li><em>Una relación está en BCNF si todo determinante es una </em><em>superclave</em><em>.</em></li>
+              </ul>
+              <p>Si  es la Clave Primaria, e  y  son atributos comunes, entonces  depende de la clave  <em>a través</em> de .</p>
+              <ul>
+                <li>Según la matemática:</li>
+                <li>∀ X → Z =&gt; X es superclave</li>
+              </ul>
+            </section>
+        </div>
+
+        <div class="descargas">
+            <h4>Descargar la presentación</h4>
+            <a href="../../descargas/normalizacion.pptx" class="salto-nav">PPTX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="reglas-de-codd.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Las reglas de Edgar Codd</strong>
+            </a>
+            <a class="pag-sig" href="../04-sql/sql.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>SQL: definición de datos</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · 7 diapositivas</p>
+    </footer>
+
+</body>
+</html>

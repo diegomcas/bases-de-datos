@@ -1,0 +1,14 @@
+# Normaliza los finales de línea: en el repo siempre LF.
+* text=auto eol=lf
+
+# Binarios: que git no los toque.
+*.pdf   binary
+*.docx  binary
+*.pptx  binary
+*.xlsx  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.woff2 binary
+*.mwb   binary
+*.db    binary

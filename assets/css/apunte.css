@@ -1,0 +1,240 @@
+/* ==========================================================================
+   APUNTE — texto corrido de las clases
+
+   Se carga después de base.css en las páginas de apunte:
+
+       <link rel="stylesheet" href="../../assets/css/base.css">
+       <link rel="stylesheet" href="../../assets/css/apunte.css">
+       <body data-tema="apunte">
+
+   La medida del texto la fija --ancho-main en el tema «apunte»: 860 px, que
+   da unos 75 caracteres por línea. Más ancho que eso cansa al leer.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. ÍNDICE DE LA CLASE
+   ========================================================================== */
+
+.indice-apunte {
+  background: var(--bg-card);
+  border: 1px solid var(--linea-sutil);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  padding: 22px 26px;
+  margin-bottom: 40px;
+}
+
+.indice-apunte h2 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.indice-apunte ol {
+  list-style: none;
+  counter-reset: seccion;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.indice-apunte li {
+  counter-increment: seccion;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.indice-apunte li::before {
+  content: counter(seccion, decimal-leading-zero);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.indice-apunte a {
+  color: var(--text-body);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: var(--transicion);
+}
+
+.indice-apunte a:hover {
+  color: var(--accent);
+}
+
+
+/* ==========================================================================
+   2. CUERPO DEL APUNTE
+   ========================================================================== */
+
+.apunte {
+  font-size: 1.05rem;
+  color: var(--text-body);
+}
+
+.apunte h2 {
+  font-size: 1.75rem;
+  color: var(--text-main);
+  margin: 48px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--linea-sutil);
+  scroll-margin-top: 20px;
+}
+
+.apunte h2:first-child { margin-top: 0; }
+
+.apunte h3 {
+  font-size: 1.3rem;
+  color: var(--text-main);
+  margin: 34px 0 10px;
+  scroll-margin-top: 20px;
+}
+
+.apunte h4 {
+  font-size: 1.08rem;
+  color: var(--text-main);
+  margin: 26px 0 8px;
+}
+
+.apunte p {
+  margin-bottom: 16px;
+  line-height: 1.75;
+}
+
+.apunte strong { color: #fff; }
+
+.apunte em { color: var(--text-main); }
+
+.apunte ul,
+.apunte ol {
+  margin: 0 0 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.7;
+}
+
+.apunte li { padding-left: 4px; }
+
+.apunte li::marker { color: var(--accent); }
+
+.apunte a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* imágenes y diagramas */
+.apunte figure {
+  margin: 26px 0;
+  text-align: center;
+}
+
+.apunte img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radio-chico);
+}
+
+.apunte figcaption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+
+/* ==========================================================================
+   3. TABLAS DEL APUNTE
+   ========================================================================== */
+
+.tabla-apunte {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 22px 0;
+  font-size: 0.93rem;
+}
+
+.tabla-apunte th {
+  background: var(--velo-medio);
+  color: var(--text-main);
+  text-align: left;
+  padding: 10px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--linea-media);
+}
+
+.tabla-apunte td {
+  padding: 9px 14px;
+  color: var(--text-body);
+  border-bottom: 1px solid var(--linea-sutil);
+  vertical-align: top;
+}
+
+.tabla-apunte tr:last-child td { border-bottom: none; }
+
+
+/* ==========================================================================
+   4. DESCARGAS
+   ========================================================================== */
+
+.descargas {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--linea-sutil);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.descargas h4 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.descargas .salto-nav { margin-top: 0; }
+
+
+/* ==========================================================================
+   5. IMPRESIÓN Y PANTALLAS CHICAS
+   ========================================================================== */
+
+@media print {
+  .indice-apunte,
+  .descargas { display: none; }
+
+  .apunte h2 {
+    border-bottom-color: #999;
+    break-after: avoid;
+  }
+
+  .apunte h3,
+  .apunte h4 { break-after: avoid; }
+
+  .apunte figure,
+  .tabla-apunte { break-inside: avoid; }
+
+  .tabla-apunte th,
+  .tabla-apunte td { border-bottom: 1px solid #ccc; }
+}
+
+@media (max-width: 640px) {
+  .apunte { font-size: 1rem; }
+  .apunte h2 { font-size: 1.45rem; margin-top: 36px; }
+  .apunte h3 { font-size: 1.15rem; }
+  .indice-apunte { padding: 18px 20px; }
+}

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingeniería de requerimientos · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 5</span>
+            <h1>Ingeniería de requerimientos</h1>
+            <p>Funcionales, no funcionales y reglas de negocio</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad II · Diseño de datos
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u2">Unidad II · Diseño de datos</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Ingeniería de requerimientos</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>En esta clase</h2>
+            <ol>
+                <li><a href="#introduccion-a-la-ingenieria-de-requerimientos">Introducción a la Ingeniería de Requerimientos</a></li>
+                <li><a href="#importancia-de-los-requerimientos-en-el-diseno-de-bases-de-d">Importancia de los requerimientos en el diseño de bases de datos</a></li>
+                <li><a href="#representacion-conceptual-del-proceso">Representación conceptual del proceso</a></li>
+                <li><a href="#tipos-de-requerimientos">Tipos de requerimientos</a></li>
+                <li><a href="#requerimientos-funcionales">Requerimientos funcionales</a></li>
+                <li><a href="#requerimientos-no-funcionales">Requerimientos no funcionales</a></li>
+                <li><a href="#reglas-de-negocio">Reglas de negocio</a></li>
+                <li><a href="#tipos-de-reglas-de-negocio">Tipos de reglas de negocio</a></li>
+                <li><a href="#el-problema-de-la-ambiguedad">El problema de la ambigüedad</a></li>
+                <li><a href="#ejemplos-de-ambiguedad">Ejemplos de ambigüedad</a></li>
+                <li><a href="#tecnica-basica-de-analisis-de-textos">Técnica básica de análisis de textos</a></li>
+                <li><a href="#ejemplo-de-analisis">Ejemplo de análisis</a></li>
+                <li><a href="#tecnicas-de-obtencion-de-requerimientos">Técnicas de obtención de requerimientos</a></li>
+                <li><a href="#entrevistas">Entrevistas</a></li>
+                <li><a href="#observacion">Observación</a></li>
+                <li><a href="#analisis-de-documentos">Análisis de documentos</a></li>
+                <li><a href="#cuestionarios">Cuestionarios</a></li>
+                <li><a href="#proceso-de-ingenieria-de-requerimientos">Proceso de ingeniería de requerimientos</a></li>
+                <li><a href="#productos-de-la-ingenieria-de-requerimientos">Productos de la ingeniería de requerimientos</a></li>
+                <li><a href="#errores-comunes-en-el-analisis-de-requerimientos">Errores comunes en el análisis de requerimientos</a></li>
+                <li><a href="#relacion-con-el-modelado-de-datos">Relación con el modelado de datos</a></li>
+                <li><a href="#flujo-del-proceso-de-diseno">Flujo del proceso de diseño</a></li>
+                <li><a href="#sintesis-conceptual">Síntesis conceptual</a></li>
+                <li><a href="#ejercicios-de-autoevaluacion">Ejercicios de autoevaluación</a></li>
+            </ol>
+        </nav>
+
+
+        <article class="apunte">
+            <p><br></p>
+            <h2 id="introduccion-a-la-ingenieria-de-requerimientos">Introducción a la Ingeniería de Requerimientos</h2>
+            <p>La <strong>ingeniería de requerimientos</strong> es una disciplina fundamental dentro del desarrollo de sistemas de información. Su objetivo es <strong>comprender las necesidades del usuario y traducirlas en especificaciones técnicas precisas</strong>.</p>
+            <p>En el contexto de las bases de datos, esta etapa consiste en identificar:</p>
+            <ul>
+              <li>qué información debe almacenarse</li>
+              <li>cómo se relacionan los distintos datos</li>
+              <li>qué reglas gobiernan su uso</li>
+              <li>qué operaciones deben realizar los usuarios</li>
+            </ul>
+            <p>En otras palabras, la ingeniería de requerimientos busca responder a la pregunta:</p>
+            <p><strong>¿Qué información necesita el sistema y cómo debe gestionarse?</strong></p>
+            <p>Esta etapa es crítica porque <strong>las decisiones tomadas aquí condicionan todo el diseño posterior de la base de datos</strong>.</p>
+            <p>Un error conceptual en los requerimientos puede generar:</p>
+            <ul>
+              <li>estructuras de datos incorrectas</li>
+              <li>redundancia innecesaria</li>
+              <li>inconsistencias</li>
+              <li>dificultades para implementar nuevas funcionalidades</li>
+            </ul>
+            <p>Por esta razón, en ingeniería de software se afirma que:</p>
+            <p><strong>Un error en la fase de requerimientos puede costar hasta 100 veces más corregirlo que un error en la etapa de programación.</strong></p>
+            <h2 id="importancia-de-los-requerimientos-en-el-diseno-de-bases-de-d">Importancia de los requerimientos en el diseño de bases de datos</h2>
+            <p>Antes de diseñar tablas, relaciones o consultas, es necesario <strong>comprender el dominio del problema</strong>, es decir, el contexto en el cual se utilizará el sistema.</p>
+            <p>El dominio del problema representa <strong>la realidad que se desea modelar mediante datos</strong>.</p>
+            <p>Por ejemplo, en el caso de una escuela, el dominio puede incluir:</p>
+            <ul>
+              <li>estudiantes</li>
+              <li>profesores</li>
+              <li>materias</li>
+              <li>especialidades</li>
+              <li>evaluaciones</li>
+              <li>horarios</li>
+            </ul>
+            <p>El objetivo del análisis de requerimientos es <strong>identificar los elementos relevantes de esa realidad</strong> y determinar cómo deben representarse en una base de datos.</p>
+            <h3 id="representacion-conceptual-del-proceso">Representación conceptual del proceso</h3>
+            <p>Realidad del negocio</p>
+            <p>↓</p>
+            <p>Análisis de requerimientos</p>
+            <p>↓</p>
+            <p>Identificación de datos</p>
+            <p>↓</p>
+            <p>Modelo conceptual de datos</p>
+            <p>↓</p>
+            <p>Diseño de base de datos</p>
+            <p>Este proceso permite construir una base de datos que <strong>refleje fielmente la estructura de la organización</strong>.</p>
+            <h2 id="tipos-de-requerimientos">Tipos de requerimientos</h2>
+            <p>Los requerimientos del sistema suelen clasificarse en dos grandes categorías.</p>
+            <h3 id="requerimientos-funcionales">Requerimientos funcionales</h3>
+            <p>Los <strong>requerimientos funcionales</strong> describen <strong>las operaciones o servicios que el sistema debe ofrecer</strong>.</p>
+            <p>En otras palabras, indican <strong>qué puede hacer el usuario con el sistema</strong>.</p>
+            <p>Ejemplos:</p>
+            <ul>
+              <li>registrar un alumno</li>
+              <li>inscribir un alumno en una materia</li>
+              <li>registrar la nota de un examen</li>
+              <li>consultar el promedio de un estudiante</li>
+            </ul>
+            <p>Desde la perspectiva de las bases de datos, estos requerimientos se traducen en <strong>operaciones sobre los datos</strong>.</p>
+            <h4 id="operaciones-fundamentales-sobre-datos">Operaciones fundamentales sobre datos</h4>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Operación</strong></th>
+            <th><strong>Descripción</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Inserción</td>
+            <td>agregar nuevos registros</td>
+            </tr>
+            <tr>
+            <td>Consulta</td>
+            <td>recuperar información</td>
+            </tr>
+            <tr>
+            <td>Actualización</td>
+            <td>modificar datos existentes</td>
+            </tr>
+            <tr>
+            <td>Eliminación</td>
+            <td>borrar registros</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Estas operaciones se conocen como <strong>operaciones CRUD</strong>.</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Sigla</strong></th>
+            <th><strong>Significado</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>C</td>
+            <td>Create</td>
+            </tr>
+            <tr>
+            <td>R</td>
+            <td>Read</td>
+            </tr>
+            <tr>
+            <td>U</td>
+            <td>Update</td>
+            </tr>
+            <tr>
+            <td>D</td>
+            <td>Delete</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Las aplicaciones que interactúan con bases de datos realizan constantemente estas cuatro operaciones.</p>
+            <h3 id="requerimientos-no-funcionales">Requerimientos no funcionales</h3>
+            <p>Los <strong>requerimientos no funcionales</strong> describen <strong>las características de calidad del sistema</strong>.</p>
+            <p>No se refieren a las acciones que el sistema realiza, sino a <strong>cómo debe comportarse</strong>.</p>
+            <p>Ejemplos:</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Tipo</strong></th>
+            <th><strong>Ejemplo</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Rendimiento</td>
+            <td>Las consultas deben responder en menos de 2 segundos</td>
+            </tr>
+            <tr>
+            <td>Seguridad</td>
+            <td>Solo usuarios autorizados pueden ver ciertos datos</td>
+            </tr>
+            <tr>
+            <td>Disponibilidad</td>
+            <td>El sistema debe estar disponible permanentemente</td>
+            </tr>
+            <tr>
+            <td>Confiabilidad</td>
+            <td>El sistema no debe perder información</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Estos requerimientos influyen directamente en decisiones técnicas como:</p>
+            <ul>
+              <li>Utilizar técnicas que optimicen la recuperación de los datos</li>
+              <li>configuración de permisos</li>
+              <li>diseño de copias de seguridad</li>
+              <li>mecanismos de recuperación ante fallos</li>
+            </ul>
+            <h2 id="reglas-de-negocio">Reglas de negocio</h2>
+            <p>Las <strong>reglas de negocio</strong> son declaraciones que describen o restringen el comportamiento de la información dentro de una organización.</p>
+            <p>Representan <strong>las políticas o normas que determinan cómo deben manejarse los datos</strong>.</p>
+            <p>Estas reglas son fundamentales porque definen <strong>las restricciones que deben cumplir los datos almacenados en la base de datos</strong>.</p>
+            <h3 id="tipos-de-reglas-de-negocio">Tipos de reglas de negocio</h3>
+            <h4 id="restricciones">Restricciones</h4>
+            <p>Son reglas que limitan los valores posibles de ciertos datos.</p>
+            <p>Ejemplos:</p>
+            <ul>
+              <li>la nota de un examen debe estar entre 1 y 10</li>
+              <li>un producto no puede tener precio negativo</li>
+              <li>cada alumno debe tener un identificador único</li>
+            </ul>
+            <p>Estas restricciones suelen implementarse mediante <strong>restricciones de integridad en la base de datos</strong>.</p>
+            <h4 id="derivaciones">Derivaciones</h4>
+            <p>Son datos que se calculan a partir de otros datos existentes.</p>
+            <p>Ejemplo:</p>
+            <p>Promedio final = suma de notas / cantidad de exámenes</p>
+            <p>En estos casos, es frecuente <strong>no almacenar el resultado</strong>, sino calcularlo cuando sea necesario.</p>
+            <p>Esto evita inconsistencias entre los datos almacenados.</p>
+            <h4 id="acciones-automaticas">Acciones automáticas</h4>
+            <p>Son acciones que se ejecutan cuando ocurre una determinada condición.</p>
+            <p>Ejemplo:</p>
+            <p>Si un alumno acumula 10 inasistencias → pasa a condición "Libre".</p>
+            <p>Este tipo de reglas suelen implementarse mediante <strong>procedimientos automáticos o </strong><strong>triggers</strong>.</p>
+            <h2 id="el-problema-de-la-ambiguedad">El problema de la ambigüedad</h2>
+            <p>El lenguaje natural utilizado por los usuarios suele ser <strong>impreciso o ambiguo</strong>.</p>
+            <p>Esto representa uno de los principales desafíos para el analista de sistemas.</p>
+            <p>Muchas expresiones pueden interpretarse de múltiples maneras.</p>
+            <h3 id="ejemplos-de-ambiguedad">Ejemplos de ambigüedad</h3>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Expresión</strong></th>
+            <th><strong>Problema</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>varios alumnos</td>
+            <td>no especifica cantidad</td>
+            </tr>
+            <tr>
+            <td>consulta rápida</td>
+            <td>no define tiempo</td>
+            </tr>
+            <tr>
+            <td>información personal</td>
+            <td>no define campos</td>
+            </tr>
+            <tr>
+            <td>acceso restringido</td>
+            <td>no define quién</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Por esta razón, el analista debe <strong>formular preguntas aclaratorias</strong> hasta obtener definiciones precisas.</p>
+            <h2 id="tecnica-basica-de-analisis-de-textos">Técnica básica de análisis de textos</h2>
+            <p>Una técnica sencilla para iniciar el análisis consiste en examinar las frases del dominio del problema identificando distintos tipos de palabras.</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Tipo de palabra</strong></th>
+            <th><strong>Interpretación</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Sustantivos</td>
+            <td>posibles entidades</td>
+            </tr>
+            <tr>
+            <td>Verbos</td>
+            <td>posibles relaciones</td>
+            </tr>
+            <tr>
+            <td>Adjetivos</td>
+            <td>posibles atributos</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h3 id="ejemplo-de-analisis">Ejemplo de análisis</h3>
+            <p>Frase: "Un alumno se inscribe en una materia."</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Elemento</strong></th>
+            <th><strong>Interpretación</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Alumno</td>
+            <td>Entidad</td>
+            </tr>
+            <tr>
+            <td>Materia</td>
+            <td>Entidad</td>
+            </tr>
+            <tr>
+            <td>Se inscribe</td>
+            <td>Relación</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Este tipo de análisis ayuda a construir el <strong>modelo conceptual de datos</strong>.</p>
+            <h2 id="tecnicas-de-obtencion-de-requerimientos">Técnicas de obtención de requerimientos</h2>
+            <p>Para obtener información del cliente o usuarios se utilizan diferentes técnicas.</p>
+            <h3 id="entrevistas">Entrevistas</h3>
+            <p>Consisten en conversaciones estructuradas con usuarios o expertos del dominio.</p>
+            <p>Permiten obtener información detallada sobre:</p>
+            <ul>
+              <li>procesos existentes</li>
+              <li>necesidades de información</li>
+              <li>problemas actuales</li>
+            </ul>
+            <h3 id="observacion">Observación</h3>
+            <p>El analista observa directamente cómo se realizan las tareas en la organización.</p>
+            <p>Esto permite identificar:</p>
+            <ul>
+              <li>procesos reales</li>
+              <li>flujos de información</li>
+              <li>problemas operativos</li>
+            </ul>
+            <h3 id="analisis-de-documentos">Análisis de documentos</h3>
+            <p>Consiste en revisar documentos existentes como:</p>
+            <ul>
+              <li>formularios</li>
+              <li>reportes</li>
+              <li>planillas</li>
+              <li>reglamentos</li>
+            </ul>
+            <p>Estos documentos suelen revelar <strong>qué datos son realmente importantes para la organización</strong>.</p>
+            <h3 id="cuestionarios">Cuestionarios</h3>
+            <p>Se utilizan cuando hay muchos usuarios y se necesita recopilar información de forma estructurada.</p>
+            <h2 id="proceso-de-ingenieria-de-requerimientos">Proceso de ingeniería de requerimientos</h2>
+            <p>El proceso suele dividirse en varias etapas.</p>
+            <p>Obtención de información</p>
+            <p>↓</p>
+            <p>Análisis</p>
+            <p>↓</p>
+            <p>Documentación</p>
+            <p>↓</p>
+            <p>Validación</p>
+            <h5 id="obtencion">Obtención</h5>
+            <p>Se recopila información del cliente o usuarios.</p>
+            <h5 id="analisis">Análisis</h5>
+            <p>Se identifican:</p>
+            <ul>
+              <li>entidades</li>
+              <li>relaciones</li>
+              <li>reglas de negocio</li>
+              <li>restricciones</li>
+            </ul>
+            <h5 id="documentacion">Documentación</h5>
+            <p>Los requerimientos se registran formalmente en documentos.</p>
+            <h5 id="validacion">Validación</h5>
+            <p>Los requerimientos se revisan con el cliente para confirmar que representan correctamente sus necesidades.</p>
+            <h2 id="productos-de-la-ingenieria-de-requerimientos">Productos de la ingeniería de requerimientos</h2>
+            <p>Al finalizar esta etapa se obtiene:</p>
+            <ul>
+              <li>lista de requerimientos</li>
+              <li>conjunto de reglas de negocio</li>
+              <li>diccionario de datos preliminar</li>
+              <li>identificación inicial de entidades</li>
+            </ul>
+            <p>Estos elementos permiten iniciar el <strong>modelado conceptual de datos</strong>.</p>
+            <h2 id="errores-comunes-en-el-analisis-de-requerimientos">Errores comunes en el análisis de requerimientos</h2>
+            <p>Durante esta etapa es frecuente cometer ciertos errores.</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Error</strong></th>
+            <th><strong>Consecuencia</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>no hablar con los usuarios reales</td>
+            <td>requerimientos incorrectos</td>
+            </tr>
+            <tr>
+            <td>interpretar sin preguntar</td>
+            <td>ambigüedad</td>
+            </tr>
+            <tr>
+            <td>documentación incompleta</td>
+            <td>confusión en el diseño</td>
+            </tr>
+            <tr>
+            <td>ignorar reglas de negocio</td>
+            <td>inconsistencias en los datos</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Evitar estos errores es fundamental para lograr un buen diseño de base de datos.</p>
+            <h2 id="relacion-con-el-modelado-de-datos">Relación con el modelado de datos</h2>
+            <p>La ingeniería de requerimientos constituye la base para la siguiente etapa del diseño de bases de datos: <strong>el modelado conceptual</strong>.</p>
+            <p>En esta etapa se utilizan herramientas como el <strong>modelo entidad-relación</strong> para representar gráficamente los datos identificados.</p>
+            <h2 id="flujo-del-proceso-de-diseno">Flujo del proceso de diseño</h2>
+            <p>Ingeniería de requerimientos</p>
+            <p>↓</p>
+            <p>Modelo conceptual (DER)</p>
+            <p>↓</p>
+            <p>Modelo lógico</p>
+            <p>↓</p>
+            <p>Modelo físico</p>
+            <p>↓</p>
+            <p>Implementación en SGBD</p>
+            <h2 id="sintesis-conceptual">Síntesis conceptual</h2>
+            <p>La ingeniería de requerimientos es la etapa donde se <strong>comprende el problema antes de diseñar la solución</strong>.</p>
+            <p>Su objetivo es transformar las necesidades del usuario en especificaciones claras que permitan:</p>
+            <ul>
+              <li>identificar los datos relevantes</li>
+              <li>comprender sus relaciones</li>
+              <li>definir las reglas que rigen el sistema</li>
+            </ul>
+            <p>Una correcta ingeniería de requerimientos es la base para construir <strong>bases de datos consistentes, eficientes y alineadas con las necesidades reales de la organización</strong>.</p>
+            <h2 id="ejercicios-de-autoevaluacion">Ejercicios de autoevaluación</h2>
+            <ol>
+              <li>¿Qué se entiende por ingeniería de requerimientos?</li>
+              <li>¿Cuál es la diferencia entre requerimientos funcionales y no funcionales?</li>
+              <li>¿Qué son las reglas de negocio?</li>
+              <li>¿Por qué el lenguaje natural puede generar ambigüedades?</li>
+              <li>Analice la frase:</li>
+            </ol>
+            <p>"Un cliente realiza pedidos de productos.": Identifique posibles entidades, relaciones y atributos.</p>
+        </article>
+
+        <div class="descargas">
+            <h4>Descargar este apunte</h4>
+            <a href="../../descargas/clase-05-requerimientos.pdf" class="salto-nav">PDF</a>
+            <a href="../../descargas/clase-05-requerimientos.docx" class="salto-nav">DOCX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="../01-fundamentos/clase-03-entrevista-al-cliente.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Cómo entrevistar a un cliente</strong>
+            </a>
+            <a class="pag-sig" href="ingenieria-requerimientos.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Requerimientos: la presentación</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · revisión 1.0.0</p>
+    </footer>
+
+</body>
+</html>

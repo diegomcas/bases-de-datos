@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica SQL: DML Básico - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-delete    { --c: var(--bloque-rojo); }
+    .block-insert    { --c: var(--bloque-verde); }
+    .block-limit     { --c: var(--bloque-violeta); }
+    .block-select    { --c: var(--bloque-azul); }
+    .block-update    { --c: var(--bloque-ambar); }
+
+    /* propio de esta página */
+    .origen-tag {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 7px;
+                border-radius: 4px;
+                color: var(--text-muted);
+                background: rgba(255, 255, 255, 0.04);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                letter-spacing: 0.03em;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Práctica SQL — DML</span>
+            <h1>Manipular datos en SQL: el ciclo completo</h1>
+            <p>Leer, insertar, actualizar, borrar y paginar los datos reales del taller "El Chip"</p>
+            <a href="taller-sql-practica-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: primeras consultas</span>
+        </nav>
+
+        <!-- INTRODUCCIÓN: TIPS DE SUPERVIVENCIA -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
+                    Antes de empezar: tips de supervivencia
+                </h2>
+            </div>
+            <div class="explicacion">
+                <p>Esta práctica se resuelve desde el <strong>MySQL Command Line Client</strong>, escribiendo las sentencias a mano. No hay asistentes ni grillas que nos salven: lo que escribimos es lo que se ejecuta. Por eso, tres reglas antes de tocar el teclado:</p>
+                <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.98rem; display: flex; flex-direction: column; gap: 8px; margin: 15px 0 15px 20px;">
+                    <li><strong>1. Terminá siempre con <code>;</code></strong> Sin el punto y coma el cliente asume que la sentencia sigue y se queda esperando con el prompt <code>-&gt;</code>. Si eso pasa, escribí <code>;</code> y presioná Enter (o cancelá con <code>\c</code>).</li>
+                    <li><strong>2. Verificá el <code>WHERE</code> antes de ejecutar un <code>UPDATE</code> o un <code>DELETE</code>.</strong> Un <code>DELETE</code> sin <code>WHERE</code> borra la tabla entera y no hay Ctrl+Z. La costumbre profesional es escribir primero el <code>SELECT</code> con ese mismo <code>WHERE</code>, mirar qué filas devuelve, y recién entonces cambiar el verbo.</li>
+                    <li><strong>3. Explorá antes de operar.</strong> <code>SELECT * FROM tabla LIMIT 10;</code> te muestra los primeros registros y te dice qué columnas tiene realmente la tabla. <code>DESCRIBE tabla;</code> te muestra la estructura sin traer datos.</li>
+                </ol>
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> el <code>WHERE</code> es la puntería. El <code>UPDATE</code> y el <code>DELETE</code> son el disparo. Nadie dispara primero y apunta después.
+                </div>
+                <div class="helper-box">
+                    <h5>Conexión y selección de base</h5>
+                    <pre><code><span class="sql-comment">-- Una vez dentro del MySQL Command Line Client:</span>
+<span class="sql-keyword">USE</span> el_chip;
+<span class="sql-keyword">SHOW TABLES</span>;
+<span class="sql-keyword">DESCRIBE</span> repuesto;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: SELECT -->
+        <section class="block-card block-select" id="select">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Lectura y Exploración (SELECT)</h2>
+                    <p>Antes de modificar nada, debemos saber qué hay</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, antes de que toquen nada quiero entender qué tengo. Necesito saber qué repuestos están por agotarse, encontrar a un cliente por el apellido, ver cuáles son las reparaciones más caras de mano de obra y qué tipos de equipo manejamos. Y algo importante: quiero saber qué órdenes todavía no le entregué al cliente, porque tengo el mostrador lleno de aparatos."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        Sustento Teórico: la consulta básica
+                    </h4>
+                    <ul>
+                        <li><strong>Estructura mínima:</strong> <code>SELECT columnas FROM tabla WHERE condición ORDER BY columna;</code></li>
+                        <li><strong><code>SELECT</code></strong> elige <em>qué columnas</em> se muestran (proyección). <code>*</code> significa "todas".</li>
+                        <li><strong><code>WHERE</code></strong> elige <em>qué filas</em> se muestran (selección). Operadores: <code>=</code>, <code>&lt;&gt;</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>, <code>BETWEEN ... AND ...</code>, <code>IN (...)</code>, <code>LIKE</code>, <code>IS NULL</code>.</li>
+                        <li><strong><code>ORDER BY</code></strong> ordena el resultado final: <code>ASC</code> (ascendente, es el valor por defecto) o <code>DESC</code> (descendente).</li>
+                        <li><strong><code>DISTINCT</code></strong> elimina las filas repetidas del resultado.</li>
+                        <li><strong>Un detalle clave:</strong> se puede ordenar por una columna que <em>no</em> está en el <code>SELECT</code>. El motor la usa para ordenar aunque no la muestre.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> el <code>FROM</code> es el fichero del que sacamos las carpetas, el <code>WHERE</code> es el criterio con el que descartamos carpetas sin abrirlas, el <code>SELECT</code> es qué hojas fotocopiamos de cada carpeta que sobrevivió, y el <code>ORDER BY</code> es el orden en que apilamos las fotocopias sobre el escritorio.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El valor NULL no es un valor:</strong> <code>NULL</code> significa "no se sabe". Por eso <code>columna = NULL</code> nunca da verdadero (ni siquiera cuando la columna es nula): hay que escribir <code>columna IS NULL</code> o <code>columna IS NOT NULL</code>. Esto va a ser decisivo en el Reto 1.6.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <span class="origen-tag">Desafío A</span>
+                        <h3>Repuestos con stock crítico</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá todos los repuestos que tengan un <code>stock</code> menor a 5 unidades. Mostrá <strong>solamente</strong> el nombre y el stock, pero ordenalos por precio del más caro al más barato.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <span class="origen-tag">Desafío B</span>
+                        <h3>Buscar un cliente por apellido</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Buscá en la tabla <code>cliente</code> a todas las personas cuyo apellido sea "Perez" (o cualquier otro apellido que sepas que existe en la base) y mostrá únicamente la columna <code>apellido</code>.</p>
+                        <div class="helper-box">
+                            <h5>Para pensar</h5>
+                            <pre><code><span class="sql-comment">-- En la base el apellido está cargado como 'Pérez', con tilde.</span>
+<span class="sql-comment">-- ¿Tu consulta encuentra igual la fila si escribís 'Perez' sin tilde?</span>
+<span class="sql-comment">-- Probá también con minúsculas: 'perez'. ¿Qué pasa? ¿Por qué?</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <span class="origen-tag">Desafío C</span>
+                        <h3>Reparaciones caras de mano de obra</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá todos los problemas registrados que tengan un costo de mano de obra <strong>superior a $5000</strong>.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.4</span>
+                        <span class="origen-tag">Desafío D</span>
+                        <h3>Catálogo de tipos de equipo</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá, ordenados alfabéticamente, todos los tipos de equipo <strong>distintos</strong> que atiende el taller. Cada tipo debe aparecer una sola vez.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.5</span>
+                        <span class="origen-tag">Desafío E</span>
+                        <h3>Rango de mano de obra</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los problemas cuya mano de obra esté <strong>entre $2000 y $8000</strong>, ambos incluidos.</p>
+                        <p><strong>Resolvelo con dos estrategias distintas</strong> y compará los resultados: deben ser idénticos.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-6">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.6</span>
+                        <span class="origen-tag">Desafío F</span>
+                        <h3>Órdenes todavía no entregadas</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>¿Qué consulta realizarías para determinar qué órdenes de servicio todavía no fueron entregadas?</p>
+                        <p><strong>Resolvelo con dos estrategias distintas.</strong> Antes de escribir nada, mirá la estructura de <code>orden_servicio</code>: hay más de una forma de que la base "sepa" que una orden fue entregada.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-keyword">DESCRIBE</span> orden_servicio;
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_estado;
+<span class="sql-comment">-- ¿Qué columna te habla de la entrega? ¿Y qué tabla te habla del estado?</span>
+<span class="sql-comment">-- Ojo: comparar contra NULL no se hace con el signo =.</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-6">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-7">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.7</span>
+                        <span class="origen-tag">Desafío G</span>
+                        <h3>Equipos de marcas puntuales</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los equipos que sean de las marcas con ID 1, 3 o 5.</p>
+                        <p><strong>Resolvelo con dos estrategias distintas.</strong> Una va a ser más larga que la otra; discutan en clase cuál se lee mejor y cuál escala mejor si mañana Martín pide diez marcas en lugar de tres.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-1-7">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: INSERT -->
+        <section class="block-card block-insert" id="insert">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Inserción de Datos (INSERT)</h2>
+                    <p>El negocio crece y llegan cosas nuevas</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Llegó mercadería nueva y también un cliente que quiero cargar ya mismo. Necesito dar de alta un módulo de pantalla para Samsung A54, sumar una marca que antes no trabajábamos, y abrir una orden de servicio nueva a nombre de Carlos López, que la trajo hoy y todavía no la miramos."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                        Sustento Teórico: la sentencia INSERT
+                    </h4>
+                    <ul>
+                        <li><strong>Forma recomendada:</strong> <code>INSERT INTO tabla (col1, col2) VALUES (val1, val2);</code> Nombrar las columnas explícitamente es lo que hace que la sentencia siga funcionando aunque mañana alguien agregue una columna a la tabla.</li>
+                        <li><strong>Columnas que NO se escriben:</strong> las <code>AUTO_INCREMENT</code> (como <code>id_repuesto</code>) las genera el motor sola; las que tienen <code>DEFAULT</code> toman su valor si las omitimos.</li>
+                        <li><strong>Columnas que SÍ o SÍ hay que escribir:</strong> las declaradas <code>NOT NULL</code> sin valor por defecto. Si falta una, MySQL rechaza la fila.</li>
+                        <li><strong>Claves foráneas:</strong> para insertar una fila que apunta a otra tabla (una orden apunta a un cliente, a un empleado y a un estado) hay que conocer los IDs de esas tablas. Si el ID no existe, la inserción falla.</li>
+                        <li><strong>Fechas:</strong> <code>NOW()</code> devuelve fecha y hora actuales; <code>CURDATE()</code> solo la fecha.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> insertar es completar un formulario en papel. Los campos con asterisco (<code>NOT NULL</code>) no se pueden dejar en blanco; el número de trámite lo pone la ventanilla, no vos (<code>AUTO_INCREMENT</code>); y si ponés el DNI de una persona que no está en el padrón, el trámite te lo rebotan (clave foránea).
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <span class="origen-tag">Desafío H</span>
+                        <h3>Alta de un repuesto</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Agregá un nuevo repuesto: <strong>"Modulo Pantalla Samsung A54"</strong>, con un stock inicial de 10 y un precio unitario de $15000.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <span class="origen-tag">Desafío I</span>
+                        <h3>Alta de una marca</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Registrá una nueva marca en la tabla <code>marca</code> llamada <strong>"LG"</strong>. Guardate el ID que le asignó el motor: lo vas a necesitar en el Bloque 04.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <span class="origen-tag">Desafío J</span>
+                        <h3>Alta de una orden de servicio</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Creá una nueva Orden de Servicio a nombre de <strong>"Carlos López"</strong>. Tené en cuenta que la fecha de ingreso debe ser la de hoy y el estado, <strong>"Pendiente"</strong>.</p>
+                        <p>Este reto es más difícil de lo que parece: la orden no guarda el nombre del cliente ni el nombre del estado, guarda <em>números</em>. Tenés que averiguarlos antes.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-keyword">DESCRIBE</span> orden_servicio;   <span class="sql-comment">-- ¿Qué columnas son NOT NULL?</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> cliente;       <span class="sql-comment">-- ¿Qué id_cliente tiene Carlos López?</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_estado;  <span class="sql-comment">-- ¿Qué id tiene 'Pendiente'?</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> empleado;      <span class="sql-comment">-- La orden la recibe alguien: ¿quién?</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: UPDATE -->
+        <section class="block-card block-update" id="update">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Actualización de Datos (UPDATE)</h2>
+                    <p>Los precios suben y el stock se mueve</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Otra vez subió todo. Necesito aumentar un 10% los precios de los repuestos, pero después me di cuenta de que en realidad el aumento fuerte vino solo en los módulos de pantalla, así que quiero poder hacerlo selectivo. Ah, y el cliente 1 está mal cargado: se llama Juan Carlos, no Juan."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Sustento Teórico: la sentencia UPDATE
+                    </h4>
+                    <ul>
+                        <li><strong>Estructura:</strong> <code>UPDATE tabla SET columna = valor WHERE condición;</code></li>
+                        <li><strong>El <code>SET</code> puede leer la propia columna:</strong> <code>SET precio = precio * 1.10</code> es válido, porque el motor lee el valor viejo y escribe el nuevo en un solo paso.</li>
+                        <li><strong>Sin <code>WHERE</code>, el <code>UPDATE</code> alcanza a TODAS las filas.</strong> A veces eso es exactamente lo que queremos (un aumento general), pero tiene que ser una decisión consciente, no un olvido.</li>
+                        <li><strong><code>LIKE</code> y sus comodines:</strong> <code>%</code> representa cualquier cantidad de caracteres (incluso ninguno) y <code>_</code> exactamente uno. Entonces <code>LIKE '%Módulo%'</code> significa "que contenga la palabra Módulo en cualquier posición".</li>
+                        <li><strong>MySQL informa siempre cuántas filas tocó:</strong> <code>Rows matched: X  Changed: Y</code>. Leer ese número es la forma de confirmar que apuntamos bien.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es "Buscar y reemplazar" en un procesador de texto. El <code>WHERE</code> es lo que escribís en "Buscar", el <code>SET</code> es lo que escribís en "Reemplazar con", y el botón "Reemplazar todo" sin haber buscado nada primero es exactamente el <code>UPDATE</code> sin <code>WHERE</code>.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Regla de oro:</strong> escribí primero la consulta como <code>SELECT * FROM tabla WHERE ...</code>, verificá que las filas que ves son las que querés modificar, y recién ahí reemplazá el <code>SELECT *</code> por <code>UPDATE ... SET ...</code>. Nunca al revés.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <span class="origen-tag">Desafío K</span>
+                        <h3>Aumento general del 10%</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Debido a la inflación, aumentá un 10% el <code>precio_unitario</code> de <strong>todos</strong> los repuestos.</p>
+                        <div class="helper-box">
+                            <h5>Pista</h5>
+                            <pre><code><span class="sql-keyword">SET</span> precio_unitario = precio_unitario * <span class="sql-number">1.10</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <span class="origen-tag">Desafío L</span>
+                        <h3>Aumento selectivo por nombre</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Como el anterior, pero ahora solo querés modificar los repuestos donde el nombre <strong>contenga</strong> la palabra "Módulo".</p>
+                        <p>Antes de ejecutarlo, anotá cuántas filas creés que va a tocar. Después compará con lo que informa MySQL.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <span class="origen-tag">Desafío M</span>
+                        <h3>Corrección de un dato mal cargado</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>El cliente con <code>id_cliente = 1</code> está mal registrado: corregí su nombre a <strong>"Juan Carlos"</strong>. Actualizalo en la tabla correspondiente.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4: DELETE -->
+        <section class="block-card block-delete" id="delete">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Borrado de Datos (DELETE)</h2>
+                    <p>… y restricciones de integridad referencial</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Che, la marca LG la cargué por las dudas pero al final no vamos a trabajarla, sacala. Y ya que estamos, hay un cliente que me pidió que lo borre del sistema, el número 1. Borralo también."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                        Sustento Teórico: DELETE e integridad referencial
+                    </h4>
+                    <ul>
+                        <li><strong>Estructura:</strong> <code>DELETE FROM tabla WHERE condición;</code> Fijate que no se nombran columnas: el <code>DELETE</code> borra la <em>fila entera</em>. Para "borrar un dato" de una columna se usa <code>UPDATE ... SET columna = NULL</code>.</li>
+                        <li><strong>Integridad referencial:</strong> una clave foránea impide que quede una fila "huérfana" apuntando a algo que ya no existe. Si borráramos al cliente 1, sus órdenes de servicio quedarían apuntando a un cliente inexistente.</li>
+                        <li><strong>Qué hace el motor:</strong> nuestras FK están declaradas <code>ON DELETE NO ACTION</code>, que en MySQL/InnoDB se comporta como <code>RESTRICT</code>: <strong>rechaza el borrado</strong> y devuelve el error 1451.</li>
+                        <li><strong>Otras políticas posibles:</strong> <code>ON DELETE CASCADE</code> (borra en cascada los hijos) y <code>ON DELETE SET NULL</code> (deja la referencia en nulo). Son decisiones de diseño, no de consulta.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> no podés dar de baja una obra social si todavía hay pacientes afiliados a ella. Primero se resuelve qué pasa con los afiliados; el sistema no te deja crear pacientes flotando en el vacío.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El error del Reto 4.2 es intencional.</strong> No lo "arregles" borrando a mano todo lo que cuelga del cliente. La consigna es entender <em>por qué</em> la base se niega, y esa negativa es una función del motor trabajando bien, no una falla.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <span class="origen-tag">Desafío N</span>
+                        <h3>Borrar la marca recién creada</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Eliminá la marca que creaste en el Reto 2.2 ("LG").</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <span class="origen-tag">Desafío Ñ</span>
+                        <h3>Borrar el cliente 1 (y entender el error)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Eliminá el cliente con <code>id_cliente = 1</code>.</p>
+                        <p><strong>¿Por qué falló el borrado?</strong> Copiá el mensaje de error completo, identificá qué restricción se disparó y, sobre todo, contestá: ¿qué tablas tienen filas que dependen de ese cliente? Escribí las consultas que lo demuestren.</p>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 5: LIMIT / OFFSET -->
+        <section class="block-card block-limit" id="paginacion">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Navegación de Datos (LIMIT y Paginación)</h2>
+                    <p>Mostrar los datos de a páginas para no saturar al usuario</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"En el celular no me entra la lista entera de repuestos, se hace ilegible. Quiero verla de a poquito, como cuando entrás a una tienda online y tenés los botoncitos de página 1, página 2, página 3 abajo de todo. ¿Se puede hacer eso desde la base?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+                        Sustento Teórico: LIMIT y OFFSET
+                    </h4>
+                    <ul>
+                        <li><strong><code>LIMIT n</code></strong> corta el resultado y devuelve como máximo <code>n</code> filas.</li>
+                        <li><strong><code>OFFSET m</code></strong> descarta las primeras <code>m</code> filas antes de empezar a contar. <code>LIMIT 5 OFFSET 5</code> significa "saltea 5 y traeme los 5 siguientes".</li>
+                        <li><strong>Sintaxis abreviada de MySQL:</strong> <code>LIMIT 5, 5</code> equivale a <code>LIMIT 5 OFFSET 5</code>. Cuidado: acá el <strong>primer</strong> número es cuántas saltear y el segundo cuántas traer, o sea el orden inverso al de la forma larga.</li>
+                        <li><strong>La fórmula de la paginación:</strong> <code>OFFSET = (número_de_página − 1) × tamaño_de_página</code>.</li>
+                        <li><strong>Sin <code>ORDER BY</code> no hay paginación posible:</strong> si el orden no está fijado, el motor puede devolver las filas en cualquier orden, y entonces nada garantiza que la "página 2" no repita filas de la "página 1".</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es el mazo de cartas boca abajo. <code>OFFSET</code> es cuántas cartas descartás de arriba sin mirarlas; <code>LIMIT</code> es cuántas levantás después. Y si antes no ordenaste el mazo, cada vez que repartís sale algo distinto.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-5-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.1</span>
+                        <span class="origen-tag">Desafío O</span>
+                        <h3>La primera página</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Imaginá que en el sistema de "El Chip" queremos mostrar los repuestos de a 2 por vez. Escribí una consulta que devuelva los <strong>primeros 2 repuestos</strong> de la tabla, ordenados alfabéticamente por nombre.</p>
+                        <div class="helper-box">
+                            <h5>Pista</h5>
+                            <pre><code><span class="sql-keyword">ORDER BY</span> nombre <span class="sql-keyword">ASC</span> <span class="sql-keyword">LIMIT</span> <span class="sql-number">2</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-5-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.2</span>
+                        <span class="origen-tag">Desafío P</span>
+                        <h3>Simulando la página 2</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ahora necesitamos ver los <strong>siguientes 2 repuestos</strong> (el tercero y el cuarto). Para eso hay que decirle al motor que se saltee los que ya mostramos y traiga los que siguen.</p>
+                        <p>Resolvelo y después generalizá: escribí también la consulta de la <strong>página 3</strong> con ese mismo tamaño de página, y dejá anotada la fórmula que usaste para calcular el salto.</p>
+                        <div class="helper-box">
+                            <h5>Referencia de sintaxis (ejemplo con páginas de 5)</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">ORDER BY</span> nombre <span class="sql-keyword">ASC</span> <span class="sql-keyword">LIMIT</span> <span class="sql-number">5</span> <span class="sql-keyword">OFFSET</span> <span class="sql-number">5</span>;
+<span class="sql-comment">-- En MySQL también podés escribirlo abreviado: LIMIT 5, 5</span>
+<span class="sql-comment">-- (el primer número es cuántas saltear, el segundo cuántas traer).</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="taller-sql-practica-resoluciones.html#reto-5-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="sql-practica.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Práctica de SQL</strong>
+            </a>
+            <a class="pag-sig" href="taller-uniones-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller: uniones sin JOIN</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="taller-sql-practica-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compendio de Agrupación - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-agg       { --c: var(--bloque-azul); }
+    .block-edge      { --c: var(--bloque-carmin); }
+    .block-filtro    { --c: var(--bloque-cian); }
+    .block-group     { --c: var(--bloque-verde); }
+    .block-having    { --c: var(--bloque-naranja); }
+    .block-multi     { --c: var(--bloque-violeta); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 2 — Compendio</span>
+            <h1>Compendio de Agrupación</h1>
+            <p>24 ejercicios para recorrer todo el espectro: de las funciones de agregación a ROLLUP, pasando por los casos que rompen la intuición</p>
+            <a href="compendio-agrupacion-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Compendio
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Compendio de agrupación</span>
+        </nav>
+
+        <!-- REQUISITO DE DATOS -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Antes de empezar: sobre qué datos trabajamos</h2>
+            </div>
+            <div class="explicacion">
+                <p>Este compendio corre sobre la <strong>base ampliada</strong>. Antes de la primera consulta hay que tener ejecutados, en este orden:</p>
+                <div class="helper-box">
+                    <h5>Preparación de la base</h5>
+                    <pre><code><span class="sql-comment">-- 1. Estructura</span>      ElChip.sql
+<span class="sql-comment">-- 2. Datos base</span>      poblar_elchip.sql
+<span class="sql-comment">-- 3. Ampliación</span>      poblar_elchip_compendio.sql
+
+<span class="sql-comment">-- Verificación rápida: estos números tienen que dar exactos.</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-string">'clientes'</span> <span class="sql-keyword">AS</span> tabla, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> filas, <span class="sql-number">8</span> <span class="sql-keyword">AS</span> esperado <span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">UNION ALL SELECT</span> <span class="sql-string">'equipos'</span>,   <span class="sql-keyword">COUNT</span>(*),  <span class="sql-number">9</span> <span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">UNION ALL SELECT</span> <span class="sql-string">'repuestos'</span>, <span class="sql-keyword">COUNT</span>(*),  <span class="sql-number">9</span> <span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">UNION ALL SELECT</span> <span class="sql-string">'ordenes'</span>,   <span class="sql-keyword">COUNT</span>(*),  <span class="sql-number">8</span> <span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">UNION ALL SELECT</span> <span class="sql-string">'pagos'</span>,     <span class="sql-keyword">COUNT</span>(*), <span class="sql-number">10</span> <span class="sql-keyword">FROM</span> orden_servicio_pago;</code></pre>
+                </div>
+                <p>Si tus números no coinciden con los de la columna "esperado", pará: los resultados de esta guía no te van a dar. Volvé a cargar los scripts.</p>
+
+                <div class="theory-box">
+                    <h4>El ciclo de vida de una consulta SQL</h4>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; margin-bottom: 10px;">Todo este compendio se apoya en una sola idea: el motor <strong>no ejecuta la consulta en el orden en que la escribimos</strong>. El orden real es:</p>
+                    <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px;">
+                        <li><strong>1. FROM</strong> — se leen y combinan las tablas.</li>
+                        <li><strong>2. WHERE</strong> — se descartan <em>filas individuales</em>, antes de agrupar.</li>
+                        <li><strong>3. GROUP BY</strong> — las filas que sobrevivieron se reparten en grupos.</li>
+                        <li><strong>4. Agregación</strong> — se calcula <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>… dentro de cada grupo.</li>
+                        <li><strong>5. HAVING</strong> — se descartan <em>grupos enteros</em> según esos cálculos.</li>
+                        <li><strong>6. SELECT</strong> — se arman las columnas finales y se aplican los alias.</li>
+                        <li><strong>7. ORDER BY</strong> — se ordena el reporte.</li>
+                        <li><strong>8. LIMIT</strong> — se recorta.</li>
+                    </ol>
+                    <p style="color: #cbd5e1; font-size: 0.95rem; margin-top: 12px;">Cada vez que una consulta te dé un resultado raro, volvé a esta lista y preguntate en qué paso se rompió. Casi siempre la respuesta está acá.</p>
+                </div>
+
+                <p style="margin-top: 20px;"><strong>Cómo está organizado:</strong></p>
+                <div class="indice">
+                    <a href="#agregacion"><strong>01 · Agregación</strong><span>Retos 1.1 a 1.4 — el resumen global</span></a>
+                    <a href="#agrupamiento"><strong>02 · GROUP BY</strong><span>Retos 2.1 a 2.4 — dividir en grupos</span></a>
+                    <a href="#filtro"><strong>03 · WHERE + GROUP BY</strong><span>Retos 3.1 a 3.3 — filtrar antes</span></a>
+                    <a href="#having"><strong>04 · HAVING</strong><span>Retos 4.1 a 4.4 — filtrar después</span></a>
+                    <a href="#multi"><strong>05 · Multi-columna y ranking</strong><span>Retos 5.1 a 5.4 — agrupar por varias claves</span></a>
+                    <a href="#limite"><strong>06 · Casos límite</strong><span>Retos 6.1 a 6.5 — NULL, ROLLUP y trampas</span></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1 -->
+        <section class="block-card block-agg" id="agregacion">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Funciones de Agregación</h2>
+                    <p>Condensar muchas filas en un único número</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, el contador me pide un resumen del negocio y yo no tengo idea de por dónde empezar. Necesito los números grandes: cuánta plata tengo parada en el depósito, cuántas órdenes hicimos, cuántos clientes distintos vinieron de verdad. No quiero listados de mil filas, quiero cuatro números que pueda decir en voz alta."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Sustento Teórico: las cinco funciones
+                    </h4>
+                    <ul>
+                        <li><code>COUNT()</code> — cuenta filas. <code>SUM()</code> — suma. <code>AVG()</code> — promedia. <code>MIN()</code> / <code>MAX()</code> — extremos.</li>
+                        <li><strong>Sin <code>GROUP BY</code>, toda la tabla es un único grupo</strong> y la consulta devuelve exactamente una fila.</li>
+                        <li><strong>Las tres formas de contar, y no son lo mismo:</strong>
+                            <ul>
+                                <li><code>COUNT(*)</code> cuenta <em>filas</em>, sin mirar el contenido.</li>
+                                <li><code>COUNT(columna)</code> cuenta filas <strong>donde esa columna no es NULL</strong>.</li>
+                                <li><code>COUNT(DISTINCT columna)</code> cuenta <strong>valores diferentes</strong>, ignorando repetidos y nulos.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Los NULL se ignoran en todas las agregaciones.</strong> <code>AVG</code> divide por la cantidad de valores <em>no nulos</em>, no por la cantidad de filas. Es la fuente número uno de promedios que "no dan".</li>
+                        <li>Se pueden agregar <strong>expresiones</strong>, no solo columnas: <code>SUM(stock * precio_unitario)</code> es perfectamente válido.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es el cuadrito de estadísticas de Excel abajo a la derecha. Seleccionás una columna entera y te dice Suma, Promedio y Recuento. Eso es exactamente una función de agregación sin <code>GROUP BY</code>.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Panorama del depósito en una sola fila</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí <strong>una única consulta</strong> sobre <code>repuesto</code> que devuelva, con alias legibles: cuántos repuestos distintos hay en el catálogo, cuántas unidades físicas suman entre todos, cuál es el precio promedio, el más caro y el más barato.</p>
+                        <p>Redondeá el promedio a dos decimales.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Las tres formas de contar</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí una consulta sobre <code>orden_servicio</code> que devuelva en la misma fila: <code>COUNT(*)</code>, <code>COUNT(total)</code> y <code>COUNT(fecha_entrega)</code>.</p>
+                        <p><strong>Antes de ejecutarla, anotá qué esperás que dé cada una.</strong> Después explicá el resultado: ¿por qué una de las tres da un número tan distinto? ¿Qué te está diciendo ese número sobre la calidad de los datos del taller?</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Clientes que vinieron vs. clientes registrados</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber <strong>cuántos clientes distintos le dejaron trabajo</strong>. Escribí una consulta sobre <code>orden_servicio</code> que devuelva la cantidad de órdenes y la cantidad de clientes distintos que las generaron.</p>
+                        <p>Después compará ese número con el total de filas de <code>cliente</code>. Los tres números son distintos: explicá qué significa cada uno para el negocio.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.4</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Capital inmovilizado en el depósito</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Calculá cuánta plata tiene Martín parada en repuestos: hay que multiplicar, para cada repuesto, su <code>stock</code> por su <code>precio_unitario</code>, y sumar todo.</p>
+                        <p>Agregá en la misma consulta cuánto representa <strong>en promedio</strong> cada renglón del inventario.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-1-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2 -->
+        <section class="block-card block-group" id="agrupamiento">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Agrupar con GROUP BY</h2>
+                    <p>Un número por categoría, en lugar de un número global</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Los totales generales están buenos pero no me dicen qué hacer. Yo necesito abrir: cuántos equipos tengo de cada tipo, en qué estado están las órdenes, cuánto entró por cada medio de pago y quién de mis clientes me dejó más plata. Cuando veo el número abierto, ahí sí sé dónde meter mano."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Sustento Teórico: la cláusula GROUP BY
+                    </h4>
+                    <ul>
+                        <li><strong>Qué hace:</strong> reparte las filas en montones según el valor de una o más columnas, y después aplica las funciones de agregación <em>dentro de cada montón</em>. El resultado tiene <strong>una fila por grupo</strong>.</li>
+                        <li><strong>La regla de oro del SELECT agrupado:</strong> en el <code>SELECT</code> solo pueden aparecer (a) las columnas por las que agrupaste y (b) funciones de agregación. Cualquier otra cosa es ambigua: el motor tendría que elegir un valor entre varios y no hay criterio para hacerlo.</li>
+                        <li><strong>MySQL 8 hace cumplir esa regla</strong> con el modo <code>ONLY_FULL_GROUP_BY</code>, activo por defecto: si la violás, rechaza la consulta con un error en lugar de inventar un valor.</li>
+                        <li><strong>Los grupos salen de los datos, no del catálogo.</strong> Si una categoría no tiene ninguna fila, sencillamente <em>no aparece</em> en el resultado. Esto va a ser el tema central del Bloque 06.</li>
+                        <li>Se puede agrupar por una columna que no se muestra, y se puede ordenar por el resultado de la agregación.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> tenés la caja del día volcada sobre la mesa. Primero separás los billetes en montoncitos por denominación (eso es el <code>GROUP BY</code>), y recién después contás cada montón (eso es el <code>COUNT</code>). Nadie cuenta primero y separa después.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Sobre las uniones:</strong> algunos de estos retos piden mostrar el <em>nombre</em> de la categoría (el método de pago, el estado) y no su ID. Para eso hay que traer la tabla maestra, con la sintaxis de coma del Taller 3: <code>FROM tabla_a A, tabla_b B WHERE A.id = B.id</code>. Si todavía no viste uniones, resolvé primero la versión con el ID crudo: agrupar por <code>id_metodo_pago</code> es igual de válido y el concepto es idéntico.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Parque de equipos por tipo</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá cuántos equipos hay registrados de cada <code>tipo</code>, ordenados de la categoría más numerosa a la menos numerosa.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Tablero de estados de las órdenes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere ver, de un vistazo, cuántas órdenes hay en cada estado. Mostrá el <strong>nombre</strong> del estado (no el ID) y la cantidad, de mayor a menor.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-comment">-- Versión 1 (sin unión): agrupás por el ID y listo.</span>
+<span class="sql-comment">-- Versión 2 (con unión): traés orden_estado para mostrar el nombre.</span>
+<span class="sql-keyword">FROM</span> orden_servicio O, orden_estado E
+<span class="sql-keyword">WHERE</span> O.id_orden_estado = E.id_orden_estado</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Cierre de caja por método de pago</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Para cada método de pago, mostrá <strong>cuántos pagos</strong> se hicieron y <strong>cuánto dinero</strong> entró en total. Ordená por lo recaudado, de mayor a menor.</p>
+                        <p>Prestá atención a un detalle: el método que más veces se usó no es el que más plata recaudó. Explicá por qué eso puede pasar.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.4</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Facturación por cliente (y los que faltan)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá, para cada cliente que tenga órdenes, cuántas hizo y cuánto suma el <code>total</code> de todas ellas.</p>
+                        <p><strong>Después contá las filas del resultado y comparalas con las 8 de la tabla <code>cliente</code>.</strong> Faltan clientes. ¿Cuáles y por qué? ¿Es un error de la consulta o es el comportamiento correcto de <code>GROUP BY</code>?</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-2-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3 -->
+        <section class="block-card block-filtro" id="filtro">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Filtrar antes de agrupar (WHERE)</h2>
+                    <p>Recortar el universo de filas que entra al agrupamiento</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Ojo, no me mezclen todo. Cuando pregunto por la facturación del mes, no quiero que me metan las órdenes de marzo. Y cuando pregunto cuánto facturé, no cuenten las que el cliente nunca vino a buscar: ésas son pérdida, no venta. Necesito los reportes con el recorte puesto antes de sacar la cuenta."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Sustento Teórico: dónde entra el WHERE
+                    </h4>
+                    <ul>
+                        <li>El <code>WHERE</code> actúa en el <strong>paso 2</strong>, antes de que exista grupo alguno. Descarta filas individuales; las que sobreviven son las únicas que se reparten en montones.</li>
+                        <li><strong>Consecuencia práctica:</strong> el <code>WHERE</code> puede <em>cambiar la cantidad de grupos</em>. Si filtrás todas las filas de una categoría, esa categoría desaparece del reporte.</li>
+                        <li><strong>El <code>WHERE</code> no puede usar funciones de agregación.</strong> <code>WHERE SUM(monto) &gt; 100</code> es un error, y no es un capricho: en el paso 2 la suma todavía no se calculó.</li>
+                        <li><strong>Filtrar por fechas:</strong> conviene usar rangos con <code>&gt;=</code> y <code>&lt;</code> (<code>fecha &gt;= '2026-05-01' AND fecha &lt; '2026-06-01'</code>) en lugar de funciones sobre la columna, porque así el motor puede aprovechar los índices.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> antes de separar la ropa por color para lavarla, sacás del canasto lo que está seco y no hay que lavar. Filtrás primero, agrupás después. Si lo hacés al revés, terminás separando en montones ropa que ni siquiera iba a entrar al lavarropas.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Cierre del mes de mayo por estado</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá, considerando <strong>solo las órdenes ingresadas en mayo de 2026</strong>, cuántas hay en cada estado y cuánto suman sus totales.</p>
+                        <p>Compará el resultado con el del Reto 2.2: una categoría entera desapareció del tablero. ¿Cuál y por qué?</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Competencia entre marcas, solo en celulares</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber qué marca dominan los <strong>celulares</strong> que entran al taller (los otros tipos de equipo no le interesan para esta pregunta). Mostrá el nombre de la marca y la cantidad de celulares de cada una, de mayor a menor.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Facturación real por cliente</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Igual que el Reto 2.4, pero contando <strong>únicamente las órdenes efectivamente entregadas</strong>. Las pendientes, las reparadas sin retirar y las abandonadas no son facturación.</p>
+                        <p>Mostrá cliente, cantidad de órdenes entregadas y monto, ordenado de mayor a menor.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4 -->
+        <section class="block-card block-having" id="having">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Filtrar después de agrupar (HAVING)</h2>
+                    <p>Descartar grupos enteros según su resultado</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Quiero armar una promoción para los clientes fieles, así que necesito solo los que volvieron más de una vez. Y para el balance, mostrame nada más los métodos de pago que movieron plata en serio. Ah, y algo que me tiene preocupado: creo que tengo clientes cargados dos veces, con el mismo nombre y apellido. ¿Se puede detectar eso?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Sustento Teórico: WHERE vs HAVING
+                    </h4>
+                    <ul>
+                        <li><strong><code>WHERE</code> filtra filas (paso 2). <code>HAVING</code> filtra grupos (paso 5).</strong> Esa es toda la diferencia, y de ahí se deduce lo demás.</li>
+                        <li><code>HAVING</code> <strong>sí</strong> puede usar funciones de agregación, porque cuando le toca el turno ya están calculadas. <code>WHERE</code> no puede.</li>
+                        <li>Ambas cláusulas pueden convivir en la misma consulta, y es lo habitual: <code>WHERE</code> recorta el universo, <code>HAVING</code> se queda con los grupos que importan.</li>
+                        <li><strong>Regla práctica:</strong> si la condición habla de <em>una fila</em> ("que sea de mayo", "que sea celular"), va en <code>WHERE</code>. Si habla del <em>grupo</em> ("que tenga más de dos", "que sume más de mil"), va en <code>HAVING</code>. Poner en <code>HAVING</code> algo que podría ir en <code>WHERE</code> funciona, pero es más lento: agrupás filas que después vas a tirar.</li>
+                        <li><strong><code>HAVING COUNT(*) &gt; 1</code> es el detector universal de duplicados</strong>, y sirve para cualquier tabla y cualquier combinación de columnas.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> el colegio arma los cursos. <em>"Sacá de la fila a los que no tienen la cuota al día"</em> es <code>WHERE</code>: decide alumno por alumno, antes de formar los cursos. <em>"De los cursos ya formados, cerrá los que tengan menos de 10 alumnos"</em> es <code>HAVING</code>: decide sobre el grupo entero, y recién se puede evaluar cuando el curso existe.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El error que vas a cometer al menos una vez:</strong> escribir <code>WHERE COUNT(*) &gt; 1</code>. MySQL responde <code>ERROR 1111 (HY000): Invalid use of group function</code>. No es un problema de sintaxis: es que en el momento en que se evalúa el <code>WHERE</code>, ese <code>COUNT</code> todavía no existe.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Clientes que volvieron</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá los clientes que tienen <strong>más de una orden</strong> registrada, con la cantidad, de mayor a menor. Mostrá el apellido y nombre, no solo el ID.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Métodos de pago relevantes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá únicamente los métodos de pago cuyo <strong>acumulado supere los $20.000</strong>, con el monto recaudado, de mayor a menor.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>WHERE y HAVING en la misma consulta</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber en qué marcas conviene stockear módulos de pantalla: le interesan las marcas de las que atiende <strong>2 o más celulares</strong>. Los equipos que no son celulares no cuentan para esta decisión.</p>
+                        <p>Escribí una sola consulta que use <code>WHERE</code> y <code>HAVING</code> a la vez, e identificá con precisión <strong>qué hace cada una</strong>.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-comment">-- ¿Cuál de las dos condiciones habla de UNA fila?  -> WHERE</span>
+<span class="sql-comment">--     "que el equipo sea un celular"</span>
+<span class="sql-comment">-- ¿Cuál habla del GRUPO ya armado?                 -> HAVING</span>
+<span class="sql-comment">--     "que la marca tenga 2 o más"</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-4-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.4</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Cazar clientes duplicados</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín sospecha que hay clientes cargados dos veces. Resolvelo en dos niveles:</p>
+                        <p><strong>a)</strong> Mostrá los <strong>apellidos</strong> que aparecen más de una vez en la tabla <code>cliente</code>.</p>
+                        <p><strong>b)</strong> Mostrá los casos donde se repite <strong>la combinación completa de nombre y apellido</strong>, que son los verdaderamente sospechosos de ser duplicados.</p>
+                        <p>Los resultados son distintos. Explicá por qué el punto (a) genera <em>falsos positivos</em> y qué caso concreto de esta base lo demuestra.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-4-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 5 -->
+        <section class="block-card block-multi" id="multi">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Multi-columna, ranking y expresiones</h2>
+                    <p>Agrupar por varias claves, ordenar por el cálculo y quedarse con el podio</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Ahora quiero cruzar cosas. Por ejemplo: no me alcanza saber cuántos celulares hay, quiero saber cuántos celulares de cada marca, porque eso me dice qué repuesto comprar. Necesito el podio de los tres clientes que más me dejaron, y quiero ver cómo viene el año mes a mes, para saber si estamos creciendo o si me estoy quedando quieto."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+                        Sustento Teórico: agrupamientos compuestos
+                    </h4>
+                    <ul>
+                        <li><strong><code>GROUP BY a, b</code></strong> arma un grupo por cada <em>combinación distinta</em> de valores de <code>a</code> y <code>b</code>. No es "agrupar dos veces": es agrupar una vez, por una clave compuesta.</li>
+                        <li><strong>Se puede agrupar por una expresión</strong>, no solo por una columna: <code>GROUP BY YEAR(fecha), MONTH(fecha)</code> o <code>GROUP BY DATE_FORMAT(fecha, '%Y-%m')</code> arman grupos mensuales. Es la base de cualquier reporte de evolución.</li>
+                        <li><strong><code>ORDER BY</code> puede usar el resultado de una agregación</strong> (o directamente su alias, porque el paso 7 ocurre después del 6). <code>ORDER BY SUM(total) DESC</code> es válido y es lo que arma un ranking.</li>
+                        <li><strong><code>LIMIT n</code> recorta el podio</strong>, y siempre va después del <code>ORDER BY</code>. Sin ordenar, un <code>LIMIT</code> devuelve filas arbitrarias.</li>
+                        <li><strong>Cuidado con los empates:</strong> <code>LIMIT 3</code> devuelve tres filas aunque la cuarta tenga exactamente el mismo valor que la tercera. Corta por posición, no por valor.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> agrupar por tipo <em>y</em> marca es como ordenar la ferretería por "estante" y "cajón": no alcanza con saber que algo está en el estante de tornillos, querés el cajón exacto. Cada combinación estante–cajón es un grupo.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-5-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.1</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Equipos por tipo y marca</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá la cantidad de equipos para <strong>cada combinación de tipo y marca</strong>, ordenada por tipo y después por marca.</p>
+                        <p>Después agregale un filtro para quedarte solo con las combinaciones que tienen <strong>más de un equipo</strong>: eso le dice a Martín en qué modelos conviene tener repuesto en stock.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-5-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.2</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>El podio de clientes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Armá el ranking de los <strong>3 clientes que más facturaron</strong>, mostrando apellido y nombre en una sola columna, el monto total y la cantidad de órdenes.</p>
+                        <p>Aclaración honesta sobre el resultado: mirá el tercer puesto y decidí si ese ranking le sirve a Martín tal como está o si le falta un filtro. Justificá.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-5-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Evolución mes a mes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá, para cada <strong>mes</strong>, cuántas órdenes ingresaron y cuánto suman sus totales. Ordená cronológicamente.</p>
+                        <p>Acá hay que agrupar por algo que <strong>no es una columna</strong>, sino un cálculo sobre la fecha de ingreso.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-comment">-- Dos formas de armar la clave del mes:</span>
+<span class="sql-keyword">DATE_FORMAT</span>(fecha_ingreso, <span class="sql-string">'%Y-%m'</span>)      <span class="sql-comment">-- devuelve '2026-05'</span>
+<span class="sql-keyword">YEAR</span>(fecha_ingreso), <span class="sql-keyword">MONTH</span>(fecha_ingreso) <span class="sql-comment">-- dos columnas</span>
+
+<span class="sql-comment">-- Ojo: agrupar por MONTH() solo mezclaría mayo de años distintos.</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-5-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.4</span>
+                        <span class="nivel-tag">Intermedio</span>
+                        <h3>Productividad de los técnicos</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá, para cada empleado que haya recibido órdenes: su usuario, cuántas recibió, cuánto suman y cuál es el <strong>ticket promedio</strong> de sus órdenes (redondeado a dos decimales).</p>
+                        <p>Uno de los dos técnicos recibió más órdenes; el otro tiene mejor promedio por orden. Explicá qué mide cada indicador y por qué Martín no debería premiar mirando uno solo.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-5-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 6 -->
+        <section class="block-card block-edge" id="limite">
+            <div class="block-header">
+                <div class="block-num">06</div>
+                <div class="block-title">
+                    <h2>Casos límite: NULL, ceros y ROLLUP</h2>
+                    <p>Donde la agrupación deja de ser intuitiva</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Che, hay algo raro en el reporte que me pasaron. Tengo métodos de pago habilitados que no figuran en ningún lado, y me gustaría verlos aunque estén en cero, justamente para darme cuenta de que no los usa nadie. Y en la lista de órdenes hay unas celdas vacías donde debería decir cuánto pagaron. ¿Vacío es cero o es otra cosa?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        Sustento Teórico: lo que la agrupación no te muestra
+                    </h4>
+                    <ul>
+                        <li><strong>El grupo vacío no existe.</strong> <code>GROUP BY</code> solo puede armar grupos con las filas que recibió. Una categoría sin filas no genera un grupo con cero: genera <em>ninguna fila</em>. Para verla hay que traerla desde su tabla maestra con <code>LEFT JOIN</code>.</li>
+                        <li><strong><code>SUM()</code> de un conjunto vacío es <code>NULL</code>, no 0.</strong> Es coherente con la regla de que los NULL se ignoran: si no quedó ningún valor para sumar, no hay suma. Se corrige en la presentación con <code>COALESCE(SUM(x), 0)</code> o <code>IFNULL(SUM(x), 0)</code>.</li>
+                        <li><strong>En un <code>LEFT JOIN</code>, <code>COUNT(*)</code> miente.</strong> Cuenta la fila fantasma que el <code>LEFT JOIN</code> genera para el padre sin hijos, así que devuelve 1 donde debería decir 0. Hay que contar una columna <em>de la tabla hija</em>: <code>COUNT(hija.id)</code>, que ignora el NULL y devuelve 0.</li>
+                        <li><strong><code>GROUP_CONCAT()</code></strong> es una función de agregación que en lugar de un número devuelve <em>el texto de todos los valores del grupo</em> concatenados. Acepta <code>DISTINCT</code>, <code>ORDER BY</code> y <code>SEPARATOR</code>.</li>
+                        <li><strong><code>WITH ROLLUP</code></strong> agrega automáticamente filas de subtotal y una fila de total general, marcando con <code>NULL</code> la columna que "colapsó". <code>GROUPING(columna)</code> devuelve 1 en esas filas y permite etiquetarlas.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> pasás lista en el aula. Los presentes contestan y los contás. Pero los <em>ausentes</em> no van a levantar la mano jamás: para saber quién faltó no alcanza con escuchar, hay que tener la lista completa del curso al lado. Esa lista es el <code>LEFT JOIN</code> contra la tabla maestra.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Este bloque es el que separa un reporte correcto de uno peligroso.</strong> Los cinco retos que siguen producen, si se resuelven mal, resultados que <em>parecen</em> bien: no dan error, no dan cero filas, simplemente omiten información o la muestran mal. Son exactamente los errores que llegan a producción.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-6-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.1</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Cuánto se pagó de cada orden (incluidas las que no pagaron)</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá <strong>las 8 órdenes</strong> con su total facturado y cuánto se cobró efectivamente por cada una.</p>
+                        <p>Las órdenes sin ningún pago tienen que aparecer igual, mostrando <strong>0</strong> y no una celda vacía. Agregá también la cantidad de pagos de cada orden.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-comment">-- Necesitás traer TODAS las órdenes aunque no tengan pagos:</span>
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+
+<span class="sql-comment">-- Probá primero con SUM(P.monto) y COUNT(*) a secas.</span>
+<span class="sql-comment">-- Mirá bien las órdenes 3 y 7 antes de corregir nada.</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-6-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-6-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.2</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Los métodos de pago que nadie usa</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín habilitó <strong>6</strong> métodos de pago. Mostrá los 6, con cuántas veces se usó cada uno y cuánto recaudó, incluyendo los que están en cero.</p>
+                        <p>Hacé lo mismo con las <strong>marcas</strong>: mostrá todas, incluidas las que no tienen ni un equipo registrado.</p>
+                        <p><strong>Trampa a documentar:</strong> resolvelo primero con <code>COUNT(*)</code> y mirá qué número aparece en las categorías vacías. Después corregilo y explicá por qué pasaba.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-6-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-6-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.3</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>El diagnóstico que nunca apareció</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá los 6 problemas del catálogo con la cantidad de veces que fueron detectados en órdenes, ordenados de más a menos frecuente.</p>
+                        <p>Uno de ellos nunca se detectó. Escribí además la consulta que devuelva <strong>solamente</strong> ese caso, usando <code>HAVING</code>.</p>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-6-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-6-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.4</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Un renglón por orden con todos sus métodos de pago</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere un listado con <strong>una sola línea por orden</strong> que diga, en texto, con qué métodos se pagó. Algo como <code>"Efectivo + Tarjeta"</code>, más el total cobrado y la cantidad de pagos.</p>
+                        <p>Este reto muestra que una función de agregación no tiene por qué devolver un número.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-keyword">GROUP_CONCAT</span>(<span class="sql-keyword">DISTINCT</span> M.nombre <span class="sql-keyword">ORDER BY</span> M.nombre <span class="sql-keyword">SEPARATOR</span> <span class="sql-string">' + '</span>)</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-6-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-6-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.5</span>
+                        <span class="nivel-tag">Avanzado</span>
+                        <h3>Reporte con subtotales y total general</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Rehacé el cierre de caja por método de pago (Reto 2.3), pero agregando al final una fila de <strong>TOTAL GENERAL</strong> calculada por el propio motor, no a mano.</p>
+                        <p>Bonus: etiquetá esa última fila con el texto <code>"TOTAL GENERAL"</code> en lugar de dejarla con la celda en <code>NULL</code>.</p>
+                        <div class="helper-box">
+                            <h5>Andamiaje</h5>
+                            <pre><code><span class="sql-keyword">GROUP BY</span> M.nombre <span class="sql-keyword">WITH ROLLUP</span>
+
+<span class="sql-comment">-- Para distinguir la fila de total de un NULL de datos:</span>
+<span class="sql-keyword">GROUPING</span>(M.nombre)  <span class="sql-comment">-- devuelve 1 solo en la fila de subtotal/total</span></code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-agrupacion-resoluciones.html#reto-6-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- CIERRE -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Autoevaluación</h2>
+            </div>
+            <div class="explicacion">
+                <p>Terminaste el compendio si podés responder estas seis preguntas sin mirar los apuntes:</p>
+                <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.98rem; display: flex; flex-direction: column; gap: 8px;">
+                    <li>¿Por qué <code>WHERE COUNT(*) &gt; 1</code> es un error y <code>HAVING COUNT(*) &gt; 1</code> no?</li>
+                    <li>¿En qué caso concreto <code>COUNT(*)</code> y <code>COUNT(columna)</code> dan distinto, y cuál de los dos querés en cada situación?</li>
+                    <li>Si una categoría no aparece en tu reporte agrupado, ¿cómo sabés si es porque no tiene datos o porque la filtraste sin querer?</li>
+                    <li>¿Por qué <code>SUM()</code> puede devolver <code>NULL</code> y por qué eso no es lo mismo que devolver 0?</li>
+                    <li>¿Qué columnas podés poner en el <code>SELECT</code> de una consulta agrupada, y por qué el motor rechaza las demás?</li>
+                    <li>¿Cuál es la diferencia entre agrupar por dos columnas y hacer dos consultas agrupadas por una?</li>
+                </ol>
+            </div>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-agrupacion-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller de agrupación</strong>
+            </a>
+            <a class="pag-sig" href="taller-subconsultas-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller de subconsultas</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="compendio-agrupacion-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

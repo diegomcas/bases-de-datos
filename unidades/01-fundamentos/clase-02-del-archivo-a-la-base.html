@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Del archivo a la base de datos · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 2</span>
+            <h1>Del archivo a la base de datos</h1>
+            <p>Qué se rompía antes de los gestores, y qué vino a resolver cada uno</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad I · Fundamentos
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u1">Unidad I · Fundamentos</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Del archivo a la base de datos</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>En esta clase</h2>
+            <ol>
+                <li><a href="#introduccion">Introducción</a></li>
+                <li><a href="#sistemas-basados-en-archivos">Sistemas basados en archivos</a></li>
+                <li><a href="#problemas-de-los-sistemas-basados-en-archivos">Problemas de los sistemas basados en archivos</a></li>
+                <li><a href="#redundancia-de-datos">Redundancia de datos</a></li>
+                <li><a href="#inconsistencia-de-datos">Inconsistencia de datos</a></li>
+                <li><a href="#dificultad-de-acceso-a-la-informacion">Dificultad de acceso a la información</a></li>
+                <li><a href="#aislamiento-de-los-datos">Aislamiento de los datos</a></li>
+                <li><a href="#sistemas-de-gestion-de-bases-de-datos-sgbd">Sistemas de Gestión de Bases de Datos (SGBD)</a></li>
+                <li><a href="#que-es-una-base-de-datos">¿Qué es una Base de Datos?</a></li>
+                <li><a href="#que-es-un-sistema-de-gestion-de-bases-de-datos">¿Qué es un Sistema de Gestión de Bases de Datos?</a></li>
+                <li><a href="#funciones-principales-de-un-sgbd">Funciones principales de un SGBD</a></li>
+                <li><a href="#ventajas-competitivas-de-los-sgbd">Ventajas competitivas de los SGBD</a></li>
+                <li><a href="#cuadro-comparativo-ventajas-clave-de-los-sgbd">Cuadro comparativo: Ventajas clave de los SGBD</a></li>
+                <li><a href="#transacciones-en-los-sistemas-de-bases-de-datos">Transacciones en los sistemas de bases de datos</a></li>
+                <li><a href="#el-problema-de-la-confiabilidad">El problema de la confiabilidad</a></li>
+                <li><a href="#el-modelo-acid">El modelo ACID</a></li>
+                <li><a href="#arquitectura-ansi-sparc">Arquitectura ANSI/SPARC</a></li>
+                <li><a href="#que-se-entiende-por-arquitectura-de-datos">¿Qué se entiende por Arquitectura de Datos?</a></li>
+                <li><a href="#la-necesidad-de-niveles-de-abstraccion">La necesidad de niveles de abstracción</a></li>
+                <li><a href="#el-modelo-ansi-sparc">El modelo ANSI/SPARC</a></li>
+                <li><a href="#arquitectura-de-tres-niveles">Arquitectura de tres niveles</a></li>
+                <li><a href="#independencia-de-datos">Independencia de datos</a></li>
+                <li><a href="#tipos-de-independencia">Tipos de independencia</a></li>
+                <li><a href="#diccionario-de-datos">Diccionario de datos</a></li>
+                <li><a href="#resumen-conceptual">Resumen conceptual</a></li>
+                <li><a href="#ejercicios-de-autoevaluacion">Ejercicios de autoevaluación</a></li>
+                <li><a href="#conclusion">Conclusión</a></li>
+            </ol>
+        </nav>
+
+
+        <article class="apunte">
+            <p><br></p>
+            <h2 id="introduccion">Introducción</h2>
+            <p>Las organizaciones modernas dependen cada vez más de la <strong>gestión eficiente de la información</strong>. Empresas, hospitales, universidades y organismos públicos almacenan grandes volúmenes de datos para apoyar sus operaciones y la toma de decisiones.</p>
+            <p>Sin embargo, la forma en que los datos se almacenan y administran ha evolucionado significativamente a lo largo del tiempo.</p>
+            <p>Antes de la aparición de los <strong>Sistemas de Gestión de Bases de Datos (SGBD)</strong>, las aplicaciones informáticas utilizaban métodos mucho más simples para manejar información, basados principalmente en <strong>archivos independientes</strong>.</p>
+            <p>Comprender esta evolución permite entender:</p>
+            <ul>
+              <li>por qué surgieron los SGBD</li>
+              <li>qué problemas intentan resolver</li>
+              <li>cómo se organiza internamente una base de datos moderna</li>
+            </ul>
+            <h2 id="sistemas-basados-en-archivos">Sistemas basados en archivos</h2>
+            <p>Antes de la década de 1970, muchas aplicaciones se desarrollaban utilizando <strong>sistemas de archivos independientes</strong>.</p>
+            <p>En este modelo:</p>
+            <ul>
+              <li>cada programa administra sus propios datos</li>
+              <li>cada archivo tiene un formato particular</li>
+              <li>no existe un sistema centralizado de gestión de datos</li>
+            </ul>
+            <p>Cada programa conoce <strong>únicamente sus propios archivos</strong>. Esto genera múltiples dificultades cuando el sistema crece.</p>
+            <p>Ejemplo de “Arquitectura basada en archivos”:</p>
+            <ul>
+              <li>Programa Turnos → archivo: turnos.txt</li>
+              <li>Programa Facturación → archivo: facturas.dat</li>
+              <li>Programa Farmacia → archivo: farmacia.csv</li>
+              <li>Programa Laboratorio → archivo: laboratorio.dat</li>
+            </ul>
+            <h2 id="problemas-de-los-sistemas-basados-en-archivos">Problemas de los sistemas basados en archivos</h2>
+            <p>A medida que las organizaciones almacenan más información, los sistemas basados en archivos comienzan a mostrar limitaciones importantes.</p>
+            <p>Los problemas principales son:</p>
+            <ul>
+              <li>redundancia de datos</li>
+              <li>inconsistencia de datos</li>
+              <li>dificultad de acceso</li>
+              <li>aislamiento de la información</li>
+            </ul>
+            <h3 id="redundancia-de-datos">Redundancia de datos</h3>
+            <p>La redundancia ocurre cuando <strong>la misma información se almacena varias veces en distintos archivos</strong>.</p>
+            <p>Ejemplo:</p>
+            <p>Archivo Turnos → Juan Pérez</p>
+            <p>Archivo Facturación → Juan Pérez</p>
+            <p>Archivo Farmacia → Juan Pérez</p>
+            <p>Archivo Laboratorio → Juan Pérez</p>
+            <p>Consecuencias:</p>
+            <ul>
+              <li>mayor uso de almacenamiento</li>
+              <li>mayor costo de mantenimiento</li>
+              <li>mayor probabilidad de errores</li>
+            </ul>
+            <h3 id="inconsistencia-de-datos">Inconsistencia de datos</h3>
+            <p>La inconsistencia ocurre cuando distintas copias del mismo dato <strong>contienen valores diferentes</strong>.</p>
+            <ul>
+              <li><strong>Ejemplo</strong></li>
+            </ul>
+            <p>Sistema Turnos →Tel: 351-444-555</p>
+            <p>Sistema Emergencias →Tel: 351-333-111</p>
+            <p>Esto genera <strong>pérdida de confiabilidad en la información</strong>.</p>
+            <h3 id="dificultad-de-acceso-a-la-informacion">Dificultad de acceso a la información</h3>
+            <p>En los sistemas de archivos, obtener información específica requiere <strong>programar soluciones a medida</strong>.</p>
+            <p>Ejemplo de consulta:</p>
+            <p>¿Cuántos pacientes mayores de 60 años fueron atendidos en invierno?</p>
+            <p>Sin un sistema de base de datos, esta consulta puede requerir <strong>programación adicional</strong>.</p>
+            <h3 id="aislamiento-de-los-datos">Aislamiento de los datos</h3>
+            <p>Los datos están distribuidos en múltiples archivos con distintos formatos.</p>
+            <p>Esto dificulta <strong>combinar información</strong>.</p>
+            <p>Ejemplo:</p>
+            <ul>
+              <li>archivo farmacia</li>
+              <li>archivo historia clínica</li>
+            </ul>
+            <p>Relacionarlos puede ser técnicamente complejo.</p>
+            <h2 id="sistemas-de-gestion-de-bases-de-datos-sgbd">Sistemas de Gestión de Bases de Datos (SGBD)</h2>
+            <h3 id="que-es-una-base-de-datos">¿Qué es una Base de Datos?</h3>
+            <p>Una <strong>base de datos</strong> es un <strong>conjunto organizado de datos relacionados entre sí</strong>, que se almacenan de manera estructurada para permitir su <strong>consulta, actualización y gestión de forma eficiente</strong>.</p>
+            <p>El objetivo principal de una base de datos es <strong>representar información sobre algún aspecto del mundo real</strong>, de manera que pueda ser utilizada por personas o sistemas informáticos para realizar distintas actividades, como registrar información, analizarla o tomar decisiones.</p>
+            <p>En una organización, las bases de datos permiten almacenar información sobre distintos elementos de su actividad cotidiana, por ejemplo:</p>
+            <ul>
+              <li>clientes</li>
+              <li>productos</li>
+              <li>empleados</li>
+              <li>ventas</li>
+              <li>proveedores</li>
+              <li>operaciones administrativas</li>
+            </ul>
+            <p>A diferencia de una simple colección de archivos o documentos aislados, una base de datos presenta algunas características fundamentales:</p>
+            <p><strong>Organización estructurada</strong></p>
+            <p>Los datos se organizan siguiendo un modelo que define cómo se relacionan entre sí.</p>
+            <p><strong>Relación entre los datos</strong></p>
+            <p>Los distintos conjuntos de información no se encuentran aislados, sino vinculados entre sí de forma lógica.</p>
+            <p><strong>Persistencia</strong></p>
+            <p>La información se almacena de forma permanente para poder ser utilizada en distintos momentos.</p>
+            <p><strong>Acceso y actualización</strong></p>
+            <p>Los datos pueden ser consultados, modificados o ampliados cuando sea necesario.</p>
+            <p>Sin embargo, a medida que la cantidad de datos crece y aumenta el número de usuarios que necesitan acceder a ellos, administrar esta información manualmente o mediante archivos simples se vuelve complejo. Surgen entonces problemas como:</p>
+            <ul>
+              <li>duplicación de datos</li>
+              <li>inconsistencias en la información</li>
+              <li>dificultades para acceder a los datos</li>
+              <li>falta de control de seguridad</li>
+              <li>conflictos cuando varios usuarios intentan usar la información al mismo tiempo</li>
+            </ul>
+            <p>Para resolver estos problemas se utilizan los <strong>Sistemas de Gestión de Bases de Datos</strong>, que proporcionan herramientas especializadas para administrar grandes volúmenes de información de forma segura y eficiente.</p>
+            <h3 id="que-es-un-sistema-de-gestion-de-bases-de-datos">¿Qué es un Sistema de Gestión de Bases de Datos?</h3>
+            <p>Un <strong>Sistema de Gestión de Bases de Datos (SGBD)</strong> es un software especializado diseñado para <strong>almacenar, organizar, proteger y administrar grandes volúmenes de datos estructurados</strong>.</p>
+            <p>El SGBD actúa como intermediario entre:</p>
+            <ul>
+              <li>las aplicaciones</li>
+              <li>los usuarios</li>
+              <li>los datos almacenados</li>
+            </ul>
+            <p>De esta manera, las aplicaciones <strong>no interactúan directamente con los archivos físicos</strong>, sino que solicitan información al SGBD, que se encarga de localizarla, validarla y entregarla.</p>
+            <p>En resumen, la arquitectura de los datos con SGBD se puede graficar de la siguiente manera:</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th>Aplicaciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>↓</td>
+            </tr>
+            <tr>
+            <td>SGBD</td>
+            </tr>
+            <tr>
+            <td>↓</td>
+            </tr>
+            <tr>
+            <td>Base de Datos</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>El SGBD centraliza la gestión de los datos y proporciona múltiples servicios que permiten que el sistema sea <strong>confiable, seguro y eficiente</strong>.</p>
+            <h3 id="funciones-principales-de-un-sgbd">Funciones principales de un SGBD</h3>
+            <p>Un SGBD proporciona múltiples servicios fundamentales:</p>
+            <ul>
+              <li>almacenamiento estructurado de información</li>
+              <li>acceso eficiente a grandes volúmenes de datos</li>
+              <li>control de acceso a la información</li>
+              <li>gestión de múltiples usuarios simultáneos</li>
+              <li>recuperación ante fallos</li>
+              <li>mantenimiento de la integridad de los datos</li>
+            </ul>
+            <p>Estas capacidades representan <strong>ventajas competitivas clave frente a los sistemas basados en archivos</strong>.</p>
+            <h3 id="ventajas-competitivas-de-los-sgbd">Ventajas competitivas de los SGBD</h3>
+            <p>Los sistemas de gestión de bases de datos ofrecen ventajas fundamentales que permiten que las organizaciones manejen información crítica de manera confiable.</p>
+            <p>Entre las más importantes se encuentran:</p>
+            <ul>
+              <li><strong>integridad de los datos</strong></li>
+              <li><strong>seguridad de la información</strong></li>
+              <li><strong>concurrencia de acceso</strong></li>
+            </ul>
+            <h4 id="integridad-de-los-datos">Integridad de los datos</h4>
+            <p>La <strong>integridad de los datos</strong> se refiere a la capacidad del sistema para garantizar que la información almacenada sea <strong>correcta, coherente y válida</strong>.</p>
+            <p>Los SGBD permiten definir <strong>reglas y restricciones</strong> que los datos deben cumplir.</p>
+            <p>Ejemplos de reglas de integridad:</p>
+            <ul>
+              <li>un paciente no puede tener un número de identificación duplicado</li>
+              <li>un turno no puede asignarse a un médico inexistente</li>
+              <li>una factura debe estar asociada a un cliente válido</li>
+            </ul>
+            <p>Si un usuario intenta introducir datos que violen estas reglas, el SGBD <strong>rechaza la operación</strong>, evitando que la base de datos quede en un estado inconsistente.</p>
+            <p>Ejemplo:</p>
+            <p>Intento de registrar turno → ID_MEDICO = 145</p>
+            <p>Si el médico no existe → operación rechazada</p>
+            <p>Esto garantiza que la información almacenada mantenga su <strong>coherencia lógica</strong>.</p>
+            <h4 id="seguridad-de-la-informacion">Seguridad de la información</h4>
+            <p>La <strong>seguridad</strong> es la capacidad del sistema para <strong>controlar quién puede acceder a los datos y qué acciones puede realizar</strong> sobre ellos.</p>
+            <p>Los SGBD permiten definir <strong>niveles de acceso diferenciados</strong> para distintos tipos de usuarios.</p>
+            <p>Por ejemplo:</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Usuario</strong></th>
+            <th><strong>Permisos</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Recepcionista</td>
+            <td>ver turnos</td>
+            </tr>
+            <tr>
+            <td>Farmacéutico</td>
+            <td>ver medicamentos</td>
+            </tr>
+            <tr>
+            <td>Contador</td>
+            <td>ver facturación</td>
+            </tr>
+            <tr>
+            <td>Administrador</td>
+            <td>acceso completo</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Esto evita que usuarios no autorizados puedan:</p>
+            <ul>
+              <li>acceder a información sensible</li>
+              <li>modificar datos críticos</li>
+              <li>eliminar información importante</li>
+            </ul>
+            <p>Además, muchos SGBD incluyen mecanismos adicionales como:</p>
+            <ul>
+              <li>autenticación de usuarios</li>
+              <li>registro de actividades (logs)</li>
+              <li>cifrado de datos</li>
+            </ul>
+            <p>Estos mecanismos son fundamentales en sistemas que manejan <strong>información sensible</strong>, como historias clínicas o datos financieros.</p>
+            <h4 id="concurrencia-de-acceso">Concurrencia de acceso</h4>
+            <p>En sistemas reales, múltiples usuarios pueden necesitar <strong>acceder simultáneamente a la base de datos</strong>.</p>
+            <p>Por ejemplo:</p>
+            <ul>
+              <li>dos secretarias registrando turnos</li>
+              <li>un médico consultando una historia clínica</li>
+              <li>el sistema de facturación generando un comprobante</li>
+            </ul>
+            <p>El SGBD gestiona este acceso simultáneo mediante <strong>mecanismos de control de concurrencia</strong>.</p>
+            <p>El objetivo es evitar situaciones como:</p>
+            <ul>
+              <li>pérdida de información</li>
+              <li>modificaciones conflictivas</li>
+              <li>resultados incorrectos</li>
+            </ul>
+            <p>Ejemplo:</p>
+            <p>Dos usuarios intentan reservar el <strong>mismo turno médico</strong> al mismo tiempo.</p>
+            <p>Usuario A → solicita turno 10:00</p>
+            <p>Usuario B → solicita turno 10:00</p>
+            <p>El SGBD actúa como <strong>árbitro</strong>, permitiendo que solo una operación se complete y evitando que el turno quede duplicado.</p>
+            <p>Este control garantiza que la base de datos mantenga <strong>consistencia incluso bajo alta carga de trabajo</strong>.</p>
+            <h3 id="cuadro-comparativo-ventajas-clave-de-los-sgbd">Cuadro comparativo: Ventajas clave de los SGBD</h3>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Característica</strong></th>
+            <th><strong>Sistemas de Archivos</strong></th>
+            <th><strong>Sistemas con SGBD</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Integridad de datos</td>
+            <td>Difícil de garantizar</td>
+            <td>Reglas automáticas</td>
+            </tr>
+            <tr>
+            <td>Seguridad</td>
+            <td>Limitada</td>
+            <td>Control de acceso</td>
+            </tr>
+            <tr>
+            <td>Concurrencia</td>
+            <td>Riesgo de conflictos</td>
+            <td>Gestión automática</td>
+            </tr>
+            <tr>
+            <td>Consistencia</td>
+            <td>Vulnerable a errores</td>
+            <td>Controlada por el sistema</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h2 id="transacciones-en-los-sistemas-de-bases-de-datos">Transacciones en los sistemas de bases de datos</h2>
+            <p>En un sistema de base de datos, muchas operaciones sobre los datos no ocurren de manera aislada.</p>
+            <p>Frecuentemente, una acción del usuario implica <strong>varios pasos que deben ejecutarse como una única operación lógica</strong>.</p>
+            <p>Por ejemplo, cuando un paciente paga una consulta médica, el sistema puede necesitar:</p>
+            <ul>
+              <li>registrar el pago en la cuenta del paciente</li>
+              <li>actualizar el saldo de la clínica</li>
+              <li>registrar la operación en el historial de facturación</li>
+            </ul>
+            <p>Aunque estas acciones son técnicamente varias operaciones sobre la base de datos, desde el punto de vista del sistema constituyen <strong>una sola unidad de trabajo</strong>.</p>
+            <p>A este conjunto de operaciones se lo denomina <strong>transacción</strong>.</p>
+            <p><strong>Definición</strong><strong>:</strong></p>
+            <p>Una <strong>transacción</strong> es una secuencia de operaciones sobre la base de datos que se ejecutan como una unidad lógica indivisible.</p>
+            <p>Esto significa que todas las operaciones de la transacción deben ejecutarse correctamente para que el resultado sea válido.</p>
+            <h3 id="el-problema-de-la-confiabilidad">El problema de la confiabilidad</h3>
+            <p>En sistemas reales pueden ocurrir múltiples situaciones que afecten la ejecución de una transacción:</p>
+            <ul>
+              <li>fallos del sistema</li>
+              <li>cortes de energía</li>
+              <li>errores de software</li>
+              <li>acceso simultáneo de múltiples usuarios</li>
+            </ul>
+            <p>Si estos eventos ocurren en medio de una operación compleja, la base de datos podría quedar en un <strong>estado inconsistente</strong>.</p>
+            <p>Por ejemplo:</p>
+            <ul>
+              <li>se registra un pago, pero el sistema falla antes de actualizar el saldo.</li>
+            </ul>
+            <p>El resultado sería una base de datos incorrecta.</p>
+            <p>Para evitar este tipo de problemas, los sistemas de gestión de bases de datos implementan un conjunto de garantías conocidas como <strong>propiedades ACID</strong>.</p>
+            <h3 id="el-modelo-acid">El modelo ACID</h3>
+            <p>Las propiedades <strong>ACID</strong> definen los principios que deben cumplir las transacciones para garantizar que la base de datos permanezca <strong>correcta, confiable y consistente</strong>, incluso ante fallos o acceso simultáneo.</p>
+            <p>El término ACID es un acrónimo formado por las iniciales de cuatro propiedades fundamentales:</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Propiedad</strong></th>
+            <th><strong>Significado</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>A</td>
+            <td>Atomicidad</td>
+            </tr>
+            <tr>
+            <td>C</td>
+            <td>Consistencia</td>
+            </tr>
+            <tr>
+            <td>I</td>
+            <td>Aislamiento (Isolation)</td>
+            </tr>
+            <tr>
+            <td>D</td>
+            <td>Durabilidad</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <p>Estas propiedades actúan como <strong>garantías que el SGBD ofrece a las aplicaciones y a los usuarios</strong>.</p>
+            <p>Si una transacción cumple estas cuatro propiedades, el sistema puede asegurar que los datos permanecerán <strong>correctos y confiables</strong>.</p>
+            <h4 id="atomicidad">Atomicidad</h4>
+            <p>La <strong>atomicidad</strong> establece que una transacción debe ejecutarse <strong>completamente o no ejecutarse en absoluto</strong>.</p>
+            <p>Si ocurre un error durante su ejecución, el sistema deshace todos los cambios realizados hasta ese momento.</p>
+            <p>Esto se conoce como el principio de <strong>“todo o nada”</strong>.</p>
+            <p>Ejemplo:</p>
+            <ol>
+              <li>Registrar pago</li>
+              <li>Actualizar saldo</li>
+              <li>Registrar operación</li>
+            </ol>
+            <p>Si falla el paso 3 → el sistema deshace los pasos 1 y 2</p>
+            <p>De esta manera se evita que la base de datos quede en un estado incompleto.</p>
+            <h4 id="consistencia">Consistencia</h4>
+            <p>La <strong>consistencia</strong> garantiza que la base de datos siempre pase de <strong>un estado válido a otro estado válido</strong>.</p>
+            <p>Esto significa que todas las reglas definidas para los datos deben respetarse antes y después de cada transacción.</p>
+            <p>Ejemplos de reglas de consistencia:</p>
+            <ul>
+              <li>un saldo no puede ser negativo</li>
+              <li>un turno debe corresponder a un médico existente</li>
+              <li>una factura debe estar asociada a un cliente válido</li>
+            </ul>
+            <p>Si una operación viola alguna de estas reglas, el sistema <strong>rechaza la transacción</strong>.</p>
+            <h4 id="aislamiento">Aislamiento</h4>
+            <p>El <strong>aislamiento</strong> se refiere a la capacidad del sistema para manejar <strong>múltiples transacciones que se ejecutan simultáneamente</strong> sin que interfieran entre sí.</p>
+            <p>En entornos reales, muchos usuarios pueden acceder a la base de datos al mismo tiempo.</p>
+            <p>Por ejemplo:</p>
+            <ul>
+              <li>una secretaria registra turnos</li>
+              <li>un médico consulta historias clínicas</li>
+              <li>el sistema de facturación genera comprobantes</li>
+            </ul>
+            <p>El SGBD debe asegurar que estas operaciones <strong>no produzcan resultados incorrectos</strong>.</p>
+            <p>Desde el punto de vista de cada transacción, el sistema debe comportarse <strong>como si fuera la única que se está ejecutando</strong>.</p>
+            <h4 id="durabilidad">Durabilidad</h4>
+            <p>La <strong>durabilidad</strong> garantiza que, una vez que una transacción ha sido confirmada exitosamente, los cambios realizados en la base de datos <strong>permanecerán almacenados incluso si ocurre un fallo del sistema</strong>.</p>
+            <p>Para lograr esto, los SGBD utilizan mecanismos como:</p>
+            <ul>
+              <li>registros de transacciones (logs)</li>
+              <li>almacenamiento persistente</li>
+              <li>técnicas de recuperación ante fallos</li>
+            </ul>
+            <p>De esta forma, si el sistema se reinicia después de una falla, los cambios confirmados <strong>no se perderán</strong>.</p>
+            <h4 id="sintesis-de-las-propiedades-acid">Síntesis de las propiedades ACID</h4>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Propiedad</strong></th>
+            <th><strong>Garantía</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Atomicidad</td>
+            <td>la transacción se ejecuta completa o se cancela</td>
+            </tr>
+            <tr>
+            <td>Consistencia</td>
+            <td>la base de datos permanece en un estado válido</td>
+            </tr>
+            <tr>
+            <td>Aislamiento</td>
+            <td>las transacciones concurrentes no interfieren</td>
+            </tr>
+            <tr>
+            <td>Durabilidad</td>
+            <td>los cambios confirmados no se pierden</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h4 id="importancia-de-acid">Importancia de ACID</h4>
+            <p>Las propiedades ACID son fundamentales para garantizar que los sistemas de bases de datos puedan manejar <strong>información crítica</strong> de manera confiable.</p>
+            <p>Gracias a estas garantías, es posible utilizar bases de datos en sistemas donde la precisión de los datos es esencial, como:</p>
+            <ul>
+              <li>sistemas financieros</li>
+              <li>sistemas hospitalarios</li>
+              <li>sistemas de reservas</li>
+              <li>plataformas de comercio electrónico</li>
+            </ul>
+            <p>En estos contextos, incluso un pequeño error en los datos puede tener consecuencias importantes.</p>
+            <h2 id="arquitectura-ansi-sparc">Arquitectura ANSI/SPARC</h2>
+            <h3 id="que-se-entiende-por-arquitectura-de-datos">¿Qué se entiende por Arquitectura de Datos?</h3>
+            <p>La <strong>arquitectura de datos</strong> es la disciplina que define <strong>cómo se organizan, estructuran, almacenan, integran y utilizan los datos dentro de un sistema o una organización</strong>. Su objetivo principal es establecer un marco ordenado que permita que los datos sean <strong>comprensibles, confiables, accesibles y útiles</strong> para quienes los necesitan.</p>
+            <p>En términos simples, la arquitectura de datos responde a preguntas como:</p>
+            <ul>
+              <li>¿Qué datos existen en un sistema?</li>
+              <li>¿Cómo están organizados?</li>
+              <li>¿Dónde se almacenan?</li>
+              <li>¿Cómo se relacionan entre sí?</li>
+              <li>¿Quién puede acceder a ellos y de qué manera?</li>
+            </ul>
+            <p>Desde una perspectiva conceptual, la arquitectura de datos busca <strong>representar el mundo real mediante estructuras de información</strong>, de modo que los sistemas informáticos puedan registrar, procesar y recuperar información de forma eficiente.</p>
+            <p>Dentro de un sistema informático, la arquitectura de datos cumple varias funciones fundamentales:</p>
+            <ul>
+              <li><strong>Organización:</strong> establece una estructura clara para los datos.</li>
+              <li><strong>Consistencia:</strong> asegura que la información mantenga coherencia en todo el sistema.</li>
+              <li><strong>Integración:</strong> permite que distintos sistemas compartan y utilicen los mismos datos.</li>
+              <li><strong>Escalabilidad:</strong> facilita que el sistema pueda crecer sin perder orden ni eficiencia.</li>
+              <li><strong>Gobernanza:</strong> define reglas sobre cómo se crean, modifican y utilizan los datos.</li>
+            </ul>
+            <p>Por esta razón, la arquitectura de datos es un componente central en el diseño de sistemas de información, ya que <strong>los procesos informáticos dependen directamente de la calidad y organización de los datos</strong>.</p>
+            <p>En el ámbito de las bases de datos, la arquitectura de datos se materializa en diferentes <strong>niveles de representación</strong>, como los propuestos por la arquitectura <strong>ANSI/SPARC</strong>, que separa la forma en que los datos se conciben, se organizan lógicamente y se almacenan físicamente.</p>
+            <p>En síntesis, puede decirse que la arquitectura de datos constituye <strong>el plano estructural de la información de un sistema</strong>, del mismo modo que los planos de arquitectura organizan los espacios y elementos de un edificio.</p>
+            <h3 id="la-necesidad-de-niveles-de-abstraccion">La necesidad de niveles de abstracción</h3>
+            <p>A medida que los sistemas informáticos comenzaron a manejar volúmenes cada vez mayores de información, surgió un problema fundamental: <strong>los datos podían ser utilizados por muchos usuarios y aplicaciones diferentes, cada uno con necesidades distintas</strong>.</p>
+            <p>Por ejemplo, en el sistema de información de una clínica médica:</p>
+            <ul>
+              <li>una <strong>secretaria</strong> necesita ver los turnos asignados a los médicos</li>
+              <li>un <strong>médico</strong> necesita consultar la historia clínica de sus pacientes</li>
+              <li>el <strong>departamento administrativo</strong> necesita acceder a la facturación</li>
+              <li>la <strong>dirección</strong> requiere estadísticas generales sobre la actividad del centro médico</li>
+            </ul>
+            <p>Aunque todos utilizan el mismo sistema, <strong>no todos necesitan ver la misma información ni interactuar con los datos de la misma manera</strong>.</p>
+            <p>Al mismo tiempo, el sistema debe gestionar aspectos técnicos como:</p>
+            <ul>
+              <li>cómo se almacenan los datos en disco</li>
+              <li>cómo se organizan los archivos</li>
+              <li>qué estructuras permiten acelerar las búsquedas</li>
+            </ul>
+            <p>Si todos estos aspectos estuvieran mezclados en un único nivel, cualquier cambio técnico podría afectar a todas las aplicaciones que utilizan la base de datos.</p>
+            <p>Por ejemplo:</p>
+            <ul>
+              <li>cambiar la forma en que se almacenan los archivos</li>
+              <li>modificar la estructura de almacenamiento</li>
+              <li>agregar nuevos datos al sistema</li>
+            </ul>
+            <p>Estos cambios podrían obligar a <strong>reescribir gran parte del software</strong>, lo cual generaría altos costos de mantenimiento y gran complejidad.</p>
+            <p>Para resolver este problema, los sistemas de bases de datos introducen el concepto de <strong>niveles de abstracción</strong>.</p>
+            <h4 id="concepto-de-abstraccion-en-bases-de-datos">Concepto de abstracción en bases de datos</h4>
+            <p>La <strong>abstracción</strong> consiste en ocultar los detalles técnicos innecesarios para cada tipo de usuario, mostrando únicamente la información relevante para su tarea.</p>
+            <p>En el contexto de los sistemas de bases de datos, esto significa separar:</p>
+            <ul>
+              <li>la <strong>forma en que los datos se almacenan físicamente</strong></li>
+              <li>la <strong>estructura lógica de la información</strong></li>
+              <li>la <strong>forma en que los usuarios acceden a los datos</strong></li>
+            </ul>
+            <p>Esta separación permite que los cambios en un nivel no afecten necesariamente a los otros niveles.</p>
+            <h3 id="el-modelo-ansi-sparc">El modelo ANSI/SPARC</h3>
+            <p>Para formalizar esta idea, el comité <strong>ANSI/SPARC (American </strong><strong>National</strong><strong> </strong><strong>Standards</strong><strong> </strong><strong>Institute</strong><strong> / </strong><strong>Standards</strong><strong> </strong><strong>Planning</strong><strong> and </strong><strong>Requirements</strong><strong> </strong><strong>Committee</strong><strong>)</strong> propuso en la década de 1970 una arquitectura conceptual para los sistemas de bases de datos.</p>
+            <p>Este modelo introduce una estructura de <strong>tres niveles de abstracción</strong>, que separa claramente:</p>
+            <ul>
+              <li>la representación física de los datos</li>
+              <li>la organización lógica de la información</li>
+              <li>las vistas específicas utilizadas por los usuarios</li>
+            </ul>
+            <p>El objetivo principal de esta arquitectura es facilitar la <strong>independencia de los datos</strong>, permitiendo que los sistemas evolucionen sin afectar a las aplicaciones existentes.</p>
+            <h3 id="arquitectura-de-tres-niveles">Arquitectura de tres niveles</h3>
+            <p>La arquitectura se presenta en tres niveles:</p>
+            <ol>
+              <li>Nivel Externo (vistas de usuario)</li>
+              <li>Nivel Conceptual (modelo lógico)</li>
+              <li>Nivel Interno (almacenamiento físico)</li>
+            </ol>
+            <h4 id="nivel-externo">Nivel Externo</h4>
+            <p>Representa la <strong>visión que cada usuario tiene de la base de datos</strong>.</p>
+            <p>Ejemplo:</p>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Usuario</strong></th>
+            <th><strong>Información visible</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Secretaria</td>
+            <td>turnos</td>
+            </tr>
+            <tr>
+            <td>Farmacéutico</td>
+            <td>recetas</td>
+            </tr>
+            <tr>
+            <td>Director</td>
+            <td>estadísticas</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h4 id="nivel-conceptual">Nivel Conceptual</h4>
+            <p>Representa <strong>la estructura lógica global de la base de datos</strong>.</p>
+            <p>Define:</p>
+            <ul>
+              <li>qué datos existen</li>
+              <li>cómo se relacionan</li>
+              <li>qué reglas se aplican</li>
+            </ul>
+            <p>Este nivel es el que se diseña mediante <strong>modelado de datos</strong>.</p>
+            <h4 id="nivel-interno">Nivel Interno</h4>
+            <p>Describe <strong>cómo se almacenan físicamente los datos</strong>.</p>
+            <p>Incluye:</p>
+            <ul>
+              <li>archivos</li>
+              <li>índices</li>
+              <li>estructuras de almacenamiento</li>
+            </ul>
+            <p>Este nivel busca <strong>optimizar el rendimiento del sistema</strong>.</p>
+            <h2 id="independencia-de-datos">Independencia de datos</h2>
+            <p>Uno de los objetivos de la arquitectura ANSI/SPARC es lograr <strong>independencia de datos</strong>.</p>
+            <p>Esto significa que ciertos cambios pueden realizarse <strong>sin afectar a las aplicaciones existentes</strong>.</p>
+            <h3 id="tipos-de-independencia">Tipos de independencia</h3>
+            <div class="table-scroll">
+            <table class="tabla-apunte">
+            <thead>
+            <tr>
+            <th><strong>Tipo</strong></th>
+            <th><strong>Descripción</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>Independencia física</td>
+            <td>La operación se ejecuta completamente o no se ejecuta</td>
+            </tr>
+            <tr>
+            <td>Independencia lógica</td>
+            <td>Cambios en almacenamiento sin modificar estructura lógica</td>
+            </tr>
+            </tbody>
+            </table>
+            </div>
+            <h2 id="diccionario-de-datos">Diccionario de datos</h2>
+            <p>El <strong>diccionario de datos</strong> es un componente interno del SGBD que almacena información sobre la estructura de la base de datos.</p>
+            <p>Contiene información sobre:</p>
+            <ul>
+              <li>tablas</li>
+              <li>tipos de datos</li>
+              <li>relaciones</li>
+              <li>restricciones</li>
+              <li>permisos</li>
+            </ul>
+            <p>En otras palabras, almacena <strong>metadatos</strong>, es decir, <strong>datos sobre los datos</strong>.</p>
+            <h2 id="resumen-conceptual">Resumen conceptual</h2>
+            <p>Sistemas de archivos</p>
+            <p>Problemas:</p>
+            <ul>
+              <li>redundancia</li>
+              <li>inconsistencia</li>
+              <li>aislamiento</li>
+              <li>acceso difícil</li>
+            </ul>
+            <p>↓</p>
+            <p>Aparición de SGBD</p>
+            <p>↓</p>
+            <p>Gestión estructurada de datos</p>
+            <p>↓</p>
+            <p>Arquitectura ANSI/SPARC</p>
+            <p>↓</p>
+            <p>Independencia de datos</p>
+            <h2 id="ejercicios-de-autoevaluacion">Ejercicios de autoevaluación</h2>
+            <p>Preguntas conceptuales:</p>
+            <ol>
+              <li>¿Cuál es la principal diferencia entre un sistema basado en archivos y un sistema con SGBD?</li>
+              <li>Explique qué es la <strong>redundancia de datos</strong> y por qué puede ser problemática.</li>
+              <li>¿Qué significa que una transacción sea <strong>atómica</strong>?</li>
+              <li>¿Cuál es el objetivo de la arquitectura de tres niveles ANSI/SPARC?</li>
+              <li>¿Qué función cumple el <strong>diccionario de datos</strong>?</li>
+            </ol>
+            <p>Ejercicio de análisis:</p>
+            <p>Una empresa utiliza tres sistemas distintos:</p>
+            <ul>
+              <li>ventas</li>
+              <li>facturación</li>
+              <li>clientes</li>
+            </ul>
+            <p>Cada sistema almacena su propio archivo de clientes.</p>
+            <p>Preguntas:</p>
+            <p>a) ¿Qué problema aparece en este escenario?</p>
+            <p>b) ¿Cómo lo solucionaría un SGBD?</p>
+            <p>Reflexión:</p>
+            <p>Explique por qué la <strong>independencia de datos</strong> es importante en sistemas informáticos grandes.</p>
+            <h2 id="conclusion">Conclusión</h2>
+            <p>Los Sistemas de Gestión de Bases de Datos constituyen una tecnología fundamental para la organización y administración de información en sistemas informáticos modernos.</p>
+            <p>Al proporcionar mecanismos para:</p>
+            <ul>
+              <li>estructurar datos</li>
+              <li>controlar su acceso</li>
+              <li>mantener su integridad</li>
+              <li>garantizar su disponibilidad</li>
+            </ul>
+            <p>los SGBD permiten gestionar información de forma confiable y eficiente.</p>
+            <p>Estos conceptos constituyen la base necesaria para abordar el <strong>modelado de datos</strong>, tema central en el diseño de bases de datos.</p>
+        </article>
+
+        <div class="descargas">
+            <h4>Descargar este apunte</h4>
+            <a href="../../descargas/clase-02-del-archivo-a-la-base.pdf" class="salto-nav">PDF</a>
+            <a href="../../descargas/clase-02-del-archivo-a-la-base.docx" class="salto-nav">DOCX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="clase-01-valor-de-los-datos.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>El valor de los datos</strong>
+            </a>
+            <a class="pag-sig" href="clase-03-caso-el-chip.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Caso de estudio: El Chip</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · revisión 1.0.1</p>
+    </footer>
+
+</body>
+</html>

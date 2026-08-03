@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-index     { --c: var(--bloque-verde); }
+    .block-sp        { --c: var(--bloque-naranja); }
+    .block-trigger   { --c: var(--bloque-rosa); }
+    .block-view      { --c: var(--bloque-azul); }
+
+    /* propio de esta página */
+    h1, h2, h3, h4 {
+                font-family: 'Outfit', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Taller de SQL Avanzado</h1>
+            <p>Respuestas exactas, explicaciones de MySQL y sugerencias pedagógicas para la clase</p>
+            <a href="taller-vistas-procedimientos-triggers-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Vistas, procedimientos y triggers · resoluciones</span>
+        </nav>
+
+        <!-- RESOLUCIONES 1: VISTAS -->
+        <section class="block-card block-view" id="vistas">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Vistas (Views) - Soluciones</h2>
+                    <p>Facilitar el acceso a datos agrupados sin escribir JOINs</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Usa la vista para recalcar que los alumnos pueden traer datos de 7 tablas distintas sin que hayamos explicado la teoría de JOINs todavía. Esto les dará una recompensa rápida y entenderán por qué las vistas les "salvan la vida".</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>Ver el contenido de la vista existente</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio_completa;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Aunque por debajo hace una query con 7 JOINs y un GROUP_CONCAT para agrupar los problemas y equipos, el alumno solo necesita tratarla como si fuera una tabla común y corriente.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Buscar órdenes del cliente García</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> `Nro Orden`, `Estado Actual`, `Modelos` 
+<span class="sql-keyword">FROM</span> orden_servicio_completa 
+<span class="sql-keyword">WHERE</span> Cliente <span class="sql-keyword">LIKE</span> <span class="sql-string">'%García%'</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> En la vista, la columna <code>Cliente</code> concatena apellido y nombre, por lo que usar <code>LIKE '%García%'</code> es el camino más robusto. Muestra cómo esto devuelve solo los campos necesarios de forma simple.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <h3>Comprobar la actualización dinámica de datos (Paso a Paso)</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <p class="explanation-text" style="margin-bottom: 10px;"><strong>Instrucciones y código que deben ejecutar en consola secuencialmente:</strong></p>
+                        
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL - Secuencia</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar Todo</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- 1. Buscamos a la cliente (da vacío)</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio_completa <span class="sql-keyword">WHERE</span> Cliente <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Fernández%'</span>;
+
+<span class="sql-comment">-- 2. Insertamos en cliente (Laura Fernández pasa a ser la ID 6)</span>
+<span class="sql-keyword">INSERT INTO</span> cliente (nombre, apellido) <span class="sql-keyword">VALUES</span> (<span class="sql-string">'Laura'</span>, <span class="sql-string">'Fernández'</span>);
+
+<span class="sql-comment">-- 3. Si volvemos a consultar la vista, sigue vacía porque Laura no tiene órdenes asociadas.</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio_completa <span class="sql-keyword">WHERE</span> Cliente <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Fernández%'</span>;
+
+<span class="sql-comment">-- 4. Registramos su orden de servicio</span>
+<span class="sql-keyword">INSERT INTO</span> orden_servicio (fecha_ingreso, id_empleado, id_cliente, id_orden_estado, total) 
+<span class="sql-keyword">VALUES</span> (<span class="sql-keyword">NOW</span>(), <span class="sql-number">2</span>, <span class="sql-number">6</span>, <span class="sql-number">1</span>, <span class="sql-number">0.00</span>);
+
+<span class="sql-comment">-- 5. Le asociamos su equipo (Samsung Galaxy S21 = ID 1) y su problema (Pantalla rota = ID 1)</span>
+<span class="sql-keyword">INSERT INTO</span> orden_servicio_has_equipo (nro_orden, id_equipo, id_problema) 
+<span class="sql-keyword">VALUES</span> (<span class="sql-number">4</span>, <span class="sql-number">1</span>, <span class="sql-number">1</span>);
+
+<span class="sql-comment">-- 6. Consultamos la vista final. ¡Ahora sí aparece la orden número 4 cruzando todos los datos!</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio_completa <span class="sql-keyword">WHERE</span> Cliente <span class="sql-keyword">LIKE</span> <span class="sql-string">'%Fernández%'</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.4</span>
+                        <h3>Crear la vista de catálogo seguro (Sin stock)</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-1-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">CREATE VIEW</span> vista_catalogo_repuestos <span class="sql-keyword">AS</span>
+<span class="sql-keyword">SELECT</span> nombre, precio_unitario 
+<span class="sql-keyword">FROM</span> repuesto;
+
+<span class="sql-comment">-- Comprobación:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> vista_catalogo_repuestos;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Este ejercicio les permite usar <code>CREATE VIEW</code> por primera vez con sintaxis básica (SELECT simple). Es excelente para introducir el concepto de <strong>seguridad a nivel de columnas</strong>: el usuario final solo ve lo que la vista expone y no puede acceder al inventario físico.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 2: INDICES -->
+        <section class="block-card block-index" id="indices">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Índices (Indexes) - Soluciones</h2>
+                    <p>Optimizar el rendimiento en consultas frecuentes</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Dado que la BD de prueba tiene apenas 6 filas y responde a 0.00 segundos, el comando <code>EXPLAIN</code> es crucial. Si no lo usas, los chicos no entenderán para qué sirve crear un índice en tablas tan chicas. Pídeles que miren la columna <code>rows</code>, que es el contador de esfuerzo del procesador.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>Explicar la consulta antes de tener el índice</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">EXPLAIN SELECT</span> * <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido = <span class="sql-string">'García'</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Salida esperada de MySQL:</strong><br>
+                            La columna <code>type</code> mostrará <code>ALL</code> (Full Table Scan). La columna <code>rows</code> mostrará el total de registros de la tabla (5 o 6). Esto comprueba que MySQL tuvo que leer todo el disco físico para encontrar una coincidencia.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>Creación del índice de apellido</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">CREATE INDEX</span> idx_cliente_apellido <span class="sql-keyword">ON</span> cliente(apellido);</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <h3>Explicar la consulta después de aplicar el índice</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">EXPLAIN SELECT</span> * <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido = <span class="sql-string">'García'</span>;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Salida esperada de MySQL:</strong><br>
+                            La columna <code>type</code> cambia a <code>ref</code>. La columna <code>key</code> mostrará que usó <code>idx_cliente_apellido</code>. La columna <code>rows</code> dirá <code>1</code>. Esto demuestra que MySQL fue directo a la dirección física del registro sin leer nada más.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 3: PROCEDIMIENTOS -->
+        <section class="block-card block-sp" id="procedimientos">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Procedimientos Almacenados - Soluciones</h2>
+                    <p>Creación y llamado seguro de bloques de código en MySQL</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Es muy importante destacar que los parámetros llevan un prefijo (ej: <code>p_id_repuesto</code>) para diferenciarlos de los nombres reales de las columnas. Si el parámetro se llamara igual que la columna (ej: <code>id_repuesto</code>), la sentencia quedaría <code>WHERE id_repuesto = id_repuesto</code>, lo cual es siempre verdadero y actualizaría toda la tabla (¡justo lo que Martín quería evitar!).</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>Crear procedimiento de actualización</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">DELIMITER</span> //
+<span class="sql-keyword">CREATE PROCEDURE</span> cambiar_precio_repuesto(
+    <span class="sql-keyword">IN</span> p_id_repuesto <span class="sql-keyword">INT</span>, 
+    <span class="sql-keyword">IN</span> p_nuevo_precio <span class="sql-keyword">DECIMAL</span>(<span class="sql-number">10</span>,<span class="sql-number">2</span>)
+)
+<span class="sql-keyword">BEGIN</span>
+    <span class="sql-keyword">UPDATE</span> repuesto 
+    <span class="sql-keyword">SET</span> precio_unitario = p_nuevo_precio 
+    <span class="sql-keyword">WHERE</span> id_repuesto = p_id_repuesto;
+<span class="sql-keyword">END</span> //
+<span class="sql-keyword">DELIMITER</span> ;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Usa el delimitador <code>//</code> para que MySQL no corte la compilación al encontrar el punto y coma interno del <code>UPDATE</code>. Los parámetros <code>IN</code> indican datos de entrada.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>Verificar y llamar al procedimiento</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Consulta previa para ver precio actual (45000.00)</span>
+<span class="sql-keyword">SELECT</span> nombre, precio_unitario <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;
+
+<span class="sql-comment">-- Llamamos al SP</span>
+<span class="sql-keyword">CALL</span> cambiar_precio_repuesto(<span class="sql-number">1</span>, <span class="sql-number">48000.00</span>);
+
+<span class="sql-comment">-- Verificamos el cambio</span>
+<span class="sql-keyword">SELECT</span> nombre, precio_unitario <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 4: TRIGGERS -->
+        <section class="block-card block-trigger" id="triggers">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Triggers (Disparadores) - Soluciones</h2>
+                    <p>Validar la integridad de los datos en tiempo real de forma automática</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Explica que <code>NEW</code> representa el registro modificado tal cual quiere entrar a la base de datos. Usar <code>BEFORE UPDATE</code> nos permite frenarlo en la puerta antes de que reemplace al registro viejo. El comando <code>SIGNAL</code> es una interrupción del sistema que cancela la transacción.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <h3>Crear el disparador de stock mínimo</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">DELIMITER</span> //
+<span class="sql-keyword">CREATE TRIGGER</span> trg_control_stock_negativo
+<span class="sql-keyword">BEFORE UPDATE ON</span> repuesto
+<span class="sql-keyword">FOR EACH ROW</span>
+<span class="sql-keyword">BEGIN</span>
+    <span class="sql-keyword">IF</span> NEW.stock &lt; <span class="sql-number">0</span> <span class="sql-keyword">THEN</span>
+        <span class="sql-keyword">SIGNAL SQLSTATE</span> <span class="sql-string">'45000'</span> 
+        <span class="sql-keyword">SET MESSAGE_TEXT</span> = <span class="sql-string">'¡Error! No se puede tener stock negativo en El Chip.'</span>;
+    <span class="sql-keyword">END</span> <span class="sql-keyword">IF</span>;
+<span class="sql-keyword">END</span> //
+<span class="sql-keyword">DELIMITER</span> ;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-4-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.2</span>
+                        <h3>Intentar romper el trigger y verificar</h3>
+                    
+                        <a class="salto-nav" href="taller-vistas-procedimientos-triggers-consignas.html#reto-4-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Lanzar la actualización inválida</span>
+<span class="sql-keyword">UPDATE</span> repuesto <span class="sql-keyword">SET</span> stock = -<span class="sql-number">5</span> <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;
+<span class="sql-comment">-- Mensaje arrojado: Error Code: 1644. ¡Error! No se puede tener stock negativo en El Chip.</span>
+
+<span class="sql-comment">-- Comprobar que el valor no cambió (sigue siendo el stock original)</span>
+<span class="sql-keyword">SELECT</span> stock <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-vistas-procedimientos-triggers-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--color-index)';
+                button.style.color = '#fff';
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

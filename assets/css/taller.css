@@ -1,0 +1,388 @@
+/* ==========================================================================
+   TALLER — componentes de las guías de ejercicios
+
+   Se carga después de base.css, sólo en las páginas de taller:
+
+       <link rel="stylesheet" href="../assets/css/base.css">
+       <link rel="stylesheet" href="../assets/css/taller.css">
+       <body data-tema="consigna">     (o data-tema="resolucion")
+
+   MAPEO DE COLORES
+   Cada taller le pone nombres propios a sus bloques (agg, view, scalar,
+   trap…) y esos nombres no significan lo mismo en todos: «select» es azul en
+   la práctica de SQL y verde en el compendio de subconsultas. Por eso el
+   mapeo no puede vivir acá; va en un <style> corto dentro de cada archivo:
+
+       .block-agg    { --c: var(--bloque-azul);    }
+       .block-group  { --c: var(--bloque-verde);   }
+       .block-having { --c: var(--bloque-naranja); }
+
+   Con eso alcanza: la barra lateral, el número del bloque y las etiquetas de
+   cada reto toman el color solos.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. EL PEDIDO DEL CLIENTE
+
+   El recuadro donde Martín, el dueño del taller, plantea el problema en sus
+   palabras. Abre cada bloque temático.
+   ========================================================================== */
+
+.chat-martin {
+  background-color: var(--bg-main);
+  border: 1px solid var(--linea-sutil);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  display: flex;
+  gap: 15px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+}
+
+.chat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-content h4 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-content p {
+  font-size: 0.98rem;
+  color: #e2e8f0;
+  font-style: italic;
+}
+
+
+/* ==========================================================================
+   2. CONSIGNAS
+   ========================================================================== */
+
+.consignas-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.consigna-item {
+  background: var(--velo-sutil);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radio);
+  padding: 20px;
+  transition: var(--transicion);
+}
+
+.consigna-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.consigna-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.consigna-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.consigna-body p {
+  color: var(--text-body);
+  font-size: 0.98rem;
+  margin-bottom: 10px;
+}
+
+/* la etiqueta «Reto 3.2», que toma el color de su bloque */
+.consigna-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c, var(--accent));
+  background: color-mix(in srgb, var(--c, var(--accent)) 15%, transparent);
+}
+
+/* básico / intermedio / conceptual */
+.nivel-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: var(--velo-medio);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  letter-spacing: 0.03em;
+}
+
+
+/* ==========================================================================
+   3. RESOLUCIONES
+   ========================================================================== */
+
+.resolutions-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.resolution-item {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--radio);
+  padding: 25px;
+}
+
+.resolution-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--linea-sutil);
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.resolution-header h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.resolution-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.solution-box { margin-top: 15px; }
+
+/* «Estrategia», «Otra forma de resolverlo» */
+.estrategia-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c, var(--accent));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 18px 0 8px 0;
+  display: block;
+}
+
+.explanation-text {
+  color: var(--text-body);
+  font-size: 0.95rem;
+  margin-top: 10px;
+}
+
+.explanation-text strong { color: var(--text-main); }
+
+/* nota de cómo dar el tema en clase */
+.docente-tip {
+  background-color: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radio-chico);
+  padding: 15px;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+  color: #a7f3d0;
+}
+
+.docente-tip h4 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+}
+
+
+/* ==========================================================================
+   4. BLOQUES DE CÓDIGO CON ENCABEZADO
+   ========================================================================== */
+
+.code-container {
+  position: relative;
+  margin-bottom: 15px;
+  background: var(--bg-code);
+  border-radius: var(--radio-chico);
+  border: 1px solid var(--linea-sutil);
+  overflow: hidden;
+}
+
+.code-header {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--linea-sutil);
+}
+
+.code-lang {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.code-container pre { padding: 16px; }
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--linea-media);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transicion);
+}
+
+.copy-btn:hover {
+  color: var(--text-main);
+  background: var(--velo-medio);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+
+/* ==========================================================================
+   5. TABLA DE RESULTADOS
+
+   Lo que devuelve la consulta. Se muestra con la misma tipografía del código
+   porque son datos, no prosa.
+   ========================================================================== */
+
+.table-scroll { overflow-x: auto; }
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.83rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.result-table th {
+  background: var(--velo-medio);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 7px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.result-table td {
+  padding: 6px 12px;
+  color: var(--text-body);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* la fila que hay que mirar: el caso raro, el NULL, el que rompe la intuición */
+.result-table tr.destacada td {
+  background: rgba(244, 63, 94, 0.08);
+  color: #fecdd3;
+}
+
+.result-caption {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
+/* ==========================================================================
+   6. SALTO ENTRE EL EJERCICIO Y SU SOLUCIÓN
+   ========================================================================== */
+
+.consigna-item[id],
+.resolution-item[id] {
+  scroll-margin-top: 24px;
+}
+
+/* al llegar por el enlace, el reto de destino se marca */
+.consigna-item:target,
+.resolution-item:target {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px -6px var(--accent);
+}
+
+.resolution-header .salto-nav {
+  margin-top: 0;
+  margin-left: auto;
+  font-size: 0.78rem;
+  padding: 5px 12px;
+}
+
+
+/* ==========================================================================
+   7. IMPRESIÓN Y PANTALLAS CHICAS
+   ========================================================================== */
+
+@media print {
+  .chat-martin,
+  .docente-tip { break-inside: avoid; }
+
+  .consigna-item,
+  .resolution-item {
+    background: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+
+  .code-container {
+    background: #f6f6f6;
+    break-inside: avoid;
+  }
+
+  .copy-btn { display: none; }
+}
+
+@media (max-width: 640px) {
+  .chat-martin { flex-direction: column; gap: 12px; }
+  .resolution-item { padding: 18px; }
+  .resolution-header .salto-nav { margin-left: 0; }
+}

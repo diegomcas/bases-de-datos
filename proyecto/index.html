@@ -1,0 +1,804 @@
+<meta charset="utf-8">
+<title>¿Qué escucha la escuela? — Propuesta de proyecto interdisciplinario</title>
+
+<style>
+  @page { size: A4; margin: 1.8cm 1.6cm; }
+
+  :root {
+    --tinta: #1a1a1a;
+    --suave: #555;
+    --acento: #2b4c7e;
+    --linea: #c9c9c9;
+    --fondo-tenue: #f4f5f7;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", "Calibri", system-ui, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: var(--tinta);
+    max-width: 21cm;
+    margin: 0 auto;
+    padding: 1.5cm 1.2cm;
+    hyphens: auto;
+  }
+
+  /* ---------- Portada ---------- */
+  .portada {
+    border-bottom: 3px solid var(--acento);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  .sobretitulo {
+    font-size: 8.5pt;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--suave);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-size: 22pt;
+    line-height: 1.15;
+    margin: 0 0 4px;
+    color: var(--acento);
+    font-weight: 700;
+  }
+  .subtitulo {
+    font-size: 12pt;
+    color: var(--suave);
+    font-weight: 400;
+    margin: 0 0 14px;
+  }
+  .ficha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 26px;
+    font-size: 9pt;
+    color: var(--suave);
+  }
+  .ficha b { color: var(--tinta); font-weight: 600; }
+
+  /* ---------- Estructura ---------- */
+  h2 {
+    font-size: 13pt;
+    color: var(--acento);
+    margin: 26px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--linea);
+    break-after: avoid;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 1.5em;
+    color: var(--suave);
+    font-weight: 400;
+  }
+  h3 {
+    font-size: 10.5pt;
+    margin: 16px 0 5px;
+    break-after: avoid;
+  }
+  p { margin: 0 0 9px; text-align: justify; }
+  ul, ol { margin: 0 0 9px; padding-left: 1.2em; }
+  li { margin-bottom: 4px; }
+  strong { font-weight: 600; }
+
+  /* ---------- Destacados ---------- */
+  .clave {
+    border-left: 3px solid var(--acento);
+    background: var(--fondo-tenue);
+    padding: 10px 14px;
+    margin: 12px 0;
+    break-inside: avoid;
+  }
+  .clave p:last-child { margin-bottom: 0; }
+  .clave .rotulo {
+    font-size: 8pt;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--acento);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .pregunta-gancho {
+    font-size: 13pt;
+    color: var(--acento);
+    font-weight: 600;
+    text-align: left;
+    margin: 14px 0 12px;
+    padding-left: 12px;
+    border-left: 3px solid var(--acento);
+    line-height: 1.3;
+  }
+
+  .marcador {
+    background: #fff2b8;
+    border: 1px dashed #a08000;
+    padding: 0 4px;
+    font-size: 9.5pt;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ---------- Tablas ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin: 10px 0 14px;
+  }
+  thead { display: table-header-group; }
+  th {
+    background: var(--acento);
+    color: #fff;
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 600;
+    font-size: 8.5pt;
+  }
+  td {
+    border-bottom: 1px solid var(--linea);
+    padding: 6px 8px;
+    vertical-align: top;
+  }
+  tr { break-inside: avoid; }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  td.materia { font-weight: 600; width: 21%; }
+
+  /* ---------- Niveles ---------- */
+  .niveles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .nivel-caja {
+    border: 1px solid var(--linea);
+    border-top: 3px solid var(--acento);
+    padding: 9px 11px;
+    break-inside: avoid;
+  }
+  .nivel-caja h4 {
+    margin: 0 0 5px;
+    font-size: 10pt;
+    color: var(--acento);
+  }
+  .nivel-caja p { font-size: 9pt; margin: 0 0 5px; text-align: left; }
+  .nivel-caja .costo {
+    font-size: 8.5pt;
+    color: var(--suave);
+    font-style: italic;
+    display: block;
+    border-top: 1px dotted var(--linea);
+    padding-top: 4px;
+    margin-top: 6px;
+  }
+
+  /* ---------- Cronograma ---------- */
+  .gantt { margin: 12px 0 10px; break-inside: avoid; }
+  .gantt-fila {
+    display: grid;
+    grid-template-columns: 4.8cm 1fr;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+  .gantt-etiqueta {
+    padding-right: 8px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .gantt-etiqueta small {
+    display: block;
+    font-weight: 400;
+    color: var(--suave);
+    font-size: 7.5pt;
+  }
+  .gantt-pista {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    border: 1px solid var(--linea);
+    background: repeating-linear-gradient(
+      to right,
+      transparent 0, transparent calc(10% - 1px),
+      var(--linea) calc(10% - 1px), var(--linea) 10%);
+    height: 19px;
+  }
+  .barra {
+    background: var(--acento);
+    color: #fff;
+    font-size: 7.5pt;
+    line-height: 19px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: 600;
+  }
+  .barra.fija { background: #a63c1a; }
+  .barra.hueca {
+    background: transparent;
+    color: #a63c1a;
+    font-style: italic;
+    font-weight: 700;
+    grid-column: 1 / 11;
+  }
+  .gantt-numeros {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    font-size: 7.5pt;
+    color: var(--suave);
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .gantt-numeros b { color: #a63c1a; }
+  .aviso-plazo {
+    border: 1px solid #a63c1a;
+    border-left-width: 3px;
+    padding: 9px 12px;
+    margin: 12px 0;
+    font-size: 9.5pt;
+    break-inside: avoid;
+  }
+  .aviso-plazo b { color: #a63c1a; }
+  .aviso-plazo p { margin: 0; }
+
+  /* ---------- Argumentos ---------- */
+  .razones { margin: 12px 0; }
+  .razon {
+    border-left: 2px solid var(--linea);
+    padding: 2px 0 2px 12px;
+    margin-bottom: 10px;
+    break-inside: avoid;
+  }
+  .razon b { color: var(--acento); }
+  .razon p { margin: 2px 0 0; font-size: 9.5pt; }
+
+  .fuentes {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 1px solid var(--linea);
+    font-size: 9pt;
+    color: var(--suave);
+    break-inside: avoid;
+  }
+  .fuentes h4 {
+    margin: 0 0 6px;
+    font-size: 10pt;
+    color: var(--acento);
+  }
+  .fuentes p { margin: 0 0 6px; text-align: left; }
+  .fuentes ul { padding-left: 1.1em; margin: 0 0 10px; list-style: none; }
+  .fuentes li { margin-bottom: 6px; text-indent: -1.1em; }
+  .fuentes li::before {
+    content: "→";
+    color: var(--acento);
+    padding-right: 6px;
+  }
+  .fuentes b { color: var(--tinta); }
+  .fuentes a {
+    color: var(--acento);
+    text-decoration: underline;
+    word-break: break-word;
+  }
+
+  .no-es li { margin-bottom: 6px; }
+  .no-es li b { color: var(--acento); }
+
+  /* ---------- Adhesión ---------- */
+  .adhesion { break-before: page; }
+  .campo-firma {
+    border-bottom: 1px solid var(--tinta);
+    display: inline-block;
+    min-width: 5cm;
+  }
+  .casilla {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 1.5px solid var(--tinta);
+    vertical-align: -1px;
+    margin-right: 4px;
+  }
+  .fila-adhesion {
+    border: 1px solid var(--linea);
+    padding: 10px 12px;
+    margin-bottom: 9px;
+    break-inside: avoid;
+  }
+  .fila-adhesion .mat { font-weight: 600; font-size: 10pt; display: block; margin-bottom: 6px; }
+  .opciones { font-size: 9pt; }
+  .opciones span { margin-right: 18px; }
+
+  footer {
+    margin-top: 26px;
+    padding-top: 8px;
+    border-top: 1px solid var(--linea);
+    font-size: 8.5pt;
+    color: var(--suave);
+    text-align: center;
+  }
+
+  @media print {
+    body { padding: 0; max-width: none; }
+    .clave, .nivel-caja { background: #f4f5f7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { background: var(--acento) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .barra, .gantt-pista { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ---------- vuelta al sitio (no se imprime) ---------- */
+  .volver-al-sitio {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9.5pt; color: var(--acento); text-decoration: none;
+    border: 1px solid var(--linea); border-radius: 50px;
+    padding: 5px 12px; margin-bottom: 1.2cm;
+  }
+  .volver-al-sitio:hover { background: var(--fondo-tenue); }
+  @media print { .volver-al-sitio { display: none; } }
+</style>
+
+
+<a class="volver-al-sitio" href="../index.html">&#8592; Bases de Datos &middot; índice de la materia</a>
+<div class="portada">
+  <div class="sobretitulo">Propuesta de proyecto interdisciplinario · 4.º año · Ciclo lectivo 2026</div>
+  <h1>¿Qué escucha la escuela?</h1>
+  <p class="subtitulo">Estudio de consumo cultural y acceso digital del alumnado</p>
+  <div class="ficha">
+    <span><b>Institución:</b> Escuela Industrial Superior</span>
+    <span><b>Autor:</b> Diego · Bases de Datos, 4.º año</span>
+    <span><b>Duración:</b> 10 semanas</span>
+    <span><b>Destinatarios del producto:</b> Centro de Estudiantes, Equipo Docente y Equipo Directivo</span>
+  </div>
+</div>
+
+<h2><span class="num">1.</span>El problema que queremos resolver</h2>
+
+<p>Este documento propone aprovechar un proyecto de 4.º año para responder dos preguntas a la vez.</p>
+
+<p>La primera la eligieron los alumnos: qué música escucha la escuela, en qué plataformas y cómo llega hasta ella. Sobre eso van a construir una base de datos y un tablero durante el próximo trimestre.</p>
+
+<p>La segunda me la hice este año, y quizá te suene conocida.</p>
+
+<p class="pregunta-gancho">¿Puedo pedir un trabajo que requiera una cuenta paga?</p>
+
+<p>Una suscripción de inteligencia artificial, un servicio en la nube, una aplicación con licencia, un celular con determinada capacidad, una conexión estable en casa.</p>
+
+<p>Cada uno resuelve esa pregunta con su experiencia y su lectura del grupo. Un dato propio no reemplaza ese criterio, lo respalda: permite saber si la percepción del curso coincide con lo que pasa en el resto de la escuela.</p>
+
+<p>Las dos preguntas se responden con el mismo relevamiento.</p>
+
+<div class="clave">
+  <span class="rotulo">Qué se busca responder</span>
+  <p><b>La que eligieron los alumnos.</b> ¿Qué música escucha la escuela, en qué plataformas y cómo llega hasta ella?</p>
+  <p><b>La que nos toca a los docentes.</b> ¿Qué proporción del alumnado tiene acceso efectivo a servicios digitales pagos, de qué tipo es ese acceso y cómo se distribuye entre años, ciclos y especialidades?</p>
+</div>
+
+<p>El proyecto se propone producir esos datos con un método explícito: un censo diseñado, ejecutado y analizado por los propios alumnos de 4.º año, bajo estándares de calidad y confidencialidad declarados de antemano.</p>
+
+<h3>Por qué el tema es la música</h3>
+
+<p>Lo propuso un alumno en una lluvia de ideas con el curso, y el grupo lo aceptó. Se esperan de esa procedencia dos efectos prácticos: sostener la motivación a lo largo de diez semanas y ubicar a los alumnos como autores del recorte, con la responsabilidad que eso implica.</p>
+
+<p>Al examinarlo con detenimiento, el tema resultó además un buen <strong>caso testigo</strong>. El streaming musical alcanza una difusión muy amplia en la franja adolescente: entre los jóvenes de 16 a 24 años, el 60% usa plataformas de suscripción musical y el 54% accede a ellas de forma paga, con cuenta propia o dentro de un plan familiar. Esos números son del informe anual de la IFPI, que encuesta a más de 43.000 personas en 26 países. Para Argentina, la Encuesta Nacional de Consumos Culturales agrega que el 96% de la población escucha música de manera habitual y que el 80% lo hace por internet, sobre todo desde el celular. Los dos informes están enlazados al final, por si querés mirarlos.</p>
+
+<p>Ese 54% deja fuera del acceso pago a casi la mitad de la franja. La música cumple en este estudio dos papeles: es el tema movilizador que propusieron los propios estudiantes, y es el medio con el que se persigue el objetivo general, que consiste en inferir el acceso del alumnado a determinadas tecnologías y servicios. A eso se le suma un criterio de diseño del instrumento: preguntar por música genera menos incomodidad que preguntar directamente por la situación económica, y permite relevar la estructura de pago sin invadir la intimidad de ninguna familia.</p>
+
+<p>Conviene señalar el límite de esos números: ninguna de las dos fuentes desagrega la franja de 12 a 18 años con el detalle que necesita una institución educativa, y ninguna dice nada sobre nuestra población en particular. Esa ausencia es la que justifica un relevamiento propio.</p>
+
+<p>Ese doble uso de un mismo relevamiento —el tema que eligieron los alumnos y la pregunta que nos hacemos los docentes— es deliberado, y le da al proyecto sus dos destinatarios.</p>
+
+<div class="clave">
+  <span class="rotulo">Una aclaración de origen</span>
+  <p>El relevamiento se va a realizar de todas formas, porque forma parte del programa de la cátedra de Bases de Datos de 4.º año, que debe desarrollar un proyecto de inteligencia de negocio sobre datos propios. Esta propuesta pone sobre la mesa la posibilidad de <strong>aprovecharlo como plataforma común</strong>: el mismo esfuerzo puede producir información que le sirva a varias materias y a la escuela entera.</p>
+</div>
+
+<h2><span class="num">2.</span>Un relevamiento con dos destinatarios</h2>
+
+<p>De un mismo censo salen dos productos distintos, con audiencias, niveles de detalle y reglas de publicación diferentes. Dos lecturas del mismo dato a partir del mismo trabajo.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:16%">Producto</th>
+      <th style="width:22%">Destinatario</th>
+      <th style="width:38%">Contenido</th>
+      <th style="width:24%">Nivel de detalle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Informe cultural</b></td>
+      <td>Centro de Estudiantes y comunidad escolar</td>
+      <td>Plataformas más usadas, mapa de géneros, cómo se descubre música nueva, cuánto y en qué contextos se escucha</td>
+      <td>Puede bajar hasta curso. De publicación abierta.</td>
+    </tr>
+    <tr>
+      <td><b>Informe de acceso</b></td>
+      <td>Equipo Directivo, jefaturas de área y Equipo Docente</td>
+      <td>Perfiles de acceso digital, conectividad efectiva, parque de dispositivos, viabilidad de consignas que requieran servicios pagos</td>
+      <td>Agregado por año, ciclo y especialidad. Nunca por división. Circulación interna.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>El primero le devuelve algo a los alumnos que respondieron, lo que ayuda a que respondan con seriedad. El segundo está dirigido a sostener decisiones institucionales.</p>
+
+<h2><span class="num">3.</span>Qué aprenden los alumnos</h2>
+
+<p>Los objetivos están formulados como <strong>capacidades del profesional</strong>, porque es así como se les presentan a los chicos y es así como se evalúan. Cada uno se apoya en contenidos curriculares que igualmente hay que enseñar.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:56%">Al terminar, el alumno será capaz de…</th>
+      <th style="width:44%">Contenidos que lo sustentan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Trabajar contra un <b>contrato de interfaz</b> acordado con otro equipo, honrando lo que se comprometió a entregar y rechazando lo que no cumple lo pactado</td>
+      <td>Integridad referencial, restricciones de dominio, tipos de datos, claves</td>
+    </tr>
+    <tr>
+      <td>Sostener decisiones de diseño tomadas <b>antes</b> de conocer todos los requerimientos, y gestionar formalmente los pedidos de cambio</td>
+      <td>Modelo conceptual, lógico y físico; normalización</td>
+    </tr>
+    <tr>
+      <td>Entregar información a un decisor <b>respetando restricciones de confidencialidad</b> que no puede negociar</td>
+      <td>Vistas, permisos, agregación, anonimización</td>
+    </tr>
+    <tr>
+      <td>Distinguir el dato que <b>se releva</b>, el que <b>se deriva</b> por una regla explícita y el que <b>se infiere</b>, y documentar cada paso para que otro pueda reproducirlo</td>
+      <td>Procesos de transformación, modelo dimensional, límites de la inferencia</td>
+    </tr>
+    <tr>
+      <td>Integrar una <b>fuente de datos externa</b> que no controla, con sus errores y sus formatos ajenos</td>
+      <td>Importación, depuración, validación, consistencia</td>
+    </tr>
+    <tr>
+      <td>Reportar la <b>calidad de su propio producto</b>, junto con el resultado</td>
+      <td>Cobertura, valores nulos, tasas de respuesta</td>
+    </tr>
+    <tr>
+      <td>Coordinarse con siete equipos cuyo trabajo depende del suyo, y del que el suyo depende</td>
+      <td>Ciclo de vida del proyecto, roles, documentación técnica</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="clave">
+  <span class="rotulo">Objetivo principal declarado</span>
+  <p>El aprendizaje central de este proyecto es <strong>la coordinación entre equipos</strong>, y el producto de inteligencia de negocio funciona como medio para conseguirla. Por eso la arquitectura del trabajo está diseñada para que ningún equipo pueda terminar solo.</p>
+</div>
+
+<h2><span class="num">4.</span>Cómo se organiza el trabajo</h2>
+
+<p>Veinticuatro alumnos, ocho equipos de tres, cada uno responsable de una <strong>estación</strong> distinta de la cadena de producción del dato: diseño del instrumento, modelo de datos, operativo de relevamiento y calidad, transformación, datos de referencia, capa analítica, visualización, y gobierno y ética.</p>
+
+<p>Las estaciones están unidas por <strong>contratos escritos y firmados</strong> entre equipos: qué entrego, cuándo, qué garantizo, qué <em>no</em> garantizo y qué pasa si fallo. Cada alumno es líder técnico de su especialidad y responde por lo que su equipo comprometió.</p>
+
+<p>Dos reglas sostienen el cronograma: el <strong>esquema de datos se congela en la semana 2</strong> —después, cambiarlo requiere autorización de los equipos afectados—, y desde la semana 1 circula un <strong>conjunto de datos simulados</strong> para que todos los equipos trabajen en paralelo sin esperar a que llegue el dato real.</p>
+
+<p>El proyecto requiere además una <strong>coordinación general</strong> —seguimiento del cronograma, arbitraje entre equipos e interlocución con el Equipo Directivo—. Su asignación queda a definir entre las cátedras que decidan participar.</p>
+
+<h3>Cómo se releva</h3>
+
+<p>El censo alcanza a todos los cursos de la escuela: los veintiún cursos del ciclo básico —siete por año, de 1.º a 3.º— y las divisiones del ciclo técnico, de 4.º a 6.º, repartidas entre Construcciones, Mecánica, Programación y Química.</p>
+
+<p>El instrumento es un <strong>formulario digital autoadministrado</strong> (Google Forms o equivalente), que cada alumno responde desde su propio dispositivo. Esto evita por completo la carga manual de datos y permite validar las respuestas en el momento de ingresarlas.</p>
+
+<p>El formulario se responde <strong>durante una franja de clase</strong>, con el enlace o el código QR disponibilizado en el aula. Esa decisión resuelve un problema documentado: las encuestas autoadministradas por internet subrepresentan de manera sistemática a los grupos menos conectados y menos activos digitalmente, y la literatura metodológica recomienda combinarlas con modalidades alternativas para corregir ese desvío. El fenómeno incluye además la llamada segunda brecha digital, que se manifiesta en diferencias de frecuencia y estilo de uso entre quienes sí tienen acceso. Un formulario enviado por mensajería haría perder justamente la información que el estudio busca medir; respondiendo en clase se conserva la cobertura censal.</p>
+
+<p>Para quienes no dispongan de un equipo propio en ese momento se prevén dispositivos de repuesto y, como última alternativa, una versión en papel de carga posterior. Excluir del relevamiento a quienes tienen menos acceso comprometería precisamente aquello que se busca medir.</p>
+
+<h3>Cronograma tentativo</h3>
+
+<p>El trabajo se agrupa en cinco fases. Diez semanas obligan a que varias avancen en paralelo, de modo que las fases se superponen y ninguna espera a que la anterior termine del todo.</p>
+
+<div class="gantt">
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta"></div>
+    <div class="gantt-numeros">
+      <span>1</span><span>2</span><span>3</span><b>4</b><span>5</span>
+      <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+    </div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">A · Definición <small>qué se pregunta y cómo se guarda</small></div>
+    <div class="gantt-pista"><div class="barra" style="grid-column: 1 / 3">sem. 1–2</div></div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">B · Construcción <small>formulario, modelo y validaciones</small></div>
+    <div class="gantt-pista"><div class="barra" style="grid-column: 2 / 5">sem. 2–4</div></div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">C · Relevamiento <small>salida a los cursos</small></div>
+    <div class="gantt-pista"><div class="barra fija" style="grid-column: 4 / 6">sem. 4–5</div></div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">D · Integración <small>los datos reales entran al modelo</small></div>
+    <div class="gantt-pista"><div class="barra" style="grid-column: 5 / 8">sem. 5–7</div></div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">E · Análisis y comunicación <small>indicadores, informes y cierre</small></div>
+    <div class="gantt-pista"><div class="barra" style="grid-column: 7 / 11">sem. 7–10</div></div>
+  </div>
+
+  <div class="gantt-fila">
+    <div class="gantt-etiqueta">Margen de recuperación</div>
+    <div class="gantt-pista"><div class="barra hueca">sin semanas de amortiguación</div></div>
+  </div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:19%">Fase</th>
+      <th style="width:40%">Qué queda cerrado al terminarla</th>
+      <th style="width:41%">Qué pasa si se dilata</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>A · Definición</b><br><small>sem. 1–2</small></td>
+      <td>Preguntas de investigación, cuestionario acordado, esquema de datos congelado y contratos firmados entre equipos.</td>
+      <td>Ningún otro equipo puede avanzar sin el esquema. Cada semana perdida acá se paga completa al final.</td>
+    </tr>
+    <tr>
+      <td><b>B · Construcción</b><br><small>sem. 2–4</small></td>
+      <td>Formulario armado y probado en un curso piloto, modelo de datos y reglas de validación funcionando sobre datos simulados.</td>
+      <td>Se llega al relevamiento con un formulario sin probar, y los errores del instrumento ya no admiten corrección.</td>
+    </tr>
+    <tr>
+      <td><b>C · Relevamiento</b><br><small>sem. 4–5</small></td>
+      <td>Cobertura censal alcanzada, refuerzo en los cursos rezagados y respuestas exportadas.</td>
+      <td><b>Fecha fija.</b> Correrla la empuja contra evaluaciones y cierre de trimestre, con caída previsible de la cobertura.</td>
+    </tr>
+    <tr>
+      <td><b>D · Integración</b><br><small>sem. 5–7</small></td>
+      <td>Datos reales dentro del modelo, depurados, documentados y con su calidad medida.</td>
+      <td>Es la fase donde suelen aparecer los problemas imprevistos. Sin margen previo, se comen el tiempo de análisis.</td>
+    </tr>
+    <tr>
+      <td><b>E · Análisis y comunicación</b><br><small>sem. 7–10</small></td>
+      <td>Indicadores, tablero, los dos informes y la presentación a ambos destinatarios.</td>
+      <td>El proyecto queda sin producto que mostrar, con todo el trabajo anterior hecho.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="aviso-plazo">
+  <p><b>El cronograma no tiene semanas de amortiguación.</b> Un atraso en cualquier fase se traslada íntegro a la presentación final, sin posibilidad de recuperarlo más adelante. El punto que condiciona todo el cronograma es la semana de relevamiento, cuya fecha exacta está <b>a definir</b> y, una vez acordada, no admite corrimientos: las fases previas existen para llegar a ella con el instrumento probado, y las posteriores dependen de que los datos hayan entrado ese día.</p>
+</div>
+
+<h2><span class="num">5.</span>Por qué puede servir como plataforma común</h2>
+
+<p>Un proyecto interdisciplinario funciona cuando el esfuerzo de coordinación devuelve más de lo que cuesta. Estas son las razones por las que creo que este relevamiento puede sostener ese intercambio.</p>
+
+<div class="razones">
+  <div class="razon">
+    <b>Tiene fecha, alcance y método cerrados.</b>
+    <p>No depende de que todas las materias se pongan de acuerdo para arrancar. El cronograma ya está definido y se pone en marcha con o sin adhesiones; quien se suma se apoya en una estructura existente.</p>
+  </div>
+  <div class="razon">
+    <b>Produce un dato del que hoy no disponemos.</b>
+    <p>El resultado responde una pregunta que el cuerpo docente se hace todos los años sobre qué puede exigir y qué no, y que ninguna fuente disponible contesta para nuestra población.</p>
+  </div>
+  <div class="razon">
+    <b>El tema lo eligieron los alumnos.</b>
+    <p>Salió de una lluvia de ideas con el curso, y contamos con que esa autoría ayude a sostener la motivación durante diez semanas, algo difícil de lograr con un caso de estudio inventado por el docente.</p>
+  </div>
+  <div class="razon">
+    <b>Deja material reutilizable.</b>
+    <p>El conjunto de datos anonimizado queda disponible para cualquier materia que lo quiera usar después, incluso en ciclos lectivos siguientes, sin necesidad de repetir el relevamiento.</p>
+  </div>
+  <div class="razon">
+    <b>Admite distintos grados de compromiso.</b>
+    <p>Se puede participar con diez minutos de una clase o con un entregable compartido, y la decisión se puede revisar sobre la marcha.</p>
+  </div>
+</div>
+
+<h2><span class="num">6.</span>Qué te propongo</h2>
+
+<p>Te propongo algo sencillo: que los contenidos que ya vas a dar se apoyen, si te sirve, en datos producidos por tus propios alumnos sobre su propia escuela. Sin contenido nuevo y sin replanificar el año.</p>
+
+<p>Se puede participar desde ceder unos minutos de una clase para que los alumnos respondan el formulario, pasando por usar el conjunto de datos en un contenido que ya tenías planificado, hasta co-diseñar un entregable con otras cátedras. Son tramos de un mismo recorrido, y pasar de uno a otro sobre la marcha es parte de la idea.</p>
+
+<div class="niveles">
+  <div class="nivel-caja">
+    <h4>Nivel 1</h4>
+    <p>Abrir el formulario unos minutos de tu clase durante la semana de relevamiento, con el código QR disponibilizado en el aula.</p>
+    <span class="costo">Dedicación estimada: unos 10 minutos, una sola vez.</span>
+  </div>
+  <div class="nivel-caja">
+    <h4>Nivel 2</h4>
+    <p>Usar el conjunto de datos —o aportar uno propio— para un contenido que ya tenías planificado.</p>
+    <span class="costo">Dedicación estimada: sin horas de clase adicionales; cambia el material de trabajo, con el mismo programa.</span>
+  </div>
+  <div class="nivel-caja">
+    <h4>Nivel 3</h4>
+    <p>Co-diseñar un entregable con otra u otras cátedras y evaluarlo en conjunto, con una rúbrica acordada.</p>
+    <span class="costo">Dedicación estimada: dos o tres reuniones breves en el trimestre.</span>
+  </div>
+</div>
+
+<p>El nivel 1 hace viable el relevamiento y por eso lo consulto con todas las materias. Lo demás es opcional y se puede decidir sobre la marcha.</p>
+
+<div class="clave">
+  <span class="rotulo">La contrapartida: el tramo inicial de diseño</span>
+  <p>Las dos primeras semanas concentran un trabajo intenso, y un proyecto de inteligencia de negocio se juega ahí: definir las preguntas de investigación, redactar el instrumento, acordar qué se va a medir, con qué categorías y con qué estructura de datos. Son decisiones que después condicionan todo, porque el esquema se congela al terminar la semana 2 y lo que no quedó planteado ya no entra.</p>
+  <p>Ese esfuerzo inicial recae sobre quienes participen del nivel 3 y sobre la coordinación general. Tiene además una consecuencia práctica para cualquiera que se sume: <strong>si querés que el relevamiento produzca algún dato en particular para tu materia, ese pedido tiene que llegar durante esas dos semanas.</strong></p>
+</div>
+
+<h3>Ideas de aporte por materia</h3>
+
+<p>Lo que sigue son <strong>disparadores, a modo de ejemplo</strong>, pensados desde afuera de cada asignatura. Cada docente conoce su programa mucho mejor que yo, así que la tabla vale como invitación a imaginar otros cruces, y no como un reparto de tareas.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:21%">Materia</th>
+      <th style="width:40%">Aporte posible</th>
+      <th style="width:39%">Qué podría llevarse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="materia">Lengua IV</td>
+      <td>Podría trabajarse la redacción del cuestionario —ambigüedad, preguntas cargadas, sesgo de formulación— y la edición de los dos informes, en clave de géneros discursivos profesionales.</td>
+      <td>Dos textos sobre el mismo contenido para públicos distintos: adecuación de registro con un caso real y destinatarios que existen.</td>
+    </tr>
+    <tr>
+      <td class="materia">Inglés IV</td>
+      <td>Podría abordarse un resumen ejecutivo en inglés, un glosario técnico o un diccionario de datos bilingüe, con un enfoque de inglés con fines específicos o de integración de contenido y lengua.</td>
+      <td>Inglés técnico con propósito real y terminología de uso profesional.</td>
+    </tr>
+    <tr>
+      <td class="materia">Matemática IV</td>
+      <td>Podría encuadrarse en la modelización y la alfabetización estadística, o en la perspectiva de la estadística cívica: datos propios sobre un problema social, con reflexión sobre cobertura, sesgo de no respuesta y límites de lo que se puede inferir.</td>
+      <td>Un escenario de investigación con datos reales, en la línea de la educación matemática crítica. Incluye un error clásico esperable: promediar una escala ordinal.</td>
+    </tr>
+    <tr>
+      <td class="materia">Física III</td>
+      <td>Podría aportar mediciones de nivel de presión sonora en auriculares del alumnado, junto con los contenidos de acústica, como trabajo de indagación con toma de datos propia.</td>
+      <td>Una variable que el estudio no tendría de otro modo: cruzada con las horas de escucha declaradas, permite estimar riesgo auditivo.</td>
+    </tr>
+    <tr>
+      <td class="materia">Educación Física</td>
+      <td>Se abre la relación entre música y actividad física, y una campaña de prevención de daño auditivo en clave de educación para la salud.</td>
+      <td>Una campaña de salud sostenida por evidencia de la propia escuela.</td>
+    </tr>
+    <tr>
+      <td class="materia">Hardware y Componentes</td>
+      <td>Podrían trabajarse la cadena de reproducción de audio y un relevamiento del parque de dispositivos del alumnado.</td>
+      <td>Un dato del que hoy no disponemos, de utilidad inmediata, sobre qué equipos tienen realmente nuestros alumnos.</td>
+    </tr>
+    <tr>
+      <td class="materia">Lógica Computacional</td>
+      <td>Las reglas de validación pueden expresarse como proposiciones, y el valor nulo aparece como lógica de tres valores.</td>
+      <td>El caso donde la lógica trivaluada deja de ser un ejercicio abstracto y decide si un dato entra o se rechaza.</td>
+    </tr>
+    <tr>
+      <td class="materia">Modelos y Sistemas I</td>
+      <td>Se prestan el relevamiento de requerimientos, la identificación de interesados, la definición de alcance y el modelado del sistema.</td>
+      <td>El proyecto funciona como su marco teórico puesto a prueba durante diez semanas.</td>
+    </tr>
+    <tr>
+      <td class="materia">Sistemas Operativos</td>
+      <td>Podrían abordarse usuarios y permisos para hacer cumplir el anonimato, copias de seguridad y versionado de archivos entre equipos.</td>
+      <td>Administración aplicada a un sistema con datos sensibles reales y consecuencias reales si se filtran.</td>
+    </tr>
+    <tr>
+      <td class="materia">Metodologías de Programación</td>
+      <td>La mecánica misma del proyecto —roles, ciclos, contratos de interfaz, control de versiones, pruebas, documentación— puede ser objeto de estudio.</td>
+      <td>Un caso auténtico de gestión con ocho equipos interdependientes, difícil de simular en un trabajo práctico.</td>
+    </tr>
+    <tr>
+      <td class="materia">Redes Informáticas I</td>
+      <td>Podría estudiarse el funcionamiento del streaming —almacenamiento en búfer, tasa de bits adaptativa— y medirse el ancho de banda real de la escuela.</td>
+      <td>Cruce entre la conectividad declarada por los alumnos y la medida por instrumento.</td>
+    </tr>
+    <tr>
+      <td class="materia">Bases de Datos</td>
+      <td>Modelo de datos, integración de la fuente exportada, transformación, capa analítica y tablero de resultados.</td>
+      <td>Un proyecto de inteligencia de negocio de importancia académica dentro del plan, con correlato directo en el trabajo de los profesionales del área de sistemas. El modelo que van a construir —hechos, dimensiones y grano— es el que sistematizó el Kimball Group, referencia estándar del campo.</td>
+    </tr>
+    <tr>
+      <td class="materia">Diseño y Desarrollo de Aplicaciones Web</td>
+      <td>Podrían tomarse la publicación del tablero de resultados y la presentación web de los informes.</td>
+      <td>Cliente real, requerimientos que cambian, usuarios distintos del profesor y una fecha de entrega que no se mueve.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>La formulación del aporte de Matemática se afinó a partir de la sugerencia informal de un especialista en educación matemática, que propuso encuadrarlo en la modelización y la alfabetización estadística antes que en un listado de contenidos. El resultado describe mucho mejor lo que esa materia puede hacer con el proyecto, y marca el camino para las demás: cada cátedra está en mejores condiciones que yo de traducir su participación a los marcos vigentes de su propia didáctica. Toda reformulación en ese sentido es bienvenida y mejora la propuesta.</p>
+
+<h2><span class="num">7.</span>Compromisos éticos y de confidencialidad</h2>
+
+<p>Estamos relevando a menores de edad sobre aspectos que rozan su situación de acceso. Eso exige reglas explícitas, escritas antes de empezar y auditadas por un equipo específico de alumnos. Son innegociables.</p>
+
+<ul>
+  <li><strong>Anonimato desde el origen.</strong> El formulario se configura sin recolección de correo electrónico y sin requerir cuenta institucional. El nombre del alumno no se registra en ningún momento ni en ninguna tabla.</li>
+  <li><strong>Control de duplicados sin identificar a nadie.</strong> La consistencia se verifica comparando la cantidad de respuestas con la asistencia del curso, y jamás mediante la identidad de quien responde.</li>
+  <li><strong>Umbral mínimo de agregación.</strong> Ningún resultado se publica sobre menos de diez casos. Si un cruce deja un grupo demasiado chico, se suprime esa celda: en un curso de doce, mostrar un cruce es señalar personas.</li>
+  <li><strong>El informe de acceso nunca desciende a división.</strong> Se reporta por año, ciclo y especialidad, y solo mientras ese cruce conserve el mínimo de casos. Donde una especialidad tenga una sola división en un año, el cruce equivale a nombrar un curso, así que se agrega hasta volver a cumplir el umbral. El primer caso previsible es Programación, con pocas divisiones por año: sus resultados se informarían por especialidad completa, sin abrir por año.</li>
+  <li><strong>No se pregunta por ingresos familiares</strong>, ni por montos de dinero, ni por conductas que puedan implicar autoincriminación. Se releva únicamente la <em>estructura</em> de acceso, es decir, quién sostiene la cuenta.</li>
+  <li><strong>No se registra fecha de nacimiento completa</strong> ni ningún otro dato que, combinado con el curso, permita identificar a una persona.</li>
+  <li><strong>El informe distingue lo medido de lo inferido.</strong> El instrumento releva hábitos declarados y estructuras de pago; de ahí se infiere el acceso a determinadas tecnologías y servicios, y toda conclusión de ese tipo aparece señalada como inferencia. Las lecturas sobre el <strong>nivel socioeconómico</strong> de las familias quedan fuera del informe: son un salto a otro objeto de estudio, que este instrumento no fue diseñado para medir.</li>
+  <li><strong>La participación es voluntaria</strong> y se informa antes de comenzar para qué se usarán las respuestas.</li>
+</ul>
+
+<h2><span class="num">8.</span>Qué NO es este proyecto</h2>
+
+<ul class="no-es">
+  <li><b>No es una encuesta de opinión</b>, sino un censo con diseño metodológico, control de calidad y reporte de cobertura.</li>
+  <li><b>No es un relevamiento socioeconómico de las familias.</b> No se pregunta por ingresos, ocupación ni situación patrimonial de nadie.</li>
+  <li><b>No exige replanificar tu materia.</b> El nivel 1 requiere unos minutos de clase; los otros dos son voluntarios y se apoyan en contenidos que ya están en tu programa.</li>
+  <li><b>No suma trabajo docente fuera del horario de clase</b> en los niveles 1 y 2.</li>
+  <li><b>No requiere reuniones plenarias.</b> Las consultas y las adhesiones pueden resolverse por escrito, y solo se coordina cara a cara con quienes elijan el nivel 3.</li>
+  <li><b>No es propiedad de una cátedra.</b> Bases de Datos aporta la infraestructura de datos y da origen a la propuesta; el diseño, la coordinación y los resultados se construyen entre quienes participen.</li>
+</ul>
+
+<h2><span class="num">9.</span>Hacia dónde apunta todo esto</h2>
+
+<p>Quiero compartir algo que viene rondando las discusiones sobre la formación en programación. Al oficio de escribir código correcto se le fue sumando la expectativa de comprender el problema de negocio que ese código resuelve. Una de las denominaciones que circula para ese perfil es la de <strong>ingeniero de producto</strong>: quien extiende su responsabilidad a la definición del problema, al contexto de uso y a la iteración posterior a la entrega, además de la implementación. Más allá de qué nombre termine imponiéndose, es la expectativa que probablemente encuentren nuestros egresados.</p>
+
+<h3>El desplazamiento del perfil</h3>
+
+<p>La transición se apoya en tres movimientos:</p>
+
+<ul>
+  <li><strong>De ejecutar tareas a resolver problemas.</strong> El programador interviene como socio estratégico del proyecto y puede explicar el porqué de cada funcionalidad que construye.</li>
+  <li><strong>Orientación al valor y al usuario.</strong> El foco se desplaza desde la cantidad de código escrito hacia el impacto sobre las métricas del producto y sobre la experiencia de quien lo usa.</li>
+  <li><strong>Colaboración temprana.</strong> Participa en las decisiones de diseño, en la validación de hipótesis y en la priorización, en lugar de recibir requerimientos ya cerrados para ejecutar.</li>
+</ul>
+
+<h3>Qué cambia en los proyectos de datos</h3>
+
+<p>El argumento a favor de ese enfoque es que los proyectos de inteligencia de negocio encuentran menos fricción cuando el equipo técnico comprende el negocio, y que en ese escenario los datos pasan a verse como el insumo que orienta las decisiones de la organización.</p>
+
+<ul>
+  <li><strong>Diseño de datos con propósito.</strong> La información se estructura pensando en qué métricas va a necesitar medir la organización más adelante, y no solamente en resolver el funcionamiento inmediato del sistema.</li>
+  <li><strong>Métricas alineadas con el éxito real.</strong> El interés se desplaza desde las variables puramente técnicas —velocidad del servidor, cantidad de código— hacia indicadores de producto como la retención de usuarios, las tasas de conversión o los embudos de venta.</li>
+  <li><strong>Autonomía y democratización del dato.</strong> Se implementan herramientas que permiten a los responsables del producto y a los interesados consultar los datos por sí mismos, sin depender de un intermediario técnico para cada pregunta.</li>
+</ul>
+
+<p>Este proyecto funciona como un ensayo de ese escenario a escala escolar. Los alumnos reciben una pregunta de negocio formulada por su propia institución, deciden qué datos hacen falta para responderla, los producen, y entregan un resultado que alguien va a usar para tomar una decisión concreta.</p>
+
+<div class="clave">
+  <span class="rotulo">Por qué busco que sea interdisciplinario</span>
+  <p>Un ingeniero de producto necesita leer y escribir con precisión, comunicarse con audiencias que no son técnicas, razonar con estadística, comprender el contexto social de sus usuarios y discutir las implicancias de aquello que construye. Ninguna de esas capacidades se forma dentro de una sola materia, y ahí reside el motivo por el que esta propuesta busca sumar a otras cátedras.</p>
+</div>
+
+<h2><span class="num">10.</span>Por qué me importa</h2>
+
+<p>Termino con una razón personal, que explica por qué me tomo el trabajo de escribir esto.</p>
+
+<p>Bases de Datos es la única materia dedicada a datos en todo el plan de la especialidad. Un alumno la cursa una vez, en 4.º año, y después no vuelve a tener ninguna otra instancia donde trabajar sistemáticamente con información: modelarla, cuidarla, transformarla, interrogarla y comunicar lo que dice.</p>
+
+<p>Un proyecto de inteligencia de negocio atraviesa ese recorrido completo. Es la instancia donde el modelado, la calidad del dato, la transformación, el análisis y la comunicación confluyen en un solo trabajo, con un resultado que alguien va a leer y usar.</p>
+
+<p>Si no lo hacemos en este curso, no se hace en ningún otro tramo del paso de estos chicos por la escuela: egresan sin haber recorrido nunca el ciclo completo del dato. Tengo una sola oportunidad de que lo transiten, y quiero que salga bien. Por eso prefiero hacerlo acompañado antes que hacerlo solo.</p>
+
+<div class="fuentes">
+  <h4>Dónde mirar</h4>
+
+  <p>Todo lo que se menciona en este documento, de acceso libre:</p>
+  <ul>
+    <li><b>IFPI, <i>Engaging with Music 2023</i></b> — de donde salen los porcentajes por edad de la sección 1; encuesta a más de 43.000 personas en 26 países.<br>
+      <a href="https://www.ifpi.org/wp-content/uploads/2023/12/IFPI-Engaging-With-Music-2023_full-report.pdf">ifpi.org</a> · informe completo en PDF</li>
+    <li><b>Encuesta Nacional de Consumos Culturales</b> — los datos de Argentina de la sección 1. Sistema de Información Cultural de la Argentina (SInCA), Ministerio de Cultura de la Nación.<br>
+      <a href="https://www.argentina.gob.ar/sites/default/files/2023/05/encc2023_informe_preliminar.pdf">argentina.gob.ar</a> · informe en PDF</li>
+    <li><b>Kimball Group, «Dimensional Modeling Techniques»</b> — el catálogo de técnicas de modelado dimensional que van a usar los alumnos, derivado de <i>The Data Warehouse Toolkit</i>. Sin registro.<br>
+      <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/">kimballgroup.com</a></li>
+    <li><b>Joachim Engel, «Cultura estadística y sociedad: ¿qué es la estadística cívica?»</b> — el marco que menciona la sección 6. Universidad de Granada, 2019, de descarga libre.<br>
+      <a href="https://digibug.ugr.es/handle/10481/55028">digibug.ugr.es</a></li>
+  </ul>
+</div>
+
+<footer>
+  «¿Qué escucha la escuela?» · Propuesta de proyecto interdisciplinario<br>
+  Diego · Bases de Datos · Escuela Industrial Superior · 2026
+</footer>

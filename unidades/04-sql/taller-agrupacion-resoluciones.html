@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Sumarizar y Agrupar - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-agg       { --c: var(--bloque-azul); }
+    .block-group     { --c: var(--bloque-verde); }
+    .block-having    { --c: var(--bloque-naranja); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Taller de Agrupamiento</h1>
+            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos pedagógicos para la clase</p>
+            <a href="taller-agrupacion-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de agrupación · resoluciones</span>
+        </nav>
+
+        <!-- RESOLUCIONES 1: FUNCIONES DE AGREGACIÓN -->
+        <section class="block-card block-agg" id="agregacion">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Funciones de Agregación - Resoluciones</h2>
+                    <p>Condensar conjuntos de filas mediante cálculos aritméticos globales</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Muestra cómo el alias (<code>AS 'Nombre'</code>) ayuda a que los reportes de Martín no tengan nombres técnicos de columnas como <code>SUM(stock*precio_unitario)</code> en el encabezado de la grilla. Esto acostumbra a los alumnos a hacer entregables limpios.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>Valor total del stock en depósito</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">SUM</span>(stock * precio_unitario) <span class="sql-keyword">AS</span> <span class="sql-string">'Valor Inversión Stock'</span> 
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> SQL primero multiplica fila por fila el stock por el precio unitario, y luego la función <code>SUM</code> suma todos esos resultados intermedios. El resultado devuelto es un único valor decimal.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Precios extremos de los repuestos</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> 
+    <span class="sql-keyword">MAX</span>(precio_unitario) <span class="sql-keyword">AS</span> <span class="sql-string">'Repuesto más caro'</span>, 
+    <span class="sql-keyword">MIN</span>(precio_unitario) <span class="sql-keyword">AS</span> <span class="sql-string">'Repuesto más barato'</span> 
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <h3>Cantidad total de clientes registrados</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Total Clientes Registrados'</span> 
+<span class="sql-keyword">FROM</span> cliente;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> <code>COUNT(*)</code> cuenta la cantidad de registros físicos (filas) de la tabla, sin importar si tienen campos nulos o no.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 2: AGRUPAMIENTO -->
+        <section class="block-card block-group" id="agrupamiento">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Agrupar Datos con GROUP BY - Resoluciones</h2>
+                    <p>Dividir los resúmenes en cubos o categorías</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Pregunta qué pasaría si no ponemos el <code>GROUP BY tipo</code> en el Reto 2.1. Con `ONLY_FULL_GROUP_BY` activado, la base de datos aborta. Haz hincapié en que el motor necesita saber bajo qué criterio agrupar los registros para poder contarlos de forma coherente.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>Contar equipos por tipo</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> tipo, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad de Equipos'</span> 
+<span class="sql-keyword">FROM</span> equipo 
+<span class="sql-keyword">GROUP BY</span> tipo;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>Facturación total por método de pago</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_metodo_pago, <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span> 
+<span class="sql-keyword">FROM</span> orden_servicio_pago 
+<span class="sql-keyword">GROUP BY</span> id_metodo_pago;</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Agrupa todos los pagos que compartan el mismo ID de método de pago y les calcula la suma correspondiente de la columna <code>monto</code>.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 3: FILTRAR GRUPOS (HAVING) -->
+        <section class="block-card block-having" id="filtrado">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Filtrado de Grupos con HAVING - Resoluciones</h2>
+                    <p>Criterios de exclusión sobre sumas, promedios y recuentos</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Haz el contraejemplo a propósito: intenta escribir <code>WHERE COUNT(*) > 1</code> en la consola frente a los alumnos para que vean el error explícito de MySQL. Explícales que WHERE se procesa en el paso 2 de la query (antes de agrupar) por lo que es lógicamente imposible que conozca el valor del conteo en esa instancia. Es la mejor forma de grabar la diferencia en su memoria.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>Clientes recurrentes (Fidelidad)</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_cliente, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad de Órdenes'</span> 
+<span class="sql-keyword">FROM</span> orden_servicio 
+<span class="sql-keyword">GROUP BY</span> id_cliente 
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>Métodos de pago con alta recaudación (> 20.000)</h3>
+                    
+                        <a class="salto-nav" href="taller-agrupacion-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> id_metodo_pago, <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> <span class="sql-string">'Recaudado'</span> 
+<span class="sql-keyword">FROM</span> orden_servicio_pago 
+<span class="sql-keyword">GROUP BY</span> id_metodo_pago 
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(monto) &gt; <span class="sql-number">20000</span>;</code></pre>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-agrupacion-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

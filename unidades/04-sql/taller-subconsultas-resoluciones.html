@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Subconsultas - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+    
+    <style>
+    /* colores de los bloques de este taller */
+    .block-corr      { --c: var(--bloque-naranja); }
+    .block-list      { --c: var(--bloque-verde); }
+    .block-scalar    { --c: var(--bloque-azul); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Taller de Subconsultas</h1>
+            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos pedagógicos para la clase</p>
+            <a href="taller-subconsultas-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de subconsultas · resoluciones</span>
+        </nav>
+
+        <!-- RESOLUCIONES 1: SUBCONSULTAS ESCALARES -->
+        <section class="block-card block-scalar" id="escalares">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Subconsultas Escalares - Resoluciones</h2>
+                    <p>Comparar registros individuales contra un único resultado dinámico</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>En el Reto 1.1, haz que los alumnos ejecuten primero la consulta interna sola <code>SELECT AVG(precio_unitario) FROM repuesto</code> para que vean que devuelve un número fijo (ej. 23000.00). Explícales que la consulta externa reemplaza dinámicamente esa fórmula por el número obtenido.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>Repuestos con precio mayor que el promedio</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre, precio_unitario 
+<span class="sql-keyword">FROM</span> repuesto 
+<span class="sql-keyword">WHERE</span> precio_unitario &gt; (
+    <span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(precio_unitario) 
+    <span class="sql-keyword">FROM</span> repuesto
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> La subconsulta escalar calcula el promedio de la tabla. Al devolver un único valor flotante, el operador <code>&gt;</code> funciona perfectamente. Si agregáramos una columna extra dentro de los paréntesis (por ejemplo, <code>SELECT nombre, AVG(...)</code>), MySQL daría error de sintaxis porque dejaría de ser escalar.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Marca del equipo de la orden 1 (Anidamiento múltiple)</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre 
+<span class="sql-keyword">FROM</span> marca 
+<span class="sql-keyword">WHERE</span> id_marca = (
+    <span class="sql-keyword">SELECT</span> id_marca 
+    <span class="sql-keyword">FROM</span> equipo 
+    <span class="sql-keyword">WHERE</span> id_equipo = (
+        <span class="sql-keyword">SELECT</span> id_equipo 
+        <span class="sql-keyword">FROM</span> orden_servicio_has_equipo 
+        <span class="sql-keyword">WHERE</span> nro_orden = <span class="sql-number">1</span>
+        <span class="sql-keyword">LIMIT</span> <span class="sql-number">1</span>
+    )
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación pedagógica clave:</strong> Este es un reto excelente para mostrar el "anidamiento en cebolla" (múltiples niveles). 
+                            1. La consulta más interna trae el ID del equipo en la orden 1 (devuelve <code>1</code>).
+                            2. La consulta intermedia busca la marca para el equipo ID 1 (devuelve <code>1</code>).
+                            3. La consulta externa busca el nombre de la marca con ID 1 (devuelve <code>'Samsung'</code>).
+                            <br><strong>Pregunta para picar a la clase:</strong> ¿Por qué agregamos <code>LIMIT 1</code> en la consulta interna? Si una orden de servicio tuviera cargados dos equipos diferentes al mismo tiempo, el signo <code>=</code> se rompería arrojando error. El <code>LIMIT 1</code> es un cinturón de seguridad escolar para garantizar que la subconsulta siga siendo estrictamente escalar.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 2: SUBCONSULTAS DE LISTAS -->
+        <section class="block-card block-list" id="listas">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Subconsultas de Lista - Resoluciones</h2>
+                    <p>Evaluar pertenencia en listas de valores con IN / NOT IN</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>En el Reto 2.2 es fundamental explicar el peligro del <code>NULL</code> con <code>NOT IN</code>. Pide a los alumnos que agreguen un registro de prueba en la tabla <code>orden_servicio</code> donde el cliente sea <code>NULL</code>, y haz que ejecuten el <code>NOT IN</code> sin filtrar el nulo. Verán que la consulta externa da 0 resultados, y ahí puedes explicar la lógica de 3 valores en SQL.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>Clientes activos (Con al menos una orden)</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre, apellido 
+<span class="sql-keyword">FROM</span> cliente 
+<span class="sql-keyword">WHERE</span> id_cliente <span class="sql-keyword">IN</span> (
+    <span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> id_cliente 
+    <span class="sql-keyword">FROM</span> orden_servicio
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> La subconsulta trae la columna de IDs de clientes que han abierto alguna orden (ej: <code>1, 2, 5</code>). La consulta externa filtra las filas de clientes donde su ID coincida con ese conjunto. Usar <code>DISTINCT</code> en la consulta interna no es obligatorio para el resultado final, pero sí es una buena práctica de optimización para reducir el tamaño de la lista que SQL debe evaluar.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>Clientes inactivos (Sin ninguna orden asociada)</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nombre, apellido 
+<span class="sql-keyword">FROM</span> cliente 
+<span class="sql-keyword">WHERE</span> id_cliente <span class="sql-keyword">NOT IN</span> (
+    <span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> id_cliente 
+    <span class="sql-keyword">FROM</span> orden_servicio 
+    <span class="sql-keyword">WHERE</span> id_cliente <span class="sql-keyword">IS NOT NULL</span>
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación teórica de la protección de nulos:</strong> ¿Por qué agregamos <code>WHERE id_cliente IS NOT NULL</code>? Si hay una orden huérfana en la base de datos (con cliente nulo), la subconsulta generaría la lista <code>(1, 2, 5, NULL)</code>. Al hacer <code>NOT IN</code>, SQL traduce la consulta como: <code>id_cliente != 1 AND id_cliente != 2 AND id_cliente != 5 AND id_cliente != NULL</code>. Como comparar contra NULL da "Desconocido" (UNKNOWN), toda la cadena lógica AND se destruye, haciendo que la consulta devuelva cero filas. Filtrar el nulo es obligatorio.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- RESOLUCIONES 3: SUBCONSULTAS CORRELACIONADAS Y EXISTENCIA -->
+        <section class="block-card block-corr" id="existencia">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Subconsultas Correlacionadas y EXISTS - Resoluciones</h2>
+                    <p>Evaluar existencia cruzada fila por fila</p>
+                </div>
+            </div>
+
+            <div class="docente-tip">
+                <h4>Pedagogía en clase:</h4>
+                <p>Enfatiza cómo la subconsulta de <code>EXISTS</code> tiene un "enlace" en el <code>WHERE</code> (ej: <code>t.id_cliente = c.id_cliente</code>). Explícales que la letra <code>c</code> de la consulta de afuera viaja adentro de la subconsulta en cada iteración del motor de base de datos. También aclara por qué usamos <code>SELECT 1</code>: la BD no necesita buscar columnas, solo quiere saber si se devuelve al menos un registro en la grilla.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>Clientes con teléfono cargado (EXISTS)</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> apellido, nombre 
+<span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">AS</span> c 
+<span class="sql-keyword">WHERE EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> 
+    <span class="sql-keyword">FROM</span> telefono <span class="sql-keyword">AS</span> t 
+    <span class="sql-keyword">WHERE</span> t.id_cliente = c.id_cliente
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Por cada cliente <code>c</code> evaluado por la consulta externa, se corre la subconsulta buscando un teléfono <code>t</code> asociado a su ID. Si se encuentra al menos uno, el <code>EXISTS</code> se vuelve <code>TRUE</code> y el cliente pasa a la lista final de resultados.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>Clientes sin correo electrónico registrado (NOT EXISTS)</h3>
+                    
+                        <a class="salto-nav" href="taller-subconsultas-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> apellido, nombre 
+<span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">AS</span> c 
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> 
+    <span class="sql-keyword">FROM</span> email <span class="sql-keyword">AS</span> e 
+    <span class="sql-keyword">WHERE</span> e.id_cliente = c.id_cliente
+);</code></pre>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> Funciona igual al anterior pero invertido: <code>NOT EXISTS</code> da <code>TRUE</code> únicamente si la subconsulta interna devuelve 0 filas (es decir, si el cliente evaluado no tiene ningún registro en la tabla de correos electrónicos). A diferencia de <code>NOT IN</code>, <code>NOT EXISTS</code> es inmune al problema de los valores nulos, por lo que es mucho más seguro en tablas complejas.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-subconsultas-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+            
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

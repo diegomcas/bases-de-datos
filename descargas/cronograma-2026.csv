@@ -1,0 +1,40 @@
+N° Semana,Desde,Hasta,Feriados,Unidad / Tema,Actividades Relevantes,Evaluaciones,Observaciones
+1,02/03,06/03,-,U I: Intro y Datos vs Información,Mapeo de sistemas reales.,-,Inicio Ciclo.
+2,09/03,13/03,-,U I: Evolución y Ventajas DBMS,Caso: Archivos vs BD.,-,-
+3,16/03,20/03,-,U I: Arquitectura ANSI/SPARC,Taller de independencia de datos.,-,-
+4,23/03,27/03,-,U I: Roles/Ética y Seguridad,Debate sobre el rol del DBA.,-,-
+5,30/03,03/04,Vie 03/04,U II: Metodología y Requerimientos,Clasificación de requerimientos.,-,Vie: V. Santo.
+6,06/04,10/04,-,U II: Modelado Conceptual Integral (DER),Taller de modelado completo.,-,-
+7,13/04,17/04,-,U II: Diseño Lógico (Modelo R),Transformación de diagramas.,-,-
+8,20/04,24/04,-,U II: Diseño Físico e Índices,Optimización de búsquedas.,-,-
+9,27/04,01/05,Vie 01/05,U II: Taller de Refuerzo,Modelado y Pasaje avanzado.,-,Vie: Día Trab.
+10,04/05,08/05,-,U II: Clínica de Diseño y Pre-Parcial,Simulacro y auditoría de pares.,-,-
+11,11/05,15/05,-,Evaluación 1er Trimestre,1er Examen Parcial (Diseño).,1er Examen,2 sem. antes fin T1.
+12,18/05,22/05,-,U III: Modelo Relacional,Edgar Codd e Integridad.,-,-
+13,25/05,29/05,Lun 25/05,U III: Álgebra Relacional I,Selección y Proyección.,-,Cierre T1.
+14,01/06,05/06,-,U III: Álgebra Relacional II,Joins y Producto Cartesiano.,-,-
+15,08/06,12/06,-,U III: Normalización (1FN),Detección de redundancia.,-,-
+16,15/06,19/06,Lun 15/06,U III: Dependencias Funcionales,Cálculo de cierres.,-,Lun: Paso Güemes.
+17,22/06,26/06,-,U III: Normalización (2FN y 3FN),Resolución de anomalías.,-,-
+18,29/06,03/07,-,U III: Normalización (BCNF),Casos complejos de diseño.,-,-
+19,06/07,10/07,-,RECESO INVERNAL,-,-,-
+20,13/07,17/07,-,RECESO INVERNAL,-,-,-
+21,20/07,24/07,-,U III: Desnormalización,Trade-offs de rendimiento.,-,-
+22,27/07,31/07,-,U IV: SQL DDL,"CREATE, ALTER, DROP.",-,-
+23,03/08,07/08,-,U IV: SQL DML Básico,"SELECT, WHERE, ORDER BY.",-,-
+24,10/08,14/08,-,Repaso Integrador U III,Práctica intensiva Normalización.,2do Examen,2 sem. antes fin T2.
+25,17/08,21/08,Lun 17/08,U IV: SQL: Joins Multitabla,Laboratorio de cruce de datos.,-,Lun: Paso S. Martín.
+26,24/08,28/08,-,U IV: Funciones Agregadas,GROUP BY y HAVING.,-,Cierre T2.
+27,31/08,04/09,-,U IV: Subconsultas,IN/EXISTS y correlacionadas.,-,-
+28,07/09,11/09,-,U IV: Vistas y Seguridad,Creación de perfiles y acceso.,-,-
+29,14/09,18/09,-,U IV: Transacciones (ACID),COMMIT y ROLLBACK.,-,-
+30,21/09,25/09,-,U IV: Stored Procedures I,Parámetros y control de flujo.,-,-
+31,28/09,02/10,-,U IV: Stored Procedures II,Lógica de negocio avanzada.,-,-
+32,05/10,09/10,-,U IV: Triggers (Disparadores),Automatización de reglas.,-,-
+33,12/10,16/10,Lun 12/10,U IV: Optimización de Consultas,Planes de ejecución.,-,Lun: Div. Cultural.
+34,19/10,23/10,-,U V: Introducción a NoSQL,MongoDB y JSON.,-,-
+35,26/10,30/10,-,U V: BI/Data Warehouse y ETL,Modelo Estrella y OLAP.,-,-
+36,02/11,06/11,-,TPI: Integración y Desarrollo,Laboratorio guiado del proyecto.,-,Inicio bloque final.
+37,09/11,13/11,-,TPI: Implementación Avanzada,Aplicación de SP y Triggers.,-,Revisión técnica.
+38,16/11,20/11,-,TPI: Testing y Documentación,Pruebas de carga y Diccionario.,-,Pulido final.
+39,23/11,27/11,Lun 23/11,TPI: Defensa Final,Presentación del Proyecto.,3er Examen (Defensa),Sin recuperatorios.

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica de SQL · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 23</span>
+            <h1>Práctica de SQL</h1>
+            <p>Las primeras consultas sobre la base</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Práctica de SQL</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#tips-sin-palabras">Tips Sin palabras …</a></li>
+                <li><a href="#lectura-y-exploracion-select-antes-debemos-saber-q">Lectura y Exploración (SELECT) Antes, debemos saber qué hay</a></li>
+                <li><a href="#lectura-y-exploracion-select-y-siguen">Lectura y Exploración (SELECT) y siguen…</a></li>
+                <li><a href="#insercion-de-datos-insert-el-negocio-crece-y-llega">Inserción de Datos (INSERT) El negocio crece y llegan nuevas cosas</a></li>
+                <li><a href="#actualizacion-de-datos-update-los-precios-suben-y-">Actualización de Datos (UPDATE) Los precios suben y el stock se mueve</a></li>
+                <li><a href="#borrado-de-datos-delete-y-restricciones-de-integri">Borrado de Datos (DELETE) … y Restricciones de Integridad</a></li>
+                <li><a href="#navegacion-de-datos-limit-y-paginacion-cuando-tene">Navegación de Datos (LIMIT y Paginación) Cuando tenemos muchos datos, necesitamos mostrarlos en "páginas" para no saturar al usuario.</a></li>
+                <li><a href="#diapositiva-8">Diapositiva 8</a></li>
+            </ol>
+        </nav>
+
+
+        <div class="diapositivas">
+            <section class="diapositiva" id="tips-sin-palabras">
+              <div class="diapo-num">01</div>
+              <h2>Tips Sin palabras …</h2>
+              <ul>
+                <li>Pero antes unos tips:</li>
+                <li>Usen siempre el ; al final de cada sentencia.</li>
+                <li>2. Para los UPDATE y DELETE, verifiquen siempre el WHERE antes de ejecutar. ¡Un DELETE sin WHERE borra toda la tabla!</li>
+                <li>3. Pueden usar SELECT * FROM tabla LIMIT 10; para ver los primeros registros y entender qué columnas tienen.<br><br>Usen MySQL Command Line Client para resolver.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="lectura-y-exploracion-select-antes-debemos-saber-q">
+              <div class="diapo-num">02</div>
+              <h2>Lectura y Exploración (SELECT) Antes, debemos saber qué hay</h2>
+              <ul>
+                <li>Desafío A: Listá todos los repuestos que tienen un stock menor a 5 unidades. Solo mostrá el nombre y el stock. Ordénalos por precio del más caro al más barato.</li>
+                <li>Desafío B: Buscá en la tabla cliente a todas las personas cuyo apellido sea "Perez" (o cualquier apellido que sepas que existe) y solo mostrá el apellido.</li>
+                <li>Desafío C: Listá todos los problemas registrados que tengan un costo de mano de obra superior a $5000.</li>
+                <li>Desafío D: Listá, ordenados alfabéticamente,  todos los tipos de equipo distintos.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="lectura-y-exploracion-select-y-siguen">
+              <div class="diapo-num">03</div>
+              <h2>Lectura y Exploración (SELECT) y siguen…</h2>
+              <ul>
+                <li>Desafío E: Listá los problemas cuya mano de obra esté entre $2000 y $8000.</li>
+                <li style="margin-left:1em">Resolver con dos estrategias distintas</li>
+                <li>Desafío F: ¿Qué consulta realizarías para determinar qué órdenes de servicio todavía no fueron entregadas?</li>
+                <li style="margin-left:1em">Resolver con dos estrategias distintas</li>
+                <li>Desafío G: Listá los equipos que sean de las marcas con ID 1, 3 o 5.</li>
+                <li style="margin-left:1em">Resolver con dos estrategias distintas</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="insercion-de-datos-insert-el-negocio-crece-y-llega">
+              <div class="diapo-num">04</div>
+              <h2>Inserción de Datos (INSERT) El negocio crece y llegan nuevas cosas</h2>
+              <ul>
+                <li>Desafío H: Agregá un nuevo repuesto: "Modulo Pantalla Samsung A54", con un stock inicial de 10 y un precio unitario de $15000.</li>
+                <li>Desafío I: Registrá una nueva marca en la tabla marca llamada “LG”.</li>
+                <li>Desafío J: Creá una nueva Orden de Servicio a nombre de “Carlos López” (Tené en cuenta que la fecha de ingreso debe ser la de hoy y el estado “Pendiente”.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="actualizacion-de-datos-update-los-precios-suben-y-">
+              <div class="diapo-num">05</div>
+              <h2>Actualización de Datos (UPDATE) Los precios suben y el stock se mueve</h2>
+              <ul>
+                <li>Desafío H: Debido a la inflación, aumentá un 10% el precio_unitario de todos los repuestos.</li>
+                <li style="margin-left:1em">Pista: SET precio_unitario = precio_unitario * 1.10</li>
+                <li>Desafío L: Como el anterior, pero solo quiero modificar los repuestos donde el nombre contenga la palabra “Módulo”.</li>
+                <li>Desafío M: El cliente con id_cliente = 1 está mal registrado; corrige su nombre a “Juan Carlos”. Actualizalo en la tabla correspondiente.</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="borrado-de-datos-delete-y-restricciones-de-integri">
+              <div class="diapo-num">06</div>
+              <h2>Borrado de Datos (DELETE) … y Restricciones de Integridad</h2>
+              <ul>
+                <li>Desafío N: Elimina la marca anteriormente creada (“LG”).</li>
+                <li>Desafío Ñ: Elimina el cliente con id_cliente = 1.</li>
+                <li style="margin-left:1em">¿Por qué falló el borrado?</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="navegacion-de-datos-limit-y-paginacion-cuando-tene">
+              <div class="diapo-num">07</div>
+              <h2>Navegación de Datos (LIMIT y Paginación) Cuando tenemos muchos datos, necesitamos mostrarlos en "páginas" para no saturar al usuario.</h2>
+              <ul>
+                <li>Desafío O (La primera página): Imaginá que en el sistema de "El Chip" queremos mostrar los repuestos de a 2 por vez. Escribí una consulta que devuelva los primeros 2 repuestos de la tabla, ordenados alfabéticamente por nombre.</li>
+                <li style="margin-left:1em">Pista: Usá ORDER BY nombre ASC LIMIT 2.</li>
+                <li>Desafío P (Simulando la Página 2): Ahora necesitamos ver los siguientes 2 repuestos (del 3 al 4). Para esto, debemos decirle al motor que se "saltee" los primeros 5 y tome los 5 siguientes.</li>
+                <li style="margin-left:1em">Consulta: SELECT * FROM repuesto ORDER BY nombre ASC LIMIT 5 OFFSET 5;</li>
+                <li style="margin-left:1em">(En MySQL también podés usar la sintaxis abreviada: LIMIT 5, 5 donde el primer número es cuántos saltar y el segundo cuántos traer).</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="diapositiva-8">
+              <div class="diapo-num">08</div>
+              <h2>Diapositiva 8</h2>
+              <p><em> </em></p>
+            </section>
+        </div>
+
+        <div class="descargas">
+            <h4>Descargar la presentación</h4>
+            <a href="../../descargas/sql-practica.pptx" class="salto-nav">PPTX</a>
+            <a href="../../descargas/sql-practica.pdf" class="salto-nav">PDF</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="sql.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>SQL: definición de datos</strong>
+            </a>
+            <a class="pag-sig" href="taller-sql-practica-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller: primeras consultas</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · 8 diapositivas</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compendio de Subconsultas - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-anyall    { --c: var(--bloque-azul); }
+    .block-challenge { --c: var(--bloque-magenta); }
+    .block-cte       { --c: var(--bloque-cian); }
+    .block-dml       { --c: var(--bloque-amarillo); }
+    .block-from      { --c: var(--bloque-naranja); }
+    .block-having    { --c: var(--bloque-rosa); }
+    .block-null      { --c: var(--bloque-rojo); }
+    .block-row       { --c: var(--bloque-violeta); }
+    .block-select    { --c: var(--bloque-verde); }
+    .block-warmup    { --c: var(--bloque-gris); }
+
+    /* propio de esta página */
+    .toc {
+                background-color: var(--bg-card);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: var(--border-radius);
+                padding: 25px 30px;
+                margin-bottom: 40px;
+            }
+    .toc h3 {
+                font-size: 1.1rem;
+                margin-bottom: 15px;
+                color: var(--text-main);
+            }
+    .toc-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+    .toc-grid a {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 50px;
+                padding: 6px 14px;
+                font-size: 0.85rem;
+                color: #cbd5e1;
+                text-decoration: none;
+                transition: var(--transition);
+            }
+    .toc-grid a:hover {
+                background: rgba(255, 255, 255, 0.07);
+                color: #fff;
+                transform: translateY(-1px);
+            }
+    .toc-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+    .ref-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+                font-size: 0.86rem;
+            }
+    .ref-table th {
+                background: rgba(255, 255, 255, 0.04);
+                color: var(--text-muted);
+                text-align: left;
+                padding: 8px 12px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+    .ref-table td {
+                padding: 8px 12px;
+                color: #cbd5e1;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                vertical-align: top;
+            }
+    .ref-table code {
+                font-size: 0.83rem;
+            }
+    .nivel {
+                font-size: 0.7rem;
+                font-weight: 600;
+                padding: 2px 8px;
+                border-radius: 50px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                color: var(--text-muted);
+                margin-left: auto;
+            }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 1 — Compendio</span>
+            <h1>Compendio de Subconsultas SQL</h1>
+            <p>Las diez formas de anidar un SELECT: dónde se ubican, qué devuelven y con qué operadores se comparan. Todo sobre la base "El Chip"</p>
+            <a href="compendio-subconsultas-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Compendio
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Compendio de subconsultas</span>
+        </nav>
+
+        <!-- MAPA DEL TEMA -->
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem;">El mapa completo de las subconsultas</h2>
+            </div>
+            <div class="explicacion">
+                <p>En el taller anterior vimos tres formas de subconsulta: la <strong>escalar</strong>, la de <strong>lista</strong> (<code>IN</code>) y la <strong>correlacionada</strong> con <code>EXISTS</code>. Son las tres más usadas, pero no son todas. Una subconsulta se clasifica según <strong>tres ejes independientes</strong>, y entender los tres es lo que permite elegir la herramienta correcta en vez de forzar siempre la misma.</p>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr><th>Eje</th><th>Variantes</th><th>Dónde se practica acá</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>¿Qué forma tiene lo que devuelve?</strong></td>
+                            <td><code>Escalar</code> (1 fila × 1 col) · <code>Columna</code> (N × 1) · <code>Fila</code> (1 × N) · <code>Tabla</code> (N × M)</td>
+                            <td>Bloques 1, 6 y 4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>¿Dónde está ubicada?</strong></td>
+                            <td><code>WHERE</code> · <code>SELECT</code> · <code>FROM</code> · <code>HAVING</code> · dentro de <code>INSERT / UPDATE / DELETE</code></td>
+                            <td>Bloques 1, 3, 4, 5 y 8</td>
+                        </tr>
+                        <tr>
+                            <td><strong>¿Depende de la consulta externa?</strong></td>
+                            <td><code>Independiente</code> (se ejecuta una vez) · <code>Correlacionada</code> (una vez por fila externa)</td>
+                            <td>Bloques 3, 7 y 10</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>Y un cuarto eje, transversal: <strong>con qué operador se compara</strong> el resultado. Ahí entran <code>=</code>, <code>&gt;</code>, <code>IN</code>, <code>ANY</code>, <code>ALL</code>, <code>EXISTS</code> y todas sus negaciones, que es donde se concentran los errores de examen.</p>
+
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                        Cómo usar este compendio
+                    </h4>
+                    <ul>
+                        <li>Los <strong>bloques 1 al 6</strong> recorren las formas y ubicaciones que faltaban. Son de dificultad creciente pero todos resolubles con lo visto.</li>
+                        <li>El <strong>bloque 7</strong> es el más importante para el parcial: la diferencia real entre <code>NOT IN</code> y <code>NOT EXISTS</code>, demostrada con datos.</li>
+                        <li>Los <strong>bloques 8 y 9</strong> muestran la subconsulta fuera del <code>SELECT</code>: en sentencias que modifican datos, y en su forma moderna con <code>WITH</code>.</li>
+                        <li>El <strong>bloque 10</strong> son desafíos de integración. Si los resolvés, el tema está.</li>
+                        <li>Cada reto trae una etiqueta de dificultad. Antes de ejecutar, escribí en papel cuántas filas esperás.</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Antes de empezar: ampliá la base.</strong> Este compendio está calibrado sobre "El Chip" con datos adicionales. Ejecutá, en este orden, <code>ElChip.sql</code> → <code>poblar_elchip.sql</code> → <code>poblar_elchip_compendio.sql</code>. Ese último script es aditivo (no borra nada) y lleva la base a <strong>8 clientes, 8 órdenes, 9 equipos, 9 repuestos y 10 pagos</strong>, con los casos límite que los ejercicios necesitan: clientes homónimos, clientes sin ninguna orden, equipos que comparten tipo y marca, y métodos de pago jamás utilizados. Sin él, buena parte de los retos devuelve cero filas.
+                    <br><br>El script no fuerza ningún ID, así que si la base ya fue tocada los números pueden correrse. Cuando un enunciado menciona "la orden número 1", verificá primero cuál es con <code>SELECT nro_orden, total FROM orden_servicio ORDER BY nro_orden;</code>.
+                </div>
+
+                <div class="toc">
+                    <h3>Índice de bloques</h3>
+                    <div class="toc-grid">
+                        <a href="#warmup"><span class="toc-dot" style="background: var(--color-warmup)"></span>01 · Calentamiento</a>
+                        <a href="#anyall"><span class="toc-dot" style="background: var(--color-anyall)"></span>02 · ANY / ALL</a>
+                        <a href="#enselect"><span class="toc-dot" style="background: var(--color-select)"></span>03 · En el SELECT</a>
+                        <a href="#enfrom"><span class="toc-dot" style="background: var(--color-from)"></span>04 · En el FROM</a>
+                        <a href="#enhaving"><span class="toc-dot" style="background: var(--color-having)"></span>05 · En el HAVING</a>
+                        <a href="#defila"><span class="toc-dot" style="background: var(--color-row)"></span>06 · De fila</a>
+                        <a href="#nulls"><span class="toc-dot" style="background: var(--color-null)"></span>07 · NOT IN vs NOT EXISTS</a>
+                        <a href="#dml"><span class="toc-dot" style="background: var(--color-dml)"></span>08 · En DML</a>
+                        <a href="#cte"><span class="toc-dot" style="background: var(--color-cte)"></span>09 · CTE (WITH)</a>
+                        <a href="#desafios"><span class="toc-dot" style="background: var(--color-challenge)"></span>10 · Desafíos</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: CALENTAMIENTO -->
+        <section class="block-card block-warmup" id="warmup">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Calentamiento: las tres formas conocidas</h2>
+                    <p>Escalar, de lista y de existencia, para recuperar el estado del taller anterior</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Antes de meternos en cosas nuevas, refresquemos: quiero los repuestos que están por debajo del stock promedio para reponerlos, las marcas que tengo cargadas pero de las que nunca entró un equipo, y qué métodos de pago se usaron alguna vez de verdad."</p>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Repuestos por debajo del stock promedio</h3>
+                        <span class="nivel">Básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Traé el <code>nombre</code> y el <code>stock</code> de los repuestos cuyo stock sea menor al promedio de stock de todos los repuestos. Usá una <strong>subconsulta escalar</strong>.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Marcas sin ningún equipo registrado</h3>
+                        <span class="nivel">Básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá el <code>nombre</code> de las marcas de las que <strong>no</strong> exista ningún equipo cargado en la tabla <code>equipo</code>. Resolvelo con <code>NOT IN</code>. Antes de escribirlo, revisá en el DER si <code>equipo.id_marca</code> admite nulos: eso determina si necesitás protección.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>Métodos de pago realmente utilizados</h3>
+                        <span class="nivel">Básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá el <code>nombre</code> de los métodos de pago para los que exista al menos un registro en <code>orden_servicio_pago</code>. Usá <code>EXISTS</code> con correlación.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: ANY / ALL -->
+        <section class="block-card block-anyall" id="anyall">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Cuantificadores: ANY, SOME y ALL</h2>
+                    <p>Comparar un valor contra todo un conjunto sin usar funciones de agregación</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Tengo una duda de negocio. Los repuestos con mucho stock son los baratos, los que compro por cantidad. Quiero saber cuáles repuestos son más caros que <em>todos</em> los que tengo en cantidad, y por otro lado cuáles superan a <em>alguno</em> de ellos. Son dos preguntas distintas y quiero ver la diferencia."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                        Sustento Teórico: los cuantificadores
+                    </h4>
+                    <ul>
+                        <li><strong><code>op ANY</code> (o su sinónimo <code>SOME</code>):</strong> la condición es verdadera si se cumple contra <strong>al menos un</strong> valor del conjunto. <code>&gt; ANY (conjunto)</code> significa "mayor que el mínimo del conjunto".</li>
+                        <li><strong><code>op ALL</code>:</strong> la condición es verdadera solo si se cumple contra <strong>todos</strong> los valores. <code>&gt; ALL (conjunto)</code> significa "mayor que el máximo del conjunto".</li>
+                        <li><strong>Equivalencias que hay que saber de memoria:</strong>
+                            <ul>
+                                <li><code>x IN (subconsulta)</code> ≡ <code>x = ANY (subconsulta)</code></li>
+                                <li><code>x NOT IN (subconsulta)</code> ≡ <code>x &lt;&gt; ALL (subconsulta)</code></li>
+                            </ul>
+                        </li>
+                        <li><strong>Relación con MAX y MIN:</strong> <code>&gt; ALL (SELECT p FROM t)</code> da el mismo resultado que <code>&gt; (SELECT MAX(p) FROM t)</code>… <em>salvo en un caso</em>, que está en la advertencia de abajo.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> en una carrera, <code>&gt; ALL</code> es "le ganaste a todos los corredores", o sea, saliste primero. <code>&gt; ANY</code> es "le ganaste a alguno", o sea, no saliste último. Son afirmaciones muy distintas sobre la misma persona.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ El conjunto vacío invierte la lógica:</strong> si la subconsulta no devuelve ninguna fila, <code>&gt; ALL</code> da <strong>TRUE para todas las filas</strong> (es cierto por vacuidad: "supera a todos los elementos de un conjunto sin elementos") mientras que <code>&gt; ANY</code> da <strong>FALSE para todas</strong>. La versión con <code>MAX()</code> no se comporta igual: devuelve <code>NULL</code> y por lo tanto no incluye nada. Es la diferencia sutil que se cobra en los exámenes.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Más caro que todos los de alto stock (ALL)</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los repuestos cuyo <code>precio_unitario</code> sea mayor que el de <strong>todos</strong> los repuestos que tienen <code>stock &gt; 5</code>. Usá <code>&gt; ALL</code> y no uses <code>MAX</code>.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Más caro que alguno de ellos (ANY)</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>La misma consulta pero con <code>&gt; ANY</code>. Ejecutá las dos, compará las cantidades de filas y escribí en un comentario por qué una devuelve más resultados que la otra.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <h3>Demostrar la equivalencia NOT IN ≡ &lt;&gt; ALL</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Reescribí tu solución del <strong>Reto 1.2</strong> (marcas sin equipos) usando <code>&lt;&gt; ALL</code> en lugar de <code>NOT IN</code>. Verificá que devuelva exactamente las mismas filas. Después respondé: si esa equivalencia es exacta, ¿el problema de los <code>NULL</code> del <code>NOT IN</code> también afecta a <code>&lt;&gt; ALL</code>?</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: SUBCONSULTA EN EL SELECT -->
+        <section class="block-card block-select" id="enselect">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Subconsulta en el SELECT</h2>
+                    <p>Fabricar una columna calculada que viene de otra tabla</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Quiero una planilla con <em>todos</em> mis clientes y al lado la cantidad de órdenes de cada uno. Ojo con esto: los que tienen cero también tienen que aparecer, con un cero. La última vez que me pasaron un reporte así, los clientes sin órdenes directamente no figuraban y me comí un reclamo."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg>
+                        Sustento Teórico: la subconsulta como columna
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> una subconsulta ubicada en la lista del <code>SELECT</code> genera <strong>una columna más</strong> en el resultado. Se ejecuta una vez por cada fila de la consulta externa, así que es siempre correlacionada en la práctica.</li>
+                        <li><strong>Restricción absoluta:</strong> debe ser <strong>escalar</strong>. Si devuelve más de una fila, MySQL lanza el <code>Error 1242</code>; si devuelve más de una columna, es error de sintaxis. Por eso casi siempre lleva una función de agregación adentro.</li>
+                        <li><strong>Su gran ventaja sobre GROUP BY:</strong> conserva <strong>todas</strong> las filas de la tabla externa, incluidas aquellas cuyo cálculo da cero. Un <code>COUNT</code> con agrupamiento sobre tablas cruzadas descarta a los que no tienen coincidencias.</li>
+                        <li><strong>Cuidado con el costo:</strong> N filas externas significan N ejecuciones de la subconsulta. Sobre tablas grandes se paga caro y conviene evaluar la alternativa con <code>LEFT JOIN</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la columna "saldo" del resumen bancario. No está guardada en ningún lado: se calcula para cada línea en el momento de imprimir el resumen, mirando otro conjunto de datos.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ SUM sobre un conjunto vacío no da 0, da NULL:</strong> <code>COUNT(*)</code> de cero filas devuelve <code>0</code>, pero <code>SUM(monto)</code> de cero filas devuelve <code>NULL</code>. Si el reporte tiene que mostrar un cero contable, hay que envolverlo: <code>IFNULL((SELECT SUM(...)), 0)</code> o su versión estándar <code>COALESCE(...)</code>. Confundir "no tiene pagos" con "pagó cero" es un clásico que rompe balances.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Todos los clientes con su cantidad de órdenes</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá el apellido y nombre de <strong>todos</strong> los clientes, y agregá una columna <code>'Cantidad de Órdenes'</code> calculada con una subconsulta correlacionada. Los clientes sin órdenes deben aparecer con <code>0</code>.</p>
+                        <div class="helper-box">
+                            <h5>Esqueleto</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> c.apellido, c.nombre,
+       (<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> orden_servicio o
+        <span class="sql-keyword">WHERE</span> ...) <span class="sql-keyword">AS</span> <span class="sql-string">'Cantidad de Órdenes'</span>
+<span class="sql-keyword">FROM</span> cliente c;</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Órdenes con cantidad de pagos y total cobrado</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Para cada orden de servicio mostrá el <code>nro_orden</code>, su <code>total</code>, la cantidad de pagos recibidos y la suma de esos pagos. Usá <strong>dos</strong> subconsultas en el <code>SELECT</code>. Ejecutala primero sin protección de nulos, observá qué pasa con la orden que no tiene pagos, y recién después aplicá <code>IFNULL</code>.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <h3>Desvío de cada repuesto respecto del promedio</h3>
+                        <span class="nivel">Básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá cada repuesto con su precio y una columna adicional que indique cuánto se aparta del precio promedio general (positivo si está por encima, negativo si está por debajo). Notá que acá la subconsulta <strong>no</strong> es correlacionada: devuelve siempre el mismo valor.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4: SUBCONSULTA EN EL FROM -->
+        <section class="block-card block-from" id="enfrom">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Subconsulta en el FROM (tabla derivada)</h2>
+                    <p>Convertir el resultado de una consulta en una tabla temporal para volver a consultarla</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Necesito el promedio de lo que se cobra por orden. Ojo, no el promedio de los pagos sueltos: una orden que se pagó en dos cuotas es <em>una</em> orden. Primero hay que sumar por orden y después promediar esos totales. ¿Se puede hacer en una sola consulta?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v6H3zM3 15h18v6H3zM12 9v6"/></svg>
+                        Sustento Teórico: la tabla derivada
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> una subconsulta ubicada en el <code>FROM</code> produce un conjunto de filas y columnas que la consulta externa trata <strong>exactamente como si fuera una tabla</strong>. Se la llama tabla derivada o vista en línea.</li>
+                        <li><strong>Para qué sirve:</strong> resuelve el problema de las <strong>agregaciones en dos niveles</strong>. SQL no permite anidar funciones de agregación (<code>AVG(SUM(x))</code> es un error); la única salida es agrupar en la derivada y volver a agregar afuera.</li>
+                        <li><strong>El alias es obligatorio:</strong> toda tabla derivada debe tener nombre. Si lo omitís, MySQL corta con <code>Error 1248: Every derived table must have its own alias</code>.</li>
+                        <li><strong>No es correlacionable (en general):</strong> a diferencia de las del <code>WHERE</code>, una derivada clásica no puede referenciar columnas de la consulta externa; se materializa una sola vez, antes.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la hoja borrador. Para sacar el promedio de gastos mensuales del año primero anotás en un papel aparte el total de cada mes, y recién con esa lista de 12 números calculás el promedio. La tabla derivada es ese papel aparte, que existe solo mientras dura el cálculo.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Error 1248 garantizado:</strong> escribí a propósito una derivada sin alias y guardá el mensaje. Es el error más frecuente de este bloque y reconocerlo de inmediato ahorra minutos en el parcial.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <h3>Órdenes que recaudaron más de $50.000</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Construí una tabla derivada que calcule el total pagado por cada orden (sumando <code>orden_servicio_pago</code> agrupado por <code>nro_orden</code>) y desde la consulta externa mostrá solo las órdenes cuyo total supere los $50.000.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <h3>El promedio de dos niveles</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Resolvé el pedido de Martín: el promedio de lo cobrado <strong>por orden</strong>. Antes de escribirlo, calculá a mano el resultado correcto y también el resultado equivocado que daría un <code>AVG(monto)</code> directo sobre la tabla de pagos. Explicá en un comentario por qué difieren.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-4-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.3</span>
+                        <h3>El tipo de equipo más frecuente</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Averiguá qué <code>tipo</code> de equipo es el que más veces aparece en la tabla <code>equipo</code>, mostrando el tipo y la cantidad. Resolvelo <strong>sin usar <code>ORDER BY ... LIMIT 1</code></strong>: necesitás una derivada que cuente por tipo y otra que obtenga el máximo de esos conteos.</p>
+                        <p style="font-size: 0.88rem; color: var(--text-muted);"><em>¿Por qué prohibimos el LIMIT? Porque si hubiera un empate en el primer puesto, el LIMIT 1 oculta uno de los dos ganadores. La versión con subconsulta los muestra a ambos.</em></p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-4-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 5: SUBCONSULTA EN EL HAVING -->
+        <section class="block-card block-having" id="enhaving">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>Subconsulta en el HAVING</h2>
+                    <p>Filtrar grupos comparándolos contra un valor calculado de toda la tabla</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"En el balance quiero ver solamente los métodos de pago que están por encima del promedio, no la lista completa. Y algo parecido con los problemas: cuáles se repiten más que el promedio de repetición, porque esos son los que me conviene tener siempre con repuesto en stock."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Sustento Teórico: comparar el grupo contra el todo
+                    </h4>
+                    <ul>
+                        <li><strong>Por qué va en el HAVING y no en el WHERE:</strong> recordá el orden de ejecución del Taller 2. El <code>WHERE</code> actúa antes de agrupar y no conoce el resultado de las funciones de agregación; el <code>HAVING</code> actúa después y sí puede compararlas.</li>
+                        <li><strong>El patrón típico:</strong> <code>HAVING SUM(x) &gt; (SELECT AVG(x) FROM tabla)</code>. La subconsulta calcula una referencia global una sola vez, y cada grupo se mide contra ella.</li>
+                        <li><strong>Doble nivel:</strong> cuando la referencia global es a su vez una agregación de agregaciones ("el promedio de los totales por grupo"), la subconsulta del <code>HAVING</code> necesita adentro una tabla derivada. Es la combinación de este bloque con el anterior.</li>
+                        <li><strong>Precisión conceptual:</strong> "el promedio de los pagos individuales" y "el promedio de los totales por método" son cantidades distintas. Coinciden solo si cada grupo tiene exactamente una fila. Elegir mal cuál calcular es un error de interpretación, no de sintaxis, y por eso es difícil de detectar.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es el boletín que muestra solo las materias en las que estás por encima del promedio del curso. Cada materia (grupo) se compara contra un número que resume a todos.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-5-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.1</span>
+                        <h3>Métodos de pago por encima del promedio</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá el <code>id_metodo_pago</code> y la suma recaudada por cada uno, filtrando para que aparezcan solo aquellos cuya suma supere el promedio de los montos de pago de toda la tabla. Usá una subconsulta escalar en el <code>HAVING</code>.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-5-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-5-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.2</span>
+                        <h3>Problemas más recurrentes que el promedio</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Sobre <code>orden_servicio_has_equipo</code>, mostrá cada <code>id_problema</code> con la cantidad de veces que aparece, dejando solo los que superen el <strong>promedio de apariciones por problema</strong>. Este reto exige una tabla derivada dentro de la subconsulta del <code>HAVING</code>: primero contás por problema, después promediás esos conteos.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-5-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 6: SUBCONSULTA DE FILA -->
+        <section class="block-card block-row" id="defila">
+            <div class="block-header">
+                <div class="block-num">06</div>
+                <div class="block-title">
+                    <h2>Subconsultas de fila</h2>
+                    <p>Comparar varias columnas a la vez con constructores de fila</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Quiero saber si tengo equipos «gemelos»: mismo tipo y misma marca que el iPhone que está en el mostrador. No me sirve buscar solo por marca ni solo por tipo, tienen que coincidir las dos cosas juntas."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="8" rx="1"/><path d="M9 8v8M15 8v8"/></svg>
+                        Sustento Teórico: el constructor de fila
+                    </h4>
+                    <ul>
+                        <li><strong>Definición:</strong> la sintaxis <code>(col_a, col_b)</code> agrupa varias columnas en un único valor compuesto llamado <em>constructor de fila</em>. Se lo puede comparar con otro constructor de la misma cantidad de columnas.</li>
+                        <li><strong>Con <code>=</code>:</strong> <code>WHERE (a, b) = (SELECT x, y FROM t WHERE ...)</code> es verdadero solo si <strong>ambas</strong> comparaciones lo son. La subconsulta debe devolver exactamente una fila.</li>
+                        <li><strong>Con <code>IN</code>:</strong> <code>WHERE (a, b) IN (SELECT x, y FROM t)</code> permite verificar pertenencia de <strong>pares</strong> a un conjunto de pares. Es la forma natural de trabajar con claves primarias compuestas, como las de <code>orden_servicio_pago</code> o <code>problema_has_repuesto</code>.</li>
+                        <li><strong>Por qué importa acá:</strong> el esquema de "El Chip" tiene tres tablas con PK compuesta. Sin constructores de fila, verificar la pertenencia de una clave compuesta obliga a escribir condiciones encadenadas mucho más largas y propensas a error.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> buscar a alguien por "apellido y nombre" en vez de por apellido solo. Comparás dos datos como si fueran uno, porque por separado no identifican a nadie.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-6-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.1</span>
+                        <h3>Equipos gemelos (tipo + marca)</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Buscá los equipos cuyo par <code>(tipo, id_marca)</code> sea igual al del equipo con <code>nro_serie = 'IPH13-112233'</code>. Escribilo con un constructor de fila y un <code>=</code>. Después agregá una condición que excluya al propio equipo de referencia e interpretá el resultado.</p>
+                        <div class="helper-box">
+                            <h5>Sintaxis del constructor de fila</h5>
+                            <pre><code><span class="sql-keyword">WHERE</span> (tipo, id_marca) = (
+    <span class="sql-keyword">SELECT</span> tipo, id_marca <span class="sql-keyword">FROM</span> equipo
+    <span class="sql-keyword">WHERE</span> nro_serie = <span class="sql-string">'...'</span>
+)</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-6-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-6-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 6.2</span>
+                        <h3>Pertenencia de una clave compuesta</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>La PK de <code>orden_servicio_pago</code> es el par <code>(nro_orden, id_metodo_pago)</code>. Traé todos los pagos cuyo par de clave esté dentro del conjunto de pares correspondientes a pagos mayores a $30.000. Usá <code>IN</code> con dos columnas.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-6-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 7: NOT IN vs NOT EXISTS -->
+        <section class="block-card block-null" id="nulls">
+            <div class="block-header">
+                <div class="block-num">07</div>
+                <div class="block-title">
+                    <h2>El duelo: NOT IN contra NOT EXISTS</h2>
+                    <p>La diferencia que no es de estilo sino de resultado</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Chicos, esto me pasó de verdad. Pedí el listado de clientes sin órdenes para mandarles la promoción, y el sistema me devolvió una hoja en blanco. Pero yo sé que tengo clientes que nunca vinieron a reparar nada. ¿Se rompió la base?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <p>Este bloque es el más importante del compendio. <code>IN</code> y <code>EXISTS</code> son intercambiables en su forma afirmativa: dan siempre el mismo resultado y elegir entre uno y otro es cuestión de gusto. <strong>Sus negaciones no son intercambiables.</strong> Ante un solo <code>NULL</code> en el conjunto, <code>NOT IN</code> devuelve vacío y <code>NOT EXISTS</code> devuelve la respuesta correcta.</p>
+
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        Sustento Teórico: por qué el NULL rompe el NOT IN
+                    </h4>
+                    <ul>
+                        <li><strong>La expansión del NOT IN:</strong> <code>x NOT IN (1, 2, NULL)</code> el motor lo evalúa como <code>x &lt;&gt; 1 AND x &lt;&gt; 2 AND x &lt;&gt; NULL</code>. Ese último término nunca vale TRUE: vale <code>UNKNOWN</code>, porque en la lógica trivalente de SQL nada se puede comparar contra lo desconocido.</li>
+                        <li><strong>La consecuencia:</strong> <code>TRUE AND UNKNOWN</code> da <code>UNKNOWN</code>, y el <code>WHERE</code> solo deja pasar lo que es estrictamente <code>TRUE</code>. Por eso <strong>ninguna</strong> fila califica y el resultado es vacío. Nótese que tampoco es un error: la consulta "funciona".</li>
+                        <li><strong>Por qué NOT EXISTS no sufre esto:</strong> <code>EXISTS</code> no compara valores, <strong>cuenta filas</strong>. Solo pregunta si el conjunto interno tiene o no tiene registros, y esa pregunta siempre tiene respuesta TRUE o FALSE, nunca UNKNOWN. Una fila con NULL adentro simplemente no coincide con la correlación y no aporta al conteo.</li>
+                        <li><strong>Regla profesional:</strong> ante la duda, en negativo usá siempre <code>NOT EXISTS</code>. Si necesitás <code>NOT IN</code> sí o sí, blindá la subconsulta con <code>WHERE columna IS NOT NULL</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> el portero del boliche tiene la lista de invitados, pero un renglón está borroneado y no se lee. Con la lógica del <code>NOT IN</code>, el portero no puede afirmar que <em>vos no estás en la lista</em>, porque el renglón ilegible podría ser tu nombre: en la duda, no entra nadie. Con la lógica del <code>NOT EXISTS</code>, la pregunta cambia a "¿figura tu nombre escrito en algún renglón legible?", y a eso siempre se puede contestar sí o no.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Nota importante sobre el esquema de "El Chip":</strong> en esta base, <code>orden_servicio.id_cliente</code> está declarado <code>INT NOT NULL</code> con clave foránea. Eso significa que <strong>no es posible</strong> insertar una orden con cliente nulo para reproducir el problema: MySQL rechaza el INSERT con <code>Error 1048</code>. Por eso los retos de abajo simulan el escenario de dos maneras que sí funcionan: con una lista literal y con un <code>UNION ALL</code> que inyecta el nulo dentro de la subconsulta.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-7-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 7.1</span>
+                        <h3>Mismo resultado por dos caminos</h3>
+                        <span class="nivel">Básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí <strong>dos</strong> consultas que devuelvan los clientes que tienen al menos una orden: una con <code>IN</code> y otra con <code>EXISTS</code>. Verificá que devuelvan lo mismo. Esta es la parte fácil: en afirmativo, son equivalentes.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-7-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-7-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 7.2</span>
+                        <h3>Provocar la hoja en blanco</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ejecutá estas dos consultas, una después de la otra, y anotá cuántas filas devuelve cada una. Después explicá la diferencia usando la expansión lógica del <code>NOT IN</code>.</p>
+                        <div class="helper-box">
+                            <h5>El experimento</h5>
+                            <pre><code><span class="sql-comment">-- (a) Sin NULL en la lista</span>
+<span class="sql-keyword">SELECT</span> apellido, nombre <span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">WHERE</span> id_cliente <span class="sql-keyword">NOT IN</span> (<span class="sql-number">1</span>, <span class="sql-number">2</span>);
+
+<span class="sql-comment">-- (b) Con un solo NULL agregado</span>
+<span class="sql-keyword">SELECT</span> apellido, nombre <span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">WHERE</span> id_cliente <span class="sql-keyword">NOT IN</span> (<span class="sql-number">1</span>, <span class="sql-number">2</span>, <span class="sql-keyword">NULL</span>);</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-7-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-7-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 7.3</span>
+                        <h3>El caso real, simulado sin romper el esquema</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Simulá la existencia de una "orden huérfana" agregando <code>UNION ALL SELECT NULL</code> dentro de la subconsulta, y resolvé el pedido de Martín (clientes sin ninguna orden) de <strong>tres</strong> formas sobre ese mismo conjunto contaminado:</p>
+                        <p>a) con <code>NOT IN</code> sin protección — b) con <code>NOT IN</code> agregando <code>IS NOT NULL</code> — c) con <code>NOT EXISTS</code>.</p>
+                        <p>Compará las tres cantidades de filas y sacá la conclusión.</p>
+                        <div class="helper-box">
+                            <h5>Cómo inyectar el nulo</h5>
+                            <pre><code>(<span class="sql-keyword">SELECT</span> id_cliente <span class="sql-keyword">FROM</span> orden_servicio
+ <span class="sql-keyword">UNION ALL</span>
+ <span class="sql-keyword">SELECT</span> <span class="sql-keyword">NULL</span>)</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-7-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 8: SUBCONSULTAS EN DML -->
+        <section class="block-card block-dml" id="dml">
+            <div class="block-header">
+                <div class="block-num">08</div>
+                <div class="block-title">
+                    <h2>Subconsultas que modifican datos</h2>
+                    <p>INSERT, UPDATE y DELETE gobernados por un SELECT</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Necesito tres cosas del sistema, no solo consultas: armar una tabla con los clientes que no tienen ni teléfono ni mail para salir a buscarlos, aplicar un aumento a los repuestos que realmente usamos en reparaciones, y limpiar las marcas que cargamos de más y nunca usamos."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                        Sustento Teórico: la subconsulta fuera del SELECT
+                    </h4>
+                    <ul>
+                        <li><strong><code>INSERT ... SELECT</code>:</strong> en lugar de la cláusula <code>VALUES</code>, se alimenta la inserción con el resultado de una consulta. Las columnas deben coincidir en cantidad y ser compatibles en tipo, <em>en el mismo orden</em>. Es la forma estándar de poblar tablas de auditoría, backups e históricos.</li>
+                        <li><strong><code>UPDATE</code> con subconsulta:</strong> la subconsulta puede aparecer en el <code>WHERE</code> (para decidir <em>qué filas</em> se actualizan) o en el <code>SET</code> (para calcular <em>con qué valor</em>).</li>
+                        <li><strong><code>DELETE</code> con subconsulta:</strong> mismo criterio. Con <code>NOT EXISTS</code> se implementa el borrado de registros huérfanos o sin uso.</li>
+                        <li><strong>Disciplina obligatoria:</strong> todo DML con subconsulta se escribe <strong>primero como <code>SELECT</code></strong> para ver qué filas afecta. Recién cuando el listado es el correcto se lo convierte en <code>UPDATE</code> o <code>DELETE</code>. Y siempre dentro de una transacción con posibilidad de <code>ROLLBACK</code>.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la diferencia entre leer la lista de alumnos desaprobados y borrarlos del sistema. La consulta es la misma; lo que cambia es que la segunda operación no tiene "Deshacer" si el criterio estaba mal.
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Error 1093 — You can't specify target table 'X' for update in FROM clause:</strong> MySQL <strong>prohíbe</strong> que un <code>UPDATE</code> o <code>DELETE</code> lea, en su subconsulta, la misma tabla que está modificando. Es una restricción propia de MySQL que otros motores no tienen. El truco para esquivarla es envolver la subconsulta en una tabla derivada, lo que fuerza a MySQL a materializar el resultado antes de empezar a escribir. Es un caso de examen frecuentísimo.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-8-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 8.1</span>
+                        <h3>Tabla de campaña con INSERT ... SELECT</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Creá una tabla <code>campania_contacto</code> con las columnas <code>id_cliente</code>, <code>apellido</code> y <code>nombre</code>. Después, con un <code>INSERT ... SELECT</code>, cargá en ella los clientes que <strong>no tengan ni teléfono ni email</strong> registrados. Usá dos <code>NOT EXISTS</code>.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-8-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-8-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 8.2</span>
+                        <h3>Aumento selectivo y el Error 1093</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Primera parte: aplicá un aumento del 10% al <code>precio_unitario</code> de los repuestos que aparezcan en <code>problema_has_repuesto</code> (es decir, los que realmente se usan). Verificá con un <code>SELECT</code> previo cuáles son.</p>
+                        <p>Segunda parte: intentá aplicar un descuento del 10% <strong>al repuesto más caro</strong>, escribiendo la subconsulta <code>(SELECT MAX(precio_unitario) FROM repuesto)</code> dentro del <code>WHERE</code> del propio <code>UPDATE</code>. Anotá el error que devuelve MySQL y después resolvelo envolviendo la subconsulta en una tabla derivada.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-8-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-8-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 8.3</span>
+                        <h3>Limpieza de marcas sin uso</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Borrá de la tabla <code>marca</code> aquellas marcas para las que no exista ningún equipo asociado. Ejecutá todo dentro de una transacción: <code>START TRANSACTION</code>, el <code>SELECT</code> de verificación, el <code>DELETE</code>, el <code>SELECT</code> de control y finalmente <code>ROLLBACK</code> para dejar la base como estaba.</p>
+                        <p style="font-size: 0.88rem; color: var(--text-muted);"><em>Pregunta para pensar: si intentaras borrar una marca que sí tiene equipos, ¿qué te lo impediría? Fijate en el DER.</em></p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-8-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 9: CTE -->
+        <section class="block-card block-cte" id="cte">
+            <div class="block-header">
+                <div class="block-num">09</div>
+                <div class="block-title">
+                    <h2>CTE: la subconsulta con nombre (WITH)</h2>
+                    <p>La forma moderna de escribir lo mismo, pero legible</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Miren, yo de SQL no sé nada, pero la consulta del promedio por orden que me mostraron tiene paréntesis adentro de paréntesis adentro de paréntesis. Si el día de mañana se van ustedes y viene otro, ¿alguien va a entender eso?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+                        Sustento Teórico: Common Table Expressions
+                    </h4>
+                    <ul>
+                        <li><strong>Qué es:</strong> una <code>CTE</code> (Common Table Expression) es una tabla derivada a la que le ponemos <strong>nombre por adelantado</strong>, con la cláusula <code>WITH</code>, antes del <code>SELECT</code> principal. Disponible desde <strong>MySQL 8.0</strong>.</li>
+                        <li><strong>Qué cambia y qué no:</strong> el resultado y el plan de ejecución son equivalentes a los de la tabla derivada. Lo que cambia es la <strong>legibilidad</strong>: la consulta se lee de arriba hacia abajo, como pasos numerados, en lugar de desde adentro hacia afuera.</li>
+                        <li><strong>Encadenamiento:</strong> se pueden definir varias CTE separadas por coma, y cada una puede usar a las anteriores. Eso permite descomponer un cálculo complejo en pasos con nombres significativos.</li>
+                        <li><strong>Reutilización:</strong> a diferencia de una derivada, una CTE puede referenciarse <strong>más de una vez</strong> en la misma consulta sin tener que repetir su código.</li>
+                        <li><strong>Bonus:</strong> con <code>WITH RECURSIVE</code> se resuelven estructuras jerárquicas (árboles de categorías, organigramas). Queda fuera del alcance de este taller, pero conviene saber que existe.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> es la diferencia entre resolver una ecuación larga en un solo renglón, o definir primero "sea <em>x</em> el total mensual" y después trabajar con <em>x</em>. El resultado es idéntico; la segunda forma es la que se puede corregir sin volverse loco.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-9-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 9.1</span>
+                        <h3>Traducir una derivada a CTE</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Reescribí tu solución del <strong>Reto 4.1</strong> (órdenes que recaudaron más de $50.000) usando <code>WITH</code>. Poné las dos versiones una al lado de la otra y decidí cuál le mostrarías a Martín.</p>
+                        <div class="helper-box">
+                            <h5>Estructura de una CTE</h5>
+                            <pre><code><span class="sql-keyword">WITH</span> nombre_del_paso <span class="sql-keyword">AS</span> (
+    <span class="sql-keyword">SELECT</span> ...
+)
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> nombre_del_paso <span class="sql-keyword">WHERE</span> ...;</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-9-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-9-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 9.2</span>
+                        <h3>Dos CTE encadenadas</h3>
+                        <span class="nivel">Avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Resolvé de nuevo el <strong>Reto 4.2</strong> (promedio por orden) pero ahora con <strong>dos</strong> CTE encadenadas: la primera que calcule el total por orden, la segunda que calcule el promedio de esos totales. Mostrá las órdenes que estén por encima de ese promedio, junto con el valor del promedio en una columna.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-9-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 10: DESAFÍOS -->
+        <section class="block-card block-challenge" id="desafios">
+            <div class="block-header">
+                <div class="block-num">10</div>
+                <div class="block-title">
+                    <h2>Desafíos de integración</h2>
+                    <p>Anidamiento profundo y cuantificación universal</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Última y me callo. Quiero saber qué clientes pagaron usando <em>todos</em> los métodos de pago que se usaron en la orden número 1. Es para un análisis de perfil de pago que me pidió el contador. Y de paso, decime de qué marca era el equipo de la orden más cara que hicimos."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>
+                        Sustento Teórico: la división relacional
+                    </h4>
+                    <ul>
+                        <li><strong>El problema del "TODOS":</strong> SQL tiene operadores para "existe alguno" (<code>EXISTS</code>, <code>IN</code>, <code>ANY</code>) pero <strong>no tiene</strong> un operador para "para todos". Esa operación se llama <em>división relacional</em> en el álgebra de Codd.</li>
+                        <li><strong>La traducción lógica:</strong> "X cumple para todos los elementos de S" se reescribe como <strong>"no existe ningún elemento de S para el cual X no cumpla"</strong>. Esa doble negación es exactamente un <code>NOT EXISTS</code> conteniendo otro <code>NOT EXISTS</code>.</li>
+                        <li><strong>La trampa del conjunto vacío:</strong> si el conjunto S resulta vacío, la condición se cumple <em>vacuamente</em> para todas las filas y la consulta devuelve todo. Matemáticamente es correcto y lógicamente sorprendente; hay que tenerlo presente al interpretar resultados.</li>
+                        <li><strong>Anidamiento profundo:</strong> cuando cada dato depende del anterior, las subconsultas escalares se encadenan como capas de cebolla. Se leen y se depuran <strong>siempre de adentro hacia afuera</strong>, ejecutando cada nivel por separado.</li>
+                    </ul>
+                </div>
+
+                <div class="analogia">
+                    <strong>Analogía cotidiana:</strong> demostrar que un alumno "aprobó todas las materias" es incómodo de verificar directamente. Es más fácil buscar <em>una sola materia desaprobada</em>: si no encontrás ninguna, aprobó todas. Esa inversión es precisamente el doble <code>NOT EXISTS</code>.
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-10-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 10.1</span>
+                        <h3>La marca de la orden más cara (anidamiento en cebolla)</h3>
+                        <span class="nivel">Intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Traé el <code>nombre</code> de la marca del equipo que ingresó en la orden de mayor <code>total</code>. Son cuatro niveles de anidamiento: orden con el total máximo → equipo de esa orden → marca de ese equipo → nombre de la marca. Resolvelo <strong>ejecutando y verificando cada nivel por separado</strong> antes de ensamblarlo.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-10-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-10-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 10.2</span>
+                        <h3>División relacional: clientes que usaron todos los métodos de la orden 1</h3>
+                        <span class="nivel">Experto</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los clientes que hayan pagado con <strong>todos</strong> los métodos de pago que se usaron en la orden número 1. Un cliente califica solo si no queda ningún método de esa lista que él no haya usado alguna vez.</p>
+                        <div class="helper-box">
+                            <h5>El patrón de la doble negación</h5>
+                            <pre><code><span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> cliente c
+<span class="sql-keyword">WHERE NOT EXISTS</span> (
+    <span class="sql-comment">-- los métodos que hay que cubrir (los de la orden 1)</span>
+    <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> ... p1 <span class="sql-keyword">WHERE</span> p1.nro_orden = <span class="sql-number">1</span>
+    <span class="sql-keyword">AND NOT EXISTS</span> (
+        <span class="sql-comment">-- ...que este cliente haya usado alguna vez</span>
+        <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> ... <span class="sql-keyword">WHERE</span> ...
+    )
+);</code></pre>
+                        </div>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-10-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-10-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 10.3</span>
+                        <h3>Elegir la herramienta correcta</h3>
+                        <span class="nivel">Experto</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Para cada una de estas cuatro necesidades, indicá <strong>qué forma de subconsulta</strong> usarías y por qué. No hace falta que las escribas todas: se evalúa el criterio.</p>
+                        <p>a) Mostrar el listado de repuestos con el porcentaje que representa cada uno sobre el valor total del stock.<br>
+                        b) Saber si existe algún equipo Sony en el taller (respuesta sí/no, sin traer datos).<br>
+                        c) Obtener el segundo problema más caro en mano de obra.<br>
+                        d) Detectar clientes cargados dos veces con el mismo apellido y nombre.</p>
+                    
+                        <a class="salto-nav" href="compendio-subconsultas-resoluciones.html#reto-10-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-subconsultas-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller de subconsultas</strong>
+            </a>
+            <a class="pag-sig" href="taller-vistas-procedimientos-triggers-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Vistas, procedimientos y triggers</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Compendio de la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="compendio-subconsultas-resoluciones.html">Resoluciones</a> · Volver al <a href="taller-subconsultas-consignas.html">Taller 1</a>.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL: definición de datos · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 22</span>
+            <h1>SQL: definición de datos</h1>
+            <p>CREATE, ALTER y DROP</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">SQL: definición de datos</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#conjuntos-funcionales-del-lenguaje-sql">Conjuntos funcionales del lenguaje SQL</a></li>
+                <li><a href="#ddl-lenguaje-de-definicion-de-datos">DDL — Lenguaje de Definición de Datos:</a></li>
+                <li><a href="#dml-lenguaje-de-manipulacion-de-datos">DML — Lenguaje de Manipulación de Datos:</a></li>
+                <li><a href="#dql-lenguaje-de-consulta-de-datos">DQL — Lenguaje de Consulta de Datos:</a></li>
+                <li><a href="#dcl-lenguaje-de-control-de-datos">DCL — Lenguaje de Control de Datos:</a></li>
+                <li><a href="#tcl-lenguaje-de-control-de-transacciones">TCL — Lenguaje de Control de Transacciones:</a></li>
+                <li><a href="#un-ejemplo">Un Ejemplo</a></li>
+                <li><a href="#presentacion-del-problema-sin-normalizacion">Presentación del problema Sin normalización</a></li>
+                <li><a href="#trabajemos-normalizando">¡¡¡Trabajemos!!! Normalizando…</a></li>
+                <li><a href="#crear-la-tabla-de-tipo-de-equipo">Crear la tabla de tipo de equipo</a></li>
+                <li><a href="#poblar-la-tabla-equipotipo">Poblar la tabla equipotipo</a></li>
+                <li><a href="#modificar-la-tabla-equipo">Modificar la tabla equipo</a></li>
+                <li><a href="#migrar-los-datos-el-match">Migrar los datos (El "Match")</a></li>
+                <li><a href="#establecer-la-restriccion-de-integridad-referencia">Establecer la restricción de Integridad Referencial</a></li>
+                <li><a href="#limpieza-final">Limpieza final</a></li>
+                <li><a href="#diapositiva-16">Diapositiva 16</a></li>
+            </ol>
+        </nav>
+
+
+        <div class="diapositivas">
+            <section class="diapositiva" id="conjuntos-funcionales-del-lenguaje-sql">
+              <div class="diapo-num">01</div>
+              <h2>Conjuntos funcionales del lenguaje SQL</h2>
+              <ul>
+                <li><strong>DDL</strong></li>
+                <li style="margin-left:1em">Data Definition Language - Lenguaje de Definición de Datos</li>
+                <li style="margin-left:1em">Estructura</li>
+                <li><strong>DML</strong></li>
+                <li style="margin-left:1em">Data Manipulation Language - Lenguaje de Manipulación de Datos</li>
+                <li style="margin-left:1em">Datos</li>
+                <li><strong>DQL</strong></li>
+                <li style="margin-left:1em">Data Query Language - Lenguaje de Consulta de Datos</li>
+                <li style="margin-left:1em">Consultas</li>
+                <li><strong>DCL</strong></li>
+                <li style="margin-left:1em">Data Control Language - Lenguaje de Control de Datos</li>
+                <li style="margin-left:1em">Permisos</li>
+                <li><strong>TCL</strong></li>
+                <li style="margin-left:1em">Transaction Control Language - Lenguaje de Control de Transacciones</li>
+                <li style="margin-left:1em">Transacciones</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="ddl-lenguaje-de-definicion-de-datos">
+              <div class="diapo-num">02</div>
+              <h2>DDL — Lenguaje de Definición de Datos:</h2>
+              <ul>
+                <li><em>Define, modifica o elimina la estructura de los objetos de la base de datos (tablas, índices, usuarios).</em></li>
+                <li>Comandos:</li>
+                <li>CREATE (crear)</li>
+                <li>ALTER (modificar)</li>
+                <li>DROP (eliminar)</li>
+                <li>TRUNCATE (vaciar tabla)</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dml-lenguaje-de-manipulacion-de-datos">
+              <div class="diapo-num">03</div>
+              <h2>DML — Lenguaje de Manipulación de Datos:</h2>
+              <ul>
+                <li><em>Gestiona los datos dentro de las tablas existentes, permitiendo insertar, actualizar o eliminar registros.</em></li>
+                <li>Comandos:</li>
+                <li>INSERT (insertar)</li>
+                <li>UPDATE (actualizar)</li>
+                <li>DELETE (borrar)</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dql-lenguaje-de-consulta-de-datos">
+              <div class="diapo-num">04</div>
+              <h2>DQL — Lenguaje de Consulta de Datos:</h2>
+              <ul>
+                <li><em>Utilizado exclusivamente para realizar consultas y recuperar datos específicos de la base de datos.</em></li>
+                <li>Comandos:</li>
+                <li>SELECT (seleccionar datos)</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="dcl-lenguaje-de-control-de-datos">
+              <div class="diapo-num">05</div>
+              <h2>DCL — Lenguaje de Control de Datos:</h2>
+              <ul>
+                <li><em>Gestiona la seguridad y los permisos de acceso a los datos.</em></li>
+                <li>Comandos:</li>
+                <li>GRANT (otorgar permisos)</li>
+                <li>REVOKE (quitar permisos)</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="tcl-lenguaje-de-control-de-transacciones">
+              <div class="diapo-num">06</div>
+              <h2>TCL — Lenguaje de Control de Transacciones:</h2>
+              <ul>
+                <li><em>Gestiona  los cambios realizados por las sentencias DML para garantizar la integridad de los datos.</em></li>
+                <li>Comandos:</li>
+                <li>COMMIT (confirmar cambios)</li>
+                <li>ROLLBACK (revertir cambios)</li>
+                <li>SAVEPOINT (punto de guardado)</li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="un-ejemplo">
+              <div class="diapo-num">07</div>
+              <h2>Un Ejemplo</h2>
+            
+            </section>
+            
+            <section class="diapositiva" id="presentacion-del-problema-sin-normalizacion">
+              <div class="diapo-num">08</div>
+              <h2>Presentación del problema Sin normalización</h2>
+              <p><em>En el diseño, el nombre del tipo (</em><em>ej</em><em>: "Celular") está en la tabla equipo.</em></p>
+              <p><em>¿No sería óptimo crear la tabla </em><em>equipotipo</em><em>?</em></p>
+              <p><em>Que pasa si mañana quisiéramos ...</em></p>
+              <figure><img src="../../assets/img/sql-01.png" alt=""></figure>
+            </section>
+            
+            <section class="diapositiva" id="trabajemos-normalizando">
+              <div class="diapo-num">09</div>
+              <h2>¡¡¡Trabajemos!!! Normalizando…</h2>
+              <ul>
+                <li><strong>Pasar de un atributo simple a una tabla maestra.</strong></li>
+                <li><em>Para realizar esta normalización, la secuencia lógica es:</em></li>
+              </ul>
+              <p>1ero - Crear la tabla</p>
+              <p>4to - Limpiar la tabla inicial</p>
+              <p>2do - Migrar los datos</p>
+              <p>3ero - Vincular los registros (PK &lt;-&gt; FK)</p>
+            </section>
+            
+            <section class="diapositiva" id="crear-la-tabla-de-tipo-de-equipo">
+              <div class="diapo-num">10</div>
+              <h2>Crear la tabla de tipo de equipo</h2>
+              <ul>
+                <li><em>CREATE TABLE IF NOT EXISTS `el_chip`.`</em><em>equipotipo</em><em>` (</em></li>
+                <li><em>   `</em><em>id_equipotipo</em><em>` INT NOT NULL AUTO_INCREMENT,</em></li>
+                <li><em>   `nombre` VARCHAR(50) NOT NULL,</em></li>
+                <li><em>   PRIMARY KEY (`</em><em>id_equipotipo</em><em>`),</em></li>
+                <li><em>   UNIQUE INDEX `</em><em>nombre_UNIQUE</em><em>` (`nombre` ASC)</em></li>
+                <li><em>) ENGINE = </em><em>InnoDB</em><em>;</em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="poblar-la-tabla-equipotipo">
+              <div class="diapo-num">11</div>
+              <h2>Poblar la tabla equipotipo</h2>
+              <ul>
+                <li><em>INSERT INTO `el_chip`.`</em><em>equipotipo</em><em>` (nombre)</em></li>
+                <li><em>   SELECT DISTINCT tipo FROM `</em><em>el_chip`.`equipo</em><em>`;</em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="modificar-la-tabla-equipo">
+              <div class="diapo-num">12</div>
+              <h2>Modificar la tabla equipo</h2>
+              <ul>
+                <li><em>ALTER TABLE `</em><em>el_chip`.`equipo</em><em>`</em></li>
+                <li><em>   ADD COLUMN `</em><em>id_equipotipo</em><em>` INT NULL AFTER `</em><em>id_equipo</em><em>`;</em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="migrar-los-datos-el-match">
+              <div class="diapo-num">13</div>
+              <h2>Migrar los datos (El "Match")</h2>
+              <ul>
+                <li><em>UPDATE `</em><em>el_chip`.`equipo</em><em>` e</em></li>
+                <li><em>   JOIN `el_chip`.`</em><em>equipotipo</em><em>` et ON </em><em>e.tipo</em><em> = </em><em>et.nombre</em></li>
+                <li><em>   SET </em><em>e.id_equipotipo</em><em> = </em><em>et.id_equipotipo</em><em>;</em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="establecer-la-restriccion-de-integridad-referencia">
+              <div class="diapo-num">14</div>
+              <h2>Establecer la restricción de Integridad Referencial</h2>
+              <ul>
+                <li><em> ALTER TABLE `</em><em>el_chip`.`equipo</em><em>`</em></li>
+                <li><em>   MODIFY COLUMN `</em><em>id_equipotipo</em><em>` INT NOT NULL,</em></li>
+                <li><em>   ADD CONSTRAINT `</em><em>fk_equipo_equipotipo</em><em>`</em></li>
+                <li><em>      FOREIGN KEY (`</em><em>id_equipotipo</em><em>`)</em></li>
+                <li><em>      REFERENCES `el_chip`.`</em><em>equipotipo</em><em>` (`</em><em>id_equipotipo</em><em>`)</em></li>
+                <li><em>      ON DELETE NO ACTION</em></li>
+                <li><em>      ON UPDATE NO ACTION;</em></li>
+              </ul>
+            </section>
+            
+            <section class="diapositiva" id="limpieza-final">
+              <div class="diapo-num">15</div>
+              <h2>Limpieza final</h2>
+              <p><em> ALTER TABLE `</em><em>el_chip`.`equipo</em><em>` DROP COLUMN `tipo`;</em></p>
+            </section>
+            
+            <section class="diapositiva" id="diapositiva-16">
+              <div class="diapo-num">16</div>
+              <h2>Diapositiva 16</h2>
+              <p><em> </em></p>
+            </section>
+        </div>
+
+        <div class="descargas">
+            <h4>Descargar la presentación</h4>
+            <a href="../../descargas/sql.pptx" class="salto-nav">PPTX</a>
+        </div>
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="../03-calidad/normalizacion.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Normalización</strong>
+            </a>
+            <a class="pag-sig" href="sql-practica.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Práctica de SQL</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · 16 diapositivas</p>
+    </footer>
+
+</body>
+</html>
