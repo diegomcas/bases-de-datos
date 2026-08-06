@@ -174,7 +174,7 @@
                             </tbody>
                         </table>
                         <p class="explanation-text">
-                            <strong>Explicación:</strong> el motor concibe 15 combinaciones (3 órdenes × 5 clientes) y retiene las 3 donde la clave foránea coincide con la primaria. El plan de ejecución (<code>EXPLAIN</code>) es idéntico al del <code>INNER JOIN</code>: mostralo en pantalla si hay tiempo, cierra el argumento de que no es "una versión peor".
+                            <strong>Explicación:</strong> el motor concibe 15 combinaciones (3 órdenes × 5 clientes) y retiene las 3 donde la clave foránea coincide con la primaria. Si hay tiempo, mostrá el plan de ejecución con <code>EXPLAIN</code>: sirve para que vean que el motor no recorre las 15 filas una por una. La comparación con la sintaxis que introdujo SQL-92 conviene guardarla para el bloque 5, donde el taller la trabaja de lleno.
                         </p>
                     </div>
                 </li>
@@ -303,7 +303,7 @@
                             </tbody>
                         </table>
                         <p class="explanation-text">
-                            <strong>Explicación:</strong> 4 tablas → 3 uniones + 1 filtro. Este es el reto que justifica todo SQL-92: las tres primeras condiciones son <em>plomería estructural</em> y la cuarta es <em>una pregunta del negocio</em>, pero sintácticamente son indistinguibles. En la versión con <code>JOIN ... ON</code>, las uniones viven en los <code>ON</code> y el <code>WHERE</code> queda con una sola línea: la que realmente le importa a Martín.
+                            <strong>Explicación:</strong> 4 tablas → 3 uniones + 1 filtro. Este es el reto que prepara el bloque 5: las tres primeras condiciones son <em>plomería estructural</em> y la cuarta es <em>una pregunta del negocio</em>, pero sintácticamente son indistinguibles. Hacé notar esa incomodidad sin resolverla todavía; el cierre del taller muestra qué se inventó para separarlas.
                         </p>
                     </div>
                 </li>
@@ -315,7 +315,7 @@
             <div class="block-header">
                 <div class="block-num">03</div>
                 <div class="block-title">
-                    <h2>Autounión (SELF JOIN) - Resoluciones</h2>
+                    <h2>Autounión - Resoluciones</h2>
                     <p>Dos alias, una sola tabla física</p>
                 </div>
             </div>

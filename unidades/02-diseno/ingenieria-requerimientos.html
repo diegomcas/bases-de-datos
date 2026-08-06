@@ -35,100 +35,282 @@
         <nav class="indice-apunte" aria-label="Contenido">
             <h2>Recorrido</h2>
             <ol>
-                <li><a href="#las-12-reglas-de-codd-en-criollo">Las 12 Reglas de Codd (En criollo)</a></li>
-                <li><a href="#integridad">Integridad</a></li>
-                <li><a href="#el-triangulo-de-la-integridad-para-que-una-base-de">El Triángulo de la Integridad. Para que una base de datos sea confiable, debe cumplir con tres pilares fundamentales:</a></li>
-                <li><a href="#pensemos-un-ratito-auditoria-de-datos-el-chip-roto">Pensemos un ratito: "Auditoría de Datos" (El Chip Roto)</a></li>
+                <li><a href="#ingenieria-de-requerimientos-en-el-contexto-de-las-b">Ingeniería de Requerimientos en el contexto de las Bases de Datos</a></li>
+                <li><a href="#relato-del-cliente-servicio-tecnico-de-dispositivos">Relato del Cliente: Servicio Técnico de Dispositivos</a></li>
+                <li><a href="#comprension-del-problema">Comprensión del problema</a></li>
+                <li><a href="#identificacion-del-dominio">Identificación del dominio</a></li>
+                <li><a href="#requerimientos">Requerimientos</a></li>
+                <li><a href="#requerimientos-2">Requerimientos: el QUÉ y el CÓMO</a></li>
+                <li><a href="#el-verdadero-trabajo-de-analista-1">El verdadero trabajo de analista 1</a></li>
+                <li><a href="#estructurar-el-lenguaje">Estructurar el lenguaje</a></li>
+                <li><a href="#reglas-de-negocio">Reglas de negocio</a></li>
+                <li><a href="#datos-vs-derivaciones">Datos vs Derivaciones</a></li>
+                <li><a href="#acciones-automaticas">Acciones automáticas</a></li>
+                <li><a href="#requerimientos-no-funcionales">Requerimientos no funcionales</a></li>
+                <li><a href="#vamos-a-ordenarnos">Vamos a ordenarnos</a></li>
+                <li><a href="#requerimientos-funcionales">Requerimientos funcionales: clientes, equipos y órdenes</a></li>
+                <li><a href="#requerimientos-funcionales-2">Requerimientos funcionales: problemas, reparaciones y repuestos</a></li>
+                <li><a href="#requerimientos-funcionales-3">Requerimientos funcionales: costos, entregas y stock</a></li>
+                <li><a href="#requerimientos-funcionales-4">Requerimientos funcionales: usuarios, reportes y búsquedas</a></li>
+                <li><a href="#afirmacion-realista">Afirmación realista</a></li>
             </ol>
         </nav>
 
 
         <div class="diapositivas">
-            <section class="diapositiva" id="las-12-reglas-de-codd-en-criollo">
+            <section class="diapositiva" id="ingenieria-de-requerimientos-en-el-contexto-de-las-b">
               <div class="diapo-num">01</div>
-              <h2>Las 12 Reglas de Codd (En criollo)</h2>
-              <ul>
-                <li>0. Regla Fundamental</li>
-                <li>Información</li>
-                <li>Acceso Garantizado</li>
-                <li>Tratamiento del NULL</li>
-                <li>Catálogo en Línea</li>
-                <li>Sublenguaje de Datos</li>
-                <li>Actualización de Vistas</li>
-                <li>Inserción, Actualización y Borrado</li>
-                <li>Independencia Física</li>
-                <li>Independencia Lógica</li>
-                <li>Integridad</li>
-                <li>Distribución</li>
-                <li>No Subversión</li>
-              </ul>
+              <h2>Ingeniería de Requerimientos en el contexto de las Bases de Datos</h2>
             </section>
-            
-            <section class="diapositiva" id="integridad">
+
+            <section class="diapositiva" id="relato-del-cliente-servicio-tecnico-de-dispositivos">
               <div class="diapo-num">02</div>
-              <h2>Integridad</h2>
-            
+              <h2>Relato del Cliente: Servicio Técnico de Dispositivos</h2>
+              <p>Hola, soy Martín y tengo un pequeño negocio de reparación de celulares y tablets
+                 que se llama <em><strong>“El Chip”</strong></em>. Actualmente llevo todo en un cuaderno y en algunas
+                 planillas de Excel, pero cada vez tengo más trabajo y se me hace imposible mantener
+                 el control de todo.</p>
+              <p>Cuando un cliente llega al local, normalmente nos deja un equipo para revisar.
+                 Puede ser un celular, una tablet o a veces hasta un smartwatch. En ese momento
+                 anotamos algunos datos del cliente para poder contactarlo cuando el equipo esté listo.</p>
+              <p>El problema es que muchos clientes ya han venido antes, y terminamos anotando sus
+                 datos varias veces porque no sabemos si ya están registrados.</p>
+              <p>Cada equipo que recibimos puede tener uno o varios problemas. Por ejemplo, puede
+                 venir con la pantalla rota y también con problemas de batería. Nosotros registramos
+                 esos problemas para saber qué hay que reparar…</p>
             </section>
-            
-            <section class="diapositiva" id="el-triangulo-de-la-integridad-para-que-una-base-de">
+
+            <section class="diapositiva" id="comprension-del-problema">
               <div class="diapo-num">03</div>
-              <h2>El Triángulo de la Integridad. Para que una base de datos sea confiable, debe cumplir con tres pilares fundamentales:</h2>
+              <h2>Comprensión del problema</h2>
+              <p>¿Qué está pasando en este negocio?</p>
+            </section>
+
+            <section class="diapositiva" id="identificacion-del-dominio">
+              <div class="diapo-num">04</div>
+              <h2>Identificación del dominio</h2>
+              <p><em><strong>Dominio del problema</strong></em></p>
               <ul>
-                <li>Integridad de Entidad</li>
-                <li>(La Regla de la PK)  </li>
-                <li><em><strong>Regla</strong></em>: Toda tabla debe tener una Clave Primaria (PK).</li>
-                <li><em><strong>Restricción</strong></em>: Ningún valor de la PK puede ser **NULL**.</li>
-                <li><em><strong>¿Por qué?</strong></em>: Si no sé quién es la entidad, no puedo diferenciarla de las demás.</li>
-              </ul>
-              <ul>
-                <li>B. Integridad Referencial<br>(La Regla de la FK)</li>
-                <li><em><strong>Regla</strong></em>: Si existe una Clave Foránea (FK) en una tabla, su valor debe:</li>
-                <li style="margin-left:1em">Coincidir con un valor existente de la PK en la tabla relacionada.</li>
-                <li style="margin-left:1em">O ser **NULL** (si la relación es opcional).</li>
-                <li><em><strong>Estado Prohibido</strong></em>: El "Huérfano".</li>
-                <li>(Ej: Un equipo que pertenece al cliente ID 99, pero el cliente 99 no existe).</li>
-              </ul>
-              <ul>
-                <li>C. Integridad de Dominio</li>
-                <li><em><strong>Regla</strong></em>: Los valores de una columna deben pertenecer a un conjunto definido.</li>
-                <li><em><strong>Ejemplos</strong></em>:</li>
-                <li>Tipo de dato (Entero, Texto, Fecha).</li>
-                <li>Rangos (La edad no puede ser negativa).</li>
-                <li>Opciones (El estado de una orden solo puede ser 'Pendiente', 'En Proceso' o 'Terminado').</li>
+                <li>clientes</li>
+                <li>equipos</li>
+                <li>reparaciones</li>
+                <li>repuestos</li>
+                <li>Etc.</li>
               </ul>
             </section>
-            
-            <section class="diapositiva" id="pensemos-un-ratito-auditoria-de-datos-el-chip-roto">
-              <div class="diapo-num">04</div>
-              <h2>Pensemos un ratito: "Auditoría de Datos" (El Chip Roto)</h2>
+
+            <section class="diapositiva" id="requerimientos">
+              <div class="diapo-num">05</div>
+              <h2>Requerimientos</h2>
+              <p>¿Qué consideran importante del relato si necesitamos construir un sistema?</p>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-2">
+              <div class="diapo-num">06</div>
+              <h2>Requerimientos: el QUÉ y el CÓMO</h2>
               <ul>
-                <li>Caso 1: Violación de Integridad de Entidad (La PK nula)</li>
-                <li>  En este caso, el error es la fila con el ID vacío.</li>
+                <li>¿<em><strong>QUÉ</strong></em> debe hacer el sistema?</li>
+                <li>¿<em><strong>CÓMO</strong></em> debe comportarse?</li>
               </ul>
-              <figure><img src="../../assets/img/ingenieria-requerimientos-01.png" alt=""></figure>
+            </section>
+
+            <section class="diapositiva" id="el-verdadero-trabajo-de-analista-1">
+              <div class="diapo-num">07</div>
+              <h2>El verdadero trabajo de analista 1</h2>
+              <p>Y acá:</p>
               <ul>
-                <li>Caso 2: Violación de Integridad Referencial (El "Huérfano")</li>
-                <li>  Aquí el error es el Cliente 99, que no existe en nuestra base.</li>
+                <li>“datos de contacto”</li>
+                <li>“muchos días”</li>
               </ul>
-              <figure><img src="../../assets/img/ingenieria-requerimientos-02.png" alt=""></figure>
+              <p>¿Qué hacemos?</p>
+            </section>
+
+            <section class="diapositiva" id="estructurar-el-lenguaje">
+              <div class="diapo-num">08</div>
+              <h2>Estructurar el lenguaje</h2>
+              <p>¿Qué podemos entender de esta oración?</p>
+              <p><em><strong>“El cliente deja su equipo”</strong></em></p>
               <ul>
-                <li>Caso 3: Integridad de Dominio (Restricción ENUM)</li>
-                <li>  Tabla: empleado</li>
-                <li>  El rol es un ENUM('Administrador', 'Tecnico’). Cualquier otro valor es una violación de dominio.</li>
+                <li><em><strong>El cliente</strong></em>: Sujeto</li>
+                <li><em><strong>deja</strong></em>: Verbo</li>
+                <li><em><strong>su equipo</strong></em>: Predicado</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="reglas-de-negocio">
+              <div class="diapo-num">09</div>
+              <h2>Reglas de negocio</h2>
+              <p>¿Qué indica la siguiente afirmación?</p>
+              <p><em><strong>“Un equipo puede tener varios problemas”</strong></em></p>
+            </section>
+
+            <section class="diapositiva" id="datos-vs-derivaciones">
+              <div class="diapo-num">10</div>
+              <h2>Datos vs Derivaciones</h2>
+              <p>¿Qué hacemos con estos casos?</p>
+              <p><em><strong>“precio final = mano de obra + repuestos”</strong></em></p>
+              <p>¿Se guarda o se calcula?</p>
+            </section>
+
+            <section class="diapositiva" id="acciones-automaticas">
+              <div class="diapo-num">11</div>
+              <h2>Acciones automáticas</h2>
+              <p>…¿y acá?</p>
+              <p><em><strong>“si pasan muchos días → abandonado”</strong></em></p>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-no-funcionales">
+              <div class="diapo-num">12</div>
+              <h2>Requerimientos no funcionales</h2>
+              <p>…¿y estos secretos?</p>
+              <p><em><strong>“empleados no deben ver ganancias”</strong></em></p>
+            </section>
+
+            <section class="diapositiva" id="vamos-a-ordenarnos">
+              <div class="diapo-num">13</div>
+              <h2>Vamos a ordenarnos</h2>
+              <ul>
+                <li><em><strong>Conceptos del negocio</strong></em></li>
+                <li>cliente</li>
+                <li>equipo</li>
+                <li>reparación</li>
+                <li>repuesto</li>
               </ul>
               <ul>
-                <li>Caso Bonus (Integridad de Dominio - Precios)</li>
-                <li>  Tabla: orden_servicio</li>
-                <li>  Las columnas mano_obra y total son DECIMAL(10,2). Una violación aquí sería intentar ingresar texto o un valor que no respete el formato numérico.</li>
+                <li><em><strong>Reglas de negocio</strong></em></li>
+                <li>cliente → varios equipos</li>
+                <li>precio = cálculo</li>
+                <li>descuento efectivo</li>
+                <li>abandono por tiempo</li>
               </ul>
-              <figure><img src="../../assets/img/ingenieria-requerimientos-03.png" alt=""></figure>
-              <figure><img src="../../assets/img/ingenieria-requerimientos-04.png" alt=""></figure>
+              <ul>
+                <li><em><strong>Ambigüedades</strong></em></li>
+                <li>“datos de contacto”</li>
+                <li>“muchos días”</li>
+              </ul>
+              <ul>
+                <li><em><strong>Requerimientos no funcionales</strong></em></li>
+                <li>seguridad</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-funcionales">
+              <div class="diapo-num">14</div>
+              <h2>Requerimientos funcionales: clientes, equipos y órdenes</h2>
+              <ul>
+                <li><em><strong>1. Gestión de Clientes</strong></em>. El sistema debe permitir:</li>
+                <li>Registrar un cliente con sus datos de contacto (nombre, teléfono, etc.).</li>
+                <li>Consultar clientes existentes.</li>
+                <li>Evitar la duplicación de clientes (búsqueda previa antes de registrar).</li>
+                <li>Actualizar datos de clientes.</li>
+                <li>Asociar uno o varios equipos a un mismo cliente.</li>
+              </ul>
+              <ul>
+                <li><em><strong>2. Gestión de Equipos</strong></em></li>
+                <li>Registrar equipos (celular, tablet, smartwatch, etc.).</li>
+                <li>Asociar cada equipo a un cliente.</li>
+                <li>Registrar características del equipo (tipo, marca, modelo, etc.).</li>
+                <li>Permitir que un cliente tenga múltiples equipos.</li>
+                <li>Permitir identificar claramente cada equipo dentro de una orden.</li>
+              </ul>
+              <ul>
+                <li><em><strong>3. Gestión de Órdenes de Reparación</strong></em></li>
+                <li>Generar una orden de reparación con un número único.</li>
+                <li>Asociar la orden a: un cliente; uno o varios equipos.</li>
+                <li>Registrar fecha de ingreso.</li>
+                <li>Registrar estado de la orden (ej: pendiente, en reparación, finalizado, entregado, abandonado).</li>
+                <li>Permitir múltiples órdenes por cliente.</li>
+                <li>Permitir múltiples equipos dentro de una misma orden.</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-funcionales-2">
+              <div class="diapo-num">15</div>
+              <h2>Requerimientos funcionales: problemas, reparaciones y repuestos</h2>
+              <ul>
+                <li><em><strong>4. Registro de Problemas</strong></em></li>
+                <li>Registrar uno o varios problemas por cada equipo.</li>
+                <li>Mantener un catálogo de tipos de problemas (opcional pero recomendable).</li>
+                <li>Consultar problemas asociados a una reparación.</li>
+              </ul>
+              <ul>
+                <li><em><strong>5. Gestión de Reparaciones</strong></em></li>
+                <li>Registrar reparaciones realizadas sobre un equipo.</li>
+                <li>Asociar cada reparación a: una orden; un equipo; uno o varios problemas.</li>
+                <li>Registrar mano de obra aplicada.</li>
+                <li>Permitir múltiples reparaciones por orden.</li>
+              </ul>
+              <ul>
+                <li><em><strong>6. Gestión de Repuestos</strong></em></li>
+                <li>Registrar repuestos (pantallas, baterías, etc.).</li>
+                <li>Mantener stock actualizado.</li>
+                <li>Asociar repuestos a reparaciones.</li>
+                <li>Permitir: que un repuesto se use en muchas reparaciones; que una reparación use varios repuestos.</li>
+                <li>Registrar cantidad utilizada de cada repuesto.</li>
+                <li>Actualizar stock automáticamente al usar repuestos.</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-funcionales-3">
+              <div class="diapo-num">16</div>
+              <h2>Requerimientos funcionales: costos, entregas y stock</h2>
+              <ul>
+                <li><em><strong>7. Cálculo de Costos</strong></em></li>
+                <li>Calcular costo total de una reparación: suma de repuestos utilizados; más costo de mano de obra.</li>
+                <li>Aplicar descuento del 10% si el pago es en efectivo.</li>
+                <li>Registrar forma de pago.</li>
+              </ul>
+              <ul>
+                <li><em><strong>8. Gestión de Entregas</strong></em></li>
+                <li>Registrar fecha de finalización.</li>
+                <li>Registrar fecha de retiro del equipo.</li>
+                <li>Identificar órdenes no retiradas.</li>
+                <li>Marcar automáticamente o manualmente como “abandonado” luego de cierto tiempo.</li>
+              </ul>
+              <ul>
+                <li><em><strong>9. Control de Stock</strong></em></li>
+                <li>Consultar stock disponible de repuestos.</li>
+                <li>Evitar uso de repuestos sin stock suficiente.</li>
+                <li>Registrar movimientos de stock (entrada/salida).</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="requerimientos-funcionales-4">
+              <div class="diapo-num">17</div>
+              <h2>Requerimientos funcionales: usuarios, reportes y búsquedas</h2>
+              <ul>
+                <li><em><strong>10. Usuarios y Permisos</strong></em></li>
+                <li>Registrar usuarios (empleados).</li>
+                <li>Permitir que empleados registren clientes, órdenes y reparaciones.</li>
+                <li>Restringir acceso a: reportes financieros; ingresos totales.</li>
+              </ul>
+              <ul>
+                <li><em><strong>11. Reportes (Consultas a la BD)</strong></em>. El sistema debe permitir generar:</li>
+                <li>Cantidad de reparaciones por mes.</li>
+                <li>Problemas más frecuentes.</li>
+                <li>Total facturado en un período.</li>
+                <li>Reparaciones pendientes / finalizadas / abandonadas.</li>
+                <li>Consumo de repuestos.</li>
+              </ul>
+              <ul>
+                <li><em><strong>12. Búsquedas y Consultas</strong></em></li>
+                <li>Buscar órdenes por número.</li>
+                <li>Buscar por cliente.</li>
+                <li>Buscar por estado.</li>
+                <li>Buscar equipos en reparación.</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="afirmacion-realista">
+              <div class="diapo-num">18</div>
+              <h2>Afirmación realista</h2>
+              <p>Una base de datos mal diseñada no es un problema técnico.</p>
+              <p>El problema fue haber entendido mal el negocio.</p>
             </section>
         </div>
 
         <div class="descargas">
             <h4>Descargar la presentación</h4>
-            <a href="../../descargas/ingenieria-requerimientos.pptx" class="salto-nav">PPTX</a>
             <a href="../../descargas/ingenieria-requerimientos.pdf" class="salto-nav">PDF</a>
         </div>
         <nav class="paginacion" aria-label="Recorrido del curso">
@@ -144,7 +326,7 @@
 </main>
 
     <footer>
-        <p>Bases de Datos · Ciclo 2026 · 4 diapositivas</p>
+        <p>Bases de Datos · Ciclo 2026 · 18 diapositivas</p>
     </footer>
 
 </body>

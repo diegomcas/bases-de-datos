@@ -84,26 +84,24 @@
         <section class="block-card" style="border-left: 4px solid var(--accent);">
             <div class="block-title" style="margin-bottom: 15px;">
                 <h2 style="font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
-                    Antes del JOIN existía la coma
+                    Cruzar tablas con una coma
                 </h2>
             </div>
             <div class="explicacion">
-                <p>La palabra <code>JOIN</code> recién aparece en el estándar <strong>SQL-92</strong>. Sin embargo, las bases de datos relacionales cruzaban tablas desde 1974. ¿Cómo lo hacían? Con dos operaciones del <strong>álgebra relacional</strong> de Codd combinadas:</p>
+                <p>Hasta ahora consultaron una tabla por vez. Los datos que Martín necesita, en cambio, viven repartidos: el número de orden está en una tabla y el apellido del cliente en otra. Cruzarlas no requiere ninguna palabra nueva: alcanza con dos operaciones del <strong>álgebra relacional</strong> de Codd combinadas, más una tercera que ya usan en cada consulta:</p>
                 <ol style="margin-left: 20px; color: #cbd5e1; font-size: 0.98rem; display: flex; flex-direction: column; gap: 8px; margin: 15px 0 15px 20px;">
                     <li><strong>1. Producto cartesiano (×):</strong> combina <em>cada</em> fila de la tabla A con <em>cada</em> fila de la tabla B. En SQL se escribe con una simple <strong>coma</strong> en el <code>FROM</code>.</li>
                     <li><strong>2. Restricción o Selección (σ):</strong> descarta las filas de ese resultado gigante que no cumplen una condición. En SQL es el <code>WHERE</code>.</li>
                     <li><strong>3. Proyección (π):</strong> elige qué columnas se muestran. En SQL es la lista del <code>SELECT</code>.</li>
                 </ol>
-                <p>La equivalencia fundamental que vamos a trabajar en todo el taller es esta:</p>
+                <p>La consulta que vamos a trabajar en todo el taller tiene esta forma:</p>
                 <div class="helper-box">
-                    <h5>La misma consulta, dos sintaxis</h5>
-                    <pre><code><span class="sql-comment">-- Sintaxis SQL-92 (la que ya conocen)</span>
-<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O <span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente;
-
-<span class="sql-comment">-- Sintaxis SQL-89: producto cartesiano + restricción</span>
+                    <h5>Dos tablas en el FROM, la condición en el WHERE</h5>
+                    <pre><code><span class="sql-comment">-- Producto cartesiano + restricción</span>
 <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O, cliente C <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente;</code></pre>
+                    <p style="margin-top: 10px;">La <code>O</code> y la <code>C</code> son <strong>alias de tabla</strong>: nombres cortos para no repetir <code>orden_servicio</code> en cada columna. Se escriben pegados al nombre de la tabla, sin ninguna palabra clave. <code>orden_servicio AS O</code> también es válido, pero el <code>AS</code> es opcional y casi nadie lo usa para tablas.</p>
                 </div>
-                <p>El motor de MySQL genera <strong>exactamente el mismo plan de ejecución</strong> para ambas. No es una versión "peor" ni más lenta: es la misma operación escrita de otra manera. Entenderla explica de una vez por qué un <code>INNER JOIN</code> a veces devuelve más filas de las esperadas y por qué olvidar una condición puede colgar el servidor.</p>
+                <p>Toda la potencia del cruce está en esas dos líneas: el <code>FROM</code> arma las combinaciones y el <code>WHERE</code> se queda con las que tienen sentido. Entender ese mecanismo explica de una vez por qué un cruce a veces devuelve más filas de las esperadas y por qué olvidar una condición puede colgar el servidor.</p>
 
                 <div class="theory-box">
                     <h4>
@@ -111,9 +109,9 @@
                         El vocabulario que vamos a usar
                     </h4>
                     <ul>
-                        <li><strong>Producto cartesiano / CROSS JOIN:</strong> todas las combinaciones posibles. Si A tiene <em>n</em> filas y B tiene <em>m</em>, el resultado tiene <strong>n × m</strong> filas.</li>
-                        <li><strong>Intersección o Equi-Join (INNER JOIN):</strong> el producto cartesiano restringido a las filas donde una clave foránea <strong>es igual</strong> a su clave primaria.</li>
-                        <li><strong>Autounión (SELF JOIN):</strong> una tabla combinada consigo misma, usando dos alias distintos, para comparar sus propias filas entre sí.</li>
+                        <li><strong>Producto cartesiano:</strong> todas las combinaciones posibles. Si A tiene <em>n</em> filas y B tiene <em>m</em>, el resultado tiene <strong>n × m</strong> filas.</li>
+                        <li><strong>Equi-unión (equi-join):</strong> el producto cartesiano restringido a las filas donde una clave foránea <strong>es igual</strong> a su clave primaria.</li>
+                        <li><strong>Autounión:</strong> una tabla combinada consigo misma, usando dos alias distintos, para comparar sus propias filas entre sí.</li>
                         <li><strong>No-Equi-Join:</strong> la condición de unión usa <code>&gt;</code>, <code>&lt;</code>, <code>&lt;&gt;</code> o <code>BETWEEN</code> en lugar de <code>=</code>. Sirve para clasificar por rangos y comparar magnitudes.</li>
                         <li><strong>Theta-Join (θ):</strong> el nombre formal de cualquier unión cuya condición es un operador de comparación arbitrario. El equi-join es apenas el caso particular en que θ es "=".</li>
                     </ul>
@@ -150,7 +148,6 @@
                     <ul>
                         <li><strong>Definición:</strong> al escribir <code>FROM tabla_a, tabla_b</code> le pedimos al motor que apareje cada fila de <code>tabla_a</code> con todas las de <code>tabla_b</code>. No hace falta que exista ninguna relación ni clave foránea entre ellas.</li>
                         <li><strong>Cardinalidad del resultado:</strong> es multiplicativa. 5 clientes × 4 métodos de pago = 20 filas. 5 clientes × 5 equipos × 6 problemas = 150 filas.</li>
-                        <li><strong>Equivalencia moderna:</strong> <code>FROM a, b</code> ≡ <code>FROM a CROSS JOIN b</code>. Son sinónimos exactos en MySQL.</li>
                         <li><strong>Uso legítimo:</strong> generar grillas, calendarios, matrices de posibilidades o combinatorias de prueba. No es siempre un error: es un error solo cuando no fue intencional.</li>
                     </ul>
                 </div>
@@ -244,10 +241,10 @@
                         Sustento Teórico: la selección σ sobre el producto
                     </h4>
                     <ul>
-                        <li><strong>La fórmula:</strong> un INNER JOIN es <code>σ<sub>condición</sub>(A × B)</code>. Primero se conciben todas las combinaciones, después se retienen solo aquellas donde la clave foránea coincide con la clave primaria referenciada.</li>
+                        <li><strong>La fórmula:</strong> una equi-unión es <code>σ<sub>condición</sub>(A × B)</code>. Primero se conciben todas las combinaciones, después se retienen solo aquellas donde la clave foránea coincide con la clave primaria referenciada.</li>
                         <li><strong>Regla de las N−1 condiciones:</strong> para unir N tablas correctamente hacen falta al menos <strong>N−1 condiciones de igualdad</strong> en el <code>WHERE</code>. Si unís 4 tablas y solo escribiste 2 condiciones, tenés un cartesiano parcial escondido y tus números van a estar inflados.</li>
-                        <li><strong>Alias de tabla:</strong> <code>FROM orden_servicio O, cliente C</code> permite escribir <code>O.id_cliente</code> y <code>C.id_cliente</code>. Con tablas que comparten nombres de columna, calificar con el alias deja de ser opcional.</li>
-                        <li><strong>Filtros mezclados:</strong> en esta sintaxis el <code>WHERE</code> contiene <em>dos cosas distintas</em> revueltas: las condiciones de unión (<code>O.id_cliente = C.id_cliente</code>) y los filtros de negocio (<code>C.apellido = 'Pérez'</code>). Es exactamente lo que SQL-92 vino a separar con el <code>ON</code>.</li>
+                        <li><strong>Alias de tabla:</strong> <code>FROM orden_servicio O, cliente C</code> permite escribir <code>O.id_cliente</code> y <code>C.id_cliente</code>. El alias va pegado al nombre de la tabla: la palabra <code>AS</code> es opcional y para tablas se omite casi siempre. Con tablas que comparten nombres de columna, en cambio, calificar con el alias deja de ser opcional.</li>
+                        <li><strong>Filtros mezclados:</strong> el <code>WHERE</code> termina conteniendo <em>dos cosas distintas</em> revueltas: las condiciones de unión (<code>O.id_cliente = C.id_cliente</code>) y los filtros de negocio (<code>C.apellido = 'Pérez'</code>). Acostumbrate a leerlas por separado: son responsabilidades diferentes escritas en el mismo renglón.</li>
                     </ul>
                 </div>
 
@@ -348,12 +345,12 @@
             </ul>
         </section>
 
-        <!-- BLOQUE 3: AUTOUNIÓN / SELF JOIN -->
+        <!-- BLOQUE 3: AUTOUNIÓN -->
         <section class="block-card block-self" id="autounion">
             <div class="block-header">
                 <div class="block-num">03</div>
                 <div class="block-title">
-                    <h2>Autounión (SELF JOIN)</h2>
+                    <h2>Autounión</h2>
                     <p>Una tabla mirándose al espejo para comparar sus propias filas</p>
                 </div>
             </div>
