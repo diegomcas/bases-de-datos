@@ -1,0 +1,176 @@
+/* ==========================================================================
+   CONSOLA — terminal SQL de El Chip
+
+   Se usa junto con base.css:
+
+       <link rel="stylesheet" href="assets/css/fuentes.css">
+       <link rel="stylesheet" href="assets/css/base.css">
+       <link rel="stylesheet" href="assets/css/consola.css">
+       <body data-tema="consola">
+
+   Los colores del texto de la terminal salen de la paleta SQL ya verificada
+   en base.css (contraste AAA sobre --bg-code y separables con protanopia y
+   deuteranopia). El rojo de error se agrego con el mismo criterio: 8,7:1, y
+   ademas todo error va precedido de la palabra ERROR, que es la senal
+   redundante para quien no distingue el tono.
+   ========================================================================== */
+
+body[data-tema="consola"] {
+  --accent: #06b6d4;
+  --header-desde: #164e63;
+  --ancho-main: 1080px;
+
+  --term-prompt:  #ff9ec9;  /* mismo rosa que las palabras clave  10,4:1 */
+  --term-ok:      #8ceacf;  /* mismo verde que los numeros        13,9:1 */
+  --term-aviso:   #ffd166;  /* mismo ambar que las cadenas        13,7:1 */
+  --term-tenue:   #8fa2c4;  /* mismo azul grisado que comentarios  7,7:1 */
+  --term-error:   #ff8a80;  /* medido para esta hoja               8,7:1 */
+  --term-texto:   #dbe4f0;
+}
+
+/* --- la terminal -------------------------------------------------------- */
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-code);
+  border: 1px solid var(--linea-media);
+  border-radius: var(--radio);
+  height: clamp(380px, 68vh, 720px);
+  overflow: hidden;
+  font-family: 'Fira Code', ui-monospace, monospace;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.terminal:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.terminal-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--velo-medio);
+  border-bottom: 1px solid var(--linea-sutil);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-family: 'Outfit', sans-serif;
+  flex-shrink: 0;
+}
+
+.terminal-barra .datos-cargados {
+  margin-left: auto;
+  color: var(--term-tenue);
+}
+
+.terminal-barra .datos-cargados strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* La salida es el registro de la sesion: se lee, se copia, no se edita. */
+.salida {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 14px 16px 4px;
+  margin: 0;
+  white-space: pre;
+  color: var(--term-texto);
+  tab-size: 4;
+}
+
+.salida .eco       { color: var(--term-texto); }
+.salida .prompt    { color: var(--term-prompt); font-weight: 700; }
+.salida .ok        { color: var(--term-ok); }
+.salida .aviso     { color: var(--term-aviso); }
+.salida .tenue     { color: var(--term-tenue); }
+.salida .error     { color: var(--term-error); font-weight: 700; }
+.salida .tabla     { color: var(--term-texto); }
+.salida .tabla .b  { color: var(--term-tenue); }   /* bordes +---+ y | */
+
+/* --- la linea de entrada ------------------------------------------------ */
+
+.linea-entrada {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 16px 14px;
+  flex-shrink: 0;
+}
+
+.linea-entrada .prompt {
+  color: var(--term-prompt);
+  font-weight: 700;
+  white-space: pre;
+  flex-shrink: 0;
+}
+
+.linea-entrada input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--term-texto);
+  font: inherit;
+  caret-color: var(--accent);
+  padding: 0;
+}
+
+.linea-entrada input:disabled {
+  color: var(--term-tenue);
+}
+
+/* --- ayudas alrededor --------------------------------------------------- */
+
+.aclaracion-motor {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--bg-theory);
+  border-left: 3px solid var(--bloque-ambar);
+  border-radius: var(--radio-chico);
+  padding: 14px 18px;
+  margin: 22px 0;
+  font-size: 0.92rem;
+  color: var(--text-body);
+}
+
+.aclaracion-motor strong { color: var(--text-main); }
+
+.atajos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px 22px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+  color: var(--text-body);
+}
+
+.atajos li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.atajos code {
+  color: var(--accent);
+  font-family: 'Fira Code', ui-monospace, monospace;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .terminal { font-size: 0.8rem; height: clamp(320px, 60vh, 520px); }
+  .salida   { padding: 10px 12px 4px; }
+  .linea-entrada { padding: 6px 12px 12px; }
+}
+
+@media print {
+  .terminal { height: auto; }
+  .linea-entrada { display: none; }
+}

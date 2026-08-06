@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola SQL de El Chip</title>
+    <link rel="stylesheet" href="assets/css/fuentes.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/consola.css">
+</head>
+<body data-tema="consola">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Banco de pruebas · En revisión</span>
+            <h1>Consola SQL de El Chip</h1>
+            <p>La base del taller de Martín, cargada y lista, sin instalar nada. Escribí consultas y ejecutalas acá mismo.
+               Es material nuevo y todavía no se probó en el aula: si algo no anda como esperabas, avisá.</p>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Consola SQL</span>
+        </nav>
+
+        <div class="terminal" id="terminal">
+            <div class="terminal-barra">
+                <span>el_chip</span>
+                <span class="datos-cargados" id="estado-datos">iniciando…</span>
+            </div>
+            <div class="salida" id="salida" role="log" aria-live="polite" aria-label="Salida de la consola"></div>
+            <div class="linea-entrada">
+                <span class="prompt" id="prompt">&nbsp;</span>
+                <input type="text" id="entrada" disabled
+                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                       aria-label="Escribí una consulta SQL">
+            </div>
+        </div>
+
+        <ul class="atajos">
+            <li><code>↑ ↓</code><span>Recorrer lo que ya escribiste</span></li>
+            <li><code>\?</code><span>Lista de comandos</span></li>
+            <li><code>\reset</code><span>Volver la base al estado inicial</span></li>
+            <li><code>Ctrl+C</code><span>Cancelar la consulta a medio escribir</span></li>
+        </ul>
+
+        <div class="aclaracion-motor">
+            <div>
+                <strong>Esto no es el MySQL del aula.</strong> Adentro corre PostgreSQL, que es el
+                único motor de verdad que puede funcionar dentro de un navegador. La consola imita
+                al cliente de MySQL y traduce lo más común —<code>SHOW TABLES</code>,
+                <code>DESCRIBE</code>, las comillas invertidas, <code>DATE_FORMAT</code>,
+                <code>IFNULL</code>, <code>GROUP_CONCAT</code>—, pero no todo. Cuando algo no se
+                pueda traducir te lo va a decir con todas las letras. Para el trabajo que se
+                entrega, el motor que manda sigue siendo el de la escuela.
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Consola de práctica de la cátedra de Bases de Datos - "El Chip" &copy; 2026. El modelo sale de <a href="casos/el-chip/ElChip.sql">ElChip.sql</a>.</p>
+    </footer>
+
+<script type="module">
+import { PGlite } from 'https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.4/dist/index.js'
+import { ESQUEMA, DATOS_BASE, DATOS_COMPENDIO } from './assets/consola/elchip.js'
+
+const salida  = document.getElementById('salida')
+const entrada = document.getElementById('entrada')
+const prompt  = document.getElementById('prompt')
+const estado  = document.getElementById('estado-datos')
+
+const PROMPT = 'mysql> '
+const SIGUE  = '    -> '
+
+let db = null
+let acumulado = []          // lineas de la sentencia en curso
+let historial = []
+let posHistorial = 0
+let dataset = null          // 'base' | 'compendio'
+let esperandoEleccion = true
+
+/* ---------------------------------------------------------------------------
+   Escribir en la salida
+   ------------------------------------------------------------------------ */
+
+function escribir (texto, clase = '') {
+  const linea = document.createElement('span')
+  if (clase) linea.className = clase
+  linea.textContent = texto + '\n'
+  salida.appendChild(linea)
+  salida.scrollTop = salida.scrollHeight
+}
+
+function escribirHTML (html) {
+  const linea = document.createElement('span')
+  linea.innerHTML = html + '\n'
+  salida.appendChild(linea)
+  salida.scrollTop = salida.scrollHeight
+}
+
+function escapar (t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/* ---------------------------------------------------------------------------
+   Traducción de MySQL a PostgreSQL
+
+   Las cadenas se enmascaran antes de tocar nada: sin eso, un texto como
+   'LIMIT 1, 2' guardado en una columna terminaría reescrito.
+   ------------------------------------------------------------------------ */
+
+function traducir (sql) {
+  const cadenas = []
+  sql = sql.replace(/'(?:[^']|'')*'/g, m => {
+    cadenas.push(m)
+    return `${cadenas.length - 1}`
+  })
+
+  // Un alias entre comillas invertidas conserva las mayúsculas: pasa a comillas
+  // dobles, que es como se escribe en Postgres.
+  sql = sql.replace(/\bAS\s+`([^`]+)`/gi, (_, t) => `AS "${t.replace(/"/g, '""')}"`)
+
+  // El resto de las comillas invertidas se saca y listo: los identificadores del
+  // modelo son todos minúsculas, así que Postgres los pliega igual. Ponerles
+  // comillas dobles rompería `Cliente`, que en MySQL sí encuentra la tabla.
+  sql = sql.replace(/`/g, '')
+
+  // MySQL admite comillas simples para los alias; Postgres exige dobles.
+  sql = sql.replace(/\bAS\s+(\d+)/gi, (_, i) => {
+    const texto = cadenas[Number(i)].slice(1, -1).replace(/''/g, "'")
+    return `AS "${texto.replace(/"/g, '""')}"`
+  })
+
+  sql = sql.replace(/\bSEPARATOR\s+/gi, ', ')                 // GROUP_CONCAT
+  sql = sql.replace(/\bLIMIT\s+(\d+)\s*,\s*(\d+)/gi, 'LIMIT $2 OFFSET $1')
+  sql = sql.replace(/\bAUTO_INCREMENT\b/gi, 'GENERATED BY DEFAULT AS IDENTITY')
+  sql = sql.replace(/\)\s*ENGINE\s*=\s*\w+/gi, ')')
+  sql = sql.replace(/\bDEFAULT\s+CHARSET\s*=\s*\w+/gi, '')
+  sql = sql.replace(/\bINT\s*\(\s*\d+\s*\)/gi, 'INT')
+  sql = sql.replace(/\bDATETIME\b/gi, 'TIMESTAMP')
+  sql = sql.replace(/^\s*#/gm, '--')                          // comentario #
+
+  return sql.replace(/(\d+)/g, (_, i) => cadenas[Number(i)])
+}
+
+/* Comandos de MySQL que no son SQL y hay que resolver contra el catálogo. */
+function comandoMySQL (sql) {
+  const limpio = sql.trim().replace(/;+\s*$/, '')
+
+  if (/^SHOW\s+TABLES$/i.test(limpio)) {
+    return `SELECT table_name AS "Tables_in_el_chip"
+            FROM information_schema.tables
+            WHERE table_schema = 'el_chip' AND table_type = 'BASE TABLE'
+            UNION ALL
+            SELECT table_name FROM information_schema.views WHERE table_schema = 'el_chip'
+            ORDER BY 1`
+  }
+
+  if (/^SHOW\s+(DATABASES|SCHEMAS)$/i.test(limpio)) {
+    return `SELECT 'el_chip' AS "Database"`
+  }
+
+  const desc = limpio.match(/^(?:DESCRIBE|DESC|SHOW\s+COLUMNS\s+FROM)\s+["'`]?(\w+)["'`]?$/i)
+  if (desc) {
+    const t = desc[1].toLowerCase().replace(/'/g, '')
+    return `SELECT c.column_name AS "Field",
+              CASE
+                WHEN c.data_type = 'character varying' THEN 'varchar(' || c.character_maximum_length || ')'
+                WHEN c.data_type = 'numeric' THEN 'decimal(' || c.numeric_precision || ',' || c.numeric_scale || ')'
+                WHEN c.data_type = 'integer' THEN 'int'
+                WHEN c.data_type = 'timestamp without time zone' THEN 'datetime'
+                ELSE c.data_type
+              END AS "Type",
+              CASE WHEN c.is_nullable = 'YES' THEN 'YES' ELSE 'NO' END AS "Null",
+              COALESCE((SELECT CASE WHEN tc.constraint_type = 'PRIMARY KEY' THEN 'PRI' ELSE 'MUL' END
+                        FROM information_schema.key_column_usage k
+                        JOIN information_schema.table_constraints tc
+                          ON tc.constraint_name = k.constraint_name
+                         AND tc.table_schema = k.table_schema
+                        WHERE k.table_schema = 'el_chip' AND k.table_name = c.table_name
+                          AND k.column_name = c.column_name
+                        ORDER BY tc.constraint_type LIMIT 1), '') AS "Key",
+              COALESCE(c.column_default, '') AS "Default",
+              CASE WHEN c.is_identity = 'YES' THEN 'auto_increment' ELSE '' END AS "Extra"
+            FROM information_schema.columns c
+            WHERE c.table_schema = 'el_chip' AND c.table_name = '${t}'
+            ORDER BY c.ordinal_position`
+  }
+
+  return null
+}
+
+/* Mensajes propios para lo que sabemos que no se puede traducir. */
+function avisoIntraducible (sql) {
+  if (/^\s*USE\s+/i.test(sql)) {
+    return 'Acá hay una sola base y ya está seleccionada: el_chip. No hace falta USE.'
+  }
+  if (/^\s*SHOW\s+CREATE\s+TABLE/i.test(sql)) {
+    return 'SHOW CREATE TABLE no está traducido. Usá DESCRIBE nombre_tabla para ver las columnas.'
+  }
+  if (/\bIF\s*\(/i.test(sql)) {
+    return 'La función IF(condición, a, b) es de MySQL. Acá escribila como CASE WHEN condición THEN a ELSE b END.'
+  }
+  if (/\bSHOW\s+/i.test(sql)) {
+    return 'De los SHOW solo están traducidos SHOW TABLES y SHOW DATABASES.'
+  }
+  return null
+}
+
+/* ---------------------------------------------------------------------------
+   Formato de la salida, al modo del cliente de MySQL
+   ------------------------------------------------------------------------ */
+
+const OIDS_NUMERICOS = new Set([20, 21, 23, 26, 700, 701, 1700])
+
+function comoTexto (v) {
+  if (v === null || v === undefined) return 'NULL'
+  if (v instanceof Date) {
+    const p = n => String(n).padStart(2, '0')
+    // Componentes locales: el motor devolvió la hora tal como se guardó.
+    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())} ` +
+           `${p(v.getHours())}:${p(v.getMinutes())}:${p(v.getSeconds())}`
+  }
+  if (typeof v === 'boolean') return v ? '1' : '0'
+  if (typeof v === 'object') return JSON.stringify(v)
+  return String(v)
+}
+
+function tablaASCII (campos, filas) {
+  const nombres = campos.map(c => c.name)
+  const derecha = campos.map(c => OIDS_NUMERICOS.has(c.dataTypeID))
+  const celdas = filas.map(f => nombres.map(n => comoTexto(f[n])))
+
+  const anchos = nombres.map((n, i) =>
+    Math.max([...n].length, ...celdas.map(c => [...c[i]].length), 0))
+
+  const borde = '+' + anchos.map(a => '-'.repeat(a + 2)).join('+') + '+'
+  const b = t => `<span class="b">${escapar(t)}</span>`
+  const filaHTML = valores => {
+    const partes = valores.map((v, i) => {
+      const relleno = ' '.repeat(anchos[i] - [...v].length)
+      return derecha[i] ? ` ${relleno}${escapar(v)} ` : ` ${escapar(v)}${relleno} `
+    })
+    return b('|') + partes.join(b('|')) + b('|')
+  }
+
+  const lineas = [b(borde), filaHTML(nombres), b(borde)]
+  for (const c of celdas) lineas.push(filaHTML(c))
+  lineas.push(b(borde))
+  return `<span class="tabla">${lineas.join('\n')}</span>`
+}
+
+function segundos (ms) {
+  return `(${(ms / 1000).toFixed(2)} sec)`
+}
+
+/* ---------------------------------------------------------------------------
+   Ejecución
+   ------------------------------------------------------------------------ */
+
+async function ejecutar (sqlOriginal) {
+  // Primero lo que sí sabemos traducir: si no, el aviso genérico sobre SHOW
+  // se comería SHOW TABLES, que está resuelto unas líneas más arriba.
+  let reescrito = comandoMySQL(sqlOriginal)
+
+  if (reescrito === null) {
+    const aviso = avisoIntraducible(sqlOriginal)
+    if (aviso) { escribir('ERROR: ' + aviso, 'error'); return }
+    reescrito = traducir(sqlOriginal)
+  }
+  const arranque = performance.now()
+
+  let resultados
+  try {
+    resultados = await db.exec(reescrito)
+  } catch (e) {
+    escribir('ERROR: ' + e.message, 'error')
+    return
+  }
+
+  const ms = performance.now() - arranque
+
+  for (const r of resultados) {
+    if (r.fields && r.fields.length && r.rows) {
+      if (r.rows.length === 0) {
+        escribir(`Empty set ${segundos(ms)}`, 'tenue')
+      } else {
+        escribirHTML(tablaASCII(r.fields, r.rows))
+        const s = r.rows.length === 1 ? 'row' : 'rows'
+        escribir(`${r.rows.length} ${s} in set ${segundos(ms)}`, 'tenue')
+      }
+    } else {
+      const n = r.affectedRows ?? 0
+      const s = n === 1 ? 'row' : 'rows'
+      escribir(`Query OK, ${n} ${s} affected ${segundos(ms)}`, 'ok')
+    }
+    escribir('')
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Comandos de la consola (los que empiezan con barra)
+   ------------------------------------------------------------------------ */
+
+const AYUDA = `
+Comandos de la consola
+
+  \\?  \\h        esta ayuda
+  \\dt            listar las tablas          (igual que SHOW TABLES)
+  \\d tabla       describir una tabla        (igual que DESCRIBE tabla)
+  \\base          cargar de nuevo con la carga base
+  \\compendio     cargar de nuevo con el compendio ampliado
+  \\reset         volver al estado inicial del juego de datos actual
+  \\clear         limpiar la pantalla
+  \\datos         ver qué juego de datos está cargado
+
+Todo lo demás se manda a la base. Las sentencias terminan en punto y coma;
+mientras no lo escribas, la consola sigue esperando en la línea ->.
+`
+
+async function cargar (cual) {
+  entrada.disabled = true
+  prompt.innerHTML = '&nbsp;'
+  escribir(`Cargando ${cual === 'compendio' ? 'el compendio ampliado' : 'la carga base'}…`, 'tenue')
+
+  db = new PGlite()
+  await db.exec(ESQUEMA)
+  await db.exec(DATOS_BASE)
+  if (cual === 'compendio') await db.exec(DATOS_COMPENDIO)
+
+  dataset = cual
+  estado.innerHTML = cual === 'compendio'
+    ? 'datos: <strong>compendio</strong>'
+    : 'datos: <strong>carga base</strong>'
+
+  escribir('Base lista.', 'ok')
+  escribir('')
+  entrada.disabled = false
+  prompt.textContent = PROMPT
+  entrada.focus()
+}
+
+async function comandoConsola (linea) {
+  const [cmd, arg] = linea.trim().split(/\s+/, 2)
+
+  switch (cmd) {
+    case '\\?': case '\\h': case '\\help':
+      escribir(AYUDA, 'tenue'); return true
+
+    case '\\dt':
+      await ejecutar('SHOW TABLES'); return true
+
+    case '\\d':
+      if (!arg) { escribir('ERROR: falta el nombre de la tabla. Ejemplo: \\d cliente', 'error') }
+      else { await ejecutar('DESCRIBE ' + arg) }
+      return true
+
+    case '\\clear':
+      salida.replaceChildren(); return true
+
+    case '\\datos':
+      escribir(dataset === 'compendio'
+        ? 'Está cargado el compendio ampliado: 8 clientes, 9 equipos, 8 órdenes.'
+        : 'Está cargada la carga base: 5 clientes, 5 equipos, 3 órdenes.', 'tenue')
+      escribir('')
+      return true
+
+    case '\\reset':
+      await cargar(dataset); return true
+
+    case '\\base':
+      await cargar('base'); return true
+
+    case '\\compendio':
+      await cargar('compendio'); return true
+
+    case '\\q': case '\\quit': case '\\exit':
+      escribir('De acá no se sale: cerrá la pestaña. Con \\reset volvés a empezar.', 'tenue')
+      escribir('')
+      return true
+  }
+
+  if (cmd.startsWith('\\')) {
+    escribir(`ERROR: no conozco el comando ${cmd}. Escribí \\? para ver la lista.`, 'error')
+    return true
+  }
+  return false
+}
+
+/* ---------------------------------------------------------------------------
+   Ciclo de lectura
+   ------------------------------------------------------------------------ */
+
+/* Una sentencia termina cuando aparece un ; que no esté dentro de comillas. */
+function terminaSentencia (texto) {
+  let comilla = null
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto[i]
+    if (comilla) {
+      if (c === comilla) comilla = null
+    } else if (c === "'" || c === '"') {
+      comilla = c
+    } else if (c === ';') {
+      return true
+    }
+  }
+  return false
+}
+
+async function procesarLinea (linea) {
+  escribirHTML(`<span class="prompt">${escapar(acumulado.length ? SIGUE : PROMPT)}</span><span class="eco">${escapar(linea)}</span>`)
+
+  if (esperandoEleccion) {
+    const elegido = linea.trim()
+    if (elegido === '1' || /^base$/i.test(elegido)) {
+      esperandoEleccion = false
+      await cargar('base')
+    } else if (elegido === '2' || /^compendio$/i.test(elegido)) {
+      esperandoEleccion = false
+      await cargar('compendio')
+    } else {
+      escribir('Escribí 1 o 2 y presioná Enter.', 'aviso')
+    }
+    return
+  }
+
+  if (linea.trim() !== '') { historial.push(linea); posHistorial = historial.length }
+
+  // Los comandos de la consola solo valen al principio de una sentencia.
+  if (acumulado.length === 0) {
+    if (linea.trim() === '') return
+    if (await comandoConsola(linea)) return
+  }
+
+  acumulado.push(linea)
+  const completo = acumulado.join('\n')
+
+  if (!terminaSentencia(completo)) {
+    prompt.textContent = SIGUE
+    return
+  }
+
+  acumulado = []
+  prompt.textContent = PROMPT
+
+  entrada.disabled = true
+  try {
+    await ejecutar(completo)
+  } finally {
+    entrada.disabled = false
+    entrada.focus()
+  }
+}
+
+entrada.addEventListener('keydown', async e => {
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    const linea = entrada.value
+    entrada.value = ''
+    await procesarLinea(linea)
+    return
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    if (posHistorial > 0) { posHistorial--; entrada.value = historial[posHistorial] }
+    return
+  }
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    if (posHistorial < historial.length - 1) {
+      posHistorial++
+      entrada.value = historial[posHistorial]
+    } else {
+      posHistorial = historial.length
+      entrada.value = ''
+    }
+    return
+  }
+
+  // Ctrl+C: abandonar la sentencia a medio escribir, como en el cliente real.
+  if (e.key === 'c' && e.ctrlKey && entrada.selectionStart === entrada.selectionEnd) {
+    e.preventDefault()
+    entrada.value = ''
+    if (acumulado.length) {
+      acumulado = []
+      prompt.textContent = PROMPT
+      escribir('Consulta cancelada.', 'tenue')
+      escribir('')
+    }
+  }
+})
+
+// Clic en cualquier parte de la terminal: volver al cursor.
+document.getElementById('terminal').addEventListener('mousedown', e => {
+  if (window.getSelection().toString()) return          // no romper el copiado
+  if (e.target.tagName !== 'INPUT') { e.preventDefault(); entrada.focus() }
+})
+
+/* ---------------------------------------------------------------------------
+   Arranque
+   ------------------------------------------------------------------------ */
+
+escribir('Welcome to the MySQL monitor.  Commands end with ;', 'tenue')
+escribir('Server version: PostgreSQL 17 · emulación de MySQL en tu navegador', 'tenue')
+escribir('')
+escribir('¿Con qué datos querés trabajar?')
+escribir('')
+escribirHTML('  <span class="prompt">1</span>  Carga base  · 5 clientes, 5 equipos, 3 órdenes.')
+escribir('       Es la base de los talleres 1 a 3. Los resultados se pueden')
+escribir('       verificar contando a mano.')
+escribir('')
+escribirHTML('  <span class="prompt">2</span>  Compendio   · 8 clientes, 9 equipos, 8 órdenes.')
+escribir('       Agrega los casos que necesitan agrupación, subconsultas y')
+escribir('       uniones: clientes sin órdenes, métodos de pago sin usar,')
+escribir('       equipos repetidos.')
+escribir('')
+escribir('Escribí 1 o 2 y presioná Enter.', 'aviso')
+escribir('')
+
+estado.textContent = 'elegí un juego de datos'
+prompt.textContent = '> '
+entrada.disabled = false
+entrada.focus()
+</script>
+
+</body>
+</html>
