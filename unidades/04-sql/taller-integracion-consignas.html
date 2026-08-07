@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: integración - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-inner  { --c: var(--bloque-azul); }
+    .block-left   { --c: var(--bloque-verde); }
+    .block-trampa { --c: var(--bloque-rojo); }
+    .block-contar { --c: var(--bloque-ambar); }
+    .block-resto  { --c: var(--bloque-violeta); }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller de integración</span>
+            <h1>Todo junto</h1>
+            <p>12 retos sobre El Chip. Cada consigna dice qué quiere saber Martín y nada sobre cómo resolverlo</p>
+            <a href="taller-integracion-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de integración</span>
+        </nav>
+
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem;">Antes de empezar</h2>
+            </div>
+            <div class="explicacion">
+                <p><strong>Este taller no enseña nada nuevo.</strong> Todo lo que hace falta está
+                   en los talleres de <a href="taller-join-consignas.html">uniones con JOIN</a>,
+                   <a href="compendio-agrupacion-consignas.html">agrupación</a> y
+                   <a href="compendio-subconsultas-consignas.html">subconsultas</a>. Lo que se
+                   practica acá es <strong>elegir</strong>: cada consigna dice qué quiere saber
+                   Martín y no dice con qué resolverlo.</p>
+                <p>Corre sobre el juego de datos ampliado: <code>ElChip.sql</code> +
+                   <code>poblar_elchip.sql</code> + <code>poblar_elchip_compendio.sql</code>. En la
+                   <a href="../../consola.html">consola del sitio</a>, elegí
+                   <strong>2 · Compendio</strong> al abrirla.</p>
+                <p>Conviene darlo como cierre de la unidad, cuando los tres temas ya se dieron.
+                   Varios retos aceptan más de una respuesta correcta, y en esos casos lo que se
+                   evalúa es la razón de la elección, no la sintaxis.</p>
+            </div>
+        </section>
+
+        <section class="block-card block-inner" id="elegir">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>La pregunta manda</h2>
+                    <p>Cada consigna dice qué quiere saber Martín, y nada sobre cómo resolverlo</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Ya te pedí un montón de reportes sueltos. Ahora quiero los que uso todos los meses, y no me importa cómo los saques. Vos sabrás si va con una cosa o con la otra."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: elegir antes de escribir</h4>
+                    <ul>
+                        <li><strong>Este taller no enseña sintaxis nueva.</strong> Todo lo que hace falta ya está en los talleres de uniones, agrupación y subconsultas. Lo que se practica acá es <em>decidir</em>.</li>
+                        <li><strong>Tres preguntas ordenan la decisión:</strong> ¿me importan las filas sin pareja? (<code>LEFT</code> o <code>INNER</code>) · ¿tengo que resumir? (<code>GROUP BY</code>) · ¿la condición depende de un valor que hay que calcular antes? (subconsulta).</li>
+                        <li><strong>Casi siempre hay más de un camino correcto.</strong> Cuando aparezcan dos, escribí los dos y compará: ganan claridad los que se leen sin volver atrás.</li>
+                        <li><strong>El resultado no alcanza como prueba.</strong> Una consulta puede devolver filas y estar mal. Contrastá contra lo que sabés del negocio: ocho clientes, ocho órdenes, seis métodos de pago.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Cuánto facturó cada cliente, todos incluidos</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere una planilla con sus ocho clientes, cuántas órdenes trajo cada uno y cuánto facturó. Los que nunca trajeron nada tienen que aparecer con ceros, no en blanco.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Los clientes que están por encima del promedio</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>¿Qué clientes facturaron más que el promedio de facturación por cliente? Cuidado: el promedio que hay que calcular es el de los totales <em>por cliente</em>, no el de las órdenes.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>Marcas sin equipos, por dos caminos</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá las marcas de las que nunca entró ningún equipo, resolviéndolo de dos formas: una con <code>LEFT JOIN</code> y otra sin ninguna unión. Después decidí cuál preferís y por qué.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.4</span>
+                        <h3>Problemas que se repiten en equipos distintos</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber qué fallas aparecieron en más de un equipo <em>distinto</em>, para decidir qué repuestos conviene tener siempre en stock. Ojo con la palabra «distinto».</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-1-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-trampa" id="limites">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Lo que SQL no deja hacer</h2>
+                    <p>Dos límites del lenguaje y una trampa que no avisa</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Una simple: ¿quién es mi mejor cliente? El que más plata me dejó. No puede ser tan difícil."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: los límites y la duplicación</h4>
+                    <ul>
+                        <li><strong>Los agregados no se anidan.</strong> <code>MAX(SUM(total))</code> es un error de sintaxis. Un agregado resume un grupo; para resumir <em>los resúmenes</em> hace falta otro nivel, y ese nivel es una subconsulta o una tabla derivada.</li>
+                        <li><strong><code>ORDER BY … LIMIT 1</code> devuelve uno, aunque haya empate.</strong> Sirve para mirar en pantalla y falla como respuesta a «quién es el máximo».</li>
+                        <li><strong>La duplicación por unión múltiple.</strong> Si una consulta une la misma tabla madre con dos tablas hijas, cada fila de una se combina con cada fila de la otra: los <code>SUM</code> y los <code>COUNT</code> quedan multiplicados. Es el error más difícil de detectar de todo el taller, porque algunas columnas salen bien.</li>
+                        <li><strong>Cómo se arregla:</strong> se calcula cada rama por separado, con subconsultas o con tablas derivadas, y recién después se junta.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>El intento que no compila</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí lo primero que se te ocurra para responder «¿cuál es la mayor facturación por cliente?» usando <code>MAX</code> y <code>SUM</code> juntos. Ejecutalo y leé el error.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>La respuesta rápida, y por qué no alcanza</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Resolvé la pregunta de Martín con <code>ORDER BY … LIMIT 1</code>. Después respondé: si dos clientes hubieran facturado exactamente lo mismo, ¿qué devolvería esta consulta?</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <h3>La respuesta que aguanta empates</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Reescribí la consulta anterior para que devuelva <em>todos</em> los clientes que alcanzan la facturación máxima, sean uno o cinco.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.4</span>
+                        <h3>El reporte que infla los números</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ejecutá esta consulta, que pretende mostrar por orden cuánto se cobró y cuántos problemas se detectaron. Verificá los números de las órdenes 1, 4 y 5 contra las tablas y explicá qué está pasando.<br><br><code>SELECT O.nro_orden, SUM(P.monto), COUNT(X.id_problema) FROM orden_servicio O LEFT JOIN orden_servicio_pago P ON P.nro_orden = O.nro_orden LEFT JOIN orden_servicio_has_equipo X ON X.nro_orden = O.nro_orden GROUP BY O.nro_orden;</code></p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-2-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-contar" id="reporte">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>El reporte completo</h2>
+                    <p>Todo junto: unir, resumir y calcular un valor aparte, en la misma consulta</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Última cosa. Quiero una hoja sola que me diga, por cliente: cuántas órdenes trajo, cuánto me dejó y con qué suele pagar. Con eso decido a quién llamo y a quién le ofrezco cuenta corriente."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: dónde va cada pieza</h4>
+                    <ul>
+                        <li><strong>La unión</strong> resuelve qué filas participan, y si las ausencias importan va <code>LEFT</code>.</li>
+                        <li><strong>La agrupación</strong> resuelve qué se resume y con qué criterio.</li>
+                        <li><strong>La subconsulta correlacionada</strong> resuelve las columnas que no se pueden sacar del mismo grupo: se ejecuta una vez por fila del resultado y puede tener su propio <code>GROUP BY</code>.</li>
+                        <li><strong>El orden de lectura no es el de escritura.</strong> Conviene escribir primero el <code>FROM</code> con sus uniones, después el <code>GROUP BY</code>, y recién al final las columnas del <code>SELECT</code>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>La hoja que pidió Martín</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Armá el reporte: apellido y nombre del cliente, cantidad de órdenes, total facturado y el método de pago que más usó. Los ocho clientes tienen que aparecer.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>Qué marca deja más trabajo</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber, por marca, en cuántas órdenes distintas apareció y cuánta mano de obra generó. Las marcas que nunca aparecieron tienen que estar, en cero.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <h3>Auditoría de un reporte ajeno</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Te pasan este reporte y te piden que lo valides antes de mandarlo. Decidí si está bien, y si no, corregilo.<br><br><code>SELECT C.apellido, COUNT(O.nro_orden) AS ordenes, SUM(P.monto) AS cobrado FROM cliente C LEFT JOIN orden_servicio O ON O.id_cliente = C.id_cliente LEFT JOIN orden_servicio_pago P ON P.nro_orden = O.nro_orden GROUP BY C.id_cliente, C.apellido;</code></p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.4</span>
+                        <h3>Lo que Martín no sabe pedir</h3>
+                        <span class="nivel-tag">conceptual</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín dice: «quiero saber si me conviene seguir ofreciendo el servicio de limpieza». Sin escribir la consulta todavía: escribí qué preguntas concretas hay que responder para contestarle, y con qué herramienta resolverías cada una. Después elegí la que te parezca más importante y escribila.</p>
+                        <a class="salto-nav" href="taller-integracion-resoluciones.html#reto-3-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="compendio-subconsultas-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Compendio de subconsultas</strong>
+            </a>
+            <a class="pag-sig" href="taller-vistas-procedimientos-triggers-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Vistas, procedimientos y triggers</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="taller-integracion-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

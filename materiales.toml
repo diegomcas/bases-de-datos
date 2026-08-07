@@ -511,6 +511,24 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "taller-de-integracion"
+titulo = "Taller de integración"
+descripcion = "12 retos. Preguntas de negocio sin pista: elegir entre unir, agrupar y subconsultar"
+unidad = "SQL · segunda parte"
+icono = "verificado"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-integracion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-integracion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-indices-vistas-procedimientos-y"
 titulo = "Taller: índices, vistas, procedimientos y triggers"
 descripcion = "11 retos. Cuando la base empieza a reaccionar sola"

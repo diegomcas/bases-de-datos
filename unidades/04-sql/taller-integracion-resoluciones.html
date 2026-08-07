@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: integración - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-inner  { --c: var(--bloque-azul); }
+    .block-left   { --c: var(--bloque-verde); }
+    .block-trampa { --c: var(--bloque-rojo); }
+    .block-contar { --c: var(--bloque-ambar); }
+    .block-resto  { --c: var(--bloque-violeta); }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller de integración · Resoluciones</span>
+            <h1>Todo junto</h1>
+            <p>Respuestas exactas, resultados verificados sobre el compendio y consejos de trabajo</p>
+            <a href="taller-integracion-consignas.html" class="nav-docente">
+                Volver a las Consignas
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de integración · resoluciones</span>
+        </nav>
+
+        <section class="block-card block-inner" id="elegir">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>La pregunta manda - Resoluciones</h2>
+                    <p>Cada consigna dice qué quiere saber Martín, y nada sobre cómo resolverlo</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Resolvé cada reto antes de mirar la solución, y anotá qué herramienta elegiste y por qué. Cuando compares con la resolución, lo que importa no es si coincidís sino si tu razón se sostiene: varios de estos retos aceptan dos respuestas correctas.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>Cuánto facturó cada cliente, todos incluidos</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre,
+       <span class="sql-keyword">COUNT</span>(O.nro_orden) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(O.total), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>ordenes</th><th>facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>3</td><td>99000.00</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td><td>60500.00</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>1</td><td>9000.00</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>1</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Tres decisiones en una sola consulta: <code>LEFT JOIN</code> para conservar los clientes sin órdenes, <code>COUNT(O.nro_orden)</code> en lugar de <code>COUNT(*)</code> para que den 0, y <code>COALESCE</code> para que la suma vacía muestre 0 y no <code>NULL</code>. Si te falta cualquiera de las tres, la planilla miente en una fila distinta.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Los clientes que están por encima del promedio</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">INNER JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(O.total) &gt; (<span class="sql-keyword">SELECT</span> AVG(s) <span class="sql-keyword">FROM</span> (
+         <span class="sql-keyword">SELECT</span> <span class="sql-keyword">SUM</span>(total) <span class="sql-keyword">AS</span> s <span class="sql-keyword">FROM</span> orden_servicio <span class="sql-keyword">GROUP BY</span> id_cliente) U)
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>99000.00</td></tr>
+                                <tr><td>García</td><td>María</td><td>60500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Dos clientes. La subconsulta agrupa primero y promedia después: es una tabla derivada, y necesita alias —acá <code>U</code>— porque MySQL lo exige. Si el promedio se calculara con <code>AVG(total)</code> sobre <code>orden_servicio</code> a secas, sería el promedio <em>por orden</em> y la respuesta cambiaría. La pregunta define qué se agrupa.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <h3>Marcas sin equipos, por dos caminos</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+<span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">WHERE</span> E.id_equipo <span class="sql-keyword">IS NULL</span>
+<span class="sql-keyword">ORDER BY</span> M.nombre;
+
+ <span class="sql-number">1</span> 
+<span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT</span> EXISTS (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> equipo E <span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca)
+<span class="sql-keyword">ORDER BY</span> M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nombre</th></tr></thead>
+                            <tbody>
+                                <tr><td>Google</td></tr>
+                                <tr><td>Sony</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Las dos devuelven Google y Sony. El <code>LEFT JOIN</code> arma el cruce completo y después descarta; el <code>NOT EXISTS</code> pregunta fila por fila y corta apenas encuentra una coincidencia. Sobre siete marcas la diferencia no se nota. La versión con <code>NOT EXISTS</code> se lee más cerca de como se dice la pregunta en castellano, y ésa suele ser una buena razón para elegirla.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.4</span>
+                        <h3>Problemas que se repiten en equipos distintos</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-1-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> P.descripcion, <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> X.id_equipo) <span class="sql-keyword">AS</span> equipos
+<span class="sql-keyword">FROM</span> problema P
+<span class="sql-keyword">INNER JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_problema = P.id_problema
+<span class="sql-keyword">GROUP BY</span> P.id_problema, P.descripcion
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> X.id_equipo) &gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> equipos <span class="sql-keyword">DESC</span>, P.descripcion;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>descripcion</th><th>equipos</th></tr></thead>
+                            <tbody>
+                                <tr><td>Limpieza y mantenimiento preventivo</td><td>3</td></tr>
+                                <tr><td>Pantalla rota / Cambio de modulo</td><td>3</td></tr>
+                                <tr><td>Error de Software / Reinstalación</td><td>2</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Sin <code>DISTINCT</code>, la batería del Tab P11 contaría dos veces —entró por el mismo problema en las órdenes 4 y 6— y el reporte diría que se detectó en dos equipos cuando fue siempre el mismo. La palabra «distinto» de la consigna es la que decide, y no está ahí de adorno.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-trampa" id="limites">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Lo que SQL no deja hacer - Resoluciones</h2>
+                    <p>Dos límites del lenguaje y una trampa que no avisa</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>El 2.4 es el reto más importante del taller y conviene no apurarlo. Ejecutá la consulta equivocada, anotá los números que devuelve y verificá dos o tres a mano contra la tabla de pagos. Recién cuando encuentres cuáles están inflados y cuáles no, mirá la explicación: la parte difícil es entender por qué algunas columnas salen bien y otras no.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>El intento que no compila</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> MAX(<span class="sql-keyword">SUM</span>(O.total))
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">GROUP BY</span> O.id_cliente;
+
+ <span class="sql-number">0</span> </code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th></th><th>resultado</th></tr></thead>
+                            <tbody>
+                                <tr><td>MAX(SUM(...))</td><td>Error 1111 · Invalid use of group function</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> SQL no permite anidar funciones de agregación. La razón es de orden de ejecución: <code>SUM</code> produce un valor por grupo, y en ese momento los grupos todavía existen; no hay un segundo nivel de agrupación sobre el cual aplicar <code>MAX</code>. Para tenerlo hay que crear ese nivel, y eso es exactamente lo que hace una tabla derivada.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>La respuesta rápida, y por qué no alcanza</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">INNER JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>99000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Devuelve la respuesta correcta sobre estos datos. Pero si hubiera empate, elegiría uno de los dos <strong>sin avisar</strong>, y cuál depende del orden en que el motor devuelva las filas. Para mirar en pantalla está bien; para un reporte que alguien va a firmar, no. La pregunta «quién es el máximo» puede tener más de una respuesta, y la consulta tiene que poder devolverlas todas.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <h3>La respuesta que aguanta empates</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> apellido, nombre, facturado
+<span class="sql-keyword">FROM</span> (<span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, C.nombre, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+      <span class="sql-keyword">FROM</span> cliente C
+      <span class="sql-keyword">INNER JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+      <span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre) T
+<span class="sql-keyword">WHERE</span> facturado = (<span class="sql-keyword">SELECT</span> MAX(s)
+                   <span class="sql-keyword">FROM</span> (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">SUM</span>(total) <span class="sql-keyword">AS</span> s
+                         <span class="sql-keyword">FROM</span> orden_servicio
+                         <span class="sql-keyword">GROUP BY</span> id_cliente) U);</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>99000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Sobre estos datos devuelve lo mismo que la versión con <code>LIMIT</code>, y ésa es la trampa: el resultado no distingue una consulta correcta de una que funciona por casualidad. Acá hay dos niveles de agrupación: uno arma la facturación por cliente y otro busca el máximo entre esas facturaciones. Es la forma de anidar agregados que SQL sí permite.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.4</span>
+                        <h3>El reporte que infla los números</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-2-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+ <span class="sql-number">1</span> 
+ <span class="sql-number">2</span> 
+ <span class="sql-number">3</span> 
+
+ <span class="sql-number">4</span> 
+<span class="sql-keyword">SELECT</span> O.nro_orden,
+  (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(monto), <span class="sql-number">0</span>) <span class="sql-keyword">FROM</span> orden_servicio_pago
+    <span class="sql-keyword">WHERE</span> nro_orden = O.nro_orden) <span class="sql-keyword">AS</span> cobrado,
+  (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">FROM</span> orden_servicio_has_equipo
+    <span class="sql-keyword">WHERE</span> nro_orden = O.nro_orden) <span class="sql-keyword">AS</span> problemas
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>cobrado (mal)</th><th>cobrado (real)</th><th>problemas (mal)</th><th>problemas (real)</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>53500.00</td><td>53500.00</td><td>2</td><td>1</td></tr>
+                                <tr><td>2</td><td>40500.00</td><td>40500.00</td><td>1</td><td>1</td></tr>
+                                <tr><td>3</td><td>NULL</td><td>0.00</td><td>1</td><td>1</td></tr>
+                                <tr><td>4</td><td>37000.00</td><td>18500.00</td><td>4</td><td>2</td></tr>
+                                <tr><td>5</td><td>54000.00</td><td>27000.00</td><td>2</td><td>2</td></tr>
+                                <tr><td>6</td><td>40000.00</td><td>20000.00</td><td>4</td><td>2</td></tr>
+                                <tr><td>7</td><td>NULL</td><td>0.00</td><td>1</td><td>1</td></tr>
+                                <tr><td>8</td><td>9000.00</td><td>9000.00</td><td>2</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> La orden 4 tiene 2 pagos y 2 problemas. Al unirla con las dos tablas, el motor produce 2 × 2 = 4 filas, y cada pago aparece dos veces: la suma se duplica. Lo insidioso es que <strong>no siempre falla</strong>. En la orden 1 hay 2 pagos y 1 problema: el cobrado sale bien porque el problema no multiplica, pero el conteo de problemas sale 2 en vez de 1. Un reporte así tiene algunas celdas correctas, y eso lo hace pasar cualquier revisión rápida.<br><br>La regla para llevarse: <strong>una consulta no puede agregar sobre dos ramas hijas a la vez</strong>. Cada rama se calcula por separado —con subconsultas, como acá, o con tablas derivadas— y recién después se juntan.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-contar" id="reporte">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>El reporte completo - Resoluciones</h2>
+                    <p>Todo junto: unir, resumir y calcular un valor aparte, en la misma consulta</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Estos cuatro retos son de trabajo, no de clase expositiva: date tiempo. Armá cada consulta por partes y ejecutá cada parte antes de juntarlas — una subconsulta correlacionada se puede probar sola reemplazando la referencia externa por un valor fijo. Si arrancás escribiendo la consulta entera, el primer error va a ser difícil de ubicar.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>La hoja que pidió Martín</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre,
+       <span class="sql-keyword">COUNT</span>(O.nro_orden) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(O.total), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> facturado,
+       (<span class="sql-keyword">SELECT</span> MP.nombre
+          <span class="sql-keyword">FROM</span> orden_servicio_pago P
+          <span class="sql-keyword">INNER JOIN</span> metodo_pago MP    <span class="sql-keyword">ON</span> MP.id_metodo_pago = P.id_metodo_pago
+          <span class="sql-keyword">INNER JOIN</span> orden_servicio O2 <span class="sql-keyword">ON</span> O2.nro_orden = P.nro_orden
+         <span class="sql-keyword">WHERE</span> O2.id_cliente = C.id_cliente
+         <span class="sql-keyword">GROUP BY</span> MP.id_metodo_pago, MP.nombre
+         <span class="sql-keyword">ORDER BY</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">DESC</span>, MP.nombre
+         <span class="sql-keyword">LIMIT</span> <span class="sql-number">1</span>) <span class="sql-keyword">AS</span> metodo_habitual
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>ordenes</th><th>facturado</th><th>metodo_habitual</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>3</td><td>99000.00</td><td>Efectivo</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td><td>60500.00</td><td>Efectivo</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>1</td><td>9000.00</td><td>Efectivo</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>0</td><td>0.00</td><td>NULL</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>0</td><td>0.00</td><td>NULL</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>0</td><td>0.00</td><td>NULL</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td><td>0.00</td><td>NULL</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>1</td><td>0.00</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Las tres herramientas trabajando juntas. El método habitual no puede salir del mismo <code>GROUP BY</code> —haría falta agrupar por cliente y por método a la vez, que son criterios distintos—, así que va en una subconsulta correlacionada con su propio <code>GROUP BY</code>.<br><br>Fijate en las dos últimas filas: el segundo Pérez y Diego Rossi tienen una orden y <code>NULL</code> en método, porque sus órdenes están pendientes y nunca registraron un pago. Es la misma distinción del 1.1: un nulo y un cero no dicen lo mismo.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>Qué marca deja más trabajo</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> marca,
+       <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> X.nro_orden) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.mano_obra), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> mano_obra
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E                     <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo X  <span class="sql-keyword">ON</span> X.id_equipo = E.id_equipo
+<span class="sql-keyword">LEFT JOIN</span> problema P                   <span class="sql-keyword">ON</span> P.id_problema = X.id_problema
+<span class="sql-keyword">GROUP BY</span> M.id_marca, M.nombre
+<span class="sql-keyword">ORDER BY</span> mano_obra <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>marca</th><th>ordenes</th><th>mano_obra</th></tr></thead>
+                            <tbody>
+                                <tr><td>Lenovo</td><td>3</td><td>18000.00</td></tr>
+                                <tr><td>Apple</td><td>2</td><td>14500.00</td></tr>
+                                <tr><td>Motorola</td><td>1</td><td>13500.00</td></tr>
+                                <tr><td>Samsung</td><td>2</td><td>11500.00</td></tr>
+                                <tr><td>Xiaomi</td><td>1</td><td>3000.00</td></tr>
+                                <tr><td>Google</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Sony</td><td>0</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Cuatro tablas encadenadas con <code>LEFT JOIN</code>: si una sola fuera <code>INNER</code>, Google y Sony se caerían del reporte. El <code>DISTINCT</code> en el conteo de órdenes es necesario porque una misma orden puede tener dos problemas del mismo equipo, y sin él Lenovo contaría esa orden dos veces.<br><br>Acá <strong>no</strong> hay duplicación como en el 2.4, porque las tablas están encadenadas una detrás de otra y no colgando en paralelo de la misma madre. Vale la pena mirar las dos consultas juntas para ver la diferencia.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <h3>Auditoría de un reporte ajeno</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+ <span class="sql-number">1</span> 
+
+ <span class="sql-number">2</span> 
+<span class="sql-keyword">SELECT</span> C.apellido,
+       <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> O.nro_orden) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>)   <span class="sql-keyword">AS</span> cobrado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O      <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido
+<span class="sql-keyword">ORDER BY</span> cobrado <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>ordenes (mal)</th><th>ordenes (bien)</th><th>cobrado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>5</td><td>3</td><td>99000.00</td></tr>
+                                <tr><td>García</td><td>3</td><td>2</td><td>60500.00</td></tr>
+                                <tr><td>Rossi</td><td>2</td><td>1</td><td>9000.00</td></tr>
+                                <tr><td>Ferreyra</td><td>0</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>López</td><td>0</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Martínez</td><td>0</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Pérez</td><td>1</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>Rossi</td><td>1</td><td>1</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> El <code>cobrado</code> está bien y el conteo de órdenes está inflado. Es la misma duplicación del 2.4, pero acá afecta a una sola columna, que es todavía más difícil de notar: quien revise va a ver los importes correctos y va a dar el reporte por bueno.<br><br>La corrección más corta es <code>COUNT(DISTINCT O.nro_orden)</code>. La más general es separar las ramas, y es la que conviene cuando el reporte crece.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.4</span>
+                        <h3>Lo que Martín no sabe pedir</h3>
+                        <a class="salto-nav" href="taller-integracion-consignas.html#reto-3-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+ <span class="sql-number">1</span> 
+ <span class="sql-number">2</span> 
+ <span class="sql-number">3</span> 
+ <span class="sql-number">4</span> 
+ <span class="sql-number">5</span> 
+
+ <span class="sql-number">6</span> 
+<span class="sql-keyword">SELECT</span> P.descripcion,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> veces,
+       <span class="sql-keyword">SUM</span>(P.mano_obra) <span class="sql-keyword">AS</span> mano_obra
+<span class="sql-keyword">FROM</span> problema P
+<span class="sql-keyword">INNER JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_problema = P.id_problema
+<span class="sql-keyword">GROUP BY</span> P.id_problema, P.descripcion
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt;= (<span class="sql-keyword">SELECT</span> AVG(c) <span class="sql-keyword">FROM</span> (
+         <span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> c <span class="sql-keyword">FROM</span> orden_servicio_has_equipo
+         <span class="sql-keyword">GROUP BY</span> id_problema) U)
+<span class="sql-keyword">ORDER BY</span> veces <span class="sql-keyword">DESC</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>descripcion</th><th>veces</th><th>mano_obra</th></tr></thead>
+                            <tbody>
+                                <tr><td>Limpieza y mantenimiento preventivo</td><td>3</td><td>9000.00</td></tr>
+                                <tr><td>Pantalla rota / Cambio de modulo</td><td>3</td><td>25500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> La limpieza se detectó tantas veces como el cambio de pantalla, y genera menos de la mitad de mano de obra. Eso ya es una respuesta útil, y ninguna consulta la iba a dar sola: hubo que convertir «me conviene» en preguntas que SQL pueda contestar.<br><br>Ése es el trabajo que este taller viene a practicar. La sintaxis ya la sabías; lo que se entrena acá es leer un pedido en castellano y decidir qué se cuenta, qué se compara y contra qué.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="compendio-subconsultas-resoluciones.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Compendio de subconsultas</strong>
+            </a>
+            <a class="pag-sig" href="taller-vistas-procedimientos-triggers-resoluciones.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Vistas, procedimientos y triggers</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-integracion-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>

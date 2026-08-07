@@ -222,6 +222,12 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos 
   materiales = ["taller-de-subconsultas", "compendio-de-subconsultas"]
 
   [[unidad.clase]]
+  numero = "Cierre de la unidad"
+  titulo = "Todo junto"
+  nota = "Cuando ya se dieron uniones, agrupación y subconsultas: un taller corto para practicar la decisión, no la sintaxis."
+  materiales = ["taller-de-integracion"]
+
+  [[unidad.clase]]
   numero = "Clases 28 a 32"
   titulo = "Vistas, procedimientos y triggers"
   nota = "Un solo taller cubre las cuatro clases: índices, vistas y seguridad, procedimientos almacenados y disparadores."
