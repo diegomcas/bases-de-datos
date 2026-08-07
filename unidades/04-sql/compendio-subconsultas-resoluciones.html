@@ -76,7 +76,7 @@
 
             <div class="warning-box">
                 <strong>⚠️ Sobre los IDs que aparecen en las tablas de resultado.</strong> El script de carga <strong>no fuerza ningún ID</strong>: deja que los asigne el <code>AUTO_INCREMENT</code>, justamente para no romper si la base ya fue tocada en clase. Sobre una base recién cargada los números caen donde figuran acá (clientes 6 a 8, equipos 6 a 9, órdenes 4 a 8), pero <strong>si alguien insertó o borró filas antes, los IDs se corren</strong> y las tablas de esta guía dejan de coincidir en la columna numérica —no en los datos—. Ante la duda, leé los resultados por apellido, modelo o <code>nro_serie</code>, que son estables. El script imprime al final los IDs que efectivamente asignó.
-                <br><br>Lo mismo vale para los enunciados que dicen "la orden número 1": se refieren a la primera orden del dataset base (Pérez, $53.500). Si el número cambió, verificalo con <code>SELECT nro_orden, total FROM orden_servicio ORDER BY nro_orden;</code> antes de dar la clase.
+                <br><br>Lo mismo vale para los enunciados que dicen "la orden número 1": se refieren a la primera orden del dataset base (Pérez, $53.500). Si el número cambió, verificalo con <code>SELECT nro_orden, total FROM orden_servicio ORDER BY nro_orden;</code> antes de empezar.
             </div>
 
             <div class="theory-box">
@@ -103,9 +103,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Usá estos tres retos como diagnóstico, no como enseñanza: dales diez minutos y recorré los bancos. Lo que tenés que detectar es quién todavía ejecuta la subconsulta interna aparte, copia el número a mano y lo pega en la externa. Ese alumno no entendió que la subconsulta es <em>dinámica</em>, y si no lo corregís acá se le va a complicar todo el resto del compendio.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Si para resolver estos tres retos ejecutaste la subconsulta aparte, copiaste el número a mano y lo pegaste en la consulta de afuera, volvé atrás y escribila adentro. La subconsulta es dinámica: el motor la resuelve en cada ejecución y el número cambia solo cuando cambian los datos. El resto del compendio da por sabido ese punto.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -155,7 +155,7 @@
                             <strong>Resultado: Google y Sony.</strong> Acá el <code>NOT IN</code> es seguro <em>y hay que poder justificar por qué</em>: en <code>ElChip.sql</code>, la columna <code>equipo.id_marca</code> está declarada <code>INT NOT NULL</code> con clave foránea, así que la subconsulta no puede producir un <code>NULL</code>. La respuesta correcta no es "usé NOT IN porque funciona", es "verifiqué el DER antes de usarlo".
                         </p>
                         <p class="explanation-text">
-                            <strong>Dato para picar a la clase:</strong> sí existe un repuesto "Módulo Google Pixel 7" en la base. Que haya repuestos de una marca no implica que haya equipos de esa marca. Sirve para insistir en que hay que leer <em>qué tabla</em> pregunta la consigna.
+                            <strong>Un dato para pensar:</strong> sí existe un repuesto "Módulo Google Pixel 7" en la base. Que haya repuestos de una marca no implica que haya equipos de esa marca. Conviene leer con cuidado <em>qué tabla</em> pregunta la consigna.
                         </p>
                     </div>
                 </li>
@@ -199,9 +199,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Escribí en el pizarrón el conjunto que devuelve la subconsulta —acá es <code>{12000, 1500, 9500, 2200, 800}</code>— y al lado, en grande: <code>&gt; ALL</code> ⇒ <em>mayor que 12000</em>, <code>&gt; ANY</code> ⇒ <em>mayor que 800</em>. Con el conjunto visible, la traducción a "máximo" y "mínimo" se vuelve obvia y ya no se olvida. El error clásico es el cruzado: creer que <code>ALL</code> se relaciona con el mínimo porque "tiene que cumplir con todos". Anticipalo vos antes de que aparezca en el parcial.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Escribí en el cuaderno el conjunto que devuelve la subconsulta —acá es {12000, 1500, 9500, 2200, 800}— y al lado: <code>&gt; ALL</code> equivale a mayor que 12000, <code>&gt; ANY</code> equivale a mayor que 800. Con el conjunto a la vista, la traducción a máximo y mínimo se vuelve evidente. El error más frecuente es el cruzado: creer que <code>ALL</code> se relaciona con el mínimo porque «tiene que cumplir con todos».</p>
             </div>
 
             <ul class="resolutions-list">
@@ -305,9 +305,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El valor pedagógico del Reto 3.1 está en los <strong>ceros</strong>. Mostrá primero el intento equivocado —cruzar clientes con órdenes y agrupar— y hacé notar que López y Martínez directamente <em>no figuran</em>. Después mostrá esta versión, donde aparecen con 0. El reclamo que cuenta Martín en la consigna es real: un reporte que omite a los que no tienen actividad es un reporte incorrecto, no un reporte incompleto. Es una distinción profesional que vale la pena instalar temprano.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Probá primero la versión que cruza clientes con órdenes y agrupa: López y Martínez no aparecen. Después mirá esta versión, donde figuran con 0. Un reporte que omite a los que no tuvieron actividad responde otra pregunta, y la consigna pedía todos los clientes.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -432,9 +432,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El Reto 4.2 es el más valioso de todo el compendio y conviene darlo como <strong>trampa deliberada</strong>. Pediles el "promedio de lo cobrado por orden" sin más aclaración: la mayoría va a escribir <code>SELECT AVG(monto) FROM orden_servicio_pago</code> y va a obtener $16.850. Recién entonces mostrá el número correcto, $28.083,33, y hacé que descubran ellos de dónde sale la diferencia (las órdenes 1, 4, 6 y 8 se pagaron en dos cuotas, y el promedio simple las cuenta dos veces cada una). Es un error que en un sistema de facturación real pasa auditorías sin que nadie lo note.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Calculá el promedio de lo cobrado por orden como te salga y anotá el número. Si te dio $16.850 con <code>SELECT AVG(monto) FROM orden_servicio_pago</code>, compará contra $28.083,33 y buscá de dónde sale la diferencia: las órdenes 1, 4, 6 y 8 se pagaron en dos cuotas, y el promedio simple las cuenta dos veces cada una. Es un error que en un sistema de facturación real pasa auditorías sin que nadie lo note.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -556,9 +556,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Volvé a poner en el pizarrón el orden de ejecución del Taller 2 (FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY) antes de arrancar. Después pediles que intenten mover la condición del <code>HAVING</code> al <code>WHERE</code> y lean el error. Ver <code>Error 1111: Invalid use of group function</code> con la lista de pasos a la vista convierte una regla memorizada en una consecuencia lógica. En el Reto 5.2, dejá que peleen solos con el doble nivel unos minutos: la frustración previa hace que la solución se entienda mucho mejor.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Tené a la vista el orden de ejecución del Taller 2: <code>FROM</code> → <code>WHERE</code> → <code>GROUP BY</code> → <code>HAVING</code> → <code>SELECT</code> → <code>ORDER BY</code>. Probá mover la condición del <code>HAVING</code> al <code>WHERE</code> y leé el error con esa lista delante: el <code>Error 1111</code> deja de ser una regla para memorizar y pasa a ser una consecuencia. En el Reto 5.2, peleá un rato solo con el doble nivel antes de mirar la solución.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -650,9 +650,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Antes de mostrar la sintaxis, pediles que resuelvan el Reto 6.1 como puedan. Van a escribir dos condiciones con <code>AND</code> y dos subconsultas separadas —una para el tipo, otra para la marca—, lo cual recorre la tabla dos veces y es fácil de escribir mal. Cuando ya lo hicieron así, mostrales el constructor de fila: la ganancia en claridad es evidente cuando ya sufrieron la alternativa. Es la forma natural de trabajar con las tres claves primarias compuestas que tiene este esquema.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Resolvé el Reto 6.1 como te salga antes de mirar la sintaxis nueva. Lo más probable es que escribas dos condiciones con <code>AND</code> y dos subconsultas separadas, una para el tipo y otra para la marca, recorriendo la tabla dos veces. Después compará con el constructor de fila: es la forma natural de trabajar con las tres claves primarias compuestas que tiene este esquema.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -744,10 +744,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Dale a este bloque el tiempo que haga falta aunque tengas que recortar otro: es el que más se cobra en los parciales y el único cuyo error no produce ningún mensaje. La secuencia que funciona es <strong>predicción antes de ejecución</strong>: hacé que escriban en el cuaderno cuántas filas creen que devuelve la consulta (b) del Reto 7.2 <em>antes</em> de apretar enter. Casi todos van a decir 6. Cuando aparece el cero, ya tenés su atención para explicar la lógica trivalente.</p>
-                <p style="margin-top:8px;"><strong>Corrección a una demo que circula:</strong> no se puede reproducir esto insertando una orden con cliente nulo. La columna <code>orden_servicio.id_cliente</code> es <code>NOT NULL</code> con clave foránea y el INSERT muere con <code>Error 1048</code>. Los retos 7.2 y 7.3 usan dos técnicas que sí funcionan sin tocar el esquema.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Antes de ejecutar la consulta (b) del Reto 7.2, anotá cuántas filas creés que devuelve. Casi todos dicen 6 y el resultado es 0. Ese cero es la lógica de tres valores: con un nulo adentro del conjunto, <code>NOT IN</code> no puede afirmar nada. Es el error que más se cobra en los parciales y el único que no produce ningún mensaje. Un aviso: no vas a poder reproducirlo insertando una orden con cliente nulo, porque <code>orden_servicio.id_cliente</code> es <code>NOT NULL</code> con clave foránea y el <code>INSERT</code> muere con <code>Error 1048</code>. Los retos 7.2 y 7.3 usan dos técnicas que funcionan sin tocar el esquema.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -892,9 +891,9 @@ Lo mismo ocurre con TODAS las filas.  ->  0 resultados.</code></pre>
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Regla de oro que conviene escribir en el pizarrón y no borrar: <strong>todo DELETE y todo UPDATE nace como SELECT</strong>. Hacé que en cada reto ejecuten primero la versión <code>SELECT</code> con el mismo <code>WHERE</code>, cuenten las filas y recién después cambien el verbo. Y trabajá siempre dentro de <code>START TRANSACTION</code> … <code>ROLLBACK</code>, así el grupo puede equivocarse sin arruinar la base para la clase siguiente. El Reto 8.2 es el que más rinde: el Error 1093 es específico de MySQL, sorprende a todo el mundo y aparece seguido en los parciales.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Regla que conviene no soltar más: todo <code>DELETE</code> y todo <code>UPDATE</code> nace como <code>SELECT</code>. En cada reto, ejecutá primero la versión <code>SELECT</code> con el mismo <code>WHERE</code>, contá las filas y recién después cambiá el verbo. Trabajá siempre dentro de <code>START TRANSACTION</code> … <code>ROLLBACK</code>, así podés equivocarte sin arruinar la base. En el Reto 8.2 vas a chocar con el <code>Error 1093</code>, que es propio de MySQL y aparece seguido en los parciales.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -1059,9 +1058,9 @@ Lo mismo ocurre con TODAS las filas.  ->  0 resultados.</code></pre>
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Mostrá las dos versiones proyectadas <strong>una al lado de la otra</strong> y hacé una sola pregunta: "¿por dónde empieza a leerse cada una?". La derivada se lee de adentro hacia afuera; la CTE, de arriba hacia abajo. Es el argumento completo y no hace falta agregar nada más. Aclarales que esto <em>no</em> reemplaza lo aprendido: una CTE es una tabla derivada con nombre, y si no entendieron el bloque 4 tampoco van a poder escribir CTE correctas. Verificá también que estén en MySQL 8: en 5.7 el <code>WITH</code> es error de sintaxis.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Mirá las dos versiones y preguntate por dónde empieza a leerse cada una: la tabla derivada se lee de adentro hacia afuera y la CTE, de arriba hacia abajo. Una CTE es una tabla derivada con nombre, así que no reemplaza nada de lo que viste en el bloque 4; si eso quedó flojo, tampoco vas a poder escribir CTE correctas. Verificá que estés en MySQL 8: en 5.7 el <code>WITH</code> es error de sintaxis.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -1149,9 +1148,9 @@ promedio_general <span class="sql-keyword">AS</span> (
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El Reto 10.2 es material de trabajo práctico, no de clase expositiva: dale al menos media hora y trabajalo en el pizarrón <em>antes</em> de tocar el teclado, con conjuntos dibujados. La clave para que lo entiendan es reformular la pregunta en voz alta hasta que ellos mismos lleguen a la doble negación: "quiero los que usaron todos" → "los que no dejaron ninguno sin usar" → dos <code>NOT EXISTS</code>. Si arrancás mostrando el SQL, lo copian y no lo entienden. El 10.3 funciona muy bien como cierre oral de la unidad, sin computadora.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Este reto se trabaja en papel antes que en el teclado, con los conjuntos dibujados. Reformulá la pregunta en voz alta hasta llegar a la doble negación: «quiero los que usaron todos» → «los que no dejaron ninguno sin usar» → dos <code>NOT EXISTS</code>. Si arrancás copiando el SQL, lo vas a tener escrito sin entenderlo.</p>
             </div>
 
             <ul class="resolutions-list">

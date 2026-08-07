@@ -48,16 +48,16 @@
         <!-- NOTA DE CALIBRACIÓN -->
         <section class="block-card" style="border-left: 4px solid var(--accent);">
             <div class="block-title" style="margin-bottom: 15px;">
-                <h2 style="font-size: 1.6rem;">Antes de dar la clase</h2>
+                <h2 style="font-size: 1.6rem;">Antes de empezar</h2>
             </div>
             <div class="explanation-text">
-                <p style="margin-bottom: 12px;"><strong>Dataset:</strong> este compendio está calibrado sobre la <strong>base ampliada</strong> — <code>ElChip.sql</code> + <code>poblar_elchip.sql</code> + <code>poblar_elchip_compendio.sql</code>. Es el mismo dataset del Compendio de Subconsultas, así que si ya lo diste, la base está lista. <strong>No</strong> es el dataset del Taller 2 original, que tiene 5 clientes y 3 órdenes; sobre aquél, la mitad de estos retos devuelve una sola fila o ninguna.</p>
-                <p style="margin-bottom: 12px;">Todos los resultados de esta guía fueron <strong>ejecutados y verificados</strong> contra una réplica exacta de ese dataset. Si en clase te dan otros números, lo primero a revisar es la carga de datos, no la consulta.</p>
+                <p style="margin-bottom: 12px;"><strong>Dataset:</strong> este compendio está calibrado sobre la <strong>base ampliada</strong> — <code>ElChip.sql</code> + <code>poblar_elchip.sql</code> + <code>poblar_elchip_compendio.sql</code>. Es el mismo dataset del Compendio de Subconsultas: si ya lo cargaste, la base está lista. <strong>No</strong> es el dataset del Taller 2 original, que tiene 5 clientes y 3 órdenes; sobre aquél, la mitad de estos retos devuelve una sola fila o ninguna.</p>
+                <p style="margin-bottom: 12px;">Todos los resultados de esta guía fueron <strong>ejecutados y verificados</strong> contra una réplica exacta de ese dataset. Si te dan otros números, lo primero a revisar es la carga de datos.</p>
                 <p style="margin-bottom: 12px;"><strong>Los casos negativos son deliberados</strong> y no hay que "completarlos": las marcas Google y Sony sin equipos, los métodos Cheque y Crédito en cuenta sin uso, el problema "Cámara principal no enfoca" nunca detectado y las órdenes 3 y 7 sin pagos son exactamente lo que hace posible el Bloque 06.</p>
                 <div class="warning-box">
-                    <strong>⚠️ Sobre <code>fecha_pago</code>:</strong> los tres pagos del dataset base se insertan sin fecha explícita, así que toman <code>CURRENT_TIMESTAMP</code> — es decir, el día en que se cargó la base, no mayo de 2026. Por eso ningún reto de este compendio agrupa ni filtra por <code>fecha_pago</code>: los cortes temporales usan <code>orden_servicio.fecha_ingreso</code>, que sí está cargada explícitamente. Si algún alumno arma un reporte por mes sobre <code>fecha_pago</code>, va a obtener resultados distintos a los de esta guía, y la explicación es ésa.
+                    <strong>⚠️ Sobre <code>fecha_pago</code>:</strong> los tres pagos del dataset base se insertan sin fecha explícita, así que toman <code>CURRENT_TIMESTAMP</code> — es decir, el día en que se cargó la base, no mayo de 2026. Por eso ningún reto de este compendio agrupa ni filtra por <code>fecha_pago</code>: los cortes temporales usan <code>orden_servicio.fecha_ingreso</code>, que sí está cargada explícitamente. Si armás un reporte por mes sobre <code>fecha_pago</code> vas a obtener resultados distintos a los de esta guía, y la explicación es ésa.
                 </div>
-                <p style="margin-top: 12px;"><strong>Recorrido sugerido:</strong> los bloques 01 a 05 son el hilo principal y se pueden dar de corrido. El bloque 06 es el que deja huella, así que conviene reservarle tiempo real y no dejarlo como "si llegamos". Si la clase es corta, es preferible saltear el 05 y dar el 06 completo.</p>
+                <p style="margin-top: 12px;"><strong>Recorrido sugerido:</strong> los bloques 01 a 05 son el hilo principal y se pueden hacer de corrido. Reservale tiempo real al bloque 06: es el que más rinde y el que cierra el compendio.</p>
             </div>
         </section>
 
@@ -71,9 +71,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El corazón del bloque es el Reto 1.2, no el 1.1. Casi todos creen que <code>COUNT(*)</code> y <code>COUNT(columna)</code> son sinónimos, y esta base tiene el contraejemplo perfecto: <code>COUNT(fecha_entrega)</code> da <strong>0</strong> sobre 8 órdenes. Pedí que anoten su predicción antes de ejecutar; el contraste entre lo que anotaron y lo que salió es lo que fija el concepto.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Antes de ejecutar, anotá qué número esperás en cada columna. <code>COUNT(*)</code> y <code>COUNT(columna)</code> parecen sinónimos y no lo son: sobre las mismas 8 órdenes, <code>COUNT(*)</code> devuelve 8 y <code>COUNT(fecha_entrega)</code> devuelve 0, porque ninguna tiene fecha de entrega cargada. <code>COUNT</code> de una columna ignora los nulos. Compará tu predicción con el resultado: esa diferencia es el concepto del bloque.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -234,9 +234,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Hacé el contraejemplo del <code>ONLY_FULL_GROUP_BY</code> en vivo, con el Reto 2.1: escribí <code>SELECT tipo, modelo, COUNT(*) FROM equipo GROUP BY tipo;</code> y mostrá el error. Después preguntá: "de los 5 celulares, ¿cuál de los 5 modelos debería mostrar el motor en esa columna?". Cuando alguien contesta "y… no sabe", el concepto quedó. El Reto 2.4 es el más importante del bloque: ahí aparecen por primera vez los clientes que <em>no están</em> en el resultado, que es todo el tema del Bloque 06.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Probá a propósito <code>SELECT tipo, modelo, COUNT(*) FROM equipo GROUP BY tipo;</code> y leé el error. Después contestate la pregunta que el motor no puede contestar: de los 5 celulares, ¿cuál de los 5 modelos tendría que mostrar en esa columna? Cuando la respuesta es «no hay forma de saberlo», entendiste para qué existe <code>ONLY_FULL_GROUP_BY</code>. El Reto 2.4 es el que más rinde: ahí aparecen por primera vez los clientes que quedan fuera del resultado.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -438,9 +438,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Poné los resultados del 2.2 y del 3.1 uno al lado del otro en la pantalla. Que vean con los ojos que una fila entera del tablero desapareció por efecto del <code>WHERE</code>. Ése es el momento exacto para instalar la pregunta que los va a salvar en el examen: <em>"cuando una categoría no está en mi reporte, ¿es porque no tiene datos o porque la filtré?"</em>. Es la misma pregunta del Bloque 06 pero llegando desde el otro lado.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Poné los resultados del 2.2 y del 3.1 uno al lado del otro y buscá la fila que desapareció. La pregunta que conviene llevarse: cuando una categoría no figura en un reporte, ¿es porque no tiene datos o porque la filtraste? Esa duda te va a servir cada vez que armes un informe.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -585,9 +585,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Escribí <code>WHERE COUNT(*) &gt; 1</code> a propósito frente a la clase y mostrá el <code>ERROR 1111</code>. Después explicá el error desde el ciclo de vida: el <code>WHERE</code> corre en el paso 2 y el <code>COUNT</code> no existe hasta el paso 4. No es que MySQL "no lo permita": es que lógicamente no puede. El Reto 4.4 es el que más rinde profesionalmente — <code>HAVING COUNT(*) &gt; 1</code> es la herramienta con la que van a auditar duplicados en cualquier base durante el resto de su carrera.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Escribí <code>WHERE COUNT(*) &gt; 1</code> a propósito y leé el <code>ERROR 1111</code>. La explicación está en el orden de ejecución: el <code>WHERE</code> corre en el paso 2 y el <code>COUNT</code> no existe hasta el paso 4, así que en ese momento el motor todavía no tiene el número. <code>HAVING COUNT(*) &gt; 1</code> es la herramienta con la que vas a auditar duplicados en cualquier base durante el resto de tu carrera.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -777,9 +777,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El Reto 5.2 tiene una trampa de negocio que conviene no adelantar: el "podio" incluye a Sofía Rossi con una orden <em>abandonada</em>. Dejá que armen el ranking, que lo miren orgullosos, y recién ahí preguntá si Martín debería llamarla para agradecerle. La consulta está bien; la pregunta estaba mal formulada. Es el mismo aprendizaje del 3.3 pero ahora lo descubren ellos.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Armá el ranking y después mirá quién quedó en el podio. Sofía Rossi entra con una orden abandonada: la consulta está bien escrita y el resultado es correcto, pero la pregunta estaba mal formulada. Antes de dar un reporte por terminado, revisá si el criterio que usaste responde lo que el negocio quería preguntar.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -990,9 +990,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Este bloque justifica el compendio entero. La consigna dice explícitamente que resuelvan <em>primero mal</em> (con <code>COUNT(*)</code> y sin <code>COALESCE</code>) y recién después bien: no te saltees ese paso, porque el aprendizaje está en ver el resultado incorrecto que <strong>no da error</strong>. Cerrá el bloque con una frase para el cuaderno: <em>"si el reporte tiene menos filas de las que esperabas, no es que falten datos: es que el SQL solo puede agrupar lo que existe"</em>.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Este bloque pide que resuelvas primero mal —con <code>COUNT(*)</code> y sin <code>COALESCE</code>— y recién después bien. Hacé los dos pasos: el aprendizaje está en ver un resultado incorrecto que no da ningún error. Para el cuaderno: si el reporte tiene menos filas de las que esperabas, el SQL solo pudo agrupar lo que existe.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -1323,7 +1323,7 @@
                             <strong>Verificación:</strong> los 10 pagos y los $168.500 de la fila de total coinciden con <code>SELECT COUNT(*), SUM(monto) FROM orden_servicio_pago;</code> — el mismo control de consistencia del Reto 2.3, ahora hecho por el motor dentro de la consulta.
                         </p>
                         <div class="warning-box">
-                            <strong>⚠️ Dos advertencias sobre ROLLUP:</strong> primero, el orden de las filas lo maneja el <code>ROLLUP</code>, y combinarlo con <code>ORDER BY</code> puede mover la fila de total al medio del reporte (ordená por <code>GROUPING(...)</code> primero si necesitás las dos cosas). Segundo, este reporte usa la unión con coma, así que <strong>solo aparecen los 4 métodos con pagos</strong>: Cheque y Crédito en cuenta siguen sin figurar. Para el reporte completo con ceros hay que combinar el <code>LEFT JOIN</code> del Reto 6.2 con el <code>WITH ROLLUP</code> de éste — buen ejercicio integrador para cerrar la clase.
+                            <strong>⚠️ Dos advertencias sobre ROLLUP:</strong> primero, el orden de las filas lo maneja el <code>ROLLUP</code>, y combinarlo con <code>ORDER BY</code> puede mover la fila de total al medio del reporte (ordená por <code>GROUPING(...)</code> primero si necesitás las dos cosas). Segundo, este reporte usa la unión con coma, así que <strong>solo aparecen los 4 métodos con pagos</strong>: Cheque y Crédito en cuenta siguen sin figurar. Para el reporte completo con ceros hay que combinar el <code>LEFT JOIN</code> del Reto 6.2 con el <code>WITH ROLLUP</code> de éste — buen ejercicio integrador para cerrar el compendio.
                         </div>
                     </div>
                 </li>

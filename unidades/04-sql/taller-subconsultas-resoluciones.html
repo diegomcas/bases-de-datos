@@ -25,7 +25,7 @@
         <div class="header-container">
             <span class="badge">Guía Docente / Respuestas</span>
             <h1>Resoluciones del Taller de Subconsultas</h1>
-            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos pedagógicos para la clase</p>
+            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos de trabajo</p>
             <a href="taller-subconsultas-consignas.html" class="nav-alumno">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Volver a las Consignas
@@ -52,9 +52,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>En el Reto 1.1, haz que los alumnos ejecuten primero la consulta interna sola <code>SELECT AVG(precio_unitario) FROM repuesto</code> para que vean que devuelve un número fijo (ej. 23000.00). Explícales que la consulta externa reemplaza dinámicamente esa fórmula por el número obtenido.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Ejecutá primero la consulta interna sola —<code>SELECT AVG(precio_unitario) FROM repuesto</code>— y anotá el número que devuelve. Después mirá la consulta completa: la externa reemplaza esa fórmula por ese valor cada vez que se ejecuta, así que si mañana cambian los precios el resultado cambia solo.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -115,7 +115,7 @@
                             1. La consulta más interna trae el ID del equipo en la orden 1 (devuelve <code>1</code>).
                             2. La consulta intermedia busca la marca para el equipo ID 1 (devuelve <code>1</code>).
                             3. La consulta externa busca el nombre de la marca con ID 1 (devuelve <code>'Samsung'</code>).
-                            <br><strong>Pregunta para picar a la clase:</strong> ¿Por qué agregamos <code>LIMIT 1</code> en la consulta interna? Si una orden de servicio tuviera cargados dos equipos diferentes al mismo tiempo, el signo <code>=</code> se rompería arrojando error. El <code>LIMIT 1</code> es un cinturón de seguridad escolar para garantizar que la subconsulta siga siendo estrictamente escalar.
+                            <br><strong>Para pensar:</strong> ¿Por qué agregamos <code>LIMIT 1</code> en la consulta interna? Si una orden de servicio tuviera cargados dos equipos diferentes al mismo tiempo, el signo <code>=</code> se rompería arrojando error. El <code>LIMIT 1</code> es un cinturón de seguridad escolar para garantizar que la subconsulta siga siendo estrictamente escalar.
                         </p>
                     </div>
                 </li>
@@ -132,9 +132,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>En el Reto 2.2 es fundamental explicar el peligro del <code>NULL</code> con <code>NOT IN</code>. Pide a los alumnos que agreguen un registro de prueba en la tabla <code>orden_servicio</code> donde el cliente sea <code>NULL</code>, y haz que ejecuten el <code>NOT IN</code> sin filtrar el nulo. Verán que la consulta externa da 0 resultados, y ahí puedes explicar la lógica de 3 valores en SQL.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>El <code>NOT IN</code> con nulos es una trampa silenciosa. Probá agregar un registro de prueba en <code>orden_servicio</code> con el cliente en nulo y ejecutá el <code>NOT IN</code> sin filtrarlo: la consulta devuelve 0 resultados sin dar ningún error. Es la lógica de tres valores de SQL, y por eso conviene descartar los nulos siempre que uses <code>NOT IN</code>.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -203,9 +203,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Enfatiza cómo la subconsulta de <code>EXISTS</code> tiene un "enlace" en el <code>WHERE</code> (ej: <code>t.id_cliente = c.id_cliente</code>). Explícales que la letra <code>c</code> de la consulta de afuera viaja adentro de la subconsulta en cada iteración del motor de base de datos. También aclara por qué usamos <code>SELECT 1</code>: la BD no necesita buscar columnas, solo quiere saber si se devuelve al menos un registro en la grilla.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Fijate dónde está el enlace de la subconsulta de <code>EXISTS</code>: la condición <code>t.id_cliente = c.id_cliente</code> usa la <code>c</code> de la consulta de afuera. Esa letra viaja adentro de la subconsulta en cada vuelta del motor, y por eso el resultado cambia fila por fila. El <code>SELECT 1</code> está ahí porque a la base le alcanza con saber si hay al menos un registro; las columnas no las usa.</p>
             </div>
 
             <ul class="resolutions-list">

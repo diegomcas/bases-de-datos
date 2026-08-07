@@ -39,7 +39,7 @@
         <div class="header-container">
             <span class="badge">Guía Docente / Respuestas</span>
             <h1>Resoluciones de la Práctica de DML</h1>
-            <p>Respuestas exactas, resultados esperados sobre el dataset base y consejos pedagógicos para la clase</p>
+            <p>Respuestas exactas, resultados esperados sobre el dataset base y consejos de trabajo</p>
             <a href="taller-sql-practica-consignas.html" class="nav-alumno">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Volver a las Consignas
@@ -59,14 +59,14 @@
         <!-- NOTA DE CALIBRACIÓN -->
         <section class="block-card" style="border-left: 4px solid var(--accent);">
             <div class="block-title" style="margin-bottom: 15px;">
-                <h2 style="font-size: 1.6rem;">Antes de dar la clase: sobre qué datos corre esto</h2>
+                <h2 style="font-size: 1.6rem;">Antes de empezar: sobre qué datos corre esto</h2>
             </div>
             <div class="explanation-text">
                 <p style="margin-bottom: 12px;">Todos los resultados esperados de esta guía están calculados sobre el <strong>dataset base</strong>: <code>ElChip.sql</code> (estructura) + <code>poblar_elchip.sql</code> (datos). Son 5 clientes, 3 órdenes, 5 equipos, 6 repuestos y 6 problemas. <strong>No</strong> corre sobre <code>poblar_elchip_compendio.sql</code>.</p>
-                <p style="margin-bottom: 12px;">Un detalle de secuencia importante: los bloques 02, 03 y 04 <strong>modifican</strong> la base. Los resultados del bloque 03 y del bloque 05 suponen que los alumnos ya ejecutaron los <code>INSERT</code> del bloque 02. Si alguien se salteó un bloque, sus números van a diferir, y eso es esperable: conviene anticiparlo en voz alta.</p>
+                <p style="margin-bottom: 12px;">Un detalle de secuencia importante: los bloques 02, 03 y 04 <strong>modifican</strong> la base. Los resultados del bloque 03 y del bloque 05 suponen que ya ejecutaste los <code>INSERT</code> del bloque 02. Si te salteaste un bloque, tus números van a diferir, y eso es esperable.</p>
                 <p style="margin-bottom: 12px;">Para volver al punto de partida en cualquier momento, basta con re-ejecutar los dos scripts en orden (<code>ElChip.sql</code> recrea el esquema desde cero).</p>
                 <div class="warning-box">
-                    <strong>⚠️ Errata del material original:</strong> en el PDF de origen, el desafío del aumento general de precios figura rotulado como "Desafío H", repitiendo la letra del primer desafío de <code>INSERT</code>. Acá se lo renombró <strong>Desafío K</strong> para respetar la secuencia H, I, J, K, L, M, N, Ñ, O, P. Si usás el PPT en pantalla, avisá del salto.
+                    <strong>⚠️ Errata del material original:</strong> en el PDF de origen, el desafío del aumento general de precios figura rotulado como "Desafío H", repitiendo la letra del primer desafío de <code>INSERT</code>. Acá se lo renombró <strong>Desafío K</strong> para respetar la secuencia H, I, J, K, L, M, N, Ñ, O, P. Si estás siguiendo el PPT en pantalla, tené presente ese salto de letra.
                 </div>
             </div>
         </section>
@@ -81,9 +81,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El Reto 1.1 esconde el concepto más valioso del bloque: se ordena por una columna que no se muestra. Casi todos los alumnos van a agregar <code>precio_unitario</code> al <code>SELECT</code> "porque si no, no puedo ordenar". Dejalos hacerlo, y después sacá la columna del <code>SELECT</code> dejando el <code>ORDER BY</code> intacto y mostrá que sigue funcionando. Ahí se entiende que <code>SELECT</code> y <code>ORDER BY</code> son etapas distintas del procesamiento.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>El Reto 1.1 esconde el concepto más útil del bloque: se puede ordenar por una columna que no se muestra. Si agregaste <code>precio_unitario</code> al <code>SELECT</code> porque pensabas que sin eso no podías ordenar, sacala y dejá el <code>ORDER BY</code> intacto. La consulta sigue funcionando, porque <code>SELECT</code> y <code>ORDER BY</code> son etapas distintas del procesamiento.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -190,7 +190,7 @@
                             </tbody>
                         </table>
                         <p class="explanation-text">
-                            <strong>El borde a discutir:</strong> "Pin de carga dañado" cuesta exactamente $5000 y <strong>no</strong> aparece, porque <code>&gt;</code> es estricto. Preguntá a la clase si Martín, cuando dice "superior a $5000", querría verlo o no. Es la conversación que enseña la diferencia entre <code>&gt;</code> y <code>&gt;=</code> mejor que cualquier definición.
+                            <strong>El borde a discutir:</strong> "Pin de carga dañado" cuesta exactamente $5000 y <strong>no</strong> aparece, porque <code>&gt;</code> es estricto. Preguntate si Martín, cuando dice "superior a $5000", querría verlo o no. Contestar eso enseña la diferencia entre <code>&gt;</code> y <code>&gt;=</code> mejor que cualquier definición.
                         </p>
                     </div>
                 </li>
@@ -340,10 +340,10 @@
                         <p class="result-caption">1 fila: solo la orden pendiente.</p>
 
                         <div class="warning-box">
-                            <strong>⚠️ Este reto es el más importante del bloque y hay que dedicarle tiempo:</strong> las dos estrategias <strong>dan resultados distintos</strong> (3 filas contra 1 fila), y eso no es un error de los alumnos. Las órdenes 1 y 2 están marcadas con estado "Entregado" pero <em>nunca se les cargó la <code>fecha_entrega</code></em>. Los datos son internamente inconsistentes.
+                            <strong>⚠️ Este reto es el más importante del bloque y conviene dedicarle tiempo:</strong> las dos estrategias <strong>dan resultados distintos</strong> (3 filas contra 1 fila), y eso no es un error tuyo. Las órdenes 1 y 2 están marcadas con estado "Entregado" pero <em>nunca se les cargó la <code>fecha_entrega</code></em>. Los datos son internamente inconsistentes.
                         </div>
                         <p class="explanation-text">
-                            <strong>Cómo capitalizarlo:</strong> la respuesta correcta según el negocio es la <strong>Estrategia 2</strong>, porque el estado es el campo que el taller mantiene al día. Pero la conclusión que se llevan los alumnos es más grande que este ejercicio: <em>cuando la misma pregunta se puede responder desde dos columnas distintas, la base tarde o temprano se va a contradecir</em>. La solución de fondo no es elegir mejor la consulta, es que un <code>TRIGGER</code> (o la aplicación) complete la <code>fecha_entrega</code> cuando el estado pasa a "Entregado". Eso enlaza directo con el taller de Triggers.
+                            <strong>Qué llevarse:</strong> la respuesta correcta según el negocio es la <strong>Estrategia 2</strong>, porque el estado es el campo que el taller mantiene al día. Pero la conclusión es más grande que este ejercicio: <em>cuando la misma pregunta se puede responder desde dos columnas distintas, la base tarde o temprano se va a contradecir</em>. La solución de fondo pasa por que un <code>TRIGGER</code> (o la aplicación) complete la <code>fecha_entrega</code> cuando el estado pasa a "Entregado", más que por elegir mejor la consulta. Eso enlaza directo con el taller de Triggers.
                         </p>
                         <p class="explanation-text">
                             <strong>Error clásico a provocar:</strong> pedile a alguien que escriba <code>WHERE fecha_entrega = NULL</code>. Devuelve cero filas <em>sin dar error</em>, que es lo peligroso. <code>NULL</code> significa "desconocido", y comparar dos desconocidos nunca da verdadero: por eso existe <code>IS NULL</code>.
@@ -416,9 +416,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Los retos 2.1 y 2.2 salen solos; el 2.3 es el que enseña. Dejá que intenten <code>INSERT INTO orden_servicio (cliente) VALUES ('Carlos López');</code> y que choquen con el error. Ahí se ve, en un caso concreto, para qué sirvió todo el trabajo de normalización: la orden no guarda un nombre, guarda una <em>referencia</em>. Hacé que ejecuten <code>DESCRIBE orden_servicio;</code> y lean juntos qué columnas son <code>NOT NULL</code> antes de escribir nada.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Antes de escribir nada, ejecutá <code>DESCRIBE orden_servicio;</code> y leé qué columnas son <code>NOT NULL</code>. Después probá <code>INSERT INTO orden_servicio (cliente) VALUES ('Carlos López');</code> y chocá con el error a propósito: ahí se ve para qué sirvió todo el trabajo de normalización. La orden guarda el identificador del cliente, y el nombre vive una sola vez, en la tabla <code>cliente</code>.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -561,9 +561,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Instalá el reflejo del <code>SELECT</code> previo y no lo sueltes en toda la clase: <em>toda</em> sentencia <code>UPDATE</code> se escribe primero como <code>SELECT</code> con el mismo <code>WHERE</code>. Pedí que antes de ejecutar el 3.2 cada uno anote en el cuaderno cuántas filas cree que va a tocar; después comparan contra el <code>Rows matched</code> que informa MySQL. Los que anoten 3 (contando solo los "Módulo" con tilde) van a descubrir solos el efecto de la collation.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Toda sentencia <code>UPDATE</code> se escribe primero como <code>SELECT</code> con el mismo <code>WHERE</code>. Antes de ejecutar el Reto 3.2, anotá cuántas filas creés que va a tocar y comparalo con el <code>Rows matched</code> que informa MySQL. Si anotaste 3 contando solo los «Módulo» con tilde, el número real te va a mostrar el efecto de la collation.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -654,7 +654,7 @@
                             <strong>Los comodines:</strong> <code>%</code> reemplaza cualquier cantidad de caracteres (incluida ninguna) y <code>_</code> exactamente uno. Por eso <code>LIKE 'Módulo%'</code> (sin el <code>%</code> inicial) traería solo los que <em>empiezan</em> con esa palabra: en este caso, los cuatro igual. Probalo en vivo para que se vea la diferencia entre "contiene" y "empieza con".
                         </p>
                         <p class="explanation-text">
-                            <strong>Nota de continuidad:</strong> si se ejecutan 3.1 y 3.2 seguidos, los módulos acumulan dos aumentos (un 21% total). Aclaralo, porque si no los números de la pantalla no cierran con lo que espera la clase.
+                            <strong>Nota de continuidad:</strong> si se ejecutan 3.1 y 3.2 seguidos, los módulos acumulan dos aumentos (un 21% total). Tenelo en cuenta, porque si no los números de la pantalla dejan de coincidir con los de esta guía.
                         </p>
                     </div>
                 </li>
@@ -711,9 +711,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Este bloque está diseñado para que uno funcione y el otro falle. No adelantes el final: pediles que ejecuten los dos y que ellos mismos formulen la hipótesis de por qué el segundo se niega. El error <code>1451</code> es el protagonista de la clase, no un accidente. Y remarcá el contraste con el bloque 03: un <code>UPDATE</code> mal apuntado <em>se ejecuta igual</em> y arruina datos en silencio; este <code>DELETE</code>, en cambio, es la base cuidándote.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Este bloque está armado para que una sentencia funcione y la otra falle. Ejecutá las dos antes de leer la explicación y formulá tu propia hipótesis de por qué la segunda se niega. El <code>error 1451</code> es el tema del bloque. Compará con el bloque 03: un <code>UPDATE</code> mal apuntado se ejecuta igual y arruina datos en silencio, mientras que este <code>DELETE</code> es la base cuidándote.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -817,7 +817,7 @@ a foreign key constraint fails
 <span class="sql-comment">--    UPDATE cliente SET activo = 0 WHERE id_cliente = 1;</span></code></pre>
                         </div>
                         <div class="warning-box">
-                            <strong>⚠️ No dejes que "resuelvan" el reto borrando todo lo que cuelga del cliente.</strong> Si alguien lo hace, la base queda sin la orden 1 y los resultados del resto de la clase dejan de coincidir. Además, la respuesta correcta a la consigna no es lograr el borrado: es explicar por qué el motor se niega. La opción 3 (baja lógica) es la que usan los sistemas de verdad, y conviene que se la lleven anotada.
+                            <strong>⚠️ No resuelvas el reto borrando todo lo que cuelga del cliente.</strong> Si lo hacés, la base queda sin la orden 1 y los resultados del resto del taller dejan de coincidir. Además, la consigna no pide lograr el borrado: pide explicar por qué el motor se niega. La opción 3 (baja lógica) es la que usan los sistemas de verdad, y conviene anotarla.
                         </div>
                     </div>
                 </li>
@@ -834,9 +834,9 @@ a foreign key constraint fails
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Dibujá la tabla completa ordenada en el pizarrón y tachá físicamente las filas que el <code>OFFSET</code> descarta. Es un tema que se entiende en diez segundos de forma visual y que se enreda si se explica solo con palabras. Cerrá pidiendo la fórmula general: si en el examen aparece "páginas de 20 registros, quiero la página 7", tienen que poder responder <code>LIMIT 20 OFFSET 120</code> sin dudar.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Dibujá la tabla ordenada en papel y tachá las filas que el <code>OFFSET</code> descarta. Es un tema que se entiende en diez segundos de forma visual y se enreda si se explica solo con palabras. Quedate con la fórmula general: si te piden páginas de 20 registros y querés la página 7, es <code>LIMIT 20 OFFSET 120</code>.</p>
             </div>
 
             <ul class="resolutions-list">

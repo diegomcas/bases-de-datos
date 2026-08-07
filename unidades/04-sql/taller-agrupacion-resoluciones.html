@@ -25,7 +25,7 @@
         <div class="header-container">
             <span class="badge">Guía Docente / Respuestas</span>
             <h1>Resoluciones del Taller de Agrupamiento</h1>
-            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos pedagógicos para la clase</p>
+            <p>Respuestas exactas, explicaciones lógicas de MySQL y consejos de trabajo</p>
             <a href="taller-agrupacion-consignas.html" class="nav-alumno">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Volver a las Consignas
@@ -52,9 +52,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Muestra cómo el alias (<code>AS 'Nombre'</code>) ayuda a que los reportes de Martín no tengan nombres técnicos de columnas como <code>SUM(stock*precio_unitario)</code> en el encabezado de la grilla. Esto acostumbra a los alumnos a hacer entregables limpios.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Usá el alias (<code>AS 'Nombre'</code>) para que el reporte no muestre nombres técnicos como <code>SUM(stock*precio_unitario)</code> en el encabezado. Un entregable que Martín pueda leer sin traducción vale tanto como la consulta que lo produce.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -135,9 +135,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Pregunta qué pasaría si no ponemos el <code>GROUP BY tipo</code> en el Reto 2.1. Con `ONLY_FULL_GROUP_BY` activado, la base de datos aborta. Haz hincapié en que el motor necesita saber bajo qué criterio agrupar los registros para poder contarlos de forma coherente.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Probá el Reto 2.1 sin el <code>GROUP BY tipo</code> y mirá qué contesta el motor. Con <code>ONLY_FULL_GROUP_BY</code> activado, la consulta aborta: el motor necesita saber bajo qué criterio agrupar antes de poder contar de forma coherente.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -196,9 +196,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Haz el contraejemplo a propósito: intenta escribir <code>WHERE COUNT(*) > 1</code> en la consola frente a los alumnos para que vean el error explícito de MySQL. Explícales que WHERE se procesa en el paso 2 de la query (antes de agrupar) por lo que es lógicamente imposible que conozca el valor del conteo en esa instancia. Es la mejor forma de grabar la diferencia en su memoria.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Escribí <code>WHERE COUNT(*) &gt; 1</code> en la consola a propósito y mirá el error. El <code>WHERE</code> se procesa en el paso 2 de la consulta, antes de agrupar, así que en ese momento el conteo todavía no existe. Verlo fallar fija la diferencia con <code>HAVING</code> mejor que cualquier definición.</p>
             </div>
 
             <ul class="resolutions-list">

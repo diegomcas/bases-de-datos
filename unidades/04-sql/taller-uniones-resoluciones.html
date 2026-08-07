@@ -27,7 +27,7 @@
         <div class="header-container">
             <span class="badge">Guía Docente / Respuestas</span>
             <h1>Resoluciones del Taller de Uniones sin JOIN</h1>
-            <p>Respuestas exactas, resultados esperados sobre la base poblada y consejos pedagógicos para la clase</p>
+            <p>Respuestas exactas, resultados esperados sobre la base poblada y consejos de trabajo</p>
             <a href="taller-uniones-consignas.html" class="nav-alumno">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Volver a las Consignas
@@ -54,9 +54,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Arrancá el taller <strong>en el pizarrón, sin computadora</strong>: escribí dos tablitas de 3 y 2 filas y pedí que dibujen a mano el resultado del cruce. Cuando lo terminen y cuenten 6 filas, recién ahí pasá a la consola. La cardinalidad multiplicativa se entiende con la mano antes que con el motor. Un cierre efectivo del bloque: hacé que calculen cuántas filas tendría el cartesiano completo de las 5 tablas más grandes de una base real de facturación; el número absurdo que sale es lo que se les va a quedar grabado.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Arrancá en papel, sin computadora: escribí dos tablas de 3 y 2 filas y dibujá a mano el resultado del cruce. Cuando cuentes las 6 filas, pasá a la consola. La cardinalidad multiplicativa se entiende con la mano antes que con el motor. Para cerrar, calculá cuántas filas tendría el cartesiano completo de las 5 tablas más grandes de una base de facturación real: el número que sale es el que te vas a acordar.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -78,7 +78,7 @@
 <span class="sql-keyword">ORDER BY</span> C.apellido, MP.nombre;</code></pre>
                         </div>
                         <p class="explanation-text">
-                            <strong>Resultado esperado: 20 filas</strong> (5 clientes × 4 métodos de pago). Cada cliente aparece exactamente 4 veces. Notar que <code>C.nombre</code> y <code>MP.nombre</code> se llaman igual: sin los alias de tabla, MySQL devolvería el error 1052 de ambigüedad. Es el primer contacto de la clase con ese error, y conviene provocarlo a propósito borrando los prefijos.
+                            <strong>Resultado esperado: 20 filas</strong> (5 clientes × 4 métodos de pago). Cada cliente aparece exactamente 4 veces. Notar que <code>C.nombre</code> y <code>MP.nombre</code> se llaman igual: sin los alias de tabla, MySQL devolvería el error 1052 de ambigüedad. Es el primer contacto con ese error, y conviene provocarlo a propósito borrando los prefijos.
                         </p>
                     </div>
                 </li>
@@ -100,7 +100,7 @@
 <span class="sql-keyword">FROM</span> equipo, problema;</code></pre>
                         </div>
                         <p class="explanation-text">
-                            <strong>Resultado esperado: 30.</strong> La base tiene 5 equipos y 6 problemas: 5 × 6 = 30. Cada equipo se apareja con los 6 problemas, aunque en la realidad ese equipo nunca haya tenido ese problema. Es el punto clave del bloque: <strong>el producto cartesiano no representa hechos, representa posibilidades</strong>. Verificá con la clase que ningún alumno haya intentado sumar 5 + 6.
+                            <strong>Resultado esperado: 30.</strong> La base tiene 5 equipos y 6 problemas: 5 × 6 = 30. Cada equipo se apareja con los 6 problemas, aunque en la realidad ese equipo nunca haya tenido ese problema. Es el punto clave del bloque: <strong>el producto cartesiano no representa hechos, representa posibilidades</strong>. Cuidado con sumar 5 + 6: la operación del cartesiano es multiplicativa.
                         </p>
                     </div>
                 </li>
@@ -141,9 +141,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>La confusión más frecuente es creer que el <code>WHERE</code> "va a buscar" el cliente correspondiente. No busca: <strong>descarta</strong>. Para instalarlo, pedí que ejecuten el Reto 2.2 primero <em>sin</em> el WHERE (35 filas) y después <em>con</em> el WHERE (5 filas), y que identifiquen en la primera salida las 5 filas que sobrevivieron. Ver las 30 filas descartadas con sus propios ojos vale más que cualquier definición. La regla N−1 conviene escribirla en el pizarrón y dejarla ahí todo el taller: es el chequeo mecánico que después les salva el parcial.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>La confusión más frecuente es creer que el <code>WHERE</code> va a buscar el cliente correspondiente. Lo que hace es descartar filas del producto cartesiano. Para verlo, ejecutá el Reto 2.2 primero sin el <code>WHERE</code> —35 filas— y después con él —5 filas—, e identificá en la primera salida cuáles fueron las 5 que sobrevivieron. Tené a mano la regla N−1 durante todo el taller: es el chequeo mecánico que evita el cartesiano escondido.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -320,9 +320,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>El truco didáctico que mejor funciona: <strong>imprimí o proyectá la tabla <code>equipo</code> dos veces, una al lado de la otra</strong>, y rotulá una "E1" y la otra "E2". Los alumnos tienen que ver dos objetos, no uno. Después trabajá los duplicados en tres pasos incrementales sobre el Reto 3.1: primero sin ninguna condición extra (aparecen los A–A y los pares espejados), después con <code>&lt;&gt;</code> (desaparecen los A–A pero quedan los espejos), y recién al final con <code>&lt;</code>. Que vean cómo baja la cantidad de filas en cada paso: 5 → 6 → 3. Esa progresión explica el <code>&lt;</code> mejor que cualquier justificación teórica.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Para la autounión necesitás ver dos objetos. Escribí o imprimí la tabla <code>equipo</code> dos veces, una al lado de la otra, y rotulá una «E1» y la otra «E2». Después trabajá el Reto 3.1 en tres pasos: primero sin ninguna condición extra —aparecen los pares A–A y los espejados—, después con <code>&lt;&gt;</code> —se van los A–A y quedan los espejos— y al final con <code>&lt;</code>. Mirá cómo cambia la cantidad de filas en cada paso.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -455,9 +455,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Este bloque suele ser el que más se resiste porque rompe el modelo mental de "una unión es una FK con su PK". Atacalo de frente con una pregunta al aire antes de mostrar nada: <em>"¿cómo harían para poner la nota conceptual (Insuficiente, Bueno, Muy Bueno) al lado de cada nota numérica, si la escala está en otra tabla?"</em>. Nadie propone un <code>=</code>. Cuando llegan solos al <code>BETWEEN</code>, el concepto ya está instalado. En el Reto 4.1, dejá deliberadamente un hueco en la escala (por ejemplo, poner el máximo del primer rango en 9998) y hacé que descubran que el repuesto de $9.999 desapareció del reporte: la lección sobre los bordes se aprende una sola vez y no se olvida.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Este bloque rompe la idea de que una unión siempre es una clave foránea con su primaria. Antes de mirar la solución, pensá cómo pondrías la nota conceptual —Insuficiente, Bueno, Muy Bueno— al lado de cada nota numérica si la escala vive en otra tabla. A nadie se le ocurre un <code>=</code>. En el Reto 4.1, probá dejar un hueco en la escala —por ejemplo, poner el máximo del primer rango en 9998— y fijate que el repuesto de $9.999 desaparece del reporte: los bordes de un rango se aprenden una sola vez.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -609,9 +609,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Este bloque es el cierre argumentativo del taller y conviene darlo <strong>como un caso de peritaje</strong>, no como teoría. Presentá la consulta del Reto 5.1 sin decir que está mal: pedí que la ejecuten y que verifiquen los totales contra la tabla <code>orden_servicio_pago</code> a ojo. Cuando alguien detecte que Rossi factura $94.000 sin haber pagado nunca nada, ya ganaste la clase. El mensaje final que tienen que llevarse es doble: <em>escribir</em> con la sintaxis vieja es una mala práctica, pero <em>saber leerla</em> es una competencia profesional, porque el código heredado existe y alguien lo va a tener que mantener.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Tomá este bloque como un peritaje. Ejecutá la consulta del Reto 5.1 y verificá los totales contra la tabla <code>orden_servicio_pago</code> a ojo, antes de leer la explicación. Cuando encuentres que Rossi factura $94.000 sin haber pagado nunca nada, ya está el punto. Dos cosas para llevarse: escribir con la sintaxis vieja es una mala práctica, y saber leerla es una competencia profesional, porque el código heredado existe y alguien lo va a tener que mantener.</p>
             </div>
 
             <ul class="resolutions-list">

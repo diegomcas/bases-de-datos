@@ -33,7 +33,7 @@
         <div class="header-container">
             <span class="badge">Guía Docente / Respuestas</span>
             <h1>Resoluciones del Taller de SQL Avanzado</h1>
-            <p>Respuestas exactas, explicaciones de MySQL y sugerencias pedagógicas para la clase</p>
+            <p>Respuestas exactas, explicaciones de MySQL y consejos de trabajo</p>
             <a href="taller-vistas-procedimientos-triggers-consignas.html" class="nav-alumno">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Volver a las Consignas
@@ -60,9 +60,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Usa la vista para recalcar que los alumnos pueden traer datos de 7 tablas distintas sin que hayamos explicado la teoría de JOINs todavía. Esto les dará una recompensa rápida y entenderán por qué las vistas les "salvan la vida".</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Fijate que la vista te deja traer datos de 7 tablas distintas sin haber estudiado todavía la teoría de los JOIN. Esa es la razón por la que las vistas se usan tanto: encapsulan una consulta compleja detrás de un nombre, y quien la consulta después no necesita saber cómo está armada.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -82,7 +82,7 @@
                             <pre><code><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio_completa;</code></pre>
                         </div>
                         <p class="explanation-text">
-                            <strong>Explicación:</strong> Aunque por debajo hace una query con 7 JOINs y un GROUP_CONCAT para agrupar los problemas y equipos, el alumno solo necesita tratarla como si fuera una tabla común y corriente.
+                            <strong>Explicación:</strong> Aunque por debajo hace una query con 7 JOINs y un GROUP_CONCAT para agrupar los problemas y equipos, solo necesitás tratarla como si fuera una tabla común y corriente.
                         </p>
                     </div>
                 </li>
@@ -186,9 +186,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Dado que la BD de prueba tiene apenas 6 filas y responde a 0.00 segundos, el comando <code>EXPLAIN</code> es crucial. Si no lo usas, los chicos no entenderán para qué sirve crear un índice en tablas tan chicas. Pídeles que miren la columna <code>rows</code>, que es el contador de esfuerzo del procesador.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>La base de prueba tiene apenas 6 filas y responde en 0.00 segundos, así que el tiempo no te va a decir nada sobre si el índice sirve. Usá <code>EXPLAIN</code> y mirá la columna <code>rows</code>: ese es el contador de esfuerzo del motor, y es donde se ve la diferencia.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -266,9 +266,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Es muy importante destacar que los parámetros llevan un prefijo (ej: <code>p_id_repuesto</code>) para diferenciarlos de los nombres reales de las columnas. Si el parámetro se llamara igual que la columna (ej: <code>id_repuesto</code>), la sentencia quedaría <code>WHERE id_repuesto = id_repuesto</code>, lo cual es siempre verdadero y actualizaría toda la tabla (¡justo lo que Martín quería evitar!).</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Fijate que los parámetros llevan el prefijo <code>p_</code> —por ejemplo <code>p_id_repuesto</code>— para no confundirse con los nombres de las columnas. Si el parámetro se llamara igual que la columna, la sentencia quedaría <code>WHERE id_repuesto = id_repuesto</code>, que es siempre verdadero y actualizaría la tabla entera. Es justo lo que Martín quería evitar.</p>
             </div>
 
             <ul class="resolutions-list">
@@ -340,9 +340,9 @@
                 </div>
             </div>
 
-            <div class="docente-tip">
-                <h4>Pedagogía en clase:</h4>
-                <p>Explica que <code>NEW</code> representa el registro modificado tal cual quiere entrar a la base de datos. Usar <code>BEFORE UPDATE</code> nos permite frenarlo en la puerta antes de que reemplace al registro viejo. El comando <code>SIGNAL</code> es una interrupción del sistema que cancela la transacción.</p>
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p><code>NEW</code> representa el registro modificado tal como quiere entrar a la base. Usar <code>BEFORE UPDATE</code> te permite frenarlo en la puerta, antes de que reemplace al registro viejo. <code>SIGNAL</code> es la interrupción que cancela la transacción y devuelve el error.</p>
             </div>
 
             <ul class="resolutions-list">
