@@ -93,6 +93,7 @@
                 <li><a href="#ausencias">Lo que deliberadamente no hay</a></li>
                 <li><a href="#limites">Los límites conocidos</a></li>
                 <li><a href="#anexo">Anexo · Especificación de construcción</a></li>
+                <li><a href="#donde-mirar">Dónde mirar</a></li>
             </ol>
         </nav>
 
@@ -120,22 +121,19 @@
                Practicar cuando aparece la voluntad, con lo que haya a mano.</p>
 
             <p>La materia se cursa con la base abierta al lado, y sostener esa práctica fuera del aula
-               supone tener <a href="https://dev.mysql.com/doc/refman/8.0/en/installing.html" target="_blank" rel="noopener">MySQL instalado</a>:
-               permiso de administrador, una máquina propia y un rato para configurarla. Cuando alguna
-               de esas condiciones falta, los ejercicios terminan leyéndose en lugar de ejecutarse.</p>
+               supone tener MySQL instalado: permiso de administrador, una máquina propia y un rato para
+               configurarla. Cuando alguna de esas condiciones falta, los ejercicios terminan leyéndose
+               en lugar de ejecutarse.</p>
 
             <p>La solución obvia sería poner MySQL en el navegador. No se puede: <strong>no existe una
-               versión de MySQL que corra en un navegador</strong>. Lo único que hay son emuladores de
-               PC completos, como <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a>,
-               que arrancan un Linux entero para meter el servidor adentro — decenas de megabytes y una
-               fragilidad impropia de un aula. El anuncio de Oracle sobre
-               <a href="https://blogs.oracle.com/mysql/webassembly-integration-for-nextgen-data-apps" target="_blank" rel="noopener">MySQL y WebAssembly</a>
-               describe algo distinto: Wasm ejecutándose <em>dentro</em> del servidor de base de datos,
-               para ampliar lo que el motor puede hacer del lado del servidor.</p>
+               versión de MySQL que corra en un navegador</strong>. Lo único que hay son emuladores de PC
+               completos, como v86, que arrancan un Linux entero para meter el servidor adentro — decenas
+               de megabytes y una fragilidad impropia de un aula. El anuncio de Oracle sobre la
+               integración entre MySQL y WebAssembly describe algo distinto: Wasm ejecutándose
+               <em>dentro</em> del servidor de base de datos, para ampliar lo que el motor puede hacer
+               del lado del servidor.</p>
 
-            <p>PostgreSQL sí tiene una versión así.
-               <a href="https://pglite.dev/docs/about" target="_blank" rel="noopener">PGlite</a>
-               es Postgres compilado a <a href="https://webassembly.org/" target="_blank" rel="noopener">WebAssembly</a>,
+            <p>PostgreSQL sí tiene una versión así. PGlite es Postgres compilado a WebAssembly,
                empaquetado como biblioteca de JavaScript. De ahí sale la decisión de fondo, que conviene
                enunciar sin eufemismos: <strong>la consola usa Postgres y aparenta ser MySQL</strong>.
                Todo lo que sigue es la ingeniería de sostener esa apariencia sin que se vuelva un engaño.</p>
@@ -177,7 +175,7 @@
                 <span class="capa-num">1</span>
                 <span class="capa-txt"><strong>El motor</strong>
                 PGlite 0.5.4, equivalente a PostgreSQL 17, servido como módulo ES desde
-                <a href="https://www.jsdelivr.com/package/npm/@electric-sql/pglite" target="_blank" rel="noopener">jsDelivr</a>.
+                jsDelivr.
                 Son 16 MB sin comprimir y alrededor de 4 MB por la red; después queda en la caché del
                 navegador. La base se crea <strong>en memoria</strong>: no se escribe nada en el disco
                 del alumno, y recargar la página equivale a formatearla.</span>
@@ -205,7 +203,7 @@
                 <span class="capa-txt"><strong>La terminal</strong>
                 Acumula líneas hasta encontrar un punto y coma que no esté entre comillas, mantiene el
                 historial, y devuelve el resultado con el formato de tablas del
-                <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql.html" target="_blank" rel="noopener">cliente <code>mysql</code></a>,
+                cliente <code>mysql</code>,
                 alineando a la derecha las columnas cuyo tipo es numérico.</span>
             </div>
 
@@ -250,7 +248,7 @@
                antes de que el analizador la vea, porque una vez que el motor rechaza el texto ya no hay
                nada que hacer. Un <strong>comando</strong> como <code>SHOW TABLES</code> no es SQL en
                ningún dialecto —es una instrucción del cliente— y su equivalente honesto es una consulta
-               a <a href="https://www.postgresql.org/docs/current/information-schema.html" target="_blank" rel="noopener"><code>information_schema</code></a>,
+               a <code>information_schema</code>,
                el catálogo estandarizado que describe la propia base.</p>
 
             <p>Unificar los cuatro caminos en un solo mecanismo obligaría a escribir un analizador
@@ -466,6 +464,40 @@ poblar_elchip_compendio.sql  <span class="nota">carga ampliada</span></div>
                     <li>Regenerar y ejecutar la comprobación.</li>
                 </ol>
             </div>
+
+            <h2 id="donde-mirar">Dónde mirar</h2>
+
+            <ul>
+                <li><a href="https://pglite.dev/docs/about" target="_blank" rel="noopener">pglite.dev</a>
+                    — Documentación de PGlite, el Postgres compilado a WebAssembly que corre adentro de
+                    la consola. Explica qué parte de Postgres entra y qué queda afuera.</li>
+
+                <li><a href="https://www.jsdelivr.com/package/npm/@electric-sql/pglite" target="_blank" rel="noopener">jsdelivr.com</a>
+                    — El repositorio público desde el que se descarga PGlite. Ahí figuran la versión, los
+                    archivos que componen el motor y su tamaño.</li>
+
+                <li><a href="https://webassembly.org/" target="_blank" rel="noopener">webassembly.org</a>
+                    — Qué es WebAssembly y por qué permite ejecutar dentro del navegador un programa
+                    escrito en otro lenguaje, a velocidad cercana a la nativa.</li>
+
+                <li><a href="https://dev.mysql.com/doc/refman/8.0/en/mysql.html" target="_blank" rel="noopener">dev.mysql.com</a>
+                    — Manual de referencia de MySQL 8.0. El capítulo del cliente de consola describe el
+                    comportamiento que la consola imita; el de instalación, lo que hace falta para tener
+                    el motor en una máquina propia.</li>
+
+                <li><a href="https://www.postgresql.org/docs/current/information-schema.html" target="_blank" rel="noopener">postgresql.org</a>
+                    — El catálogo <code>information_schema</code>, estandarizado y presente en los dos
+                    motores. Es lo que responde a <code>SHOW TABLES</code> y a <code>DESCRIBE</code>.</li>
+
+                <li><a href="https://github.com/copy/v86" target="_blank" rel="noopener">github.com/copy/v86</a>
+                    — Un emulador de PC que funciona dentro del navegador. Sirve para dimensionar por qué
+                    correr MySQL de esa manera resulta impracticable en un aula.</li>
+
+                <li><a href="https://blogs.oracle.com/mysql/webassembly-integration-for-nextgen-data-apps-in-mysql" target="_blank" rel="noopener">blogs.oracle.com</a>
+                    — El anuncio de la integración entre MySQL y WebAssembly. Es literatura del
+                    fabricante, y conviene leerla con esa advertencia: describe Wasm ejecutándose dentro
+                    del servidor, que resuelve un problema distinto del que resuelve la consola.</li>
+            </ul>
 
             <div class="descargas">
                 <h4>Ir a</h4>
