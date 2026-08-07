@@ -247,6 +247,37 @@
   border-left: 2px solid rgba(255, 255, 255, 0.08);
 }
 
+/* --- franja de ampliación -------------------------------------------------
+   Cierra la unidad con el material que el programa de este año no pide y que
+   sigue sirviendo sobre el mismo tema. Va apagada respecto del resto: se
+   encuentra al buscar el tema, sin competir con lo que sí se cursa.       */
+
+.ampliacion {
+  margin: 26px 0 4px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--linea-media);
+}
+
+.ampliacion > h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.ampliacion > p {
+  font-size: .88rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.ampliacion .rec { opacity: .82; }
+.ampliacion .rec:hover { opacity: 1; }
+
+
 /* --- llamado a la consola ------------------------------------------------
    Encabeza las unidades de SQL. Lleva el cian de la consola en lugar del
    color de la unidad, y rompe la grilla de .rec, porque señala una

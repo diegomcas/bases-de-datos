@@ -1,0 +1,514 @@
+# La biblioteca de la materia.
+# Crece: el material no se borra, cambia de estado.
+#   vigente     lo pide el programa del ciclo en curso
+#   ampliacion  estuvo en el programa y sigue sirviendo
+#   borrador    todavia no se publica
+#   retirado    salio por estar mal; no se muestra
+# La unidad se referencia POR NOMBRE, nunca por numero.
+
+[[material]]
+id = "cronograma-del-ciclo"
+titulo = "Cronograma del ciclo"
+descripcion = "Las 39 clases con su objetivo y sus ejes, trimestre por trimestre"
+unidad = "Punto de partida"
+icono = "calendario"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+marca = "En revisión"
+  [[material.formato]]
+  texto = "Ver"
+  href = "cronograma.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "CSV"
+  href = "descargas/cronograma-2026.csv"
+
+[[material]]
+id = "glosario"
+titulo = "Glosario"
+descripcion = "Los términos de la materia definidos en castellano llano"
+unidad = "Punto de partida"
+icono = "libro"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "glosario.html"
+  variante = "principal"
+
+[[material]]
+id = "el-relato-de-martin"
+titulo = "El relato de Martín"
+descripcion = "El pedido del cliente tal como llega, en sus palabras. Todo empieza acá."
+unidad = "Casos de estudio"
+icono = "relato"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "casos/el-chip/relato-del-cliente.html"
+  variante = "principal"
+
+[[material]]
+id = "diagrama-entidad-relacion"
+titulo = "Diagrama entidad-relación"
+descripcion = "El modelo terminado, para consultar mientras escribís consultas"
+unidad = "Casos de estudio"
+icono = "der"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver DER"
+  href = "casos/el-chip/der.png"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Workbench"
+  href = "casos/el-chip/modelo-workbench.mwb"
+
+[[material]]
+id = "scripts-de-la-base"
+titulo = "Scripts de la base"
+descripcion = "En este orden: estructura → datos base → ampliación de los compendios"
+unidad = "Casos de estudio"
+icono = "base"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "1 · Estructura"
+  href = "casos/el-chip/ElChip.sql"
+  variante = "principal"
+  [[material.formato]]
+  texto = "2 · Datos"
+  href = "casos/el-chip/poblar_elchip.sql"
+  [[material.formato]]
+  texto = "3 · Ampliación"
+  href = "casos/el-chip/poblar_elchip_compendio.sql"
+
+[[material]]
+id = "consola-sql"
+titulo = "Consola SQL"
+descripcion = "La base ya cargada, para practicar sin instalar nada. Todavía no se probó en el aula."
+unidad = "Casos de estudio"
+icono = "consola"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+marca = "En revisión"
+  [[material.formato]]
+  texto = "Abrir consola"
+  href = "consola.html"
+  variante = "principal"
+
+[[material]]
+id = "la-base-en-funcionamiento"
+titulo = "La base en funcionamiento"
+descripcion = "Cómo desplegarla: de un script de consola a la aplicación web completa, y cómo se construyó"
+unidad = "Casos de estudio"
+icono = "codigo"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Tutorial"
+  href = "casos/el-chip/aplicacion.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "La corrida"
+  href = "casos/el-chip/corrida-escena-por-escena.html"
+
+[[material]]
+id = "scripts-de-la-biblioteca"
+titulo = "Scripts de la biblioteca"
+descripcion = "Estructura y datos, en ese orden"
+unidad = "Casos de estudio"
+icono = "base"
+caso = "biblioteca"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "1 · Estructura"
+  href = "casos/biblioteca/Biblioteca.sql"
+  variante = "principal"
+  [[material.formato]]
+  texto = "2 · Datos"
+  href = "casos/biblioteca/poblar_biblioteca.sql"
+
+[[material]]
+id = "del-dato-al-conocimiento"
+titulo = "Del dato al conocimiento"
+descripcion = "Dato, proceso, información, contexto, conocimiento y decisión"
+unidad = "Fundamentos"
+icono = "documento"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/01-fundamentos/clase-01-valor-de-los-datos.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-01-valor-de-los-datos.pdf"
+
+[[material]]
+id = "evolucion-y-ventajas-de-un"
+titulo = "Evolución y ventajas de un gestor"
+descripcion = "Redundancia, inconsistencia, aislamiento: qué vino a resolver cada uno"
+unidad = "Fundamentos"
+icono = "documento"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/01-fundamentos/clase-02-del-archivo-a-la-base.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-02-del-archivo-a-la-base.pdf"
+
+[[material]]
+id = "caso-de-estudio-el-chip"
+titulo = "Caso de estudio: El Chip"
+descripcion = "El taller de Martín, presentado en clase"
+unidad = "Fundamentos"
+icono = "relato"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/01-fundamentos/clase-03-caso-el-chip.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-03-caso-el-chip.pdf"
+
+[[material]]
+id = "como-entrevistar-a-un-cliente"
+titulo = "Cómo entrevistar a un cliente"
+descripcion = "Sacarle a alguien lo que necesita, aunque no sepa explicarlo"
+unidad = "Fundamentos"
+icono = "estrella"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/01-fundamentos/clase-03-entrevista-al-cliente.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-03-entrevista-al-cliente.pdf"
+
+[[material]]
+id = "relevar-y-clasificar-requerimientos"
+titulo = "Relevar y clasificar requerimientos"
+descripcion = "Funcionales, no funcionales y reglas de negocio"
+unidad = "Diseño de datos"
+icono = "documento"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/02-diseno/clase-05-requerimientos.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-05-requerimientos.pdf"
+
+[[material]]
+id = "presentacion-de-la-clase"
+titulo = "Presentación de la clase"
+descripcion = "Con ejemplos sobre El Chip"
+unidad = "Diseño de datos"
+icono = "presentacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/02-diseno/ingenieria-requerimientos.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/ingenieria-requerimientos.pdf"
+
+[[material]]
+id = "modelado-conceptual-el-der"
+titulo = "Modelado conceptual: el DER"
+descripcion = "Entidades, atributos, relaciones y cardinalidad"
+unidad = "Diseño de datos"
+icono = "der"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/02-diseno/clase-06-modelado-conceptual.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-06-modelado-conceptual.pdf"
+
+[[material]]
+id = "del-dibujo-a-la-tabla"
+titulo = "Del dibujo a la tabla"
+descripcion = "Las cinco reglas de mapeo, el caso de El Chip y la actividad de taller"
+unidad = "Diseño de datos"
+icono = "libro"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/02-diseno/clase-07-del-dibujo-a-la-tabla.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/clase-07-del-dibujo-a-la-tabla.pdf"
+
+[[material]]
+id = "modelo-relacional-e-integridad-referencial"
+titulo = "Modelo relacional e integridad referencial"
+descripcion = "Las reglas, y qué garantiza cada clave"
+unidad = "Calidad del modelo"
+icono = "presentacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/03-calidad/reglas-de-codd.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PPTX"
+  href = "descargas/reglas-de-codd.pptx"
+
+[[material]]
+id = "normalizacion-de-1fn-a-bcnf"
+titulo = "Normalización, de 1FN a BCNF"
+descripcion = "La presentación completa de las cuatro clases"
+unidad = "Calidad del modelo"
+icono = "presentacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/03-calidad/normalizacion.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PPTX"
+  href = "descargas/normalizacion.pptx"
+
+[[material]]
+id = "demo-en-vivo"
+titulo = "Demo en vivo"
+descripcion = "La tabla caótica y su descomposición paso a paso"
+unidad = "Calidad del modelo"
+icono = "base"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "SQL"
+  href = "unidades/03-calidad/demo-normalizacion.sql"
+  variante = "principal"
+
+[[material]]
+id = "create-alter-y-drop"
+titulo = "CREATE, ALTER y DROP"
+descripcion = "Los cinco sublenguajes de SQL y un ejemplo completo de normalización"
+unidad = "SQL · primera parte"
+icono = "presentacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/sql.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PPTX"
+  href = "descargas/sql.pptx"
+
+[[material]]
+id = "practica-de-sql"
+titulo = "Práctica de SQL"
+descripcion = "La presentación del laboratorio"
+unidad = "SQL · primera parte"
+icono = "presentacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/sql-practica.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PPTX"
+  href = "descargas/sql-practica.pptx"
+
+[[material]]
+id = "taller-primeras-consultas"
+titulo = "Taller: primeras consultas"
+descripcion = "17 retos, de SELECT simple a filtros combinados"
+unidad = "SQL · primera parte"
+icono = "verificado"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-sql-practica-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-sql-practica-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "taller-uniones-con-sintaxis-de"
+titulo = "Taller: uniones con sintaxis de coma"
+descripcion = "19 retos. El producto cartesiano filtrado, antes de ver JOIN"
+unidad = "SQL · primera parte"
+icono = "conjuntos"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-uniones-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-uniones-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "taller-de-agrupacion"
+titulo = "Taller de agrupación"
+descripcion = "7 retos. La versión corta, para la clase"
+unidad = "SQL · primera parte"
+icono = "agrupacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-agrupacion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-agrupacion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "compendio-de-agrupacion"
+titulo = "Compendio de agrupación"
+descripcion = "24 retos en 6 bloques, hasta ROLLUP y los casos que rompen la intuición"
+unidad = "SQL · primera parte"
+icono = "agrupacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/compendio-agrupacion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/compendio-agrupacion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "taller-de-subconsultas"
+titulo = "Taller de subconsultas"
+descripcion = "6 retos. La versión corta, para la clase"
+unidad = "SQL · segunda parte"
+icono = "taller"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-subconsultas-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-subconsultas-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "compendio-de-subconsultas"
+titulo = "Compendio de subconsultas"
+descripcion = "27 retos en 10 bloques: el recorrido completo del tema"
+unidad = "SQL · segunda parte"
+icono = "taller"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/compendio-subconsultas-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/compendio-subconsultas-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "taller-indices-vistas-procedimientos-y"
+titulo = "Taller: índices, vistas, procedimientos y triggers"
+descripcion = "11 retos. Cuando la base empieza a reaccionar sola"
+unidad = "SQL · segunda parte"
+icono = "rayo"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-vistas-procedimientos-triggers-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-vistas-procedimientos-triggers-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "propuesta-del-proyecto"
+titulo = "Propuesta del proyecto"
+descripcion = "De qué se trata, qué se espera de cada grupo y cómo se evalúa la defensa"
+unidad = "Proyecto integrador"
+icono = "musica"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "proyecto/index.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "PDF"
+  href = "descargas/propuesta-interdisciplinaria.pdf"
+
+[[material]]
+id = "la-base-en-funcionamiento-2"
+titulo = "La base en funcionamiento"
+descripcion = "El Chip como aplicación real: hasta dónde puede llegar un proyecto"
+unidad = "Proyecto integrador"
+icono = "codigo"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Tutorial"
+  href = "casos/el-chip/aplicacion.html"
+  variante = "principal"
