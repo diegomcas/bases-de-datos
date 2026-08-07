@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La corrida, escena por escena · El Chip</title>
+<!-- Página autónoma: trae su propio diseño y no usa las hojas del sitio,
+     igual que la propuesta del proyecto interdisciplinario. -->
+<style>:root{color-scheme:light dark}</style>
+</head>
+<body>
+
+<style>
+  :root {
+    --bg: #e7eaee;
+    --surface: #ffffff;
+    --surface-2: #eef1f5;
+    --border: #d2d8e0;
+    --ink: #1a1f27;
+    --ink-soft: #57626f;
+    --ink-faint: #8b95a1;
+    --accent: #b25f26;          /* cobre — aprendizaje / énfasis */
+    --accent-soft: #f3e3d5;
+    --teal: #156b62;            /* verde azulado — decisión humana / sistema */
+    --teal-soft: #d7e9e6;
+    --warn: #ad3f24;            /* rojo terroso — bug */
+    --warn-soft: #f4ddd4;
+    --console-bg: #f4f2ee;
+    --shadow: 0 1px 2px rgba(20,25,35,.06), 0 8px 24px rgba(20,25,35,.06);
+
+    --font-display: "Segoe UI", system-ui, -apple-system, sans-serif;
+    --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-mono: ui-monospace, "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1218;
+      --surface: #171b22;
+      --surface-2: #1e232d;
+      --border: #2b323e;
+      --ink: #e9e7e2;
+      --ink-soft: #9aa3af;
+      --ink-faint: #6b7480;
+      --accent: #e0955a;
+      --accent-soft: rgba(224,149,90,.14);
+      --teal: #57c0b3;
+      --teal-soft: rgba(87,192,179,.14);
+      --warn: #e5806a;
+      --warn-soft: rgba(229,128,106,.14);
+      --console-bg: #121620;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #e7eaee; --surface: #ffffff; --surface-2: #eef1f5; --border: #d2d8e0;
+    --ink: #1a1f27; --ink-soft: #57626f; --ink-faint: #8b95a1;
+    --accent: #b25f26; --accent-soft: #f3e3d5; --teal: #156b62; --teal-soft: #d7e9e6;
+    --warn: #ad3f24; --warn-soft: #f4ddd4; --console-bg: #f4f2ee;
+    --shadow: 0 1px 2px rgba(20,25,35,.06), 0 8px 24px rgba(20,25,35,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1218; --surface: #171b22; --surface-2: #1e232d; --border: #2b323e;
+    --ink: #e9e7e2; --ink-soft: #9aa3af; --ink-faint: #6b7480;
+    --accent: #e0955a; --accent-soft: rgba(224,149,90,.14); --teal: #57c0b3; --teal-soft: rgba(87,192,179,.14);
+    --warn: #e5806a; --warn-soft: rgba(229,128,106,.14); --console-bg: #121620;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--font-serif); font-size: 17px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .u { font-family: var(--font-display); }
+  .mono { font-family: var(--font-mono); }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+    padding: .7rem 1.3rem; background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
+  }
+  .brand { display: flex; align-items: baseline; gap: .6rem; margin-right: auto; }
+  .brand b { font-family: var(--font-display); font-weight: 800; letter-spacing: -.01em; font-size: 1.05rem; }
+  .brand span { font-family: var(--font-mono); font-size: .72rem; color: var(--ink-faint); }
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+  .seg button {
+    font-family: var(--font-display); font-weight: 700; font-size: .82rem;
+    border: 0; background: transparent; color: var(--ink-soft); cursor: pointer;
+    padding: .4rem .9rem; border-radius: 999px; transition: color .15s;
+  }
+  .seg button[aria-selected="true"] { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
+  .icon-btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--ink-soft);
+    width: 38px; height: 38px; border-radius: 10px; cursor: pointer; font-size: 1rem;
+    display: grid; place-items: center;
+  }
+  .icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 1.5rem 1.3rem 4rem; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 1.5rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1.8rem; }
+  .eyebrow { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+  .hero h1 { font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.05; margin: .5rem 0 .4rem; font-weight: 800; letter-spacing: -.02em; text-wrap: balance; }
+  .hero p { max-width: 66ch; color: var(--ink-soft); margin: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.1rem; }
+  .fact { font-family: var(--font-mono); font-size: .74rem; color: var(--ink-soft); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: .3rem .7rem; }
+  .fact b { color: var(--ink); }
+
+  /* ---------- explore ---------- */
+  .explore { display: grid; grid-template-columns: 260px 1fr; gap: 1.8rem; align-items: start; }
+  .rail { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 2px; }
+  .rail button {
+    display: grid; grid-template-columns: 2.2rem 1fr; align-items: center; gap: .3rem;
+    text-align: left; border: 0; background: transparent; cursor: pointer;
+    padding: .55rem .5rem; border-radius: 8px; color: var(--ink-soft); font-family: var(--font-serif); font-size: .96rem;
+    border-left: 2px solid transparent;
+  }
+  .rail button .num { font-family: var(--font-mono); font-size: .8rem; color: var(--ink-faint); }
+  .rail button:hover { background: var(--surface-2); }
+  .rail button[aria-current="true"] { background: var(--surface); color: var(--ink); border-left-color: var(--accent); box-shadow: var(--shadow); }
+  .rail button[aria-current="true"] .num { color: var(--accent); }
+  .rail .star { color: var(--accent); }
+
+  .scene { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .scene-head { padding: 1.4rem 1.6rem 1.1rem; border-bottom: 1px solid var(--border); }
+  .scene-tag { display: flex; align-items: center; gap: .6rem; }
+  .scene-tag .n { font-family: var(--font-mono); font-size: .78rem; color: var(--accent); letter-spacing: .05em; }
+  .scene-tag .phase { font-family: var(--font-mono); font-size: .72rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .1em; }
+  .badge-star { font-family: var(--font-display); font-weight: 700; font-size: .68rem; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: .18rem .6rem; letter-spacing: .03em; }
+  .scene h2 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); margin: .5rem 0 .3rem; letter-spacing: -.01em; text-wrap: balance; }
+  .scene-head p { margin: 0; color: var(--ink-soft); max-width: 62ch; }
+  .scene-body { padding: 1.3rem 1.6rem 1.7rem; display: flex; flex-direction: column; gap: 1.3rem; }
+
+  .block > .label { display: flex; align-items: center; gap: .5rem; font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: .5rem; }
+  .block > .label::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--ink-faint); }
+  .block.entra > .label::before { background: var(--ink-soft); }
+  .block.produce > .label::before { background: var(--teal); }
+  .block.aprende > .label::before { background: var(--accent); }
+  ul.lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+  ul.lines li { position: relative; padding-left: 1.2rem; }
+  ul.lines li::before { content: "▸"; position: absolute; left: 0; color: var(--ink-faint); font-family: var(--font-mono); font-size: .8rem; top: .15rem; }
+  ul.lines li code, .imono { font-family: var(--font-mono); font-size: .85em; background: var(--surface-2); padding: .05rem .35rem; border-radius: 5px; color: var(--ink); }
+
+  .aprende .card { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); border-radius: 12px; padding: .9rem 1.1rem; }
+  .aprende .card p { margin: 0; }
+
+  .ask { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .ask-h { background: var(--teal-soft); padding: .55rem .9rem; font-family: var(--font-mono); font-size: .76rem; color: var(--teal); display: flex; gap: .5rem; align-items: center; }
+  .ask-q { padding: .8rem .9rem; border-top: 1px solid var(--border); }
+  .ask-q:first-of-type { border-top: 0; }
+  .ask-q > p { margin: 0 0 .55rem; font-weight: 600; font-family: var(--font-display); font-size: .95rem; }
+  .opts { display: flex; flex-direction: column; gap: .35rem; }
+  .opt { display: flex; align-items: flex-start; gap: .55rem; font-size: .92rem; padding: .35rem .55rem; border-radius: 8px; border: 1px solid transparent; color: var(--ink-soft); }
+  .opt .tick { width: 1.1rem; flex: none; text-align: center; color: var(--ink-faint); font-family: var(--font-mono); }
+  .opt.chosen { background: var(--teal-soft); border-color: color-mix(in srgb, var(--teal) 35%, var(--border)); color: var(--ink); }
+  .opt.chosen .tick { color: var(--teal); }
+  .opt.chosen b { color: var(--teal); }
+  .opt .why { display: block; color: var(--ink-faint); font-size: .82rem; margin-top: .1rem; }
+
+  .clase-box { background: var(--surface-2); border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border)); border-radius: 12px; padding: .9rem 1.1rem; }
+  .clase-box .label { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: .35rem; }
+  .clase-box p { margin: 0; font-style: italic; }
+
+  .scene-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.4rem; }
+  .scene-nav button { font-family: var(--font-display); font-weight: 700; font-size: .9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: .6rem 1rem; cursor: pointer; color: var(--ink); }
+  .scene-nav button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .scene-nav button:disabled { opacity: .4; cursor: default; }
+
+  /* ---------- playback ---------- */
+  .pb-hint { color: var(--ink-soft); margin: 0 0 1rem; max-width: 66ch; }
+  .console-shell { background: var(--console-bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .console-bar { display: flex; align-items: center; gap: .5rem; padding: .6rem .9rem; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 60%, transparent); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
+  .console-bar .ttl { font-family: var(--font-mono); font-size: .76rem; color: var(--ink-faint); margin-left: .4rem; }
+  .console-bar .prog { margin-left: auto; font-family: var(--font-mono); font-size: .74rem; color: var(--ink-soft); }
+  .progline { height: 3px; background: var(--border); }
+  .progline > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+
+  .console { padding: 1.1rem 1.2rem 1.4rem; min-height: 340px; max-height: 62vh; overflow-y: auto; font-family: var(--font-mono); font-size: .86rem; line-height: 1.65; }
+  .console::-webkit-scrollbar { width: 10px; }
+  .console::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  .ln { animation: fade .25s ease both; margin-bottom: .15rem; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .c-scene { text-align: center; color: var(--ink-faint); margin: 1.1rem 0 .7rem; display: flex; align-items: center; gap: .7rem; }
+  .c-scene::before, .c-scene::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .c-scene b { color: var(--accent); }
+  .c-prompt { border-left: 2px solid var(--accent); padding: .4rem .8rem; margin: .5rem 0; background: var(--accent-soft); border-radius: 0 8px 8px 0; color: var(--ink); }
+  .c-prompt .who { color: var(--accent); font-weight: 700; }
+  .c-think { color: var(--ink-faint); font-style: italic; }
+  .c-think.pulse::after { content: "▍"; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .c-tool .t { color: var(--teal); }
+  .c-tool .arg { color: var(--ink); }
+  .c-out { color: var(--ink-soft); padding-left: 1.4rem; white-space: pre-wrap; }
+  .c-out.ok { color: var(--teal); }
+  .c-out.err { color: var(--warn); }
+  .c-result { color: var(--teal); font-weight: 700; }
+  .c-note { border: 1px solid var(--border); border-left-width: 3px; border-radius: 8px; padding: .6rem .8rem; margin: .5rem 0; font-family: var(--font-serif); background: var(--surface); }
+  .c-note.aha { border-left-color: var(--accent); }
+  .c-note.bug { border-left-color: var(--warn); background: var(--warn-soft); }
+  .c-note .tag { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; display: inline-block; margin-bottom: .2rem; }
+  .c-note.aha .tag { color: var(--accent); }
+  .c-note.bug .tag { color: var(--warn); }
+  .c-note.info .tag { color: var(--ink-faint); }
+  .c-decision { margin: .7rem 0; }
+  .c-pause { display: flex; align-items: center; gap: .7rem; margin: .6rem 0; padding: .5rem .8rem; border: 1px dashed var(--accent); border-radius: 8px; color: var(--accent); background: var(--accent-soft); }
+  .c-pause button { font-family: var(--font-display); font-weight: 700; border: 0; background: var(--accent); color: #fff; padding: .35rem .8rem; border-radius: 7px; cursor: pointer; }
+
+  .controls { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; }
+  .controls button { font-family: var(--font-display); font-weight: 700; font-size: .88rem; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 10px; padding: .55rem .9rem; cursor: pointer; }
+  .controls button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .controls button:hover:not(:disabled) { border-color: var(--accent); }
+  .controls button:disabled { opacity: .4; cursor: default; }
+  .controls .spacer { flex: 1; }
+  .controls label { font-family: var(--font-mono); font-size: .74rem; color: var(--ink-soft); display: flex; align-items: center; gap: .4rem; }
+  .controls select { font-family: var(--font-mono); font-size: .78rem; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 8px; padding: .3rem .4rem; }
+
+  footer { margin-top: 2.5rem; padding-top: 1.4rem; border-top: 1px solid var(--border); color: var(--ink-faint); font-size: .82rem; font-family: var(--font-mono); }
+  footer b { color: var(--ink-soft); }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 820px) {
+    .explore { grid-template-columns: 1fr; }
+    .rail { position: static; flex-direction: row; overflow-x: auto; gap: .3rem; padding-bottom: .4rem; }
+    .rail button { grid-template-columns: 1fr; min-width: 140px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ln { animation: none; }
+    .c-think.pulse::after { animation: none; }
+    .progline > i { transition: none; }
+  }
+</style>
+
+<div class="topbar">
+  <div class="brand">
+    <b>La corrida, escena por escena</b>
+    <span class="mono">caso "El Chip" · Bases de Datos</span>
+  </div>
+  <div class="seg" role="tablist" aria-label="Modo">
+    <button id="mode-explore" role="tab" aria-selected="true">Explorar</button>
+    <button id="mode-play" role="tab" aria-selected="false">Reproducir</button>
+  </div>
+  <a class="icon-btn" href="aplicacion.html" title="Volver a La base en funcionamiento" aria-label="Volver a La base en funcionamiento" style="text-decoration:none">&#8592;</a>
+  <button class="icon-btn" id="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Simulación de un proceso de desarrollo con IA</div>
+    <h1>Cómo se construyó el sistema, sin volver a ejecutarlo</h1>
+    <p>Este material reconstruye —paso a paso y con contenido real— la sesión en la que una IA
+      partió de una entrevista y un modelo SQL, y llegó a un sistema funcionando. No se fabrica
+      nada: cada prompt, cada decisión del docente y cada hallazgo salieron de la corrida
+      efectiva. Recorrelo como <b>línea de tiempo</b>, o mirá la <b>consola reproducirse</b>.</p>
+    <div class="facts">
+      <span class="fact">📄 <b>2</b> insumos</span>
+      <span class="fact">🗂️ <b>10</b> specs</span>
+      <span class="fact">🧩 <b>22</b> adendas al modelo</span>
+      <span class="fact">✅ <b>261</b> tests</span>
+      <span class="fact">🐞 <b>2</b> bugs hallados al construir</span>
+      <span class="fact">👤 <b>4</b> rondas de decisión humana</span>
+      <span class="fact" style="color:var(--warn);border-color:var(--warn)"><b>En revisión</b> · todavía no se usó en clase</span>
+    </div>
+  </div>
+
+  <!-- ============ EXPLORE ============ -->
+  <section id="explore">
+    <div class="explore">
+      <nav class="rail" id="rail" aria-label="Escenas"></nav>
+      <div>
+        <article class="scene" id="scene" aria-live="polite"></article>
+        <div class="scene-nav">
+          <button id="prev">‹ Anterior</button>
+          <button id="next">Siguiente ›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PLAYBACK ============ -->
+  <section id="playback" class="hidden">
+    <p class="pb-hint">Presioná <b>Reproducir</b> y la consola va mostrando la corrida como
+      ocurrió: los prompts, las llamadas a herramientas y los resultados. Se <b>frena sola</b> en
+      cada punto donde la IA te preguntó algo, para que puedas comentar la decisión con la clase.</p>
+    <div class="console-shell">
+      <div class="console-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="ttl mono">claude-code — el-chip</span>
+        <span class="prog mono" id="prog">paso 0 / 0</span>
+      </div>
+      <div class="progline"><i id="progbar"></i></div>
+      <div class="console" id="console" tabindex="0"></div>
+    </div>
+    <div class="controls">
+      <button class="primary" id="play">▶ Reproducir</button>
+      <button id="step-back" title="Un paso atrás">⏮ Atrás</button>
+      <button id="step-fwd" title="Un paso adelante">Paso ⏭</button>
+      <button id="restart">↺ Reiniciar</button>
+      <span class="spacer"></span>
+      <label>velocidad
+        <select id="speed">
+          <option value="1600">lenta</option>
+          <option value="1000" selected>normal</option>
+          <option value="520">rápida</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <footer>
+    Reconstrucción fiel de la corrida real · Django 5.2 + MySQL · 261 tests en verde ·
+    cobertura &gt;90% en la capa de negocio · <b>material de clase, no modifica el sistema entregado</b>.<br>
+    Parte del caso <b>El Chip</b> · <a href="aplicacion.html">La base en funcionamiento</a> · <a href="../../index.html">Índice de la materia</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- decisiones (compartidas entre modos) ----
+  const D_RONDA1 = {
+    ronda: "AskUserQuestion · ronda 1 — al terminar de leer los insumos",
+    preguntas: [
+      { q: "¿Puedo modificar/extender el modelo de datos?", opts: [
+        { l: "Extender con adendas", chosen: true, why: "El SQL queda como base; las mejoras entran como migración aparte, justificada." },
+        { l: "Intocable" }, { l: "Rehacer libremente" } ] },
+      { q: "¿Qué stack usamos?", opts: [
+        { l: "Django", chosen: true, why: "Elegido por el docente." },
+        { l: "Java + Spring" }, { l: "Python + FastAPI" }, { l: "Node + React" } ] },
+      { q: "¿Alcance de la primera iteración?", opts: [
+        { l: "Sistema completo", chosen: true }, { l: "Núcleo operativo" }, { l: "Solo backend + API" } ] },
+      { q: "¿Quién ejecuta las specs?", opts: [
+        { l: "Otro agente de IA" }, { l: "Estudiantes / personas" },
+        { l: "Ambos", chosen: true, why: "Specs con contexto legible y contrato literal a la vez." } ] }
+    ]
+  };
+  const D_TECH = {
+    ronda: "AskUserQuestion · ronda 2 — definiciones técnicas de Django",
+    preguntas: [
+      { q: "¿Frontend?", opts: [ { l: "Templates + HTMX", chosen: true, why: "Un solo proyecto, sin build de JS." }, { l: "DRF + SPA React" }, { l: "Híbrido" } ] },
+      { q: "¿Fuente de verdad del esquema?", opts: [ { l: "models.py + migraciones", chosen: true }, { l: "Base de datos primero (inspectdb)" } ] },
+      { q: "¿Motor de base de datos?", opts: [ { l: "MySQL en Docker", chosen: true, why: "Coherente con el SQL entregado; reproducible." }, { l: "PostgreSQL" }, { l: "SQLite" } ] }
+    ]
+  };
+  const D_MARTIN = {
+    ronda: "AskUserQuestion · validación con Martín (el docente responde como el cliente)",
+    preguntas: [
+      { q: "A1 · Con pago mixto (parte efectivo, parte tarjeta), ¿va el 10%?", opts: [
+        { l: "Sin descuento" }, { l: "10% sobre la parte en efectivo" },
+        { l: "Descuento manual, lo arreglo yo", chosen: true, why: "El 10% pasa de regla a sugerencia → nace el descuento manual con motivo (V-01)." } ] },
+      { q: "A4 · ¿Registramos el costo de compra para saber la ganancia?", opts: [
+        { l: "No, con la facturación alcanza" },
+        { l: "Sí, quiero saber cuánto gano", chosen: true, why: "Agrega costo congelado y el reporte de rentabilidad (V-02)." } ] },
+      { q: "C2 · ¿Faltan estados en el circuito?", opts: [
+        { l: "Está bien con 9 estados" },
+        { l: "Agregar «Esperando repuesto» y «Derivado a tercero»", chosen: true, why: "Once estados: se ve qué órdenes están frenadas y por qué (V-03)." } ] },
+      { q: "B1 · ¿Cuántos días antes de marcar un equipo como abandonado?", opts: [
+        { l: "30 días — configurable", chosen: true, why: "Ya era un parámetro editable (V-04)." }, { l: "60" }, { l: "90" }, { l: "15" } ] }
+    ]
+  };
+
+  // ---- las 9 escenas ----
+  const SCENES = [
+    {
+      n: "00", phase: "Punto de partida", title: "Los insumos",
+      sub: "Lo único que recibe la IA: un problema contado en palabras y un modelo de datos que ya existía.",
+      entra: [
+        "Una <span class='imono'>entrevista</span> con Martín, dueño del taller: «llevo todo en un cuaderno y planillas, se me hace imposible el control».",
+        "El archivo <span class='imono'>ElChip.sql</span>: 19 tablas y una vista, ya normalizado."
+      ],
+      produce: [
+        "Lee ambos insumos y extrae <b>7 dolores</b> concretos del negocio.",
+        "Todavía no escribe nada: primero entiende qué duele y por qué."
+      ],
+      aprende: "Un requerimiento real llega mezclado: lenguaje natural por un lado, un modelo técnico heredado por el otro. El primer trabajo no es programar, es <b>leer</b>.",
+      events: [
+        { t: "prompt", who: "vos", text: "Vamos a crear specs precisas para que otro proceso las lleve a código. Te ofrezco un SQL con el modelo y una entrevista al usuario que describe sus dolores." },
+        { t: "tool", tool: "Bash", arg: "ls insumos/", out: "00-contexto.md   ElChip.sql" },
+        { t: "tool", tool: "Read", arg: "insumos/00-contexto.md", out: "«...muchos clientes ya vinieron antes y anotamos sus datos otra vez... a veces creemos que tenemos una pantalla y ya se usó... algunos no vuelven nunca a retirar el equipo...»" },
+        { t: "tool", tool: "Read", arg: "insumos/ElChip.sql", out: "19 tablas · vista orden_servicio_completa" },
+        { t: "note", kind: "info", tag: "análisis", text: "7 dolores detectados: clientes duplicados · stock irreal · equipos no retirados · precio a mano · empleados ven de más · falta de información · confusión con varios equipos." }
+      ]
+    },
+    {
+      n: "01", phase: "Encuadre", title: "De dolores a requisitos",
+      sub: "Antes de tocar el modelo, la IA formaliza qué hay que construir y te pide las decisiones que no puede tomar sola.",
+      entra: [ "Los 7 dolores y el SQL de la escena anterior." ],
+      decision: D_RONDA1, decision2: D_TECH,
+      produce: [
+        "Escribe <span class='imono'>00-contexto-y-requisitos.md</span>: glosario, <b>23 requisitos</b> (<span class='imono'>RQ-01…RQ-23</span>) y 10 supuestos.",
+        "Cada dolor queda ligado a los requisitos que lo resuelven (trazabilidad)."
+      ],
+      aprende: "Un requisito vago («que no se dupliquen los clientes») se vuelve verificable: <span class='imono'>RQ-01 buscar por documento/teléfono/email antes de crear</span>. Lo que no se puede medir, no se puede construir ni testear.",
+      events: [
+        { t: "think", text: "Ordenando dolores en requisitos y detectando decisiones abiertas..." },
+        { t: "tool", tool: "Write", arg: "specs/00-contexto-y-requisitos.md", out: "glosario · RQ-01…RQ-23 · 10 supuestos" },
+        { t: "decision", data: D_RONDA1 },
+        { t: "decision", data: D_TECH },
+        { t: "note", kind: "info", tag: "decisiones cerradas", text: "Modelo extensible · Django + Templates/HTMX · models.py + migraciones · MySQL en Docker · sistema completo." }
+      ]
+    },
+    {
+      n: "02", phase: "El modelo", title: "El SQL entregado no alcanza", star: true,
+      sub: "La IA no toma el modelo como dogma. Al analizarlo, descubre que tres dolores no se pueden resolver con ese esquema.",
+      entra: [ "El pedido de arrancar: «el modelo = ElChip.sql y el contexto están en insumos»." ],
+      produce: [
+        "<b>Stock:</b> <span class='imono'>problema_has_repuesto</span> es una <i>receta</i> (qué repuesto suele necesitar un problema). No hay tabla de repuestos <i>realmente consumidos</i> en una orden → el stock nunca se puede descontar de forma trazable.",
+        "<b>Duplicados:</b> <span class='imono'>cliente</span> solo tiene nombre y apellido. Sin clave natural, dos «Pérez, Juan» son idénticos para el sistema.",
+        "<b>Precios históricos:</b> el precio vive en el catálogo (valor <i>actual</i>). El día que Martín actualice la lista, cambia el total de todas las órdenes viejas."
+      ],
+      aprende: "Un modelo puede estar bien normalizado y aun así <b>no soportar el negocio</b>. Detectar qué <i>no</i> se puede representar es tan importante como diseñar lo que sí.",
+      pregunta: "¿Por qué, con el modelo original, el stock nunca puede descontarse de forma confiable? ¿Qué tabla falta y por qué una «receta» no alcanza?",
+      events: [
+        { t: "prompt", who: "vos", text: "El modelo de datos = ElChip.sql y 00-contexto.md están en \\insumos" },
+        { t: "think", text: "Cruzando cada dolor contra el esquema entregado..." },
+        { t: "note", kind: "aha", tag: "hallazgo", text: "El modelo entregado no puede resolver 3 de los 7 dolores. Son huecos estructurales, no detalles." },
+        { t: "tool", tool: "analizar", arg: "dolor: stock irreal", out: "problema_has_repuesto = receta, no consumo real → repuesto.stock no es trazable" },
+        { t: "tool", tool: "analizar", arg: "dolor: clientes duplicados", out: "cliente(nombre, apellido) → sin clave natural, imposible deduplicar" },
+        { t: "tool", tool: "analizar", arg: "dolor: precio a mano", out: "precio leído del catálogo actual → actualizar precios altera órdenes ya cerradas" }
+      ]
+    },
+    {
+      n: "03", phase: "El modelo", title: "Las adendas", star: true,
+      sub: "En lugar de rehacer el modelo, lo extiende: agrega lo que falta sin perder nada de lo entregado, y justifica cada cambio.",
+      entra: [ "Los 3 huecos de la escena anterior + la decisión «extender con adendas» (V-ronda 1)." ],
+      produce: [
+        "<span class='imono'>A-04 movimiento_stock</span>: cada cambio de stock queda registrado. El campo <span class='imono'>stock</span> es un saldo desnormalizado; la <b>fuente de verdad</b> es la suma de los movimientos (invariante <span class='imono'>I-01</span>).",
+        "<span class='imono'>A-03 consumo_repuesto</span>: el repuesto realmente usado en una orden, con precio y costo <b>congelados</b>.",
+        "<span class='imono'>A-01 cliente.documento</span>: clave natural única —pero opcional, para no trabar el mostrador si alguien no trae el DNI.",
+        "<span class='imono'>A-02</span>: la línea de la orden <b>copia</b> el precio al crearse; actualizar el catálogo ya no la toca."
+      ],
+      aprende: "Aparecen decisiones clásicas de bases de datos: saldo desnormalizado <i>vs.</i> fuente de verdad, clave natural opcional pero única, y congelamiento de datos históricos para que un comprobante viejo se pueda reimprimir igual años después.",
+      pregunta: "Si el stock es la suma de los movimientos, ¿por qué además guardar un campo <span class='imono'>stock</span>? ¿Y por qué copiar el precio en la orden en vez de leerlo del catálogo cada vez?",
+      events: [
+        { t: "tool", tool: "Write", arg: "specs/02-modelo-datos.md", out: "traducción tabla por tabla + 16 adendas (A-01…A-16)" },
+        { t: "note", kind: "info", tag: "A-04 movimiento_stock", text: "saldo desnormalizado; fuente de verdad = Σ movimientos → habilita el invariante I-01 (stock == Σ movimientos)." },
+        { t: "note", kind: "info", tag: "A-03 consumo_repuesto", text: "repuesto realmente consumido, con precio y costo congelados al momento de usarlo." },
+        { t: "note", kind: "info", tag: "A-01 cliente.documento", text: "clave natural única y opcional: sin ella no hay deduplicación; obligatoria trabaría el mostrador." },
+        { t: "note", kind: "info", tag: "A-02 congelamiento", text: "la línea guarda su propio precio; el catálogo no puede reescribir el pasado." }
+      ]
+    },
+    {
+      n: "04", phase: "El modelo", title: "La validación con Martín",
+      sub: "El docente responde como el cliente. Sus respuestas vuelven a entrar al modelo: el modelado es un ida y vuelta, no una línea recta.",
+      entra: [ "Un guion de 16 preguntas de negocio que la entrevista original no cubría." ],
+      decision: D_MARTIN,
+      produce: [
+        "Las respuestas <b>realimentan</b> el modelo: nuevas adendas <span class='imono'>A-17…A-22</span>.",
+        "<b>V-07</b>: los equipos que nadie retira pasan a ser del negocio y se pueden vender → aparece un módulo entero que no existía (apropiación + venta).",
+        "El modelo pasa de 16 a <b>22 adendas</b> sin romper nada de lo ya escrito."
+      ],
+      aprende: "El diseño de datos no se «termina» de una vez. Cada respuesta del cliente puede abrir una tabla nueva. Por eso conviene extender con adendas numeradas y justificadas, no reescribir.",
+      events: [
+        { t: "prompt", who: "vos", text: "Acepto modificaciones sobre el modelo de datos. Validemos con Martín." },
+        { t: "tool", tool: "Write", arg: "insumos/01-validacion-martin.md", out: "guion de 16 preguntas, con el impacto de cada respuesta" },
+        { t: "decision", data: D_MARTIN },
+        { t: "note", kind: "aha", tag: "realimentación", text: "Las decisiones agregan A-17 (costo) · A-18 (descuento manual) · A-19 (derivación) · A-20/21 (apropiación y venta) · A-22 (aprobación). El modelo crece." }
+      ]
+    },
+    {
+      n: "05", phase: "Construcción", title: "De las specs al código",
+      sub: "Con el modelo cerrado, recién ahí se escribe código. La lógica vive en una capa de servicios; las vistas quedan finas.",
+      entra: [ "Las 10 specs y el pedido: «generá el código con estas specs»." ],
+      produce: [
+        "Proyecto Django: <span class='imono'>models.py</span> por app, migraciones, la máquina de <b>11 estados</b>.",
+        "Toda regla de negocio en <span class='imono'>services.py</span>; toda consulta en <span class='imono'>selectors.py</span>. Ninguna vista toca el modelo directo.",
+        "<b>Trazabilidad:</b> cada <span class='imono'>RQ-</span>, <span class='imono'>A-</span> y <span class='imono'>R-</span> citado en el código — 70 identificadores para poder auditar cobertura."
+      ],
+      aprende: "El modelo de datos no es solo tablas: se prolonga en reglas (transiciones válidas, cálculo de totales, integridad) que la aplicación tiene que hacer cumplir, no solo la base.",
+      events: [
+        { t: "prompt", who: "vos", text: "Dale, generá el código con estas specs." },
+        { t: "tool", tool: "Bash", arg: "python -m venv .venv && pip install Django==5.2.*", out: "Successfully installed Django-5.2.16" },
+        { t: "tool", tool: "Write", arg: "ordenes/models.py (+ usuarios, catalogos, clientes, inventario, equipos)", out: "22 adendas implementadas, cada una con su comentario # A-xx" },
+        { t: "tool", tool: "Bash", arg: "manage.py makemigrations", out: "19 tablas del SQL original + 8 nuevas de las adendas" },
+        { t: "tool", tool: "Bash", arg: "manage.py migrate", out: "OK — todas las tablas creadas" },
+        { t: "tool", tool: "Write", arg: "ordenes/services.py", out: "reglas R-01…R-43 · máquina de 11 estados · trazabilidad completa" }
+      ]
+    },
+    {
+      n: "06", phase: "Construcción", title: "Los bugs que aparecieron al construir", star: true,
+      sub: "Ejecutar el código real destapó dos errores que ninguna spec había previsto. El proceso los atrapó antes de que llegaran a una persona.",
+      entra: [ "El sistema recién escrito y el comando que carga datos de prueba." ],
+      produce: [
+        "<b>Bug 1 (regla R-04b):</b> al cargar datos, tres órdenes fallan. Cobrar el saldo completo <i>en efectivo</i> activa el 10% de descuento, el total baja… y el pago queda por encima del nuevo total. La spec definía cómo calcular el descuento, pero no cómo cobrar cuando el propio cobro lo cambia.",
+        "<b>Bug 2 (invariante I-01):</b> el verificador detecta <span class='imono'>stock ≠ Σ movimientos</span>: el demo cargaba el stock como número suelto. Se corrige haciendo que la carga inicial entre como un movimiento."
+      ],
+      aprende: "La IA no es infalible. Lo que sostiene la calidad no es que «no se equivoque», sino tener <b>verificación automática</b> —un seed que corre y un invariante de integridad— que hace saltar el error apenas aparece.",
+      pregunta: "¿Cómo se descubrieron estos bugs si nadie los había anticipado? ¿Qué rol jugó el invariante «stock = suma de movimientos»?",
+      events: [
+        { t: "tool", tool: "Bash", arg: "manage.py cargar_datos_iniciales --demo", err: "Orden #10: Los pagos superan el total en $1350.00" },
+        { t: "note", kind: "bug", tag: "bug real, no del demo", text: "Cobrar todo en efectivo activa el 10%: el total baja y el pago recién hecho queda por encima. La spec no cubría este caso." },
+        { t: "tool", tool: "Edit", arg: "ordenes/services.py → regla R-04b", out: "calcular_total_proyectado() / calcular_saldo_proyectado(): cuánto cobrar ANTES de cobrar" },
+        { t: "tool", tool: "Bash", arg: "manage.py verificar_invariantes", err: "I-01 Adhesivo de pantalla: stock=29 pero los movimientos suman -1" },
+        { t: "note", kind: "bug", tag: "integridad", text: "El invariante detecta que el stock inicial se cargó sin movimiento. Fix: la carga inicial entra como ingreso/ajuste trazable." },
+        { t: "note", kind: "aha", tag: "registrado", text: "Ambos hallazgos quedan documentados en docs/decisiones.md con su causa y su corrección." }
+      ]
+    },
+    {
+      n: "07", phase: "Verificación", title: "Tests e invariantes",
+      sub: "El cierre técnico: probar que las reglas se cumplen sobre datos reales, no confiar en que «debería andar».",
+      entra: [ "El sistema completo, con los dos bugs ya corregidos." ],
+      produce: [
+        "<b>261 tests</b> en verde (2 omitidos): cálculo de importes, stock, estados, abandono, deduplicación, permisos, apropiación/venta y reportes.",
+        "Cobertura <b>&gt;90%</b> en la capa de servicios y consultas; 84% global.",
+        "<span class='imono'>verificar_invariantes</span> y <span class='imono'>verificar_stock</span> corren limpios; <span class='imono'>ruff</span> sin observaciones."
+      ],
+      aprende: "Los 18 invariantes son afirmaciones sobre la <b>integridad</b> que deben valer siempre (el saldo nunca negativo, el stock igual a sus movimientos, toda orden entregada saldada). Son la traducción, en código, de las restricciones del modelo.",
+      events: [
+        { t: "tool", tool: "Bash", arg: "pytest -q", out: "261 passed, 2 skipped in 8.03s" },
+        { t: "tool", tool: "Bash", arg: "pytest --cov", out: ">90% en services/selectors · 84% global" },
+        { t: "tool", tool: "Bash", arg: "manage.py verificar_invariantes && verificar_stock", out: "Todos los invariantes se cumplen · El stock coincide con los movimientos" },
+        { t: "tool", tool: "Bash", arg: "ruff check .", out: "All checks passed!" },
+        { t: "result", text: "Sistema completo y verificado sobre datos reales." }
+      ]
+    },
+    {
+      n: "08", phase: "Cierre", title: "Lo que queda pendiente para un humano",
+      sub: "El código anda y los tests pasan. Pero el proceso no termina ahí: deja, señalado con nombre y apellido, el trabajo que requiere juicio humano.",
+      entra: [ "Un sistema funcionando y verificado." ],
+      produce: [
+        "<b>Legal:</b> el texto del comprobante de recepción —única notificación al cliente antes de disponer de un equipo abandonado— lo tiene que redactar un asesor, no la IA.",
+        "<b>Negocio:</b> ¿el descuento manual solo lo aplica Martín? Si él no está, se traba el mostrador. Es una decisión de él, no del software.",
+        "<b>Negocio:</b> el margen del reporte es <i>bruto</i> (no descuenta sueldos ni alquiler). ¿A Martín le alcanza, o necesita cargar el costo de la mano de obra?",
+        "<b>Datos:</b> cargar a mano el costo de los repuestos que Martín ya tenía en el mostrador.",
+        "<b>Infraestructura:</b> correr la suite sobre <b>MySQL real</b> —concurrencia, restricciones CHECK— que SQLite no ejercita.",
+        "<b>Aceptación:</b> la validación final en el navegador la hace una persona, usándolo."
+      ],
+      aprende: "La IA hizo el trabajo mecánico y —lo más valioso— dejó <b>explícito</b> dónde hace falta criterio humano: derecho, negocio, infraestructura y aceptación. Un buen proceso no oculta sus límites: los nombra.",
+      pregunta: "De esta lista, ¿cuáles son decisiones de negocio, cuáles técnicas y cuáles legales? ¿Cuál dejarías para el final y cuál no puede esperar?",
+      events: [
+        { t: "note", kind: "info", tag: "el código anda", text: "261 tests en verde. Y sin embargo, el proceso no termina acá." },
+        { t: "tool", tool: "pendiente", arg: "legal", out: "el texto del comprobante de recepción → asesor legal, no la IA" },
+        { t: "tool", tool: "pendiente", arg: "negocio", out: "¿descuento manual solo admin? traba el mostrador si Martín no está" },
+        { t: "tool", tool: "pendiente", arg: "negocio", out: "el margen es bruto: no descuenta sueldos ni alquiler" },
+        { t: "tool", tool: "pendiente", arg: "datos", out: "cargar el costo de los repuestos que ya estaban en stock" },
+        { t: "tool", tool: "pendiente", arg: "infra", out: "correr la suite sobre MySQL real (concurrencia, CHECK) — SQLite no lo ejerce" },
+        { t: "tool", tool: "pendiente", arg: "aceptación", out: "la validación final en el navegador la hace una persona" },
+        { t: "note", kind: "aha", tag: "la lección", text: "La IA hizo lo mecánico y señaló, con nombre, dónde hace falta juicio humano: derecho, negocio, infraestructura y aceptación." }
+      ]
+    }
+  ];
+
+  // ---------- helpers ----------
+  const $ = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+
+  function decisionHTML(d) {
+    let h = '<div class="ask"><div class="ask-h mono">👤 ' + d.ronda + '</div>';
+    d.preguntas.forEach(p => {
+      h += '<div class="ask-q"><p>' + p.q + '</p><div class="opts">';
+      p.opts.forEach(o => {
+        h += '<div class="opt' + (o.chosen ? ' chosen' : '') + '"><span class="tick">' + (o.chosen ? '✓' : '·') + '</span><span>' +
+          (o.chosen ? '<b>' + o.l + '</b>' : o.l) + (o.why ? '<span class="why">' + o.why + '</span>' : '') + '</span></div>';
+      });
+      h += '</div></div>';
+    });
+    return h + '</div>';
+  }
+
+  // ---------- explore ----------
+  const rail = $("#rail"), sceneBox = $("#scene");
+  let cur = 0;
+
+  SCENES.forEach((s, i) => {
+    const b = el("button");
+    b.setAttribute("aria-current", i === 0 ? "true" : "false");
+    b.innerHTML = '<span class="num">' + s.n + (s.star ? ' <span class="star">★</span>' : '') + '</span><span>' + s.title + '</span>';
+    b.addEventListener("click", () => goScene(i));
+    rail.appendChild(b);
+  });
+
+  function renderScene(i) {
+    const s = SCENES[i];
+    let h = '<div class="scene-head"><div class="scene-tag"><span class="n mono">Escena ' + s.n + '</span>' +
+      '<span class="phase">' + s.phase + '</span>' + (s.star ? '<span class="badge-star">★ clave para BD</span>' : '') +
+      '</div><h2>' + s.title + '</h2><p>' + s.sub + '</p></div><div class="scene-body">';
+
+    h += '<div class="block entra"><div class="label">Qué entró</div><ul class="lines">' +
+      s.entra.map(x => '<li>' + x + '</li>').join('') + '</ul></div>';
+
+    if (s.decision) {
+      h += '<div class="block decision"><div class="label" style="color:var(--teal)">Decisión humana</div>' + decisionHTML(s.decision);
+      if (s.decision2) h += decisionHTML(s.decision2);
+      h += '</div>';
+    }
+
+    h += '<div class="block produce"><div class="label">Qué hizo la IA</div><ul class="lines">' +
+      s.produce.map(x => '<li>' + x + '</li>').join('') + '</ul></div>';
+
+    h += '<div class="block aprende"><div class="label">Aprendizaje</div><div class="card"><p>' + s.aprende + '</p></div></div>';
+
+    if (s.pregunta) h += '<div class="clase-box"><div class="label">Para lanzar a la clase</div><p>' + s.pregunta + '</p></div>';
+
+    h += '</div>';
+    sceneBox.innerHTML = h;
+    rail.querySelectorAll("button").forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+    $("#prev").disabled = i === 0;
+    $("#next").disabled = i === SCENES.length - 1;
+  }
+  function goScene(i) { cur = Math.max(0, Math.min(SCENES.length - 1, i)); renderScene(cur);
+    rail.querySelectorAll("button")[cur].scrollIntoView({ block: "nearest", inline: "center" }); }
+
+  $("#prev").addEventListener("click", () => goScene(cur - 1));
+  $("#next").addEventListener("click", () => goScene(cur + 1));
+  renderScene(0);
+
+  // ---------- playback ----------
+  const steps = [];
+  SCENES.forEach(s => { steps.push({ kind: "scene", s }); s.events.forEach(e => steps.push({ kind: "event", s, e })); });
+
+  const consoleBox = $("#console"), progTxt = $("#prog"), progBar = $("#progbar");
+  let idx = 0, timer = null, playing = false;
+
+  function stepHTML(st) {
+    if (st.kind === "scene")
+      return '<div class="ln c-scene">Escena <b>' + st.s.n + '</b> · ' + st.s.title + (st.s.star ? ' ★' : '') + '</div>';
+    const e = st.e;
+    switch (e.t) {
+      case "prompt":
+        return '<div class="ln c-prompt"><span class="who">' + (e.who || "vos") + ' ▸</span> ' + e.text + '</div>';
+      case "think":
+        return '<div class="ln c-think pulse">' + e.text + '</div>';
+      case "tool": {
+        let h = '<div class="ln c-tool"><span class="t">▸ ' + e.tool + '</span> <span class="arg">' + e.arg + '</span></div>';
+        if (e.out) h += '<div class="ln c-out ok">↳ ' + e.out + '</div>';
+        if (e.err) h += '<div class="ln c-out err">✗ ' + e.err + '</div>';
+        return h;
+      }
+      case "result":
+        return '<div class="ln c-result">✓ ' + e.text + '</div>';
+      case "note":
+        return '<div class="ln c-note ' + (e.kind || "info") + '"><span class="tag">' + e.tag + '</span><br>' + e.text + '</div>';
+      case "decision":
+        return '<div class="ln c-decision">' + decisionHTML(e.data) + '</div>';
+    }
+    return "";
+  }
+
+  function isPause(st) { return st.kind === "event" && st.e.t === "decision"; }
+
+  function renderUpTo(n) {
+    let h = "";
+    for (let i = 0; i < n; i++) h += stepHTML(steps[i]);
+    consoleBox.innerHTML = h;
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+    progTxt.textContent = "paso " + n + " / " + steps.length;
+    progBar.style.width = (100 * n / steps.length) + "%";
+    // aviso de pausa por decisión
+    if (n > 0 && isPause(steps[n - 1]) && !playing) {
+      const p = el("div", "ln c-pause");
+      p.innerHTML = '<span>⏸ La corrida se frenó en una decisión.</span>';
+      const btn = el("button", null, "Continuar");
+      btn.addEventListener("click", () => { play(); });
+      p.appendChild(btn);
+      consoleBox.appendChild(p);
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+    $("#step-back").disabled = n === 0;
+    $("#step-fwd").disabled = n >= steps.length;
+  }
+
+  function reveal() {
+    if (idx >= steps.length) { stop(); return; }
+    idx++;
+    renderUpTo(idx);
+    if (isPause(steps[idx - 1])) { stop(); return; }   // frenar en decisiones
+    if (playing) {
+      const delay = parseInt($("#speed").value, 10);
+      timer = setTimeout(reveal, steps[idx - 1].kind === "scene" ? delay * 0.5 : delay);
+    }
+  }
+  function play() {
+    if (idx >= steps.length) return;
+    playing = true; $("#play").innerHTML = "⏸ Pausar";
+    renderUpTo(idx);
+    reveal();
+  }
+  function stop() {
+    playing = false; clearTimeout(timer); $("#play").innerHTML = "▶ Reproducir";
+    renderUpTo(idx);
+  }
+
+  $("#play").addEventListener("click", () => { playing ? stop() : play(); });
+  $("#step-fwd").addEventListener("click", () => { stop(); if (idx < steps.length) { idx++; renderUpTo(idx); } });
+  $("#step-back").addEventListener("click", () => { stop(); if (idx > 0) { idx--; renderUpTo(idx); } });
+  $("#restart").addEventListener("click", () => { stop(); idx = 0; renderUpTo(0); });
+  renderUpTo(0);
+
+  // ---------- modo ----------
+  const mExplore = $("#mode-explore"), mPlay = $("#mode-play");
+  function setMode(play) {
+    mExplore.setAttribute("aria-selected", (!play).toString());
+    mPlay.setAttribute("aria-selected", play.toString());
+    $("#explore").classList.toggle("hidden", play);
+    $("#playback").classList.toggle("hidden", !play);
+    if (!play) stop();
+  }
+  mExplore.addEventListener("click", () => setMode(false));
+  mPlay.addEventListener("click", () => setMode(true));
+
+  // ---------- teclado ----------
+  document.addEventListener("keydown", (ev) => {
+    const enPlay = mPlay.getAttribute("aria-selected") === "true";
+    if (enPlay) {
+      if (ev.key === " ") { ev.preventDefault(); playing ? stop() : play(); }
+      if (ev.key === "ArrowRight") { ev.preventDefault(); $("#step-fwd").click(); }
+      if (ev.key === "ArrowLeft") { ev.preventDefault(); $("#step-back").click(); }
+    } else {
+      if (ev.key === "ArrowRight") goScene(cur + 1);
+      if (ev.key === "ArrowLeft") goScene(cur - 1);
+    }
+  });
+
+  // ---------- tema ----------
+  const root = document.documentElement;
+  $("#theme").addEventListener("click", () => {
+    const cur = root.getAttribute("data-theme")
+      || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    root.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  });
+})();
+</script>
+
+</body>
+</html>
