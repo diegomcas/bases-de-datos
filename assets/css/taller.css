@@ -267,64 +267,11 @@
 
 
 /* ==========================================================================
-   4. BLOQUES DE CÓDIGO CON ENCABEZADO
-   ========================================================================== */
-
-.code-container {
-  position: relative;
-  margin-bottom: 15px;
-  background: var(--bg-code);
-  border-radius: var(--radio-chico);
-  border: 1px solid var(--linea-sutil);
-  overflow: hidden;
-}
-
-.code-header {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 8px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--linea-sutil);
-}
-
-.code-lang {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.code-container pre { padding: 16px; }
-
-.copy-btn {
-  background: transparent;
-  border: 1px solid var(--linea-media);
-  color: var(--text-muted);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: var(--transicion);
-}
-
-.copy-btn:hover {
-  color: var(--text-main);
-  background: var(--velo-medio);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-
-/* ==========================================================================
-   5. TABLA DE RESULTADOS
+   4. TABLA DE RESULTADOS
 
    Lo que devuelve la consulta. Se muestra con la misma tipografía del código
    porque son datos, no prosa.
    ========================================================================== */
-
-.table-scroll { overflow-x: auto; }
 
 .result-table {
   width: 100%;

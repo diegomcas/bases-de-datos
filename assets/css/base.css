@@ -688,3 +688,59 @@ pre {
 @media print {
   .migas, .paginacion { display: none; }
 }
+
+
+/* ==========================================================================
+   BLOQUES DE CÓDIGO Y TABLAS ANCHAS
+
+   Vivían en taller.css, pero los usan también los apuntes y los casos,
+   que no cargan esa hoja: ahí las tablas y el código quedaban sin estilo.
+   ========================================================================== */
+
+.code-container {
+  position: relative;
+  margin-bottom: 15px;
+  background: var(--bg-code);
+  border-radius: var(--radio-chico);
+  border: 1px solid var(--linea-sutil);
+  overflow: hidden;
+}
+
+.code-header {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--linea-sutil);
+}
+
+.code-lang {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.code-container pre { padding: 16px; }
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--linea-media);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transicion);
+}
+
+.copy-btn:hover {
+  color: var(--text-main);
+  background: var(--velo-medio);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-scroll { overflow-x: auto; }
