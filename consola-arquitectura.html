@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="assets/css/fuentes.css">
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/apunte.css">
+    <link rel="stylesheet" href="assets/css/documento.css">
 
     <style>
-    /* propio de esta página: el diagrama de flujo y la tabla de reglas */
+    /* propio de esta página: el diagrama de flujo y las capas */
     .diagrama {
         background: var(--bg-code);
         border: 1px solid var(--linea-media);
@@ -55,25 +56,6 @@
         margin-bottom: 2px;
     }
 
-    .anexo {
-        margin-top: 46px;
-        padding-top: 30px;
-        border-top: 2px solid var(--linea-media);
-    }
-    .anexo-rotulo {
-        display: inline-block;
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.09em;
-        color: var(--bloque-ambar);
-        background: color-mix(in srgb, var(--bloque-ambar) 14%, transparent);
-        border: 1px solid color-mix(in srgb, var(--bloque-ambar) 32%, transparent);
-        border-radius: 4px;
-        padding: 4px 9px;
-        margin-bottom: 14px;
-    }
     .tabla-apunte td code, .tabla-apunte th code { white-space: nowrap; }
     </style>
 </head>
@@ -104,6 +86,7 @@
             <h2>En esta nota</h2>
             <ol>
                 <li><a href="#el-problema">El problema de partida</a></li>
+                <li><a href="#decisiones">Tres decisiones y su costo</a></li>
                 <li><a href="#las-capas">Las cuatro capas</a></li>
                 <li><a href="#el-traductor">Por qué el traductor está partido en cuatro</a></li>
                 <li><a href="#el-camino">El camino de una consulta</a></li>
@@ -114,6 +97,20 @@
         </nav>
 
         <article class="apunte">
+
+            <div class="aviso">
+                <strong>La consola está en revisión.</strong> Esta nota describe el estado de agosto de
+                2026. La herramienta funciona y está verificada, pero todavía no la usó ningún alumno ni
+                se probó en la red del establecimiento, que es la única prueba capaz de obligar a cambiar
+                una de las decisiones de fondo.
+            </div>
+
+            <div class="cifras">
+                <div class="cifra" style="--c:var(--bloque-cian)"><b>4 MB</b><span>lo que descarga el navegador, una sola vez</span></div>
+                <div class="cifra" style="--c:var(--bloque-violeta)"><b>19</b><span>tablas y una vista, el modelo completo</span></div>
+                <div class="cifra" style="--c:var(--bloque-verde)"><b>22</b><span>funciones de compatibilidad con MySQL</span></div>
+                <div class="cifra" style="--c:var(--bloque-ambar)"><b>0</b><span>servidores, cuentas y datos almacenados</span></div>
+            </div>
 
             <h2 id="el-problema">El problema de partida</h2>
 
@@ -139,6 +136,36 @@
                empaquetado como biblioteca de JavaScript. De ahí sale la decisión de fondo, que conviene
                enunciar sin eufemismos: <strong>la consola usa Postgres y aparenta ser MySQL</strong>.
                Todo lo que sigue es la ingeniería de sostener esa apariencia sin que se vuelva un engaño.</p>
+
+            <h2 id="decisiones">Tres decisiones y su costo</h2>
+
+            <p>Conviene dejarlas escritas con su contrapartida, porque cada una compra algo a cambio de
+               algo.</p>
+
+            <div class="decision">
+                <h4>El motor es PostgreSQL, no MySQL</h4>
+                <p>Es la única familia de bases relacionales con una versión que corra dentro de un
+                   navegador sin emular una computadora entera.</p>
+                <p class="fundamento"><b>Costo:</b> los dos dialectos difieren, y sostener la apariencia
+                   de MySQL obliga a mantener una capa de traducción que nunca va a ser completa.</p>
+            </div>
+
+            <div class="decision">
+                <h4>La interfaz imita al cliente <code>mysql</code></h4>
+                <p>Es la que los alumnos ven en clase. Reconocer el entorno reduce a cero el costo de
+                   entrada: no hay que aprender una herramienta para practicar con otra.</p>
+                <p class="fundamento"><b>Costo:</b> la imitación puede inducir a creer que se está
+                   trabajando contra MySQL. Por eso la consola lo aclara al abrirse, y avisa
+                   explícitamente cada vez que encuentra algo que no puede traducir.</p>
+            </div>
+
+            <div class="decision">
+                <h4>La base vive en memoria y no se guarda</h4>
+                <p>No hay cuentas de usuario, ni servidor, ni información que salga del equipo. Es lo que
+                   permite publicar la herramienta abiertamente para un curso de menores de edad.</p>
+                <p class="fundamento"><b>Costo:</b> recargar la página reinicia la base. La consola es un
+                   banco de trabajo abierto al lado, no un cuaderno donde se acumula lo hecho.</p>
+            </div>
 
             <h2 id="las-capas">Las cuatro capas</h2>
 
@@ -193,22 +220,22 @@
                     <tr>
                         <td><strong>Función</strong></td>
                         <td><code>IFNULL</code>, <code>DATE_FORMAT</code>, <code>GROUP_CONCAT</code>, <code>DATEDIFF</code></td>
-                        <td>Dentro de la base, creadas como funciones SQL reales</td>
+                        <td><span class="est est-si">Resuelto</span> Dentro de la base, creadas como funciones SQL reales</td>
                     </tr>
                     <tr>
                         <td><strong>Sintaxis</strong></td>
                         <td>Comillas invertidas, <code>LIMIT 5, 10</code>, <code>SEPARATOR</code>, <code>AUTO_INCREMENT</code></td>
-                        <td>En el cliente, reescribiendo el texto antes de enviarlo</td>
+                        <td><span class="est est-si">Resuelto</span> En el cliente, reescribiendo el texto antes de enviarlo</td>
                     </tr>
                     <tr>
                         <td><strong>Comando</strong></td>
                         <td><code>SHOW TABLES</code>, <code>DESCRIBE</code></td>
-                        <td>Se sustituyen por consultas al catálogo del sistema</td>
+                        <td><span class="est est-dec">Sustituido</span> Por consultas al catálogo del sistema</td>
                     </tr>
                     <tr>
                         <td><strong>Sin equivalente</strong></td>
                         <td><code>USE</code>, <code>IF(a,b,c)</code></td>
-                        <td>Mensaje explicativo; no se ejecuta nada</td>
+                        <td><span class="est est-no">Se avisa</span> Mensaje explicativo; no se ejecuta nada</td>
                     </tr>
                 </tbody>
             </table>
@@ -274,9 +301,6 @@
                 <li><strong>El motor no es MySQL.</strong> La traducción cubre lo más frecuente, no
                     todo. Cuando algo queda fuera, la consola lo dice en castellano en lugar de
                     devolver un error del motor subyacente.</li>
-                <li><strong>Depende de un tercero.</strong> Si la red del establecimiento bloquea
-                    jsDelivr, la consola no arranca. La solución, llegado el caso, es incorporar PGlite
-                    al propio repositorio.</li>
                 <li><strong>Hay diferencias que enseñan.</strong> Postgres admite
                     <code>INTERSECT</code> y <code>EXCEPT</code> desde siempre, mientras que MySQL los
                     incorporó recién en la versión 8.0.31. La consola permite practicar operaciones de
@@ -284,6 +308,15 @@
                 <li><strong>El trabajo evaluable se entrega contra el motor de la escuela.</strong>
                     La consola es un banco de pruebas, no el entorno de referencia.</li>
             </ul>
+
+            <div class="pendiente-dato">
+                <h4>Dato pendiente · ¿la red del establecimiento deja pasar jsDelivr?</h4>
+                <p>Es la única cuestión abierta con consecuencia sobre el diseño. Si la respuesta es que
+                   no, el motor deja de traerse de un tercero y pasa a incorporarse al propio
+                   repositorio: son 16 MB, la consola queda inmune a bloqueos y funciona sin conexión.
+                   Mientras la respuesta se desconozca, conviene tratar la dependencia externa como el
+                   punto más frágil de todo el conjunto.</p>
+            </div>
 
             <!-- ══════════════════════════ ANEXO ══════════════════════════ -->
 

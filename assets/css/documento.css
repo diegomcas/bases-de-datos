@@ -1,0 +1,151 @@
+/* ==========================================================================
+   DOCUMENTO — informes y notas técnicas
+
+   Se usa junto con base.css y apunte.css, encima del tema de apunte:
+
+       <link rel="stylesheet" href="assets/css/fuentes.css">
+       <link rel="stylesheet" href="assets/css/base.css">
+       <link rel="stylesheet" href="assets/css/apunte.css">
+       <link rel="stylesheet" href="assets/css/documento.css">
+       <body data-tema="apunte">
+
+   Un apunte es material de clase y se lee de corrido. Un documento se
+   consulta: por eso la caja es más ancha y hay piezas para lo que un informe
+   necesita y una clase no —cifras de cabecera, decisiones con su fundamento,
+   avisos, datos pendientes y anexos—.
+
+   Estos componentes estaban repetidos dentro de cada documento. Viven acá
+   para que el próximo no vuelva a copiarlos.
+   ========================================================================== */
+
+body[data-tema="apunte"] { --ancho-main: 1040px; }
+
+
+/* --- aviso: lo que hay que leer antes que el resto ----------------------- */
+
+.aviso {
+  background: color-mix(in srgb, var(--bloque-ambar) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bloque-ambar) 30%, transparent);
+  border-radius: var(--radio);
+  padding: 18px 22px;
+  margin-bottom: 34px;
+}
+
+.aviso strong { color: var(--bloque-ambar); }
+
+
+/* --- cifras: los números que resumen el documento ------------------------ */
+
+.cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.cifra {
+  background: var(--bg-card);
+  border: 1px solid var(--linea-sutil);
+  border-radius: var(--radio);
+  padding: 18px;
+  text-align: center;
+}
+
+.cifra b {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-size: 2rem;
+  color: var(--c, var(--accent));
+  line-height: 1;
+}
+
+.cifra span {
+  display: block;
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+
+/* --- estados: la insignia que califica una fila o un ítem ----------------
+   Los cuatro colores salen de la paleta de bloques de base.css y siempre
+   acompañan a un texto que dice lo mismo: la insignia nunca es la única
+   señal, porque el color no llega a todos los ojos.                       */
+
+.est {
+  font-family: 'Outfit', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.est-si  { color: var(--bloque-verde); background: color-mix(in srgb, var(--bloque-verde) 15%, transparent); }
+.est-par { color: var(--bloque-ambar); background: color-mix(in srgb, var(--bloque-ambar) 15%, transparent); }
+.est-no  { color: var(--bloque-rojo);  background: color-mix(in srgb, var(--bloque-rojo)  15%, transparent); }
+.est-dec { color: var(--bloque-cian);  background: color-mix(in srgb, var(--bloque-cian)  15%, transparent); }
+
+
+/* --- decisión: qué se resolvió y por qué --------------------------------- */
+
+.decision {
+  border-left: 3px solid var(--bloque-cian);
+  background: var(--velo-sutil);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  padding: 18px 22px;
+  margin: 18px 0;
+}
+
+.decision h4 {
+  color: var(--text-main);
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.decision .fundamento {
+  font-size: .9rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.decision .fundamento b { color: var(--text-body); }
+
+
+/* --- dato pendiente: lo que falta para poder cerrar ---------------------- */
+
+.pendiente-dato {
+  border-left: 3px solid var(--bloque-rosa);
+  background: var(--velo-sutil);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  padding: 16px 20px;
+  margin: 14px 0;
+}
+
+.pendiente-dato h4 { font-size: 1rem; margin-bottom: 6px; }
+
+
+/* --- anexo: lo que se consulta, no lo que se lee ------------------------- */
+
+.anexo {
+  margin-top: 46px;
+  padding-top: 30px;
+  border-top: 2px solid var(--linea-media);
+}
+
+.anexo-rotulo {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--bloque-ambar);
+  background: color-mix(in srgb, var(--bloque-ambar) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bloque-ambar) 32%, transparent);
+  border-radius: 4px;
+  padding: 4px 9px;
+  margin-bottom: 14px;
+}
