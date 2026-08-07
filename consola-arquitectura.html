@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cómo está hecha la consola · Bases de Datos</title>
+    <link rel="stylesheet" href="assets/css/fuentes.css">
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/apunte.css">
+
+    <style>
+    /* propio de esta página: el diagrama de flujo y la tabla de reglas */
+    .diagrama {
+        background: var(--bg-code);
+        border: 1px solid var(--linea-media);
+        border-radius: var(--radio);
+        padding: 20px 22px;
+        margin: 26px 0;
+        overflow-x: auto;
+        font-family: 'Fira Code', ui-monospace, monospace;
+        font-size: 0.82rem;
+        line-height: 1.65;
+        color: #dbe4f0;
+        white-space: pre;
+    }
+    .diagrama .marca { color: #ff9ec9; font-weight: 700; }
+    .diagrama .nota  { color: #8fa2c4; }
+
+    .capa {
+        display: flex;
+        gap: 16px;
+        align-items: baseline;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--linea-sutil);
+    }
+    .capa:last-child { border-bottom: none; }
+    .capa-num {
+        flex-shrink: 0;
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        color: var(--accent);
+        font-family: 'Fira Code', monospace;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    /* Solo el primero es el título de la capa: los demás <strong> del párrafo
+       tienen que seguir siendo texto en línea. */
+    .capa-txt > strong:first-child {
+        display: block;
+        color: var(--text-main);
+        margin-bottom: 2px;
+    }
+
+    .anexo {
+        margin-top: 46px;
+        padding-top: 30px;
+        border-top: 2px solid var(--linea-media);
+    }
+    .anexo-rotulo {
+        display: inline-block;
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--bloque-ambar);
+        background: color-mix(in srgb, var(--bloque-ambar) 14%, transparent);
+        border: 1px solid color-mix(in srgb, var(--bloque-ambar) 32%, transparent);
+        border-radius: 4px;
+        padding: 4px 9px;
+        margin-bottom: 14px;
+    }
+    .tabla-apunte td code, .tabla-apunte th code { white-space: nowrap; }
+    </style>
+</head>
+<body data-tema="apunte">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Nota técnica</span>
+            <h1>Cómo está hecha la consola</h1>
+            <p>Un motor Postgres dentro del navegador, disfrazado de cliente MySQL: por qué, con qué piezas y a qué costo</p>
+            <a href="consola.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a la consola
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="consola.html">Consola SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Cómo está hecha</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>En esta nota</h2>
+            <ol>
+                <li><a href="#el-problema">El problema de partida</a></li>
+                <li><a href="#las-capas">Las cuatro capas</a></li>
+                <li><a href="#el-traductor">Por qué el traductor está partido en cuatro</a></li>
+                <li><a href="#el-camino">El camino de una consulta</a></li>
+                <li><a href="#ausencias">Lo que deliberadamente no hay</a></li>
+                <li><a href="#limites">Los límites conocidos</a></li>
+                <li><a href="#anexo">Anexo · Especificación de construcción</a></li>
+            </ol>
+        </nav>
+
+        <article class="apunte">
+
+            <h2 id="el-problema">El problema de partida</h2>
+
+            <p>La materia se cursa con la base abierta al lado. Eso supone que el alumno tenga
+               <a href="https://dev.mysql.com/doc/refman/8.0/en/installing.html" target="_blank" rel="noopener">MySQL instalado</a>,
+               y fuera del aula esa condición se cumple menos de lo que uno quisiera: falta el permiso
+               de administrador, la máquina es prestada, o directamente el único dispositivo disponible
+               es un teléfono. La consecuencia práctica es que los ejercicios se leen en vez de
+               ejecutarse, que es la manera más eficiente de no aprender SQL.</p>
+
+            <p>La solución obvia sería poner MySQL en el navegador. No se puede: <strong>no existe una
+               versión de MySQL que corra en un navegador</strong>. Lo único que hay son emuladores de
+               PC completos, como <a href="https://github.com/copy/v86" target="_blank" rel="noopener">v86</a>,
+               que arrancan un Linux entero para meter el servidor adentro — decenas de megabytes y una
+               fragilidad impropia de un aula. El anuncio de Oracle sobre
+               <a href="https://blogs.oracle.com/mysql/webassembly-integration-for-nextgen-data-apps" target="_blank" rel="noopener">MySQL y WebAssembly</a>
+               apunta en la dirección contraria: es Wasm corriendo <em>dentro</em> del servidor, no el
+               servidor corriendo en el cliente.</p>
+
+            <p>PostgreSQL sí tiene una versión así.
+               <a href="https://pglite.dev/docs/about" target="_blank" rel="noopener">PGlite</a>
+               es Postgres compilado a <a href="https://webassembly.org/" target="_blank" rel="noopener">WebAssembly</a>,
+               empaquetado como biblioteca de JavaScript. De ahí sale la decisión de fondo, que conviene
+               enunciar sin eufemismos: <strong>la consola usa Postgres y aparenta ser MySQL</strong>.
+               Todo lo que sigue es la ingeniería de sostener esa apariencia sin que se vuelva un engaño.</p>
+
+            <h2 id="las-capas">Las cuatro capas</h2>
+
+            <div class="capa">
+                <span class="capa-num">1</span>
+                <span class="capa-txt"><strong>El motor</strong>
+                PGlite 0.5.4, equivalente a PostgreSQL 17, servido como módulo ES desde
+                <a href="https://www.jsdelivr.com/package/npm/@electric-sql/pglite" target="_blank" rel="noopener">jsDelivr</a>.
+                Son 16 MB sin comprimir y alrededor de 4 MB por la red; después queda en la caché del
+                navegador. La base se crea <strong>en memoria</strong>: no se escribe nada en el disco
+                del alumno, y recargar la página equivale a formatearla.</span>
+            </div>
+
+            <div class="capa">
+                <span class="capa-num">2</span>
+                <span class="capa-txt"><strong>Los datos</strong>
+                Un módulo generado, <code>assets/consola/elchip.js</code>, que exporta tres cadenas de
+                SQL: el esquema, la carga base y el compendio ampliado. No se escribe a mano: lo produce
+                <a href="casos/el-chip/mysql_a_postgres.py">un traductor en Python</a> a partir de
+                <a href="casos/el-chip/ElChip.sql">ElChip.sql</a>, que sigue siendo el original. El modelo
+                de la materia es MySQL; lo de la consola es un derivado desechable.</span>
+            </div>
+
+            <div class="capa">
+                <span class="capa-num">3</span>
+                <span class="capa-txt"><strong>El traductor</strong>
+                La capa que hace posible que un alumno escriba MySQL y le responda Postgres. No es un
+                único mecanismo sino cuatro, y el motivo del reparto es el asunto central de esta nota.</span>
+            </div>
+
+            <div class="capa">
+                <span class="capa-num">4</span>
+                <span class="capa-txt"><strong>La terminal</strong>
+                Acumula líneas hasta encontrar un punto y coma que no esté entre comillas, mantiene el
+                historial, y devuelve el resultado con el formato de tablas del
+                <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql.html" target="_blank" rel="noopener">cliente <code>mysql</code></a>,
+                alineando a la derecha las columnas cuyo tipo es numérico.</span>
+            </div>
+
+            <h2 id="el-traductor">Por qué el traductor está partido en cuatro</h2>
+
+            <p>Podría suponerse que traducir MySQL a Postgres es una sola tarea: buscar y reemplazar.
+               No lo es, porque <strong>las diferencias entre ambos dialectos no pertenecen todas a la
+               misma categoría</strong>, y cada categoría admite —o exige— un lugar distinto de
+               resolución.</p>
+
+            <table class="tabla-apunte">
+                <thead>
+                    <tr><th>Categoría</th><th>Ejemplos</th><th>Dónde se resuelve</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Función</strong></td>
+                        <td><code>IFNULL</code>, <code>DATE_FORMAT</code>, <code>GROUP_CONCAT</code>, <code>DATEDIFF</code></td>
+                        <td>Dentro de la base, creadas como funciones SQL reales</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sintaxis</strong></td>
+                        <td>Comillas invertidas, <code>LIMIT 5, 10</code>, <code>SEPARATOR</code>, <code>AUTO_INCREMENT</code></td>
+                        <td>En el cliente, reescribiendo el texto antes de enviarlo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Comando</strong></td>
+                        <td><code>SHOW TABLES</code>, <code>DESCRIBE</code></td>
+                        <td>Se sustituyen por consultas al catálogo del sistema</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sin equivalente</strong></td>
+                        <td><code>USE</code>, <code>IF(a,b,c)</code></td>
+                        <td>Mensaje explicativo; no se ejecuta nada</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>La distinción es operativa, no académica. Una <strong>función</strong> se puede crear:
+               basta declarar en Postgres una función llamada <code>ifnull</code> y el problema
+               desaparece para siempre. La <strong>sintaxis</strong>, en cambio, hay que corregirla
+               antes de que el analizador la vea, porque una vez que el motor rechaza el texto ya no hay
+               nada que hacer. Un <strong>comando</strong> como <code>SHOW TABLES</code> no es SQL en
+               ningún dialecto —es una instrucción del cliente— y su equivalente honesto es una consulta
+               a <a href="https://www.postgresql.org/docs/current/information-schema.html" target="_blank" rel="noopener"><code>information_schema</code></a>,
+               el catálogo estandarizado que describe la propia base.</p>
+
+            <p>Unificar los cuatro caminos en un solo mecanismo obligaría a escribir un analizador
+               sintáctico completo de MySQL. El reparto evita esa empresa y, de paso, deja cada regla
+               en el lugar donde es más barata de mantener.</p>
+
+            <h2 id="el-camino">El camino de una consulta</h2>
+
+            <div class="diagrama"><span class="nota">   lo que escribe el alumno</span>
+            │
+            ├─ ¿SHOW / DESCRIBE?      ──► consulta a information_schema
+            │
+            ├─ ¿sin equivalente?      ──► mensaje explicativo, no ejecuta
+            │
+            └─ <span class="marca">traducir()</span>
+                  │  <span class="nota">1. enmascarar las cadenas   'texto' → «0»</span>
+                  │  <span class="nota">2. reescribir la sintaxis</span>
+                  │  <span class="nota">3. restaurar las cadenas</span>
+                  ▼
+              <span class="marca">PGlite</span>  ──►  { fields, rows }
+                  │
+                  ▼
+              tabla ASCII  ──►  pantalla</div>
+
+            <p>El primer paso de <code>traducir()</code> merece atención porque evita un error grave.
+               Antes de aplicar ninguna reescritura, todos los literales de texto se sustituyen por una
+               marca interna —un carácter de control, imposible de escribir a mano en una consulta— y se
+               restauran al final. Sin ese cuidado, una consulta que guardara el
+               texto <code>'LIMIT 1, 2'</code> dentro de una columna saldría reescrita: el traductor
+               estaría corrompiendo <em>datos</em> creyendo que corrige <em>código</em>. Con el
+               enmascarado, ninguna regla puede tocar lo que está entre comillas.</p>
+
+            <h2 id="ausencias">Lo que deliberadamente no hay</h2>
+
+            <p>No hay servidor propio, no hay cuentas de usuario, no hay peticiones de red después de la
+               carga inicial y no hay estado compartido entre alumnos. La base de cada uno vive en su
+               pestaña y muere con ella.</p>
+
+            <p>Esas ausencias no son limitaciones: son el motivo por el cual el material puede publicarse
+               abiertamente. Sin cuentas no hay datos personales de menores que custodiar; sin estado
+               compartido, ningún alumno puede alterar el trabajo de otro; sin servidor no hay nada que
+               mantener, que actualizar ni que pagar. El costo de esa simplicidad es que la base se
+               reinicia con cada recarga, y por eso conviene tratarla como un banco de trabajo abierto al
+               lado y no como un cuaderno donde se acumula lo hecho.</p>
+
+            <h2 id="limites">Los límites conocidos</h2>
+
+            <p>Conviene enunciarlos, porque una herramienta educativa que oculta sus límites enseña algo
+               falso.</p>
+
+            <ul>
+                <li><strong>El motor no es MySQL.</strong> La traducción cubre lo más frecuente, no
+                    todo. Cuando algo queda fuera, la consola lo dice en castellano en lugar de
+                    devolver un error del motor subyacente.</li>
+                <li><strong>Depende de un tercero.</strong> Si la red del establecimiento bloquea
+                    jsDelivr, la consola no arranca. La solución, llegado el caso, es incorporar PGlite
+                    al propio repositorio.</li>
+                <li><strong>Hay diferencias que enseñan.</strong> Postgres admite
+                    <code>INTERSECT</code> y <code>EXCEPT</code> desde siempre, mientras que MySQL los
+                    incorporó recién en la versión 8.0.31. La consola permite practicar operaciones de
+                    conjunto que quizá el servidor del aula rechace.</li>
+                <li><strong>El trabajo evaluable se entrega contra el motor de la escuela.</strong>
+                    La consola es un banco de pruebas, no el entorno de referencia.</li>
+            </ul>
+
+            <!-- ══════════════════════════ ANEXO ══════════════════════════ -->
+
+            <div class="anexo">
+                <span class="anexo-rotulo">Anexo</span>
+
+                <h2 id="anexo">Especificación de construcción</h2>
+
+                <p>Lo que sigue es la descripción operativa de las piezas, suficiente para reconstruir la
+                   consola o para adaptarla a otro modelo de datos.</p>
+
+                <h3>Inventario de archivos</h3>
+
+                <table class="tabla-apunte">
+                    <thead><tr><th>Archivo</th><th>Rol</th></tr></thead>
+                    <tbody>
+                        <tr><td><a href="consola.html">consola.html</a></td><td>Terminal, traductor de sintaxis y formateo de salida</td></tr>
+                        <tr><td><code>assets/css/consola.css</code></td><td>Estilos de la terminal, sobre los componentes de <code>base.css</code></td></tr>
+                        <tr><td><code>assets/consola/elchip.js</code></td><td>Generado. Exporta <code>ESQUEMA</code>, <code>DATOS_BASE</code> y <code>DATOS_COMPENDIO</code></td></tr>
+                        <tr><td><a href="casos/el-chip/mysql_a_postgres.py">casos/el-chip/mysql_a_postgres.py</a></td><td>Generador. Traduce el modelo MySQL y crea las funciones de compatibilidad</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Cadena de generación</h3>
+
+                <p>La regla que sostiene todo el diseño es que <strong>el modelo tiene un solo
+                   original</strong>. Modificar <code>elchip.js</code> a mano rompe esa garantía.</p>
+
+                <div class="diagrama">ElChip.sql                 <span class="nota">estructura (MySQL Workbench)</span>
+poblar_elchip.sql          <span class="nota">carga base</span>          ──►  <span class="marca">mysql_a_postgres.py</span>  ──►  elchip.js
+poblar_elchip_compendio.sql  <span class="nota">carga ampliada</span></div>
+
+                <p>Para regenerar, desde la raíz del repositorio:</p>
+
+                <div class="diagrama">python casos/el-chip/mysql_a_postgres.py</div>
+
+                <h3>Transformaciones del esquema</h3>
+
+                <table class="tabla-apunte">
+                    <thead><tr><th>En MySQL</th><th>En PostgreSQL</th><th>Motivo</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>INT NOT NULL AUTO_INCREMENT</code></td><td><code>INT GENERATED BY DEFAULT AS IDENTITY</code></td><td>«By default» y no «always», porque las cargas insertan algunos identificadores explícitos</td></tr>
+                        <tr><td><code>DATETIME</code></td><td><code>TIMESTAMP</code></td><td>Nombre del tipo</td></tr>
+                        <tr><td><code>ENGINE = InnoDB</code></td><td>—</td><td>Postgres tiene un solo motor de almacenamiento</td></tr>
+                        <tr><td><code>UNIQUE INDEX … VISIBLE</code></td><td><code>UNIQUE (columna)</code></td><td>La visibilidad de índices es propia de MySQL 8</td></tr>
+                        <tr><td><code>INDEX … VISIBLE</code></td><td><code>CREATE INDEX</code> aparte</td><td>Postgres no declara índices dentro de la tabla</td></tr>
+                        <tr><td><code>GROUP_CONCAT(x SEPARATOR s)</code></td><td><code>STRING_AGG(x, s)</code></td><td>En la vista; además Postgres exige agrupar toda columna proyectada de otra tabla</td></tr>
+                    </tbody>
+                </table>
+
+                <p>Hay un punto que merece explicación. La carga ampliada del original resuelve sus
+                   claves con <code>LAST_INSERT_ID()</code> y variables de sesión, un mecanismo que
+                   Postgres no comparte. El generador las convierte en valores literales, y de ese modo
+                   la consola reproduce siempre los mismos identificadores que citan las resoluciones de
+                   los talleres: clientes 6 a 8, equipos 6 a 9, órdenes 4 a 8. Después de cada carga
+                   se reajustan los contadores de identidad; sin ese paso, el primer <code>INSERT</code>
+                   del alumno chocaría contra una clave duplicada.</p>
+
+                <h3>Funciones de compatibilidad</h3>
+
+                <p>Se crean junto con el esquema y viven dentro de la base:</p>
+
+                <table class="tabla-apunte">
+                    <thead><tr><th>Función</th><th>Implementación</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>IFNULL(a, b)</code></td><td><code>COALESCE</code></td></tr>
+                        <tr><td><code>GROUP_CONCAT(x)</code></td><td>Agregado propio, separador por coma</td></tr>
+                        <tr><td><code>GROUP_CONCAT(x, sep)</code></td><td>Agregado con estado <code>text[]</code> que transporta el separador</td></tr>
+                        <tr><td><code>DATE_FORMAT(t, patrón)</code></td><td>Traducción del patrón de MySQL al de <code>to_char</code></td></tr>
+                        <tr><td><code>DATEDIFF</code>, <code>YEAR</code>, <code>MONTH</code>, <code>DAY</code></td><td>Sobre <code>EXTRACT</code>, con variantes para <code>timestamptz</code></td></tr>
+                        <tr><td><code>CURDATE</code>, <code>CURTIME</code>, <code>RAND</code>, <code>LCASE</code>, <code>UCASE</code></td><td>Equivalentes directos</td></tr>
+                    </tbody>
+                </table>
+
+                <p>Las variantes para <code>timestamptz</code> no son un lujo: <code>NOW()</code>
+                   devuelve ese tipo y las columnas del modelo son <code>timestamp</code>, de modo que
+                   sin ellas una expresión tan común como <code>DATEDIFF(NOW(), fecha_ingreso)</code>
+                   no encontraría ninguna función aplicable.</p>
+
+                <h3>Reglas de reescritura en el cliente</h3>
+
+                <table class="tabla-apunte">
+                    <thead><tr><th>Entrada</th><th>Salida</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>AS `Alias`</code> · <code>AS 'Alias'</code></td><td><code>AS "Alias"</code>, conservando mayúsculas</td></tr>
+                        <tr><td>Comillas invertidas restantes</td><td>Se eliminan; Postgres pliega a minúsculas</td></tr>
+                        <tr><td><code>SEPARATOR 's'</code></td><td><code>, 's'</code></td></tr>
+                        <tr><td><code>LIMIT a, b</code></td><td><code>LIMIT b OFFSET a</code></td></tr>
+                        <tr><td><code>AUTO_INCREMENT</code>, <code>ENGINE=</code>, <code>INT(n)</code>, <code>DATETIME</code></td><td>Equivalentes de Postgres</td></tr>
+                        <tr><td>Comentarios con <code>#</code></td><td><code>--</code></td></tr>
+                    </tbody>
+                </table>
+
+                <p>Los alias entre comillas invertidas se convierten en comillas dobles y el resto de las
+                   comillas invertidas simplemente se descarta. La asimetría es deliberada: entrecomillar
+                   un nombre de tabla preservaría su capitalización y haría fallar
+                   <code>`Cliente`</code>, que en MySQL sí encuentra la tabla.</p>
+
+                <h3>Comandos de la terminal</h3>
+
+                <table class="tabla-apunte">
+                    <thead><tr><th>Comando</th><th>Efecto</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>\?</code> · <code>\h</code></td><td>Ayuda</td></tr>
+                        <tr><td><code>\dt</code></td><td>Listar tablas</td></tr>
+                        <tr><td><code>\d tabla</code></td><td>Describir una tabla</td></tr>
+                        <tr><td><code>\base</code> · <code>\compendio</code></td><td>Cambiar de juego de datos</td></tr>
+                        <tr><td><code>\reset</code></td><td>Recargar el juego de datos actual</td></tr>
+                        <tr><td><code>\clear</code> · <code>\datos</code></td><td>Limpiar la pantalla · informar qué está cargado</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Formato de salida</h3>
+
+                <p>Se replica el del cliente <code>mysql</code>: marco de guiones y barras verticales,
+                   ancho de cada columna igual al del contenido más largo, alineación a la derecha
+                   cuando el tipo es numérico, <code>NULL</code> en mayúsculas para los valores
+                   ausentes, y el pie con la cantidad de filas y el tiempo transcurrido. Las marcas de
+                   tiempo se componen a partir de los valores locales, porque el controlador las
+                   convierte a un objeto de fecha y una lectura en tiempo universal desplazaría la hora
+                   respecto de lo que se guardó.</p>
+
+                <h3>Verificación</h3>
+
+                <p>La comprobación automática extrae el guion real de <code>consola.html</code>, le
+                   provee un entorno de documento simulado y lo ejecuta contra PGlite fuera del
+                   navegador. De ese modo se prueba el código que efectivamente se publica y no una
+                   copia. Las treinta comprobaciones cubren la imitación del cliente, la capa de
+                   compatibilidad, los mensajes propios, el ciclo de lectura multilínea, la integridad
+                   referencial y las dos cargas de datos.</p>
+
+                <p>Al escribir esta prueba conviene saber que <strong>definir un objeto
+                   <code>window</code> global rompe PGlite</strong>: la biblioteca lo usa para detectar
+                   si corre en un navegador, y al encontrarlo busca propiedades que en ese entorno
+                   simulado no existen.</p>
+
+                <h3>Adaptarla a otro modelo</h3>
+
+                <ol>
+                    <li>Reemplazar los tres archivos SQL de origen.</li>
+                    <li>Revisar la correspondencia de identificadores si la carga ampliada usa
+                        <code>LAST_INSERT_ID()</code>.</li>
+                    <li>Portar a mano las vistas que empleen sintaxis sin equivalente directo.</li>
+                    <li>Regenerar y ejecutar la comprobación.</li>
+                </ol>
+            </div>
+
+            <div class="descargas">
+                <h4>Ir a</h4>
+                <a href="consola.html" class="salto-nav">Abrir la consola
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+            </div>
+
+        </article>
+
+        <nav class="paginacion" aria-label="Recorrido">
+            <a class="pag-ant" href="consola.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Consola SQL</strong>
+            </a>
+            <a class="pag-sig" href="index.html#u4a">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Unidad IV · SQL</strong>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Nota técnica de la cátedra de Bases de Datos - "El Chip" &copy; 2026. La consola está <a href="consola.html">acá</a>.</p>
+    </footer>
+
+</body>
+</html>
