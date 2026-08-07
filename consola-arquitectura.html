@@ -90,6 +90,7 @@
                 <li><a href="#las-capas">Las cuatro capas</a></li>
                 <li><a href="#el-traductor">Por qué el traductor está partido en cuatro</a></li>
                 <li><a href="#el-camino">El camino de una consulta</a></li>
+                <li><a href="#lo-que-si-se-puede">Lo que la consola sí permite practicar</a></li>
                 <li><a href="#ausencias">Lo que deliberadamente no hay</a></li>
                 <li><a href="#limites">Los límites conocidos</a></li>
                 <li><a href="#anexo">Anexo · Especificación de construcción</a></li>
@@ -111,6 +112,7 @@
                 <div class="cifra" style="--c:var(--bloque-violeta)"><b>19</b><span>tablas y una vista, el modelo completo</span></div>
                 <div class="cifra" style="--c:var(--bloque-verde)"><b>22</b><span>funciones de compatibilidad con MySQL</span></div>
                 <div class="cifra" style="--c:var(--bloque-ambar)"><b>0</b><span>servidores, cuentas y datos almacenados</span></div>
+                <div class="cifra" style="--c:var(--bloque-rosa)"><b>500k</b><span>filas que aguanta para medir rendimiento</span></div>
             </div>
 
             <h2 id="el-problema">El problema de partida</h2>
@@ -239,6 +241,11 @@
                         <td><code>USE</code>, <code>IF(a,b,c)</code></td>
                         <td><span class="est est-no">Se avisa</span> Mensaje explicativo; no se ejecuta nada</td>
                     </tr>
+                    <tr>
+                        <td><strong>Sin sentido acá</strong></td>
+                        <td><code>GRANT</code>, <code>REVOKE</code>, <code>CREATE USER</code></td>
+                        <td><span class="est est-no">Se rechaza</span> Se ejecutarían sin error y no harían nada</td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -254,6 +261,34 @@
             <p>Unificar los cuatro caminos en un solo mecanismo obligaría a escribir un analizador
                sintáctico completo de MySQL. El reparto evita esa empresa y, de paso, deja cada regla
                en el lugar donde es más barata de mantener.</p>
+
+            <p>La quinta categoría se agregó después, al preparar el taller de permisos, y responde
+               a un problema distinto: <code>GRANT</code> y <code>CREATE USER</code>
+               <strong>son válidos en PostgreSQL</strong> y se ejecutaban sin ninguna queja. Pero
+               acá hay una sola sesión y tiene todos los permisos, así que la sentencia no producía
+               ningún efecto. Un alumno veía <code>Query OK</code> y creía que el permiso había
+               quedado aplicado. Se rechazan a propósito: un error que se acepta en silencio es peor
+               que uno que se rechaza.</p>
+
+            <h2 id="lo-que-si-se-puede">Lo que la consola sí permite practicar</h2>
+
+            <p>Además de las consultas, dos cosas que no eran evidentes y quedaron verificadas al
+               escribir los talleres que las usan.</p>
+
+            <p><strong>Transacciones completas.</strong> <code>START TRANSACTION</code>,
+               <code>COMMIT</code>, <code>ROLLBACK</code> y <code>SAVEPOINT</code> escritos como
+               líneas separadas —que es como los tipea un alumno— funcionan y la transacción
+               sobrevive entre comandos. Es más: la consola es el lugar <em>más seguro</em> para
+               practicarlas, porque si algo sale mal se recarga la página y vuelve el estado
+               inicial.</p>
+
+            <p><strong>Volumen suficiente para medir rendimiento.</strong> Genera 500.000 filas en
+               poco más de un segundo, y sobre esa tabla las diferencias se ven con el reloj: una
+               búsqueda por igualdad pasa de 26 ms a 0,3 al crear el índice, y un
+               <code>ORDER BY</code> con <code>LIMIT</code>, de 66 ms a 0,3. <code>EXPLAIN</code>
+               muestra el plan y el cambio de <code>Seq Scan</code> a <code>Index Scan</code>. Eso
+               convierte al navegador en un laboratorio de optimización que no deja ocupada la
+               máquina del aula.</p>
 
             <h2 id="el-camino">El camino de una consulta</h2>
 
@@ -306,9 +341,25 @@
                     <code>INTERSECT</code> y <code>EXCEPT</code> desde siempre, mientras que MySQL los
                     incorporó recién en la versión 8.0.31. La consola permite practicar operaciones de
                     conjunto que quizá el servidor del aula rechace.</li>
+                <li><strong>Un error adentro de una transacción se comporta distinto.</strong>
+                    PostgreSQL aborta el bloque entero y todo lo que sigue falla hasta el
+                    <code>ROLLBACK</code>; MySQL sigue adelante y el <code>COMMIT</code> confirma
+                    lo que salió bien. Los dos respetan la consistencia: lo que difiere es cuán
+                    estricta es su lectura de la atomicidad.</li>
+                <li><strong>El índice compuesto es más flexible acá.</strong> PostgreSQL puede
+                    usarlo filtrando solo por la segunda columna; MySQL sigue la regla del prefijo
+                    izquierdo y no. La regla se enseña igual, pero no se puede comprobar en la
+                    consola.</li>
+                <li><strong>El control de acceso no se puede practicar.</strong> Una sola sesión,
+                    con todos los permisos. Por eso el taller de permisos manda al MySQL del aula
+                    con dos terminales abiertas.</li>
                 <li><strong>El trabajo evaluable se entrega contra el motor de la escuela.</strong>
                     La consola sirve para practicar; el entorno de referencia sigue siendo el del aula.</li>
             </ul>
+
+            <p>Las tres primeras no son defectos que convenga tapar: <strong>son contenido</strong>.
+               Los talleres de permisos y de optimización las usan como ocasión concreta para
+               mostrar que los dialectos difieren, con las dos ventanas abiertas.</p>
 
             <div class="pendiente-dato">
                 <h4>Dato pendiente · ¿la red del establecimiento deja pasar jsDelivr?</h4>
