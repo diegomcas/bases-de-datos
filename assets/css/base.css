@@ -744,3 +744,103 @@ pre {
 }
 
 .table-scroll { overflow-x: auto; }
+
+
+/* ==========================================================================
+   EL CASO EN LA PÁGINA: LA VOZ DEL CLIENTE Y LOS RESULTADOS
+
+   Vivían en taller.css. Los usan también las clases que muestran el caso,
+   y esas páginas no cargan esa hoja.
+   ========================================================================== */
+
+.chat-martin {
+  background-color: var(--bg-main);
+  border: 1px solid var(--linea-sutil);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  display: flex;
+  gap: 15px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3);
+}
+
+.chat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-content h4 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-content p {
+  font-size: 0.98rem;
+  color: #e2e8f0;
+  font-style: italic;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.83rem;
+  font-family: 'Fira Code', monospace;
+}
+
+.result-table th {
+  background: var(--velo-medio);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 7px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.result-table td {
+  padding: 6px 12px;
+  color: var(--text-body);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* la fila que hay que mirar: el caso raro, el NULL, el que rompe la intuición */
+.result-table tr.destacada td {
+  background: rgba(244, 63, 94, 0.08);
+  color: #fecdd3;
+}
+
+.result-caption {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Fila destacada dentro de un resultado: sirve para señalar en clase cuál es
+   la que importa. Lleva el verde de la paleta ya medida. */
+.result-table tr.match td,
+.result-table td.match {
+  background: rgba(16, 185, 129, 0.08);
+  color: #a7f3d0;
+}

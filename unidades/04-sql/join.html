@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniones con JOIN · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 25</span>
+            <h1>Uniones con JOIN</h1>
+            <p>La relación entre tablas, declarada aparte del filtro — y la pregunta por lo que no está</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Uniones con JOIN</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#de-donde-venimos">De dónde venimos: la coma y sus dos límites</a></li>
+                <li><a href="#la-misma-union">La misma unión, escrita de nuevo</a></li>
+                <li><a href="#la-gramatica-obliga">Por qué el ON cambia las cosas</a></li>
+                <li><a href="#el-pedido-de-martin">El pedido que no se puede resolver</a></li>
+                <li><a href="#left-join">LEFT JOIN: conservar el lado izquierdo</a></li>
+                <li><a href="#patron-ausencia">El patrón de la ausencia</a></li>
+                <li><a href="#la-trampa">La trampa: un WHERE en el lugar equivocado</a></li>
+                <li><a href="#contar-ausencias">Contar lo que no está</a></li>
+                <li><a href="#la-familia">El resto de la familia</a></li>
+                <li><a href="#como-elegir">Cómo elegir: la pregunta que decide</a></li>
+            </ol>
+        </nav>
+
+        <div class="diapositivas">
+
+            <section class="diapositiva" id="de-donde-venimos">
+              <div class="diapo-num">01</div>
+              <h2>De dónde venimos: la coma y sus dos límites</h2>
+              <p>En el taller anterior cruzamos tablas con una coma y un <code>WHERE</code>. Funciona,
+                 y el motor genera el mismo plan de ejecución que la sintaxis que vamos a ver hoy.
+                 Pero tiene dos límites que no se arreglan escribiendo mejor.</p>
+              <ul>
+                <li><strong>Olvidarse una condición no avisa.</strong> La consulta corre, devuelve
+                    filas y los totales quedan multiplicados. Un cartesiano accidental es silencioso.</li>
+                <li><strong>No hay forma de preguntar por lo que falta.</strong> El producto cartesiano
+                    solo combina filas que existen. Un cliente sin órdenes no participa de ninguna
+                    combinación, y ningún <code>WHERE</code> puede recuperarlo.</li>
+              </ul>
+              <p>SQL-92 introdujo el <code>JOIN</code> para resolver esas dos cosas. Hoy vemos cómo.</p>
+            </section>
+
+            <section class="diapositiva" id="la-misma-union">
+              <div class="diapo-num">02</div>
+              <h2>La misma unión, escrita de nuevo</h2>
+              <p>Las dos consultas devuelven exactamente las mismas ocho filas.</p>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Como veníamos escribiendo</span>
+<span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente;
+
+<span class="sql-comment">-- Lo mismo, con la relación declarada</span>
+<span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente;</code></pre>
+              </div>
+              <p>Lo que cambió es <em>dónde</em> quedó escrita la relación entre las tablas: en el
+                 <code>ON</code>, separada de lo que filtra el negocio. El <code>WHERE</code> queda
+                 libre para las preguntas de Martín.</p>
+            </section>
+
+            <section class="diapositiva" id="la-gramatica-obliga">
+              <div class="diapo-num">03</div>
+              <h2>Por qué el ON cambia las cosas</h2>
+              <p>Escribamos las dos versiones <strong>sin ninguna condición</strong> y veamos qué
+                 contesta el motor.</p>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O <span class="sql-keyword">INNER JOIN</span> cliente C;
+<span class="sql-comment">-- ERROR 1064: You have an error in your SQL syntax</span>
+
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_servicio O, cliente C;
+<span class="sql-comment">-- 64 filas. Ningún error.</span></code></pre>
+              </div>
+              <ul>
+                <li>Con <code>JOIN</code>, la <strong>gramática</strong> exige declarar la relación.
+                    El error molesta un segundo.</li>
+                <li>Con coma, el cartesiano se ejecuta y devuelve 64 filas que parecen datos. Ese
+                    error puede sobrevivir meses adentro de un reporte.</li>
+              </ul>
+              <p>La regla N−1 sigue valiendo, pero ahora se cuenta sola: hay un <code>ON</code> por
+                 cada <code>JOIN</code>.</p>
+            </section>
+
+            <section class="diapositiva" id="el-pedido-de-martin">
+              <div class="diapo-num">04</div>
+              <h2>El pedido que no se puede resolver</h2>
+              <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                  <h4>Martín dice:</h4>
+                  <p>"Quiero ver los clientes que están en el sistema y todavía no me trajeron nada.
+                     A ésos los quiero llamar."</p>
+                </div>
+              </div>
+              <p>Tenemos ocho clientes cargados y cinco con órdenes. Cualquier consulta que
+                 escribamos con coma va a devolver, como mucho, los cinco que tienen órdenes:
+                 <strong>López, Martínez y Ferreyra no aparecen en ninguna combinación</strong>,
+                 porque no hay ninguna fila de <code>orden_servicio</code> con la que emparejarlos.</p>
+              <p>La pregunta de Martín es por una ausencia, y una ausencia no se puede cruzar.</p>
+            </section>
+
+            <section class="diapositiva" id="left-join">
+              <div class="diapo-num">05</div>
+              <h2>LEFT JOIN: conservar el lado izquierdo</h2>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, O.nro_orden
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente;</code></pre>
+              </div>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>nombre</th><th>nro_orden</th></tr></thead>
+                  <tbody>
+                    <tr><td>Pérez</td><td>Juan</td><td>1</td></tr>
+                    <tr><td>García</td><td>María</td><td>2</td></tr>
+                    <tr class="match"><td>López</td><td>Carlos</td><td>NULL</td></tr>
+                    <tr class="match"><td>Martínez</td><td>Ana</td><td>NULL</td></tr>
+                    <tr class="match"><td>Ferreyra</td><td>Marcos</td><td>NULL</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p><code>LEFT JOIN</code> devuelve <strong>todas</strong> las filas de la tabla de la
+                 izquierda. Donde no hay pareja, inventa una fila con nulos a la derecha. Esos
+                 <code>NULL</code> no están guardados en ninguna tabla: los produce la unión para
+                 poder mostrar al cliente que no tiene órdenes.</p>
+            </section>
+
+            <section class="diapositiva" id="patron-ausencia">
+              <div class="diapo-num">06</div>
+              <h2>El patrón de la ausencia</h2>
+              <p>Para quedarse <em>solo</em> con los que no tienen pareja, se agrega una condición
+                 sobre el nulo.</p>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-keyword">SELECT</span> M.nombre
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">WHERE</span> E.id_equipo <span class="sql-keyword">IS NULL</span>;
+
+<span class="sql-comment">-- Google, Sony</span></code></pre>
+              </div>
+              <p>Es el modismo más usado de todo SQL y conviene reconocerlo de un vistazo. Con él se
+                 responden las tres preguntas de Martín: marcas que nunca aparecieron, formas de pago
+                 que nadie usa, problemas que nunca se detectaron.</p>
+              <p><strong>Cuidado con qué columna se pregunta:</strong> el <code>IS NULL</code> tiene
+                 que ir sobre una columna que nunca sea nula cuando hay pareja — la clave primaria o
+                 la foránea. Sobre una columna opcional, la consulta devuelve de más.</p>
+            </section>
+
+            <section class="diapositiva" id="la-trampa">
+              <div class="diapo-num">07</div>
+              <h2>La trampa: un WHERE en el lugar equivocado</h2>
+              <p>Las dos consultas parecen decir lo mismo. Una devuelve 11 filas y la otra 5.</p>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- 5 filas: el LEFT quedó escrito y no sirve para nada</span>
+<span class="sql-keyword">FROM</span> cliente C <span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.total &gt; <span class="sql-number">10000</span>
+
+<span class="sql-comment">-- 11 filas: los ocho clientes, como pedía Martín</span>
+<span class="sql-keyword">FROM</span> cliente C <span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+                             <span class="sql-keyword">AND</span> O.total &gt; <span class="sql-number">10000</span></code></pre>
+              </div>
+              <ul>
+                <li>El <code>ON</code> se aplica <strong>al armar la unión</strong>: la fila sin
+                    pareja se conserva con nulos.</li>
+                <li>El <code>WHERE</code> se aplica <strong>después</strong>, sobre el resultado. Una
+                    condición sobre la tabla derecha descarta las filas con nulos, y el
+                    <code>LEFT JOIN</code> termina comportándose como <code>INNER</code>.</li>
+              </ul>
+              <p><strong>La regla corta:</strong> si escribiste un <code>LEFT JOIN</code> y después
+                 nombrás la tabla derecha en el <code>WHERE</code>, revisá si no querías decirlo en
+                 el <code>ON</code>. La excepción es <code>IS NULL</code>, que pregunta justamente
+                 por las filas sin pareja.</p>
+            </section>
+
+            <section class="diapositiva" id="contar-ausencias">
+              <div class="diapo-num">08</div>
+              <h2>Contar lo que no está</h2>
+              <p>Martín pide el ranking de clientes por cantidad de órdenes, con todos incluidos.</p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>cliente</th><th>COUNT(*)</th><th>COUNT(O.nro_orden)</th></tr></thead>
+                  <tbody>
+                    <tr><td>Pérez, Juan</td><td>3</td><td>3</td></tr>
+                    <tr><td>García, María</td><td>2</td><td>2</td></tr>
+                    <tr class="match"><td>López, Carlos</td><td>1</td><td>0</td></tr>
+                    <tr class="match"><td>Martínez, Ana</td><td>1</td><td>0</td></tr>
+                    <tr class="match"><td>Ferreyra, Marcos</td><td>1</td><td>0</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p><code>COUNT(*)</code> cuenta <em>filas</em>, y la fila que el <code>LEFT JOIN</code>
+                 inventó existe: da 1 para quien no tiene ninguna orden. <code>COUNT(columna)</code>
+                 ignora los nulos y da 0, que es la respuesta correcta.</p>
+              <p>Es el mismo concepto del compendio de agrupación llegando desde el otro lado: allá
+                 los nulos estaban en los datos, acá los inventa la unión. Y <code>SUM</code> sobre un
+                 conjunto vacío devuelve <code>NULL</code>, no 0: para un reporte se envuelve en
+                 <code>COALESCE(SUM(...), 0)</code>.</p>
+            </section>
+
+            <section class="diapositiva" id="la-familia">
+              <div class="diapo-num">09</div>
+              <h2>El resto de la familia</h2>
+              <ul>
+                <li><strong><code>RIGHT JOIN</code></strong> — conserva la tabla de la derecha. Es el
+                    espejo del <code>LEFT</code> y casi no se usa: dar vuelta el orden de las tablas
+                    produce lo mismo y se lee mejor. Conviene saber leerlo, porque aparece en código
+                    heredado.</li>
+                <li><strong><code>CROSS JOIN</code></strong> — el producto cartesiano declarado a
+                    propósito. Sirve para grillas y combinatorias, y avisa a quien lee la consulta
+                    que la explosión de filas es intencional.</li>
+                <li><strong>La autounión</strong> — no es un tipo nuevo: es un <code>INNER JOIN</code>
+                    de una tabla consigo misma, con dos alias. Sirve, por ejemplo, para encontrar
+                    clientes cargados dos veces.</li>
+                <li><strong><code>FULL OUTER JOIN</code></strong> — conserva las filas sin pareja de
+                    los dos lados. <strong>MySQL no lo tiene</strong>: se arma con la unión de un
+                    <code>LEFT</code> y un <code>RIGHT</code>. PostgreSQL sí lo soporta, así que en
+                    la <a href="../../consola.html">consola del sitio</a> funciona.</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="como-elegir">
+              <div class="diapo-num">10</div>
+              <h2>Cómo elegir: la pregunta que decide</h2>
+              <p>Antes de escribir la consulta, una sola pregunta resuelve casi todos los casos:</p>
+              <p style="font-size:1.15rem"><strong>¿Me importan las filas que no tienen pareja?</strong></p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>Si la respuesta es…</th><th>Va</th><th>Ejemplo de Martín</th></tr></thead>
+                  <tbody>
+                    <tr><td>No</td><td>INNER JOIN</td><td>cuánto facturé por cliente</td></tr>
+                    <tr><td>Sí</td><td>LEFT JOIN</td><td>a qué clientes tengo que llamar</td></tr>
+                    <tr><td>Solo esas</td><td>LEFT JOIN + IS NULL</td><td>qué formas de pago nadie usa</td></tr>
+                    <tr><td>Quiero la combinatoria</td><td>CROSS JOIN</td><td>armar la lista de precios</td></tr>
+                    <tr><td>Comparo la tabla consigo misma</td><td>autounión</td><td>buscar duplicados</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>La sintaxis se elige <em>después</em> de entender qué se está preguntando. Cambiar
+                 «cuánto facturé» por «a quién no le facturé nada» cambia el <code>JOIN</code>, y
+                 ninguna de las dos consultas da error.</p>
+            </section>
+
+        </div>
+
+        <div class="descargas">
+            <h4>Seguir</h4>
+            <a href="taller-join-consignas.html" class="salto-nav">Taller: 26 retos con JOIN
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-uniones-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller: uniones sin JOIN</strong>
+            </a>
+            <a class="pag-sig" href="taller-join-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller: uniones con JOIN</strong>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>Bases de Datos · Ciclo 2026 · revisión 1.0.0</p>
+    </footer>
+
+</body>
+</html>

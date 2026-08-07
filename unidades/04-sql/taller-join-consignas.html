@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: JOIN - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-inner  { --c: var(--bloque-azul); }
+    .block-left   { --c: var(--bloque-verde); }
+    .block-trampa { --c: var(--bloque-rojo); }
+    .block-contar { --c: var(--bloque-ambar); }
+    .block-resto  { --c: var(--bloque-violeta); }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 4</span>
+            <h1>Uniones con JOIN</h1>
+            <p>26 retos sobre El Chip: la relación declarada aparte del filtro, y las preguntas por lo que no está</p>
+            <a href="taller-join-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: uniones con JOIN</span>
+        </nav>
+
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.8rem;">Antes de empezar</h2>
+            </div>
+            <div class="explicacion">
+                <p><strong>Este taller corre sobre el juego de datos ampliado:</strong>
+                   <code>ElChip.sql</code> + <code>poblar_elchip.sql</code> +
+                   <code>poblar_elchip_compendio.sql</code>. Hace falta el tercer script, porque
+                   las preguntas de este taller son por lo que <em>no</em> está: los clientes sin
+                   órdenes, las marcas sin equipos, los métodos de pago sin usar. Sobre la carga
+                   base, la mitad de los retos no tendría nada que mostrar.</p>
+                <p>Si trabajás en la <a href="../../consola.html">consola del sitio</a>, elegí
+                   <strong>2 · Compendio</strong> al abrirla.</p>
+                <p>Venís del <a href="taller-uniones-consignas.html">taller de uniones sin
+                   JOIN</a>, donde cruzaste tablas con coma y <code>WHERE</code>. Su último
+                   bloque planteaba dos cosas que la coma no puede hacer: obligar a declarar la
+                   relación entre las tablas, y traer las filas que no tienen pareja. Este taller
+                   responde las dos.</p>
+            </div>
+        </section>
+
+        <section class="block-card block-inner" id="inner">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>El ON separa lo que el WHERE mezclaba</h2>
+                    <p>La misma unión de siempre, con la relación declarada aparte del filtro</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Los reportes que me pasaste andan, pero cuando le pedí a un amigo que sabe programar que los revisara, me dijo que estaban escritos «a la vieja usanza» y que así era fácil equivocarse. No entendí bien por qué. ¿Se puede escribir de otra forma?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: dos responsabilidades, dos lugares</h4>
+                    <ul>
+                        <li><strong>La sintaxis:</strong> <code>FROM a INNER JOIN b ON b.fk = a.pk</code>. La condición que <em>relaciona</em> las tablas va en el <code>ON</code>; el <code>WHERE</code> queda para lo que <em>filtra</em> el negocio.</li>
+                        <li><strong>El mismo resultado:</strong> un <code>INNER JOIN</code> devuelve exactamente las mismas filas que la coma con su condición en el <code>WHERE</code>. Lo que cambia es que la relación queda escrita donde se la puede leer.</li>
+                        <li><strong>La gramática obliga:</strong> escribir <code>INNER JOIN</code> sin <code>ON</code> es un error de sintaxis. Olvidarse una condición en la coma, en cambio, no produce ningún error: produce un cartesiano parcial silencioso.</li>
+                        <li><strong>Sigue valiendo la regla N−1:</strong> para unir N tablas hacen falta N−1 condiciones. Con esta sintaxis se cuentan solas: hay un <code>ON</code> por cada <code>JOIN</code>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>La misma consulta, escrita de nuevo</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Reescribí con <code>INNER JOIN ... ON</code> la consulta que lista el número de orden con el apellido y el nombre del cliente. Ejecutá también la versión con coma y verificá que devuelven lo mismo.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Tres tablas, dos ON</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Agregá el estado de cada orden y su total. Contá cuántas condiciones de unión necesitás antes de escribirlas.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.3</span>
+                        <h3>La relación N:M, ahora legible</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Reescribí el reporte completo: número de orden, apellido del cliente, marca y modelo del equipo, y el problema detectado. Son seis tablas.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-1-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.4</span>
+                        <h3>El WHERE recupera su trabajo</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá las órdenes del cliente de apellido «Pérez». Fijate dónde ponés la condición del apellido y por qué no va en un <code>ON</code>.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-1-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-1-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.5</span>
+                        <h3>Sacale el ON a propósito</h3>
+                        <span class="nivel-tag">conceptual</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí <code>SELECT O.nro_orden, C.apellido FROM orden_servicio O INNER JOIN cliente C;</code> sin ninguna condición, y ejecutalo. Después escribí la misma consulta con coma —<code>FROM orden_servicio O, cliente C</code>— y ejecutala también. Explicá la diferencia entre las dos respuestas del motor.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-1-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-left" id="left">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Preguntar por lo que no está</h2>
+                    <p>LEFT JOIN: la pregunta que la coma no puede hacer</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Necesito algo que hasta ahora no me pudiste dar: quiero ver los clientes que figuran en el sistema y todavía no me trajeron nada. Y lo mismo con las marcas que cargamos y nunca aparecieron, y con las formas de pago que ofrezco y nadie usa. Quiero ver lo que falta, no lo que hay."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: conservar el lado izquierdo</h4>
+                    <ul>
+                        <li><strong>Qué hace:</strong> <code>A LEFT JOIN B ON ...</code> devuelve <strong>todas</strong> las filas de A. Donde no hay pareja en B, las columnas de B vienen en <code>NULL</code>.</li>
+                        <li><strong>El patrón de la ausencia:</strong> para quedarte solo con los que no tienen pareja, agregás <code>WHERE B.clave IS NULL</code>. Es el modismo más usado de todo SQL, y conviene reconocerlo de un vistazo.</li>
+                        <li><strong>Qué columna preguntar:</strong> el <code>IS NULL</code> tiene que ir sobre una columna de B que <em>nunca</em> sea nula cuando hay pareja — la clave primaria o la foránea. Sobre una columna opcional, la consulta devuelve de más.</li>
+                        <li><strong>Por qué la coma no alcanza:</strong> el producto cartesiano solo puede combinar filas que existen. Una fila que no tiene pareja no aparece en ninguna combinación, y ningún <code>WHERE</code> puede recuperarla.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Todos los clientes, tengan o no órdenes</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá todos los clientes con el número y el total de sus órdenes. Los que todavía no trajeron nada tienen que aparecer igual.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.2</span>
+                        <h3>Marcas que nunca aparecieron</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá las marcas cargadas en el sistema de las que nunca entró ningún equipo.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.3</span>
+                        <h3>Formas de pago que nadie usa</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere saber qué métodos de pago ofrece y jamás cobró con ellos.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.4</span>
+                        <h3>El problema que nunca se detectó</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>De los problemas del catálogo, ¿cuál no se registró nunca en ninguna orden?</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.5</span>
+                        <h3>El equipo que entró y nunca se atendió</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los equipos registrados que no figuran en ninguna orden de servicio, mostrando su marca, tipo, modelo y número de serie. Vas a necesitar un <code>INNER JOIN</code> y un <code>LEFT JOIN</code> en la misma consulta.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-2-6">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.6</span>
+                        <h3>Órdenes sin un solo pago</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere el listado de órdenes que todavía no registraron ningún pago, con el apellido del cliente.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-2-6">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-trampa" id="trampa">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>La trampa que convierte un LEFT en INNER</h2>
+                    <p>Una condición en el lugar equivocado, y las ausencias desaparecen sin aviso</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Che, el reporte de clientes con sus compras grandes me está mintiendo. Sé que tengo ocho clientes cargados y ahí me aparecen dos. ¿Se perdieron los otros?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: cuándo se aplica cada condición</h4>
+                    <ul>
+                        <li><strong>El <code>ON</code> se aplica al armar la unión.</strong> Una fila de la izquierda que no encuentra pareja se conserva igual, con nulos a la derecha.</li>
+                        <li><strong>El <code>WHERE</code> se aplica después, sobre el resultado.</strong> Si la condición menciona una columna de la tabla derecha, las filas con nulos no la cumplen y se descartan.</li>
+                        <li><strong>La consecuencia:</strong> un <code>WHERE</code> sobre la tabla derecha convierte el <code>LEFT JOIN</code> en un <code>INNER JOIN</code>. La consulta corre, no da ningún error, y devuelve menos filas de las que corresponde.</li>
+                        <li><strong>La excepción:</strong> <code>WHERE B.clave IS NULL</code> sí funciona, porque pregunta justamente por las filas sin pareja. Es la diferencia entre preguntar por el nulo y filtrar sobre un valor.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>El reporte que perdió seis clientes</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ejecutá esta consulta, que pretende listar todos los clientes con sus órdenes mayores a $10.000. Contá las filas y decidí si el resultado responde la pregunta.<br><br><code>SELECT C.apellido, O.nro_orden, O.total FROM cliente C LEFT JOIN orden_servicio O ON O.id_cliente = C.id_cliente WHERE O.total &gt; 10000;</code></p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>La misma pregunta, bien hecha</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Corregí la consulta anterior para que aparezcan los ocho clientes, con sus órdenes mayores a $10.000 cuando las tengan y en blanco cuando no.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <h3>Explicar el mecanismo</h3>
+                        <span class="nivel-tag">conceptual</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Sin ejecutar nada: escribí en tu cuaderno por qué mover una condición del <code>WHERE</code> al <code>ON</code> cambia el resultado de un <code>LEFT JOIN</code> y no cambia el de un <code>INNER JOIN</code>.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.4</span>
+                        <h3>Órdenes de mayo, sin perder clientes</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá los ocho clientes con las órdenes que ingresaron a partir del 1 de mayo de 2026. Los que no tengan ninguna en ese período tienen que aparecer igual.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-3-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-3-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.5</span>
+                        <h3>Auditoría: ¿este LEFT sirve de algo?</h3>
+                        <span class="nivel-tag">conceptual</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Ejecutá esta consulta y decidí si el <code>LEFT JOIN</code> está cumpliendo alguna función. Si no, reescribila como corresponde.<br><br><code>SELECT E.tipo, E.modelo, X.nro_orden FROM equipo E LEFT JOIN orden_servicio_has_equipo X ON X.id_equipo = E.id_equipo WHERE X.id_problema = 1;</code></p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-3-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-contar" id="contar">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Contar lo que no está</h2>
+                    <p>Por qué COUNT(*) le da 1 a quien no tiene nada</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Armame un ranking de clientes por cantidad de órdenes. Y que estén todos, incluso los que no me trajeron nada nunca: quiero saber a quiénes llamar."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: qué cuenta cada COUNT</h4>
+                    <ul>
+                        <li><strong><code>COUNT(*)</code> cuenta filas.</strong> En un <code>LEFT JOIN</code>, un cliente sin órdenes igual produce <em>una</em> fila, la que tiene nulos a la derecha. Contarla da 1.</li>
+                        <li><strong><code>COUNT(columna)</code> ignora los nulos.</strong> Si contás una columna de la tabla derecha, la fila inventada no suma, y el resultado es 0. Es la respuesta correcta.</li>
+                        <li><strong><code>SUM</code> sobre un conjunto vacío devuelve <code>NULL</code>,</strong> no 0. Para un reporte se envuelve en <code>COALESCE(SUM(...), 0)</code>.</li>
+                        <li><strong>El mismo concepto del compendio de agrupación,</strong> llegando desde el otro lado: allá los nulos estaban en los datos, acá los inventa la unión. La regla no cambia.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <h3>El ranking que le da una orden a quien no tiene ninguna</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí el ranking de clientes por cantidad de órdenes usando <code>LEFT JOIN</code> y <code>COUNT(*)</code>. Antes de ejecutarlo, anotá qué número esperás para los tres clientes sin órdenes.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-4-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.2</span>
+                        <h3>Contar la columna, no el asterisco</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Corregí el ranking para que los clientes sin órdenes muestren 0.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-4-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-4-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.3</span>
+                        <h3>Facturado, con cero de verdad</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Agregá al ranking la suma facturada por cliente. Cuidado con lo que devuelve <code>SUM</code> cuando no hay nada que sumar.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-4-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-4-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.4</span>
+                        <h3>Equipos por marca, incluidas las vacías</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Contá cuántos equipos hay de cada marca. Las marcas sin ningún equipo tienen que aparecer con 0.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-4-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-4-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.5</span>
+                        <h3>Los métodos flojos</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere ver qué métodos de pago usó menos de dos veces, con lo cobrado por cada uno. Los que nunca usó tienen que estar en la lista.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-4-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-resto" id="resto">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>El resto de la familia y el criterio</h2>
+                    <p>RIGHT, CROSS, la autounión con ON, y el FULL OUTER que MySQL no tiene</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Una última cosa y te dejo tranquilo. Tengo la sospecha de que cargué dos veces al mismo cliente. Y quiero una planilla en blanco con todos los clientes y todas las formas de pago, para ir marcando a mano quién paga con qué."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Sustento teórico: la familia completa</h4>
+                    <ul>
+                        <li><strong><code>RIGHT JOIN</code></strong> conserva la tabla de la derecha. Es el espejo del <code>LEFT</code> y casi no se usa: dar vuelta el orden de las tablas produce lo mismo y se lee mejor. Conviene saber leerlo porque aparece en código heredado.</li>
+                        <li><strong><code>CROSS JOIN</code></strong> es el producto cartesiano declarado a propósito. Sirve para generar grillas y combinatorias. Escribirlo con todas las letras avisa a quien lee que la explosión de filas es intencional.</li>
+                        <li><strong>La autounión</strong> no es un tipo nuevo: es un <code>INNER JOIN</code> de una tabla consigo misma, con dos alias. Lo que cambia es que el <code>ON</code> compara la tabla con su propia copia.</li>
+                        <li><strong><code>FULL OUTER JOIN</code></strong> conserva las filas sin pareja de los dos lados. <strong>MySQL no lo tiene</strong>; se emula con la unión de un <code>LEFT</code> y un <code>RIGHT</code>. PostgreSQL sí lo soporta, así que en la consola de este sitio funciona.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-5-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.1</span>
+                        <h3>El espejo: RIGHT JOIN</h3>
+                        <span class="nivel-tag">intermedio</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí el conteo de equipos por marca del Reto 4.4 usando <code>RIGHT JOIN</code> en lugar de <code>LEFT</code>, sin cambiar el resultado. Después decidí cuál de las dos versiones preferís y por qué.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-5-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-5-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.2</span>
+                        <h3>La planilla en blanco, declarada</h3>
+                        <span class="nivel-tag">básico</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Generá la grilla de los dos primeros clientes contra todas las formas de pago, usando <code>CROSS JOIN</code>.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-5-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-5-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.3</span>
+                        <h3>El cliente cargado dos veces</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín sospecha que hay un cliente duplicado. Encontrá los pares de clientes distintos que comparten apellido y nombre, mostrando los dos identificadores.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-5-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-5-4">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.4</span>
+                        <h3>Los dos lados a la vez</h3>
+                        <span class="nivel-tag">avanzado</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Martín quiere ver los clientes que están registrados de forma incompleta: los que tienen órdenes pero ningún teléfono cargado, y los que tienen teléfono pero nunca trajeron nada. Resolvelo con <code>FULL OUTER JOIN</code> en la consola del sitio, y después escribí la versión que funciona en MySQL.</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-5-4">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+                <li class="consigna-item" id="reto-5-5">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 5.5</span>
+                        <h3>Elegir la unión para cada pregunta</h3>
+                        <span class="nivel-tag">conceptual</span>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Sin escribir SQL: para cada una de estas cuatro preguntas de Martín, decidí qué tipo de unión necesitás y por qué.<br>(a) ¿Cuánto facturé por cliente este mes? <br>(b) ¿Qué repuestos tengo en stock que nunca usé para ningún problema? <br>(c) ¿Qué combinaciones de equipo y problema podrían darse, para armar la lista de precios? <br>(d) ¿Hay dos repuestos cargados con el mismo nombre?</p>
+                        <a class="salto-nav" href="taller-join-resoluciones.html#reto-5-5">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-uniones-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller: uniones sin JOIN</strong>
+            </a>
+            <a class="pag-sig" href="taller-agrupacion-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller de agrupación</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Ir a las <a href="taller-join-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

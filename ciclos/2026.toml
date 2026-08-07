@@ -194,7 +194,8 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abie
   [[unidad.clase]]
   numero = "Clase 25"
   titulo = "Consultar varias tablas a la vez"
-  materiales = ["taller-uniones-con-sintaxis-de"]
+  nota = "El cronograma la llama «Joins Multitabla». Se recorre en dos pasos: primero el cruce con coma, que deja planteado lo que le falta, y después la sintaxis que SQL-92 introdujo para resolverlo."
+  materiales = ["taller-uniones-con-sintaxis-de", "uniones-con-join", "taller-uniones-con-join"]
 
   [[unidad.clase]]
   numero = "Clase 26"

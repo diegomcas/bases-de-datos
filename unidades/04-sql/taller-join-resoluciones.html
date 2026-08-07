@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: JOIN - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-inner  { --c: var(--bloque-azul); }
+    .block-left   { --c: var(--bloque-verde); }
+    .block-trampa { --c: var(--bloque-rojo); }
+    .block-contar { --c: var(--bloque-ambar); }
+    .block-resto  { --c: var(--bloque-violeta); }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller 4 · Resoluciones</span>
+            <h1>Uniones con JOIN</h1>
+            <p>Respuestas exactas, resultados verificados sobre el compendio y consejos de trabajo</p>
+            <a href="taller-join-consignas.html" class="nav-docente">
+                Volver a las Consignas
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller: uniones con JOIN · resoluciones</span>
+        </nav>
+
+        <section class="block-card block-inner" id="inner">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>El ON separa lo que el WHERE mezclaba - Resoluciones</h2>
+                    <p>La misma unión de siempre, con la relación declarada aparte del filtro</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Empezá traduciendo consultas que ya resolviste en el taller anterior. Escribí las dos versiones una al lado de la otra y compará los resultados: tienen que dar lo mismo, fila por fila. Cuando compruebes que dan igual, la pregunta deja de ser cuál funciona y pasa a ser cuál se lee mejor.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <h3>La misma consulta, escrita de nuevo</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, C.nombre
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>nombre</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>Juan</td></tr>
+                                <tr><td>2</td><td>García</td><td>María</td></tr>
+                                <tr><td>3</td><td>Rossi</td><td>Diego</td></tr>
+                                <tr><td>4</td><td>Pérez</td><td>Juan</td></tr>
+                                <tr><td>5</td><td>Pérez</td><td>Juan</td></tr>
+                                <tr><td>6</td><td>García</td><td>María</td></tr>
+                                <tr><td>7</td><td>Pérez</td><td>Juan</td></tr>
+                                <tr><td>8</td><td>Rossi</td><td>Sofía</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Ocho filas, las mismas que devuelve <code>FROM orden_servicio O, cliente C WHERE O.id_cliente = C.id_cliente</code>. El motor genera el mismo plan de ejecución para las dos. Lo único que cambió es dónde quedó escrita la relación entre las tablas.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <h3>Tres tablas, dos ON</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, E.nombre <span class="sql-keyword">AS</span> estado, O.total
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C      <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">INNER JOIN</span> orden_estado E <span class="sql-keyword">ON</span> E.id_orden_estado = O.id_orden_estado
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>estado</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>Entregado</td><td>53500.00</td></tr>
+                                <tr><td>2</td><td>García</td><td>Entregado</td><td>40500.00</td></tr>
+                                <tr><td>3</td><td>Rossi</td><td>Pendiente</td><td>0.00</td></tr>
+                                <tr><td>4</td><td>Pérez</td><td>Reparado</td><td>18500.00</td></tr>
+                                <tr><td>5</td><td>Pérez</td><td>Entregado</td><td>27000.00</td></tr>
+                                <tr><td>6</td><td>García</td><td>Entregado</td><td>20000.00</td></tr>
+                                <tr><td>7</td><td>Pérez</td><td>Pendiente</td><td>0.00</td></tr>
+                                <tr><td>8</td><td>Rossi</td><td>Abandonado</td><td>9000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Tres tablas, dos <code>JOIN</code>, dos <code>ON</code>. La regla N−1 dejó de ser algo que hay que recordar: la sintaxis no te deja escribir un <code>JOIN</code> sin su condición.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.3</span>
+                        <h3>La relación N:M, ahora legible</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-1-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, M.nombre <span class="sql-keyword">AS</span> marca, EQ.modelo, P.descripcion
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C                   <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">INNER JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.nro_orden = O.nro_orden
+<span class="sql-keyword">INNER JOIN</span> equipo EQ                   <span class="sql-keyword">ON</span> EQ.id_equipo = X.id_equipo
+<span class="sql-keyword">INNER JOIN</span> marca M                     <span class="sql-keyword">ON</span> M.id_marca = EQ.id_marca
+<span class="sql-keyword">INNER JOIN</span> problema P                  <span class="sql-keyword">ON</span> P.id_problema = X.id_problema
+<span class="sql-keyword">ORDER BY</span> O.nro_orden, EQ.modelo;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>marca</th><th>modelo</th><th>descripcion</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>Samsung</td><td>Galaxy S21</td><td>Pantalla rota / Cambio de modulo</td></tr>
+                                <tr><td>2</td><td>García</td><td>Apple</td><td>iPhone 13</td><td>Pantalla rota / Cambio de modulo</td></tr>
+                                <tr><td>3</td><td>Rossi</td><td>Xiaomi</td><td>Mi Band 7</td><td>Limpieza y mantenimiento preventivo</td></tr>
+                                <tr><td>4</td><td>Pérez</td><td>Lenovo</td><td>Tab P11</td><td>Batería agotada / Cambio de batería</td></tr>
+                                <tr><td>4</td><td>Pérez</td><td>Lenovo</td><td>Tab P11</td><td>Limpieza y mantenimiento preventivo</td></tr>
+                                <tr><td>5</td><td>Pérez</td><td>Motorola</td><td>Edge 30</td><td>Pantalla rota / Cambio de modulo</td></tr>
+                                <tr><td>5</td><td>Pérez</td><td>Motorola</td><td>Edge 30</td><td>Pin de carga dañado</td></tr>
+                                <tr><td>6</td><td>García</td><td>Lenovo</td><td>Tab P11</td><td>Batería agotada / Cambio de batería</td></tr>
+                                <tr><td>6</td><td>García</td><td>Apple</td><td>iPhone 13</td><td>Error de Software / Reinstalación</td></tr>
+                                <tr><td>7</td><td>Pérez</td><td>Samsung</td><td>Galaxy A54</td><td>Limpieza y mantenimiento preventivo</td></tr>
+                                <tr><td>8</td><td>Rossi</td><td>Lenovo</td><td>IdeaPad 3</td><td>Error de Software / Reinstalación</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Once filas: las órdenes 4, 5 y 6 aparecen dos veces porque tienen dos problemas registrados. Comparalo con la versión de coma del taller anterior: el mismo resultado, cinco <code>ON</code> alineados donde se leen de un vistazo. En la versión vieja, esas cinco condiciones estaban revueltas en un <code>WHERE</code> con los filtros del negocio.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.4</span>
+                        <h3>El WHERE recupera su trabajo</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-1-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, O.total
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">WHERE</span> C.apellido =  <span class="sql-number">0</span> 
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>Pérez</td><td>53500.00</td></tr>
+                                <tr><td>4</td><td>Pérez</td><td>18500.00</td></tr>
+                                <tr><td>5</td><td>Pérez</td><td>27000.00</td></tr>
+                                <tr><td>7</td><td>Pérez</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> El <code>WHERE</code> quedó con una sola línea, y esa línea es la pregunta de Martín. La relación entre las tablas está arriba, en el <code>ON</code>. Cuatro órdenes, porque hay dos clientes distintos apellidados Pérez: el cliente 1 con tres órdenes y el cliente 6 con una.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-1-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.5</span>
+                        <h3>Sacale el ON a propósito</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-1-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+<span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C;
+
+ <span class="sql-number">1</span> 
+
+ <span class="sql-number">2</span> 
+<span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th></th><th>resultado</th></tr></thead>
+                            <tbody>
+                                <tr><td>con INNER JOIN</td><td>error de sintaxis, no se ejecuta</td></tr>
+                                <tr><td>con coma</td><td>64 filas (8 órdenes × 8 clientes)</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Ésta es la razón más fuerte para usar la sintaxis nueva. Olvidarse una condición de unión con coma produce un cartesiano que <strong>corre igual y devuelve números</strong>: 64 filas que parecen datos. Con <code>INNER JOIN</code>, la gramática te frena antes de ejecutar. El error molesta un segundo; el cartesiano silencioso puede sobrevivir meses en un reporte.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-left" id="left">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Preguntar por lo que no está - Resoluciones</h2>
+                    <p>LEFT JOIN: la pregunta que la coma no puede hacer</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Todos los retos de este bloque tienen la misma forma: <code>LEFT JOIN</code> más <code>IS NULL</code>. Resolvé el 2.1 y quedate mirando las filas con <code>NULL</code> un momento antes de seguir: entender de dónde salen esos nulos es todo el bloque. Los otros cinco son la misma idea aplicada a otras tablas.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <h3>Todos los clientes, tengan o no órdenes</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, O.nro_orden, O.total
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">ORDER BY</span> C.id_cliente, O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>nro_orden</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td><td>53500.00</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>4</td><td>18500.00</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>5</td><td>27000.00</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td><td>40500.00</td></tr>
+                                <tr><td>García</td><td>María</td><td>6</td><td>20000.00</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>3</td><td>0.00</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>7</td><td>0.00</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>8</td><td>9000.00</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>NULL</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Once filas. Con <code>INNER JOIN</code> serían ocho: López, Martínez y Ferreyra desaparecerían. Los <code>NULL</code> no están guardados en ninguna tabla — los inventa el <code>LEFT JOIN</code> para poder mostrar una fila de la izquierda que no tiene pareja a la derecha.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.2</span>
+                        <h3>Marcas que nunca aparecieron</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> marca
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">WHERE</span> E.id_equipo <span class="sql-keyword">IS NULL</span>
+<span class="sql-keyword">ORDER BY</span> M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>marca</th></tr></thead>
+                            <tbody>
+                                <tr><td>Google</td></tr>
+                                <tr><td>Sony</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Dos marcas. El <code>LEFT JOIN</code> trajo las siete marcas; el <code>WHERE E.id_equipo IS NULL</code> se quedó con aquellas cuyas columnas de <code>equipo</code> vinieron vacías, que son exactamente las que no tienen ningún equipo asociado.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.3</span>
+                        <h3>Formas de pago que nadie usa</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> MP.nombre <span class="sql-keyword">AS</span> metodo
+<span class="sql-keyword">FROM</span> metodo_pago MP
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = MP.id_metodo_pago
+<span class="sql-keyword">WHERE</span> P.nro_orden <span class="sql-keyword">IS NULL</span>
+<span class="sql-keyword">ORDER BY</span> MP.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>metodo</th></tr></thead>
+                            <tbody>
+                                <tr><td>Cheque</td></tr>
+                                <tr><td>Crédito en cuenta</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> El <code>IS NULL</code> va sobre <code>P.nro_orden</code>, que forma parte de la clave primaria de la tabla de pagos y por lo tanto nunca es nulo cuando hay pareja. Ésa es la columna correcta para preguntar.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.4</span>
+                        <h3>El problema que nunca se detectó</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> P.descripcion
+<span class="sql-keyword">FROM</span> problema P
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_problema = P.id_problema
+<span class="sql-keyword">WHERE</span> X.nro_orden <span class="sql-keyword">IS NULL</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>descripcion</th></tr></thead>
+                            <tbody>
+                                <tr><td>Cámara principal no enfoca</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Uno solo. Es un dato que le sirve a Martín para decidir si conviene seguir ofreciendo ese servicio, y no hay forma de obtenerlo cruzando con coma: la fila que no tiene pareja no participa de ninguna combinación.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.5</span>
+                        <h3>El equipo que entró y nunca se atendió</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> marca, E.tipo, E.modelo, E.nro_serie
+<span class="sql-keyword">FROM</span> equipo E
+<span class="sql-keyword">INNER JOIN</span> marca M <span class="sql-keyword">ON</span> M.id_marca = E.id_marca
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_equipo = E.id_equipo
+<span class="sql-keyword">WHERE</span> X.nro_orden <span class="sql-keyword">IS NULL</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>marca</th><th>tipo</th><th>modelo</th><th>nro_serie</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>Tablet</td><td>iPad Air</td><td>IPAD-778899</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Los dos tipos de unión conviven sin problema. La marca se trae con <code>INNER JOIN</code> porque todo equipo tiene marca —la clave foránea lo garantiza— y las órdenes con <code>LEFT JOIN</code> porque justamente buscamos el equipo que no tiene ninguna.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-2-6">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.6</span>
+                        <h3>Órdenes sin un solo pago</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-2-6"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, O.total
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">WHERE</span> P.nro_orden <span class="sql-keyword">IS NULL</span>
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>apellido</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>3</td><td>Rossi</td><td>0.00</td></tr>
+                                <tr><td>7</td><td>Pérez</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Dos órdenes, las dos en estado «Pendiente». Es el mismo reto con el que cerró el taller anterior, cuando comprobaste que con coma no se podía: acá sale en cinco líneas.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-trampa" id="trampa">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>La trampa que convierte un LEFT en INNER - Resoluciones</h2>
+                    <p>Una condición en el lugar equivocado, y las ausencias desaparecen sin aviso</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Éste es el bloque que más se cobra en un parcial y en el trabajo. Ejecutá el 3.1 y el 3.2, contá las filas de cada uno y no sigas hasta poder explicar en voz alta por qué el primero perdió seis. La regla corta para llevarse: si escribiste un <code>LEFT JOIN</code> y después nombrás la tabla derecha en el <code>WHERE</code>, revisá si no querías decirlo en el <code>ON</code>.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <h3>El reporte que perdió seis clientes</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, O.nro_orden, O.total
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.total &gt; <span class="sql-number">10000</span>
+<span class="sql-keyword">ORDER BY</span> C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nro_orden</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>García</td><td>2</td><td>40500.00</td></tr>
+                                <tr><td>García</td><td>6</td><td>20000.00</td></tr>
+                                <tr><td>Pérez</td><td>1</td><td>53500.00</td></tr>
+                                <tr><td>Pérez</td><td>4</td><td>18500.00</td></tr>
+                                <tr><td>Pérez</td><td>5</td><td>27000.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Cinco filas y solo dos apellidos. De los ocho clientes quedaron dos. El <code>LEFT JOIN</code> hizo su trabajo y trajo los ocho; el <code>WHERE O.total &gt; 10000</code> vino después y descartó todas las filas donde <code>O.total</code> era <code>NULL</code>, que son justamente las de los clientes sin órdenes. El <code>LEFT</code> quedó escrito pero no sirve para nada.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <h3>La misma pregunta, bien hecha</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, O.nro_orden, O.total
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+                          <span class="sql-keyword">AND</span> O.total &gt; <span class="sql-number">10000</span>
+<span class="sql-keyword">ORDER BY</span> C.apellido, O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nro_orden</th><th>total</th></tr></thead>
+                            <tbody>
+                                <tr><td>Ferreyra</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>García</td><td>2</td><td>40500.00</td></tr>
+                                <tr><td>García</td><td>6</td><td>20000.00</td></tr>
+                                <tr><td>López</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Martínez</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Pérez</td><td>1</td><td>53500.00</td></tr>
+                                <tr><td>Pérez</td><td>4</td><td>18500.00</td></tr>
+                                <tr><td>Pérez</td><td>5</td><td>27000.00</td></tr>
+                                <tr><td>Pérez</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Rossi</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Rossi</td><td>NULL</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Once filas y los ocho clientes. La condición pasó al <code>ON</code>, así que se aplica <em>al armar la unión</em>: cada cliente busca sus órdenes grandes, y el que no tiene ninguna se conserva con nulos. Fijate en el segundo Pérez y en los dos Rossi: tienen órdenes, pero ninguna supera los $10.000, así que aparecen vacíos. Eso es información, y en la versión anterior se perdía.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <h3>Explicar el mecanismo</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> a <span class="sql-keyword">INNER JOIN</span> b <span class="sql-keyword">ON</span> b.fk = a.pk <span class="sql-keyword">AND</span> b.x &gt; <span class="sql-number">10</span>;
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> a <span class="sql-keyword">INNER JOIN</span> b <span class="sql-keyword">ON</span> b.fk = a.pk <span class="sql-keyword">WHERE</span> b.x &gt; <span class="sql-number">10</span>;    <span class="sql-number">1</span> 
+
+ <span class="sql-number">2</span> 
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> a <span class="sql-keyword">LEFT JOIN</span> b <span class="sql-keyword">ON</span> b.fk = a.pk <span class="sql-keyword">AND</span> b.x &gt; <span class="sql-number">10</span>;       <span class="sql-number">3</span> 
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> a <span class="sql-keyword">LEFT JOIN</span> b <span class="sql-keyword">ON</span> b.fk = a.pk <span class="sql-keyword">WHERE</span> b.x &gt; <span class="sql-number">10</span>;     <span class="sql-number">4</span> </code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>unión</th><th>condición en ON</th><th>condición en WHERE</th></tr></thead>
+                            <tbody>
+                                <tr><td>INNER JOIN</td><td>mismo resultado</td><td>mismo resultado</td></tr>
+                                <tr><td>LEFT JOIN</td><td>conserva las filas sin pareja</td><td>descarta las filas sin pareja</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> En un <code>INNER JOIN</code> las filas sin pareja ya estaban descartadas antes del <code>WHERE</code>, así que filtrar antes o después no cambia nada. En un <code>LEFT JOIN</code>, en cambio, esas filas siguen vivas hasta que el <code>WHERE</code> las encuentra con nulos y las tira. La condición en el <code>ON</code> participa de <em>armar</em> la unión; en el <code>WHERE</code>, de <em>filtrar</em> lo ya armado.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.4</span>
+                        <h3>Órdenes de mayo, sin perder clientes</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-3-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, O.nro_orden, O.fecha_ingreso
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+                          <span class="sql-keyword">AND</span> O.fecha_ingreso &gt;=  <span class="sql-number">0</span> 
+<span class="sql-keyword">ORDER BY</span> C.apellido, O.nro_orden;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nro_orden</th><th>fecha_ingreso</th></tr></thead>
+                            <tbody>
+                                <tr><td>Ferreyra</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>García</td><td>2</td><td>2026-05-02</td></tr>
+                                <tr><td>García</td><td>6</td><td>2026-05-22</td></tr>
+                                <tr><td>López</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Martínez</td><td>NULL</td><td>NULL</td></tr>
+                                <tr><td>Pérez</td><td>1</td><td>2026-05-01</td></tr>
+                                <tr><td>Pérez</td><td>4</td><td>2026-05-15</td></tr>
+                                <tr><td>Pérez</td><td>5</td><td>2026-05-20</td></tr>
+                                <tr><td>Pérez</td><td>7</td><td>2026-06-01</td></tr>
+                                <tr><td>Rossi</td><td>3</td><td>2026-05-10</td></tr>
+                                <tr><td>Rossi</td><td>NULL</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Once filas. El Rossi que aparece vacío es Sofía: su orden ingresó el 10 de marzo y quedó fuera del rango, pero ella sigue en el reporte. Si esta condición hubiera ido al <code>WHERE</code>, Sofía habría desaparecido junto con los tres clientes sin órdenes.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-3-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.5</span>
+                        <h3>Auditoría: ¿este LEFT sirve de algo?</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-3-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+<span class="sql-keyword">SELECT</span> E.tipo, E.modelo, X.nro_orden
+<span class="sql-keyword">FROM</span> equipo E
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_equipo = E.id_equipo
+<span class="sql-keyword">WHERE</span> X.id_problema = <span class="sql-number">1</span>;
+
+ <span class="sql-number">1</span> 
+ <span class="sql-number">2</span> 
+<span class="sql-keyword">SELECT</span> E.tipo, E.modelo, X.nro_orden
+<span class="sql-keyword">FROM</span> equipo E
+<span class="sql-keyword">INNER JOIN</span> orden_servicio_has_equipo X <span class="sql-keyword">ON</span> X.id_equipo = E.id_equipo
+<span class="sql-keyword">WHERE</span> X.id_problema = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>tipo</th><th>modelo</th><th>nro_orden</th></tr></thead>
+                            <tbody>
+                                <tr><td>Celular</td><td>Galaxy S21</td><td>1</td></tr>
+                                <tr><td>Celular</td><td>iPhone 13</td><td>2</td></tr>
+                                <tr><td>Celular</td><td>Edge 30</td><td>5</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Las dos versiones devuelven las mismas tres filas. Un <code>LEFT JOIN</code> que termina comportándose como <code>INNER</code> es peor que un <code>INNER JOIN</code>: hace creer a quien lee la consulta que las ausencias están contempladas, cuando no lo están. Si el <code>LEFT</code> no cambia el resultado, o sobra o la condición está mal ubicada.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-contar" id="contar">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Contar lo que no está - Resoluciones</h2>
+                    <p>Por qué COUNT(*) le da 1 a quien no tiene nada</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Antes de ejecutar el 4.1, anotá cuántas órdenes esperás para López, Martínez y Ferreyra, que no tienen ninguna. Después mirá lo que devuelve. El contraste entre lo que anotaste y lo que salió es el bloque entero.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <h3>El ranking que le da una orden a quien no tiene ninguna</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> ordenes <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>ordenes</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>3</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>1</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>1</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>1</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>1</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Ferreyra, López y Martínez aparecen con <strong>1 orden</strong>, y no tienen ninguna. La consulta no da ningún error: devuelve un número equivocado con toda naturalidad. <code>COUNT(*)</code> contó la fila que el <code>LEFT JOIN</code> inventó para poder mostrarlos.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-4-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.2</span>
+                        <h3>Contar la columna, no el asterisco</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-4-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">COUNT</span>(O.nro_orden) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> ordenes <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>ordenes</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>3</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>1</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>1</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>0</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>0</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Un solo carácter de diferencia y el reporte pasa de mentir a decir la verdad. <code>COUNT(O.nro_orden)</code> no cuenta los nulos, y en la fila inventada esa columna es nula. Ahora el ranking sirve para lo que Martín quería: los tres del fondo son los clientes a los que hay que llamar.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-4-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.3</span>
+                        <h3>Facturado, con cero de verdad</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-4-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre,
+       <span class="sql-keyword">COUNT</span>(O.nro_orden) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(O.total), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>, C.apellido;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>nombre</th><th>ordenes</th><th>facturado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Pérez</td><td>Juan</td><td>3</td><td>99000.00</td></tr>
+                                <tr><td>García</td><td>María</td><td>2</td><td>60500.00</td></tr>
+                                <tr><td>Rossi</td><td>Sofía</td><td>1</td><td>9000.00</td></tr>
+                                <tr><td>Ferreyra</td><td>Marcos</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>López</td><td>Carlos</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Martínez</td><td>Ana</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Pérez</td><td>Juan</td><td>1</td><td>0.00</td></tr>
+                                <tr><td>Rossi</td><td>Diego</td><td>1</td><td>0.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Sin el <code>COALESCE</code>, los tres clientes sin órdenes mostrarían <code>NULL</code> en vez de 0, y cualquier planilla que reciba ese reporte va a tratar el nulo como texto. Fijate además en las dos últimas filas: el segundo Pérez y Diego Rossi <em>sí</em> tienen una orden, pero con total en cero. Un 0 en «facturado» no significa lo mismo en esas filas que en las tres de arriba, y el reporte por sí solo no lo distingue.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-4-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.4</span>
+                        <h3>Equipos por marca, incluidas las vacías</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-4-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> marca, <span class="sql-keyword">COUNT</span>(E.id_equipo) <span class="sql-keyword">AS</span> equipos
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">LEFT JOIN</span> equipo E <span class="sql-keyword">ON</span> E.id_marca = M.id_marca
+<span class="sql-keyword">GROUP BY</span> M.id_marca, M.nombre
+<span class="sql-keyword">ORDER BY</span> equipos <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>marca</th><th>equipos</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>3</td></tr>
+                                <tr><td>Lenovo</td><td>2</td></tr>
+                                <tr><td>Samsung</td><td>2</td></tr>
+                                <tr><td>Motorola</td><td>1</td></tr>
+                                <tr><td>Xiaomi</td><td>1</td></tr>
+                                <tr><td>Google</td><td>0</td></tr>
+                                <tr><td>Sony</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Siete marcas, dos en cero. Es el mismo patrón del reto anterior aplicado a otra tabla; cuando lo reconozcas de un vistazo, el bloque está aprendido.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-4-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.5</span>
+                        <h3>Los métodos flojos</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-4-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> MP.nombre <span class="sql-keyword">AS</span> metodo,
+       <span class="sql-keyword">COUNT</span>(P.nro_orden) <span class="sql-keyword">AS</span> usos,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> cobrado
+<span class="sql-keyword">FROM</span> metodo_pago MP
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = MP.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> MP.id_metodo_pago, MP.nombre
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(P.nro_orden) &lt; <span class="sql-number">2</span>
+<span class="sql-keyword">ORDER BY</span> usos, MP.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>metodo</th><th>usos</th><th>cobrado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Cheque</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Crédito en cuenta</td><td>0</td><td>0.00</td></tr>
+                                <tr><td>Billetera Virtual</td><td>1</td><td>8500.00</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> El <code>HAVING</code> filtra después de agrupar, así que puede preguntar por el conteo. Y como el conteo es <code>COUNT(P.nro_orden)</code>, los métodos sin uso valen 0 y entran en la condición. Con <code>COUNT(*)</code> habrían valido 1 y Cheque y Crédito en cuenta igual aparecerían — pero por la razón equivocada, y con el número mal.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card block-resto" id="resto">
+            <div class="block-header">
+                <div class="block-num">05</div>
+                <div class="block-title">
+                    <h2>El resto de la familia y el criterio - Resoluciones</h2>
+                    <p>RIGHT, CROSS, la autounión con ON, y el FULL OUTER que MySQL no tiene</p>
+                </div>
+            </div>
+
+            <div class="nota-alumno">
+                <h4>Consejo de trabajo</h4>
+                <p>Este bloque cierra el tema y conviene tomarlo como repaso: cada reto usa una pieza distinta de la familia. El 5.4 es el más interesante para probar en la consola del sitio, porque adentro corre PostgreSQL y ahí <code>FULL OUTER JOIN</code> funciona; en el MySQL del aula, la misma consulta da error de sintaxis. Es la forma más concreta de ver que los dialectos difieren.</p>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-5-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.1</span>
+                        <h3>El espejo: RIGHT JOIN</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-5-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> M.nombre <span class="sql-keyword">AS</span> marca, <span class="sql-keyword">COUNT</span>(E.id_equipo) <span class="sql-keyword">AS</span> equipos
+<span class="sql-keyword">FROM</span> equipo E
+<span class="sql-keyword">RIGHT JOIN</span> marca M <span class="sql-keyword">ON</span> M.id_marca = E.id_marca
+<span class="sql-keyword">GROUP BY</span> M.id_marca, M.nombre
+<span class="sql-keyword">ORDER BY</span> equipos <span class="sql-keyword">DESC</span>, M.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>marca</th><th>equipos</th></tr></thead>
+                            <tbody>
+                                <tr><td>Apple</td><td>3</td></tr>
+                                <tr><td>Lenovo</td><td>2</td></tr>
+                                <tr><td>Samsung</td><td>2</td></tr>
+                                <tr><td>Motorola</td><td>1</td></tr>
+                                <tr><td>Xiaomi</td><td>1</td></tr>
+                                <tr><td>Google</td><td>0</td></tr>
+                                <tr><td>Sony</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Idéntico al 4.4. Para conservar <code>marca</code>, el <code>LEFT JOIN</code> la pone primero y el <code>RIGHT JOIN</code> la pone segunda. La versión con <code>LEFT</code> se lee mejor porque la tabla que manda aparece antes, en el orden en que se lee la consulta. Por eso <code>RIGHT JOIN</code> se usa poco.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-5-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.2</span>
+                        <h3>La planilla en blanco, declarada</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-5-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> C.apellido, MP.nombre <span class="sql-keyword">AS</span> metodo
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">CROSS JOIN</span> metodo_pago MP
+<span class="sql-keyword">WHERE</span> C.id_cliente &lt;= <span class="sql-number">2</span>
+<span class="sql-keyword">ORDER BY</span> C.apellido, MP.nombre;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>apellido</th><th>metodo</th></tr></thead>
+                            <tbody>
+                                <tr><td>García</td><td>Billetera Virtual</td></tr>
+                                <tr><td>García</td><td>Cheque</td></tr>
+                                <tr><td>García</td><td>Crédito en cuenta</td></tr>
+                                <tr><td>García</td><td>Efectivo</td></tr>
+                                <tr><td>García</td><td>Tarjeta</td></tr>
+                                <tr><td>García</td><td>Transferencia</td></tr>
+                                <tr><td>Pérez</td><td>Billetera Virtual</td></tr>
+                                <tr><td>Pérez</td><td>Cheque</td></tr>
+                                <tr><td>Pérez</td><td>Crédito en cuenta</td></tr>
+                                <tr><td>Pérez</td><td>Efectivo</td></tr>
+                                <tr><td>Pérez</td><td>Tarjeta</td></tr>
+                                <tr><td>Pérez</td><td>Transferencia</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Doce filas: 2 × 6. Es el mismo producto cartesiano del primer bloque del taller anterior, ahora escrito con su nombre. La diferencia con <code>FROM cliente, metodo_pago</code> es de lectura: quien revise la consulta sabe que la multiplicación es intencional.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-5-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.3</span>
+                        <h3>El cliente cargado dos veces</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-5-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> A.id_cliente <span class="sql-keyword">AS</span> id_a, B.id_cliente <span class="sql-keyword">AS</span> id_b, A.apellido, A.nombre
+<span class="sql-keyword">FROM</span> cliente A
+<span class="sql-keyword">INNER JOIN</span> cliente B <span class="sql-keyword">ON</span> A.apellido = B.apellido
+                    <span class="sql-keyword">AND</span> A.nombre = B.nombre
+                    <span class="sql-keyword">AND</span> A.id_cliente &lt; B.id_cliente
+<span class="sql-keyword">ORDER BY</span> A.id_cliente;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>id_a</th><th>id_b</th><th>apellido</th><th>nombre</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>6</td><td>Pérez</td><td>Juan</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Un par: los clientes 1 y 6 son los dos «Pérez, Juan». La condición <code>A.id_cliente &lt; B.id_cliente</code> hace dos trabajos a la vez: descarta que cada fila se empareje consigo misma y evita que el mismo par aparezca dos veces, una en cada orden. Sin ella, este resultado tendría diez filas y solo dos servirían.<br><br>Ojo con lo que <em>no</em> encuentra: los dos Rossi son personas distintas —Diego y Sofía—, así que no aparecen. Buscar duplicados por nombre es una aproximación, y por eso los sistemas reales usan una clave natural como el documento.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-5-4">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.4</span>
+                        <h3>Los dos lados a la vez</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-5-4"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">COALESCE</span>(A.apellido, B.apellido) <span class="sql-keyword">AS</span> cliente, A.ordenes, B.telefonos
+<span class="sql-keyword">FROM</span> (<span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+      <span class="sql-keyword">FROM</span> cliente C <span class="sql-keyword">INNER JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+      <span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido) A
+<span class="sql-keyword">FULL OUTER JOIN</span>
+     (<span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> telefonos
+      <span class="sql-keyword">FROM</span> cliente C <span class="sql-keyword">INNER JOIN</span> telefono T <span class="sql-keyword">ON</span> T.id_cliente = C.id_cliente
+      <span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido) B
+  <span class="sql-keyword">ON</span> B.id_cliente = A.id_cliente
+<span class="sql-keyword">WHERE</span> A.id_cliente <span class="sql-keyword">IS NULL</span> <span class="sql-keyword">OR</span> B.id_cliente <span class="sql-keyword">IS NULL</span>;
+
+ <span class="sql-number">1</span> 
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> A LEFT  <span class="sql-keyword">JOIN</span> B <span class="sql-keyword">ON</span> ... <span class="sql-keyword">WHERE</span> B.id_cliente <span class="sql-keyword">IS NULL</span>
+<span class="sql-keyword">UNION</span>
+<span class="sql-keyword">SELECT</span> ... <span class="sql-keyword">FROM</span> A <span class="sql-keyword">RIGHT JOIN</span> B <span class="sql-keyword">ON</span> ... <span class="sql-keyword">WHERE</span> A.id_cliente <span class="sql-keyword">IS NULL</span>;</code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>cliente</th><th>ordenes</th><th>telefonos</th></tr></thead>
+                            <tbody>
+                                <tr><td>López</td><td>NULL</td><td>1</td></tr>
+                                <tr><td>Martínez</td><td>NULL</td><td>1</td></tr>
+                                <tr><td>Rossi (Diego)</td><td>1</td><td>NULL</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> Tres filas, y las dos versiones devuelven exactamente lo mismo. López y Martínez tienen teléfono cargado y nunca trajeron un equipo; Diego Rossi trajo uno y no dejó teléfono, así que Martín no tiene cómo avisarle cuando esté listo.<br><br>El <code>UNION</code> —y no <code>UNION ALL</code>— importa: si un cliente cumpliera las dos condiciones aparecería duplicado. Acá no pasa, pero la consulta tiene que ser correcta para datos que todavía no existen.</p>
+                    </div>
+                </li>
+                <li class="resolution-item" id="reto-5-5">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 5.5</span>
+                        <h3>Elegir la unión para cada pregunta</h3>
+                        <a class="salto-nav" href="taller-join-consignas.html#reto-5-5"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code> <span class="sql-number">0</span> 
+ <span class="sql-number">1</span> 
+ <span class="sql-number">2</span> 
+ <span class="sql-number">3</span> </code></pre>
+                        </div>
+                        <table class="result-table">
+                            <thead><tr><th>pregunta</th><th>unión</th><th>por qué</th></tr></thead>
+                            <tbody>
+                                <tr><td>(a) facturado por cliente</td><td>INNER JOIN</td><td>un cliente sin órdenes no aporta al total</td></tr>
+                                <tr><td>(b) repuestos nunca usados</td><td>LEFT JOIN + IS NULL</td><td>pregunta por lo que falta</td></tr>
+                                <tr><td>(c) combinaciones posibles</td><td>CROSS JOIN</td><td>se quiere la multiplicación, a propósito</td></tr>
+                                <tr><td>(d) repuestos duplicados</td><td>autounión</td><td>se compara la tabla contra sí misma</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="explanation-text"><strong>Explicación:</strong> La pregunta que decide casi siempre es la misma: <em>¿me importan las filas que no tienen pareja?</em> Si la respuesta es no, <code>INNER</code>. Si es sí, <code>LEFT</code>. Si lo que se busca es la combinatoria y no un hecho registrado, <code>CROSS</code>. Y si las dos cosas que se comparan viven en la misma tabla, autounión.<br><br>En (a) hay una trampa de negocio: si Martín quiere ver también a los clientes que no facturaron nada, para llamarlos, entonces la respuesta cambia a <code>LEFT JOIN</code>. La sintaxis se elige después de entender qué se está preguntando.</p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-uniones-resoluciones.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller: uniones sin JOIN</strong>
+            </a>
+            <a class="pag-sig" href="taller-agrupacion-resoluciones.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Taller de agrupación</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-join-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>

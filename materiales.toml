@@ -407,6 +407,38 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "uniones-con-join"
+titulo = "Uniones con JOIN"
+descripcion = "La clase: el ON separado del filtro, y la pregunta por lo que no está"
+unidad = "SQL · primera parte"
+icono = "presentacion"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/join.html"
+  variante = "principal"
+
+[[material]]
+id = "taller-uniones-con-join"
+titulo = "Taller: uniones con JOIN"
+descripcion = "26 retos. INNER, LEFT, la trampa del WHERE y contar ausencias"
+unidad = "SQL · primera parte"
+icono = "conjuntos"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-join-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-join-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-de-agrupacion"
 titulo = "Taller de agrupación"
 descripcion = "7 retos. La versión corta, para la clase"
