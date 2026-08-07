@@ -64,7 +64,7 @@ rotulo = " ══════════════ PUNTO DE PARTIDA ═══
   [[unidad.clase]]
   numero = ""
   titulo = ""
-  materiales = ["cronograma-del-ciclo", "glosario"]
+  materiales = ["cronograma-del-ciclo", "glosario", "los-ciclos"]
 
 [[unidad]]
 id = "casos"

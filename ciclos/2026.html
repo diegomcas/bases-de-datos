@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ciclo 2026 · Bases de Datos</title>
+<link rel="stylesheet" href="../assets/css/fuentes.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/apunte.css">
+<link rel="stylesheet" href="../assets/css/documento.css">
+</head>
+<body data-tema="apunte">
+
+<header>
+  <div class="header-container">
+    <span class="badge">Ciclo 2026</span>
+    <h1>El recorrido del ciclo 2026</h1>
+    <p>Qué material entró ese año y en qué orden. Los enlaces llevan al material vivo: si algo se corrigió después, acá se ve corregido.</p>
+    <a href="../index.html" class="nav-alumno">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Índice de la materia
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <article class="apunte">
+    <div class="cifras">
+      <div class="cifra" style="--c:var(--bloque-azul)"><b>39</b><span>semanas de cursada</span></div>
+      <div class="cifra" style="--c:var(--bloque-violeta)"><b>7</b><span>unidades del programa</span></div>
+      <div class="cifra" style="--c:var(--bloque-verde)"><b>22</b><span>bloques de clase</span></div>
+      <div class="cifra" style="--c:var(--bloque-ambar)"><b>31</b><span>piezas de material</span></div>
+    </div>
+    <h2>Material permanente</h2>
+    <p>Lo que acompaña todo el año, sin caer en una semana.</p>
+    <h3>Punto de partida</h3>
+    <p>Lo que conviene tener a mano todo el año</p>
+    <ul>
+      <li><strong>Material</strong> — <a href="../cronograma.html">Cronograma del ciclo</a>, <a href="../glosario.html">Glosario</a>, <a href="../ciclos/index.html">Los ciclos</a></li>
+    </ul>
+    <h3>Casos de estudio</h3>
+    <p>Las dos bases sobre las que trabajamos todo el año</p>
+    <ul>
+      <li><strong>El Chip · Servicio técnico de dispositivos</strong> — <a href="../casos/el-chip/relato-del-cliente.html">El relato de Martín</a>, <a href="../casos/el-chip/der.png">Diagrama entidad-relación</a>, <a href="../casos/el-chip/ElChip.sql">Scripts de la base</a>, <a href="../consola.html">Consola SQL</a>, <a href="../casos/el-chip/aplicacion.html">La base en funcionamiento</a></li>
+      <li><strong>Biblioteca · Biblioteca Municipal</strong> — <a href="../casos/biblioteca/Biblioteca.sql">Scripts de la biblioteca</a></li>
+    </ul>
+    <h2>1.º trimestre · El arte de modelar la realidad</h2>
+    <p>Clases 1 a 11 · cierra con el 1.º parcial</p>
+    <h3>I · Fundamentos <em>(Clases 1 a 4)</em></h3>
+    <p>Por qué existe una base de datos</p>
+    <ul>
+      <li><strong>Clase 1 · El valor de los datos</strong> — <a href="../unidades/01-fundamentos/clase-01-valor-de-los-datos.html">Del dato al conocimiento</a></li>
+      <li><strong>Clase 2 · Del archivo a la base de datos</strong> — <a href="../unidades/01-fundamentos/clase-02-del-archivo-a-la-base.html">Evolución y ventajas de un gestor</a></li>
+      <li><strong>Clases 3 y 4 · El primer cliente real</strong> — <a href="../unidades/01-fundamentos/clase-03-caso-el-chip.html">Caso de estudio: El Chip</a>, <a href="../unidades/01-fundamentos/clase-03-entrevista-al-cliente.html">Cómo entrevistar a un cliente</a></li>
+    </ul>
+    <h3>II · Diseño de datos <em>(Clases 5 a 7)</em></h3>
+    <p>Del pedido hablado al esquema de tablas</p>
+    <ul>
+      <li><strong>Clase 5 · Ingeniería de requerimientos</strong> — <a href="../unidades/02-diseno/clase-05-requerimientos.html">Relevar y clasificar requerimientos</a>, <a href="../unidades/02-diseno/ingenieria-requerimientos.html">Presentación de la clase</a></li>
+      <li><strong>Clases 6 y 7 · Del modelo conceptual a la tabla</strong> — <a href="../unidades/02-diseno/clase-06-modelado-conceptual.html">Modelado conceptual: el DER</a>, <a href="../unidades/02-diseno/clase-07-del-dibujo-a-la-tabla.html">Del dibujo a la tabla</a></li>
+    </ul>
+    <h2>2.º trimestre · La teoría de la calidad</h2>
+    <p>Clases 12 a 26 · cierra con el 2.º parcial</p>
+    <h3>III · Calidad del modelo <em>(Clases 12 a 21)</em></h3>
+    <p>Qué separa un diseño que aguanta de uno que se rompe</p>
+    <ul>
+      <li><strong>Clase 12 · Las reglas de Edgar Codd</strong> — <a href="../unidades/03-calidad/reglas-de-codd.html">Modelo relacional e integridad referencial</a></li>
+      <li><strong>Clases 13 y 14 · Álgebra relacional</strong> — <span class="est est-dec">se nombra</span></li>
+      <li><strong>Clases 15 a 18 · Normalización</strong> — <a href="../unidades/03-calidad/normalizacion.html">Normalización, de 1FN a BCNF</a>, <a href="../unidades/03-calidad/demo-normalizacion.sql">Demo en vivo</a></li>
+      <li><strong>Clase 21 · Desnormalización y rendimiento</strong> — <span class="est est-par">en preparación</span></li>
+    </ul>
+    <h3>IV · SQL · primera parte <em>(Clases 22 a 26)</em></h3>
+    <p>Crear la base y hacerle las primeras preguntas</p>
+    <ul>
+      <li><strong>Clase 22 · Definición de datos (DDL)</strong> — <a href="../unidades/04-sql/sql.html">CREATE, ALTER y DROP</a></li>
+      <li><strong>Clase 23 · Manipulación básica (DML)</strong> — <a href="../unidades/04-sql/sql-practica.html">Práctica de SQL</a>, <a href="../unidades/04-sql/taller-sql-practica-consignas.html">Taller: primeras consultas</a></li>
+      <li><strong>Clase 25 · Consultar varias tablas a la vez</strong> — <a href="../unidades/04-sql/taller-uniones-consignas.html">Taller: uniones con sintaxis de coma</a></li>
+      <li><strong>Clase 26 · Agregación y grupos</strong> — <a href="../unidades/04-sql/taller-agrupacion-consignas.html">Taller de agrupación</a>, <a href="../unidades/04-sql/compendio-agrupacion-consignas.html">Compendio de agrupación</a></li>
+    </ul>
+    <h2>3.º trimestre · Programación, optimización y proyecto</h2>
+    <p>Clases 27 a 39 · cierra con la defensa final</p>
+    <h3>IV · SQL · segunda parte <em>(Clases 27 a 33)</em></h3>
+    <p>Cuando la base deja de ser pasiva</p>
+    <ul>
+      <li><strong>Clase 27 · Subconsultas</strong> — <a href="../unidades/04-sql/taller-subconsultas-consignas.html">Taller de subconsultas</a>, <a href="../unidades/04-sql/compendio-subconsultas-consignas.html">Compendio de subconsultas</a></li>
+      <li><strong>Clases 28 a 32 · Vistas, procedimientos y triggers</strong> — <a href="../unidades/04-sql/taller-vistas-procedimientos-triggers-consignas.html">Taller: índices, vistas, procedimientos y triggers</a></li>
+      <li><strong>Clase 29 · Transacciones y propiedades ACID</strong> — <span class="est est-par">en preparación</span></li>
+      <li><strong>Clase 33 · Optimización de consultas</strong> — <span class="est est-par">en preparación</span></li>
+    </ul>
+    <h3>V · Horizontes <em>(Clase 34)</em></h3>
+    <p>Lo que hay más allá del modelo relacional</p>
+    <ul>
+      <li><strong>Clase 34 · Introducción a NoSQL</strong> — <span class="est est-par">en preparación</span></li>
+    </ul>
+    <h3>Proyecto integrador <em>(Clases 36 a 39)</em></h3>
+    <p>Donde todo lo del año se junta en una sola cosa</p>
+    <ul>
+      <li><strong>Propuesta · ¿Qué escucha la escuela?</strong> — <a href="../proyecto/index.html">Propuesta del proyecto</a>, <a href="../casos/el-chip/aplicacion.html">La base en funcionamiento</a></li>
+    </ul>
+  </article>
+</main>
+
+<!-- GENERADO por herramientas/generar_ciclos.py — no editar a mano.
+     Los datos salen de materiales.toml y de ciclos/<año>.toml. -->
+<footer>
+  <p><strong>Bases de Datos</strong> · el material de cada año se conserva y se sigue corrigiendo</p>
+  <p style="margin-top:12px;font-size:.82rem">
+    Material bajo licencia
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" rel="license">CC BY-NC-SA 4.0</a>
+    · se puede usar y adaptar citando la fuente, sin fines comerciales.</p>
+</footer>
+
+</body>
+</html>

@@ -25,6 +25,20 @@ marca = "En revisión"
   href = "descargas/cronograma-2026.csv"
 
 [[material]]
+id = "los-ciclos"
+titulo = "Los ciclos"
+descripcion = "Qué se dio cada año y en qué orden. El material de años anteriores sigue disponible."
+unidad = "Punto de partida"
+icono = "libro"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "ciclos/index.html"
+  variante = "principal"
+
+[[material]]
 id = "glosario"
 titulo = "Glosario"
 descripcion = "Los términos de la materia definidos en castellano llano"
