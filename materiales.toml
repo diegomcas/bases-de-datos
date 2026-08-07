@@ -511,6 +511,24 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "taller-permisos-y-transacciones"
+titulo = "Taller: permisos y transacciones"
+descripcion = "14 retos. DCL y TCL, los dos sublenguajes que faltaban: quién puede qué, y el todo o nada"
+unidad = "SQL · segunda parte"
+icono = "rayo"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-control-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-control-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-de-integracion"
 titulo = "Taller de integración"
 descripcion = "12 retos. Preguntas de negocio sin pista: elegir entre unir, agrupar y subconsultar"

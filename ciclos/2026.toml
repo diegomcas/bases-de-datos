@@ -235,9 +235,9 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos 
 
   [[unidad.clase]]
   numero = "Clase 29"
-  titulo = "Transacciones y propiedades ACID"
-  pendientes = ["COMMIT, ROLLBACK y qué pasa si se corta la luz a la mitad<em>en preparación</em>"]
-  materiales = []
+  titulo = "Permisos y transacciones"
+  nota = "Los dos sublenguajes que quedaban, DCL y TCL, en una sola clase: quién puede qué, y qué pasa cuando una operación se corta a la mitad."
+  materiales = ["taller-permisos-y-transacciones"]
 
   [[unidad.clase]]
   numero = "Clase 33"
