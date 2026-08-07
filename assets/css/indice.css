@@ -247,6 +247,82 @@
   border-left: 2px solid rgba(255, 255, 255, 0.08);
 }
 
+/* --- llamado a la consola ------------------------------------------------
+   Encabeza las unidades de SQL. Usa el cian de la consola y no el color de
+   la unidad: no es una clase más, es la herramienta con la que se cursan
+   todas. Por eso también rompe la grilla de .rec.                        */
+
+.abrir-consola {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 26px;
+  padding: 16px 20px;
+  border-radius: var(--radio);
+  background: color-mix(in srgb, var(--bloque-cian) 9%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--bloque-cian) 26%, transparent);
+}
+
+.abrir-consola .ac-ico {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: var(--radio-chico);
+  background: color-mix(in srgb, var(--bloque-cian) 16%, transparent);
+  color: var(--bloque-cian);
+}
+
+.abrir-consola .ac-txt { flex: 1; min-width: 0; }
+
+/* Hijo directo, no descendiente: adentro del título va la insignia de estado
+   y adentro de la bajada puede ir un <strong>. Ninguno de los dos debe
+   heredar el display en bloque.                                          */
+.abrir-consola .ac-txt > strong {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-main);
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+}
+
+.abrir-consola .ac-txt > span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 3px;
+}
+
+.abrir-consola .ac-txt > span strong { color: var(--text-body); font-weight: 600; }
+
+.abrir-consola .ac-ir {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--radio-chico);
+  background: var(--bloque-cian);
+  color: #04222b;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: filter var(--transicion, 0.15s ease);
+}
+
+.abrir-consola .ac-ir:hover { filter: brightness(1.12); }
+
+.abrir-consola .ac-ir:focus-visible {
+  outline: 2px solid var(--text-main);
+  outline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  .abrir-consola { flex-wrap: wrap; gap: 12px; }
+  .abrir-consola .ac-ir { width: 100%; justify-content: center; }
+}
+
 
 /* ==========================================================================
    5. CLASE Y RECURSOS
