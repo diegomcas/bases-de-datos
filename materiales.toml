@@ -511,6 +511,24 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "taller-de-optimizacion"
+titulo = "Taller de optimización"
+descripcion = "14 retos sobre 500.000 filas. Medir, leer el plan y decidir qué indexar"
+unidad = "SQL · segunda parte"
+icono = "reporte"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-optimizacion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-optimizacion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-permisos-y-transacciones"
 titulo = "Taller: permisos y transacciones"
 descripcion = "14 retos. DCL y TCL, los dos sublenguajes que faltaban: quién puede qué, y el todo o nada"

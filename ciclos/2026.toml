@@ -242,8 +242,8 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos 
   [[unidad.clase]]
   numero = "Clase 33"
   titulo = "Optimización de consultas"
-  pendientes = ["Planes de ejecución<em>en preparación</em>"]
-  materiales = []
+  nota = "Sobre media tabla de un millón, porque con ocho órdenes no se puede medir nada: índices, planes de ejecución y cuándo el índice no sirve."
+  materiales = ["taller-de-optimizacion"]
 
 [[unidad]]
 id = "u5"
