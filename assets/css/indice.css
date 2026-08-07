@@ -248,9 +248,9 @@
 }
 
 /* --- llamado a la consola ------------------------------------------------
-   Encabeza las unidades de SQL. Usa el cian de la consola y no el color de
-   la unidad: no es una clase más, es la herramienta con la que se cursan
-   todas. Por eso también rompe la grilla de .rec.                        */
+   Encabeza las unidades de SQL. Lleva el cian de la consola en lugar del
+   color de la unidad, y rompe la grilla de .rec, porque señala una
+   herramienta que sirve para todas las clases de la unidad.              */
 
 .abrir-consola {
   display: flex;

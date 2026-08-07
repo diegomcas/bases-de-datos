@@ -9,10 +9,10 @@
        <link rel="stylesheet" href="assets/css/documento.css">
        <body data-tema="apunte">
 
-   Un apunte es material de clase y se lee de corrido. Un documento se
-   consulta: por eso la caja es más ancha y hay piezas para lo que un informe
-   necesita y una clase no —cifras de cabecera, decisiones con su fundamento,
-   avisos, datos pendientes y anexos—.
+   Un documento se consulta más de lo que se lee de corrido, así que la caja
+   es más ancha que la de un apunte y hay piezas propias de un informe: cifras
+   de cabecera, decisiones con su fundamento, avisos, datos pendientes y
+   anexos.
 
    Estos componentes estaban repetidos dentro de cada documento. Viven acá
    para que el próximo no vuelva a copiarlos.
@@ -127,7 +127,7 @@ body[data-tema="apunte"] { --ancho-main: 1040px; }
 .pendiente-dato h4 { font-size: 1rem; margin-bottom: 6px; }
 
 
-/* --- anexo: lo que se consulta, no lo que se lee ------------------------- */
+/* --- anexo: material de consulta, al final del documento ----------------- */
 
 .anexo {
   margin-top: 46px;

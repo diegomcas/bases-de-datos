@@ -127,8 +127,8 @@
                que arrancan un Linux entero para meter el servidor adentro — decenas de megabytes y una
                fragilidad impropia de un aula. El anuncio de Oracle sobre
                <a href="https://blogs.oracle.com/mysql/webassembly-integration-for-nextgen-data-apps" target="_blank" rel="noopener">MySQL y WebAssembly</a>
-               apunta en la dirección contraria: es Wasm corriendo <em>dentro</em> del servidor, no el
-               servidor corriendo en el cliente.</p>
+               describe algo distinto: Wasm ejecutándose <em>dentro</em> del servidor de base de datos,
+               para ampliar lo que el motor puede hacer del lado del servidor.</p>
 
             <p>PostgreSQL sí tiene una versión así.
                <a href="https://pglite.dev/docs/about" target="_blank" rel="noopener">PGlite</a>
@@ -143,7 +143,7 @@
                algo.</p>
 
             <div class="decision">
-                <h4>El motor es PostgreSQL, no MySQL</h4>
+                <h4>El motor es PostgreSQL</h4>
                 <p>Es la única familia de bases relacionales con una versión que corra dentro de un
                    navegador sin emular una computadora entera.</p>
                 <p class="fundamento"><b>Costo:</b> los dos dialectos difieren, y sostener la apariencia
@@ -163,8 +163,9 @@
                 <h4>La base vive en memoria y no se guarda</h4>
                 <p>No hay cuentas de usuario, ni servidor, ni información que salga del equipo. Es lo que
                    permite publicar la herramienta abiertamente para un curso de menores de edad.</p>
-                <p class="fundamento"><b>Costo:</b> recargar la página reinicia la base. La consola es un
-                   banco de trabajo abierto al lado, no un cuaderno donde se acumula lo hecho.</p>
+                <p class="fundamento"><b>Costo:</b> recargar la página reinicia la base. Lo que el alumno
+                   deje escrito en ella se pierde, de modo que conviene usarla mientras se resuelve un
+                   ejercicio y guardar aparte lo que quiera conservar.</p>
             </div>
 
             <h2 id="las-capas">Las cuatro capas</h2>
@@ -285,12 +286,11 @@
                carga inicial y no hay estado compartido entre alumnos. La base de cada uno vive en su
                pestaña y muere con ella.</p>
 
-            <p>Esas ausencias no son limitaciones: son el motivo por el cual el material puede publicarse
-               abiertamente. Sin cuentas no hay datos personales de menores que custodiar; sin estado
-               compartido, ningún alumno puede alterar el trabajo de otro; sin servidor no hay nada que
-               mantener, que actualizar ni que pagar. El costo de esa simplicidad es que la base se
-               reinicia con cada recarga, y por eso conviene tratarla como un banco de trabajo abierto al
-               lado y no como un cuaderno donde se acumula lo hecho.</p>
+            <p>Esas ausencias son la razón por la cual el material puede publicarse abiertamente. Sin
+               cuentas no hay datos personales de menores que custodiar; sin estado compartido, ningún
+               alumno puede alterar el trabajo de otro; sin servidor no hay nada que mantener, que
+               actualizar ni que pagar. El costo de esa simplicidad es que la base se reinicia con cada
+               recarga.</p>
 
             <h2 id="limites">Los límites conocidos</h2>
 
@@ -298,15 +298,15 @@
                falso.</p>
 
             <ul>
-                <li><strong>El motor no es MySQL.</strong> La traducción cubre lo más frecuente, no
-                    todo. Cuando algo queda fuera, la consola lo dice en castellano en lugar de
-                    devolver un error del motor subyacente.</li>
+                <li><strong>El motor es PostgreSQL.</strong> La traducción cubre las construcciones más
+                    frecuentes de MySQL; otras quedan fuera. Cuando eso ocurre, la consola lo dice en
+                    castellano en lugar de devolver un error del motor subyacente.</li>
                 <li><strong>Hay diferencias que enseñan.</strong> Postgres admite
                     <code>INTERSECT</code> y <code>EXCEPT</code> desde siempre, mientras que MySQL los
                     incorporó recién en la versión 8.0.31. La consola permite practicar operaciones de
                     conjunto que quizá el servidor del aula rechace.</li>
                 <li><strong>El trabajo evaluable se entrega contra el motor de la escuela.</strong>
-                    La consola es un banco de pruebas, no el entorno de referencia.</li>
+                    La consola sirve para practicar; el entorno de referencia sigue siendo el del aula.</li>
             </ul>
 
             <div class="pendiente-dato">
