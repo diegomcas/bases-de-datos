@@ -210,6 +210,14 @@ function avisoIntraducible (sql) {
   if (/\bSHOW\s+/i.test(sql)) {
     return 'De los SHOW solo están traducidos SHOW TABLES y SHOW DATABASES.'
   }
+  // El control de acceso se ejecuta sin quejarse y no hace absolutamente nada:
+  // acá hay una sola sesión y tiene todos los permisos. Un error que se acepta
+  // en silencio es peor que uno que se rechaza, así que se rechaza.
+  if (/^\s*(CREATE|DROP|ALTER)\s+(USER|ROLE)\b|^\s*(GRANT|REVOKE)\b/i.test(sql)) {
+    return ('Los permisos no se pueden practicar acá: esta base tiene una sola sesión y ' +
+            'tiene todos los permisos. La sentencia se ejecutaría sin error y no haría ' +
+            'nada, que es peor. GRANT, REVOKE y CREATE USER piden el MySQL del aula.')
+  }
   return null
 }
 
