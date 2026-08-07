@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<!-- ============================================================
+     GENERADO por herramientas/generar_indice.py — no editar acá.
+
+     Lo que se toca es:
+       materiales.toml   qué material existe y en qué estado
+       ciclos/2026.toml  qué entró este año y en qué orden
+       herramientas/plantilla-indice.tpl   el armazón de la página
+
+     Después: python herramientas/generar_indice.py
+     ============================================================ -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">

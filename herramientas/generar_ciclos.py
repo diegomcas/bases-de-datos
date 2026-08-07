@@ -23,6 +23,10 @@ RAIZ = Path(__file__).resolve().parent.parent
 CICLOS = RAIZ / "ciclos"
 
 CABEZA = """<!DOCTYPE html>
+<!-- ============================================================
+     GENERADO por herramientas/generar_ciclos.py — no editar acá.
+     Los datos salen de materiales.toml y de ciclos/<año>.toml.
+     ============================================================ -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
