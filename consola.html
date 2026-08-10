@@ -113,13 +113,18 @@ function escapar (t) {
 
    Las cadenas se enmascaran antes de tocar nada: sin eso, un texto como
    'LIMIT 1, 2' guardado en una columna terminaría reescrito.
+
+   En el lugar de cada cadena queda su índice envuelto en `\u0001`, un carácter de
+   control que no se puede teclear. La envoltura no es un adorno: con el índice
+   pelado, al restaurar las cadenas cualquier número escrito por el alumno —un
+   id, un LIMIT, los decimales de ROUND— se confundía con un marcador.
    ------------------------------------------------------------------------ */
 
 function traducir (sql) {
   const cadenas = []
   sql = sql.replace(/'(?:[^']|'')*'/g, m => {
     cadenas.push(m)
-    return `${cadenas.length - 1}`
+    return `\u0001${cadenas.length - 1}\u0001`
   })
 
   // Un alias entre comillas invertidas conserva las mayúsculas: pasa a comillas
@@ -132,7 +137,7 @@ function traducir (sql) {
   sql = sql.replace(/`/g, '')
 
   // MySQL admite comillas simples para los alias; Postgres exige dobles.
-  sql = sql.replace(/\bAS\s+(\d+)/gi, (_, i) => {
+  sql = sql.replace(/\bAS\s+\u0001(\d+)\u0001/gi, (_, i) => {
     const texto = cadenas[Number(i)].slice(1, -1).replace(/''/g, "'")
     return `AS "${texto.replace(/"/g, '""')}"`
   })
@@ -146,7 +151,7 @@ function traducir (sql) {
   sql = sql.replace(/\bDATETIME\b/gi, 'TIMESTAMP')
   sql = sql.replace(/^\s*#/gm, '--')                          // comentario #
 
-  return sql.replace(/(\d+)/g, (_, i) => cadenas[Number(i)])
+  return sql.replace(/\u0001(\d+)\u0001/g, (_, i) => cadenas[Number(i)])
 }
 
 /* Comandos de MySQL que no son SQL y hay que resolver contra el catálogo. */
@@ -240,10 +245,14 @@ function comoTexto (v) {
   return String(v)
 }
 
+/* Las filas llegan como arreglos, no como objetos: SQL admite dos columnas con
+   el mismo nombre y un objeto no. `SELECT COUNT(*), COUNT(total)` devuelve dos
+   columnas llamadas «count», y por nombre se pisaban entre ellas. Se indexa por
+   posición, que es lo único que distingue una de otra. */
 function tablaASCII (campos, filas) {
   const nombres = campos.map(c => c.name)
   const derecha = campos.map(c => OIDS_NUMERICOS.has(c.dataTypeID))
-  const celdas = filas.map(f => nombres.map(n => comoTexto(f[n])))
+  const celdas = filas.map(f => f.map(v => comoTexto(v)))
 
   const anchos = nombres.map((n, i) =>
     Math.max([...n].length, ...celdas.map(c => [...c[i]].length), 0))
@@ -286,7 +295,8 @@ async function ejecutar (sqlOriginal) {
 
   let resultados
   try {
-    resultados = await db.exec(reescrito)
+    // rowMode 'array' conserva las columnas repetidas; ver tablaASCII.
+    resultados = await db.exec(reescrito, { rowMode: 'array' })
   } catch (e) {
     escribir('ERROR: ' + e.message, 'error')
     return
