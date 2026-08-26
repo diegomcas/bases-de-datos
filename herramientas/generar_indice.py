@@ -170,7 +170,9 @@ def generar(biblioteca: dict, ciclo: dict) -> str:
             cuerpo = []
             if cl.get("numero") or cl.get("titulo"):
                 cuerpo.append('  <div class="clase">')
-                cuerpo.append(f'    <div class="c-cab"><span class="c-num">{cl["numero"]}</span>'
+                # La pastilla solo se dibuja si hay rótulo; vacía pintaría un hueco de color.
+                pastilla = f'<span class="c-num">{cl["numero"]}</span>' if cl.get("numero") else ""
+                cuerpo.append(f'    <div class="c-cab">{pastilla}'
                               f'<h4>{cl["titulo"]}</h4></div>')
                 if cl.get("nota"):
                     cuerpo.append(f'    <p class="c-nota">{envolver(cl["nota"], 92, "       ")}</p>')

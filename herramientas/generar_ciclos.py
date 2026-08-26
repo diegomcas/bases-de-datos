@@ -109,7 +109,7 @@ def pagina_ciclo(ciclo: dict, por_id: dict) -> str:
     partes.append('    <div class="cifras">')
     for valor, etiqueta, color in [
         (meta["semanas"], "semanas de cursada", "bloque-azul"),
-        (len([u for u in ciclo["unidad"] if u.get("rango")]), "unidades del programa", "bloque-violeta"),
+        (len([u for u in ciclo["unidad"] if u.get("trimestre")]), "unidades del programa", "bloque-violeta"),
         (sum(len(u.get("clase", [])) for u in ciclo["unidad"]), "bloques de clase", "bloque-verde"),
         (len(set(usados)), "piezas de material", "bloque-ambar"),
     ]:

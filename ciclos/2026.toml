@@ -31,7 +31,7 @@ texto = "3.º trimestre · proyecto final"
 id = "t1"
 numero = "1.º trimestre"
 titulo = "El arte de modelar la realidad"
-nota = "Clases 1 a 11 · cierra con el 1.º parcial"
+nota = "Cierra con el 1.º parcial"
 color = "bloque-azul"
 rotulo = " ══════════════════════ 1.º TRIMESTRE ══════════════════════ "
 
@@ -39,7 +39,7 @@ rotulo = " ══════════════════════ 1.
 id = "t2"
 numero = "2.º trimestre"
 titulo = "La teoría de la calidad"
-nota = "Clases 12 a 27 · cierra con el 2.º parcial"
+nota = "Cierra con el 2.º parcial"
 color = "bloque-naranja"
 rotulo = " ══════════════════════ 2.º TRIMESTRE ══════════════════════ "
 
@@ -47,7 +47,7 @@ rotulo = " ══════════════════════ 2.
 id = "t3"
 numero = "3.º trimestre"
 titulo = "Programación, optimización y proyecto"
-nota = "Clases 28 a 39 · cierra con la defensa final"
+nota = "Cierra con la defensa final"
 color = "bloque-carmin"
 rotulo = " ══════════════════════ 3.º TRIMESTRE ══════════════════════ "
 
@@ -93,23 +93,23 @@ id = "u1"
 numero = "I"
 titulo = "Fundamentos"
 subtitulo = "Por qué existe una base de datos"
-rango = "Clases 1 a 4"
+rango = ""
 color = "bloque-azul"
 trimestre = "t1"
 intro = "Antes de modelar nada hay que entender qué problema resuelve una base de datos y qué se rompe cuando no la hay. Es la unidad más conceptual del año."
 
   [[unidad.clase]]
-  numero = "Clase 1"
+  numero = ""
   titulo = "El valor de los datos"
   materiales = ["del-dato-al-conocimiento"]
 
   [[unidad.clase]]
-  numero = "Clase 2"
+  numero = ""
   titulo = "Del archivo a la base de datos"
   materiales = ["evolucion-y-ventajas-de-un"]
 
   [[unidad.clase]]
-  numero = "Clases 3 y 4"
+  numero = ""
   titulo = "El primer cliente real"
   nota = "Acá entra El Chip y con él la pregunta que ordena el resto del año: cómo se pasa de lo que alguien cuenta a algo que se puede modelar."
   materiales = ["caso-de-estudio-el-chip", "como-entrevistar-a-un-cliente"]
@@ -119,18 +119,18 @@ id = "u2"
 numero = "II"
 titulo = "Diseño de datos"
 subtitulo = "Del pedido hablado al esquema de tablas"
-rango = "Clases 5 a 7"
+rango = ""
 color = "bloque-verde"
 trimestre = "t1"
 intro = "El recorrido central del primer trimestre: alguien te cuenta un problema y tenés que llegar a un conjunto de tablas que lo represente sin perder nada y sin repetir nada. El modelado avanzado y la auditoría entre pares no son un tema aparte: se practican durante todo el año, cada vez que aparecen."
 
   [[unidad.clase]]
-  numero = "Clase 5"
+  numero = ""
   titulo = "Ingeniería de requerimientos"
   materiales = ["relevar-y-clasificar-requerimientos", "presentacion-de-la-clase"]
 
   [[unidad.clase]]
-  numero = "Clases 6 y 7"
+  numero = ""
   titulo = "Del modelo conceptual a la tabla"
   nota = "Las dos clases van juntas: primero se dibuja el DER y enseguida se lo convierte en tablas. Separarlas hacía perder el hilo."
   materiales = ["modelado-conceptual-el-der", "del-dibujo-a-la-tabla"]
@@ -140,30 +140,30 @@ id = "u3"
 numero = "III"
 titulo = "Calidad del modelo"
 subtitulo = "Qué separa un diseño que aguanta de uno que se rompe"
-rango = "Clases 12 a 21"
+rango = ""
 color = "bloque-naranja"
 trimestre = "t2"
 intro = "La unidad más teórica y la que más cambia la forma de mirar una tabla. Arranca con Codd y termina cuando podés justificar, con un argumento y no con una intuición, por qué un diseño es mejor que otro."
 
   [[unidad.clase]]
-  numero = "Clase 12"
+  numero = ""
   titulo = "Las reglas de Edgar Codd"
   materiales = ["modelo-relacional-e-integridad-referencial"]
 
   [[unidad.clase]]
-  numero = "Clases 13 y 14"
+  numero = ""
   titulo = "Álgebra relacional"
   mencion = "<strong>Se nombra, no se desarrolla.</strong> Es contenido avanzado y rompe el ritmo del taller. Los conceptos —selección, proyección, producto cartesiano— aparecen igual, pero en su forma práctica, cuando llegamos a las uniones en SQL."
   materiales = []
 
   [[unidad.clase]]
-  numero = "Clases 15 a 18"
+  numero = ""
   titulo = "Normalización"
   nota = "De la planilla de Excel de Martín a un modelo en tercera forma normal: 1FN, dependencias funcionales, 2FN, 3FN y BCNF."
   materiales = ["normalizacion-de-1fn-a-bcnf", "demo-en-vivo"]
 
   [[unidad.clase]]
-  numero = "Clase 21"
+  numero = ""
   titulo = "Desnormalización y rendimiento"
   pendientes = ["Cuándo conviene romper a propósito una forma normal<em>en preparación</em>"]
   materiales = []
@@ -173,7 +173,7 @@ id = "u4a"
 numero = "IV"
 titulo = "SQL · primera parte"
 subtitulo = "Crear la base y hacerle las primeras preguntas"
-rango = "Clases 22 a 27"
+rango = ""
 color = "bloque-violeta"
 trimestre = "t2"
 intro = "Cada tema tiene su taller sobre El Chip: leelos con la base abierta al lado y ejecutá todo. Los <strong>compendios</strong> son versiones ampliadas del mismo tema, para cuando querés recorrerlo entero. La unidad sigue en el tercer trimestre."
@@ -181,30 +181,30 @@ consola = true
 consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abierta al lado mientras hacés los talleres."
 
   [[unidad.clase]]
-  numero = "Clase 22"
+  numero = ""
   titulo = "Definición de datos (DDL)"
   materiales = ["create-alter-y-drop"]
 
   [[unidad.clase]]
-  numero = "Clase 23"
+  numero = ""
   titulo = "Manipulación básica (DML)"
   nota = "INSERT, UPDATE, DELETE y la primera consulta: SELECT, WHERE y ORDER BY."
   materiales = ["practica-de-sql", "taller-primeras-consultas"]
 
   [[unidad.clase]]
-  numero = "Clase 26"
+  numero = ""
   titulo = "Agregación y grupos"
   nota = "COUNT, SUM, AVG, GROUP BY y HAVING: pasar de listar filas a resumirlas."
   materiales = ["taller-de-agrupacion", "compendio-de-agrupacion"]
 
   [[unidad.clase]]
-  numero = "Clase 25"
+  numero = ""
   titulo = "Consultar varias tablas a la vez"
   nota = "El cronograma la llama «Joins Multitabla». Se recorre en dos pasos: primero el cruce con coma, que deja planteado lo que le falta, y después la sintaxis que SQL-92 introdujo para resolverlo."
   materiales = ["taller-uniones-con-sintaxis-de", "uniones-con-join", "taller-uniones-con-join"]
 
   [[unidad.clase]]
-  numero = "Clase 27"
+  numero = ""
   titulo = "Subconsultas"
   nota = "Consultas adentro de consultas: IN, EXISTS y correlacionadas."
   materiales = ["taller-de-subconsultas", "compendio-de-subconsultas"]
@@ -220,7 +220,7 @@ id = "u4b"
 numero = "IV"
 titulo = "SQL · segunda parte"
 subtitulo = "Cuando la base deja de ser pasiva"
-rango = "Clases 28 a 33"
+rango = ""
 color = "bloque-violeta"
 trimestre = "t3"
 intro = "Sigue la Unidad IV, que arrancó en el segundo trimestre y llegó hasta las subconsultas."
@@ -234,19 +234,19 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos 
   materiales = ["taller-de-integracion"]
 
   [[unidad.clase]]
-  numero = "Clases 28 a 32"
+  numero = ""
   titulo = "Vistas, procedimientos y triggers"
   nota = "Un solo taller cubre las cuatro clases: índices, vistas y seguridad, procedimientos almacenados y disparadores."
   materiales = ["taller-indices-vistas-procedimientos-y"]
 
   [[unidad.clase]]
-  numero = "Clase 29"
+  numero = ""
   titulo = "Permisos y transacciones"
   nota = "Los dos sublenguajes que quedaban, DCL y TCL, en una sola clase: quién puede qué, y qué pasa cuando una operación se corta a la mitad."
   materiales = ["taller-permisos-y-transacciones"]
 
   [[unidad.clase]]
-  numero = "Clase 33"
+  numero = ""
   titulo = "Optimización de consultas"
   nota = "Sobre media tabla de un millón, porque con ocho órdenes no se puede medir nada: índices, planes de ejecución y cuándo el índice no sirve."
   materiales = ["taller-de-optimizacion"]
@@ -256,12 +256,12 @@ id = "u5"
 numero = "V"
 titulo = "Horizontes"
 subtitulo = "Lo que hay más allá del modelo relacional"
-rango = "Clase 34"
+rango = ""
 color = "bloque-cian"
 trimestre = "t3"
 
   [[unidad.clase]]
-  numero = "Clase 34"
+  numero = ""
   titulo = "Introducción a NoSQL"
   pendientes = ["Documentos JSON y cuándo el relacional no es la mejor respuesta<em>opcional · según el ciclo</em>"]
   materiales = []
@@ -271,7 +271,7 @@ id = "proyecto"
 numero = "★"
 titulo = "Proyecto integrador"
 subtitulo = "Donde todo lo del año se junta en una sola cosa"
-rango = "Clases 36 a 39"
+rango = ""
 color = "bloque-rosa"
 trimestre = "t3"
 intro = "El cierre del ciclo: un proyecto interdisciplinario que se desarrolla, se documenta y se defiende. Acá entran también la inteligencia de negocios y los procesos de ETL, porque es el proyecto el que define qué datos hay que integrar y con qué forma."
