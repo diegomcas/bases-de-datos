@@ -389,6 +389,42 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "taller-de-agrupacion"
+titulo = "Taller de agrupación"
+descripcion = "7 retos. La versión corta, para la clase"
+unidad = "SQL · primera parte"
+icono = "agrupacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-agrupacion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-agrupacion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
+id = "compendio-de-agrupacion"
+titulo = "Compendio de agrupación"
+descripcion = "24 retos en 6 bloques, hasta ROLLUP y los casos que rompen la intuición"
+unidad = "SQL · primera parte"
+icono = "agrupacion"
+caso = "ninguno"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/compendio-agrupacion-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/compendio-agrupacion-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-uniones-con-sintaxis-de"
 titulo = "Taller: uniones con sintaxis de coma"
 descripcion = "19 retos. El producto cartesiano filtrado, antes de ver JOIN"
@@ -439,60 +475,10 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
-id = "taller-de-agrupacion"
-titulo = "Taller de agrupación"
-descripcion = "7 retos. La versión corta, para la clase"
-unidad = "SQL · primera parte"
-icono = "agrupacion"
-caso = "ninguno"
-estado = "vigente"
-ciclos = [2026]
-  [[material.formato]]
-  texto = "Consignas"
-  href = "unidades/04-sql/taller-agrupacion-consignas.html"
-  variante = "principal"
-  [[material.formato]]
-  texto = "Resoluciones"
-  href = "unidades/04-sql/taller-agrupacion-resoluciones.html"
-  variante = "docente"
-
-[[material]]
-id = "compendio-de-agrupacion"
-titulo = "Compendio de agrupación"
-descripcion = "24 retos en 6 bloques, hasta ROLLUP y los casos que rompen la intuición"
-unidad = "SQL · primera parte"
-icono = "agrupacion"
-caso = "ninguno"
-estado = "vigente"
-ciclos = [2026]
-  [[material.formato]]
-  texto = "Consignas"
-  href = "unidades/04-sql/compendio-agrupacion-consignas.html"
-  variante = "principal"
-  [[material.formato]]
-  texto = "Resoluciones"
-  href = "unidades/04-sql/compendio-agrupacion-resoluciones.html"
-  variante = "docente"
-
-[[material]]
-id = "el-orden-en-que-corre-una-consulta"
-titulo = "El orden en que corre una consulta"
-descripcion = "Las diez etapas en un visor de consultas que crecen de a una cláusula, más los ocho cruces y los seis lugares de una subconsulta"
-unidad = "SQL · primera parte"
-icono = "presentacion"
-caso = "el-chip"
-estado = "vigente"
-ciclos = [2026]
-  [[material.formato]]
-  texto = "Ver"
-  href = "unidades/04-sql/orden-de-ejecucion.html"
-  variante = "principal"
-
-[[material]]
 id = "taller-de-subconsultas"
 titulo = "Taller de subconsultas"
 descripcion = "6 retos. La versión corta, para la clase"
-unidad = "SQL · segunda parte"
+unidad = "SQL · primera parte"
 icono = "taller"
 caso = "ninguno"
 estado = "vigente"
@@ -510,7 +496,7 @@ ciclos = [2026]
 id = "compendio-de-subconsultas"
 titulo = "Compendio de subconsultas"
 descripcion = "27 retos en 10 bloques: el recorrido completo del tema"
-unidad = "SQL · segunda parte"
+unidad = "SQL · primera parte"
 icono = "taller"
 caso = "ninguno"
 estado = "vigente"
@@ -523,6 +509,20 @@ ciclos = [2026]
   texto = "Resoluciones"
   href = "unidades/04-sql/compendio-subconsultas-resoluciones.html"
   variante = "docente"
+
+[[material]]
+id = "el-orden-en-que-corre-una-consulta"
+titulo = "El orden en que corre una consulta"
+descripcion = "Las diez etapas en un visor de consultas que crecen de a una cláusula, más los ocho cruces y los seis lugares de una subconsulta"
+unidad = "SQL · primera parte"
+icono = "presentacion"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/orden-de-ejecucion.html"
+  variante = "principal"
 
 [[material]]
 id = "taller-de-optimizacion"

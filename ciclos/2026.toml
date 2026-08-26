@@ -16,7 +16,7 @@ hasta = 18
 texto = "2.º trimestre · la teoría de la calidad"
 
 [[etapa]]
-hasta = 26
+hasta = 27
 texto = "2.º trimestre · primeros pasos en SQL"
 
 [[etapa]]
@@ -39,7 +39,7 @@ rotulo = " ══════════════════════ 1.
 id = "t2"
 numero = "2.º trimestre"
 titulo = "La teoría de la calidad"
-nota = "Clases 12 a 26 · cierra con el 2.º parcial"
+nota = "Clases 12 a 27 · cierra con el 2.º parcial"
 color = "bloque-naranja"
 rotulo = " ══════════════════════ 2.º TRIMESTRE ══════════════════════ "
 
@@ -47,7 +47,7 @@ rotulo = " ══════════════════════ 2.
 id = "t3"
 numero = "3.º trimestre"
 titulo = "Programación, optimización y proyecto"
-nota = "Clases 27 a 39 · cierra con la defensa final"
+nota = "Clases 28 a 39 · cierra con la defensa final"
 color = "bloque-carmin"
 rotulo = " ══════════════════════ 3.º TRIMESTRE ══════════════════════ "
 
@@ -173,7 +173,7 @@ id = "u4a"
 numero = "IV"
 titulo = "SQL · primera parte"
 subtitulo = "Crear la base y hacerle las primeras preguntas"
-rango = "Clases 22 a 26"
+rango = "Clases 22 a 27"
 color = "bloque-violeta"
 trimestre = "t2"
 intro = "Cada tema tiene su taller sobre El Chip: leelos con la base abierta al lado y ejecutá todo. Los <strong>compendios</strong> son versiones ampliadas del mismo tema, para cuando querés recorrerlo entero. La unidad sigue en el tercer trimestre."
@@ -192,34 +192,40 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abie
   materiales = ["practica-de-sql", "taller-primeras-consultas"]
 
   [[unidad.clase]]
+  numero = "Clase 26"
+  titulo = "Agregación y grupos"
+  nota = "COUNT, SUM, AVG, GROUP BY y HAVING: pasar de listar filas a resumirlas."
+  materiales = ["taller-de-agrupacion", "compendio-de-agrupacion"]
+
+  [[unidad.clase]]
   numero = "Clase 25"
   titulo = "Consultar varias tablas a la vez"
   nota = "El cronograma la llama «Joins Multitabla». Se recorre en dos pasos: primero el cruce con coma, que deja planteado lo que le falta, y después la sintaxis que SQL-92 introdujo para resolverlo."
   materiales = ["taller-uniones-con-sintaxis-de", "uniones-con-join", "taller-uniones-con-join"]
 
   [[unidad.clase]]
-  numero = "Clase 26"
-  titulo = "Agregación y grupos"
-  nota = "COUNT, SUM, AVG, GROUP BY y HAVING: pasar de listar filas a resumirlas. El apunte del orden de ejecución cierra la unidad: recién con los grupos ya vistos se puede explicar por qué el WHERE y el HAVING no son intercambiables."
-  materiales = ["taller-de-agrupacion", "compendio-de-agrupacion", "el-orden-en-que-corre-una-consulta"]
+  numero = "Clase 27"
+  titulo = "Subconsultas"
+  nota = "Consultas adentro de consultas: IN, EXISTS y correlacionadas."
+  materiales = ["taller-de-subconsultas", "compendio-de-subconsultas"]
+
+  [[unidad.clase]]
+  numero = "Síntesis"
+  titulo = "El orden en que corre una consulta"
+  nota = "Va al final porque necesita todo lo anterior: recorre las diez etapas de un SELECT con las uniones, la agregación y las subconsultas ya vistas, y deja planteada la clase de optimización."
+  materiales = ["el-orden-en-que-corre-una-consulta"]
 
 [[unidad]]
 id = "u4b"
 numero = "IV"
 titulo = "SQL · segunda parte"
 subtitulo = "Cuando la base deja de ser pasiva"
-rango = "Clases 27 a 33"
+rango = "Clases 28 a 33"
 color = "bloque-violeta"
 trimestre = "t3"
-intro = "Sigue la Unidad IV, que arrancó en el segundo trimestre con la definición de datos y la agregación."
+intro = "Sigue la Unidad IV, que arrancó en el segundo trimestre y llegó hasta las subconsultas."
 consola = true
 consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos talleres conviene el juego de datos ampliado: elegí <strong>2 · Compendio</strong> al abrirla."
-
-  [[unidad.clase]]
-  numero = "Clase 27"
-  titulo = "Subconsultas"
-  nota = "Consultas adentro de consultas: IN, EXISTS y correlacionadas."
-  materiales = ["taller-de-subconsultas", "compendio-de-subconsultas"]
 
   [[unidad.clase]]
   numero = "Cierre de la unidad"
