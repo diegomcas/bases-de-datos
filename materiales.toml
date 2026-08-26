@@ -475,6 +475,20 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "el-orden-en-que-corre-una-consulta"
+titulo = "El orden en que corre una consulta"
+descripcion = "Las diez etapas, con el visor que sigue dos consultas equivalentes: una cruza con coma y la otra con JOIN"
+unidad = "SQL · primera parte"
+icono = "presentacion"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/orden-de-ejecucion.html"
+  variante = "principal"
+
+[[material]]
 id = "taller-de-subconsultas"
 titulo = "Taller de subconsultas"
 descripcion = "6 retos. La versión corta, para la clase"

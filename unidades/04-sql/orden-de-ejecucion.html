@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El orden en que corre una consulta · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/apunte.css">
+    <link rel="stylesheet" href="../../assets/css/presentacion.css">
+
+    <style>
+    /* propio de esta página: el visor de etapas y las dos listas enfrentadas */
+
+    /* --- las dos listas: cómo se escribe / cómo corre --- */
+    .dos-ordenes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin: 22px 0;
+    }
+    @media (max-width: 720px) { .dos-ordenes { grid-template-columns: 1fr; } }
+
+    .lista-orden {
+        background: var(--bg-card);
+        border: 1px solid var(--linea-media);
+        border-radius: var(--radio);
+        padding: 16px 18px;
+    }
+    .lista-orden h3 {
+        font-size: 0.78rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 12px;
+    }
+    .lista-orden ol { margin: 0; padding-left: 0; list-style: none; counter-reset: paso; }
+    .lista-orden li {
+        display: flex;
+        gap: 10px;
+        align-items: baseline;
+        padding: 5px 0;
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.82rem;
+        color: var(--text-body);
+    }
+    .lista-orden li::before {
+        counter-increment: paso;
+        content: counter(paso);
+        flex-shrink: 0;
+        width: 20px;
+        text-align: right;
+        color: var(--text-muted);
+        font-size: 0.72rem;
+    }
+    .lista-orden .cl { color: #ff9ec9; font-weight: 700; }
+    .lista-orden .aclara { color: var(--text-muted); font-family: "Inter", sans-serif; font-size: 0.78rem; }
+    .lista-orden.escritura { border-left: 3px solid var(--bloque-gris); }
+    .lista-orden.ejecucion { border-left: 3px solid var(--accent); }
+
+    /* --- el visor de etapas --- */
+    .visor {
+        background: var(--bg-card);
+        border: 1px solid var(--linea-media);
+        border-radius: var(--radio);
+        overflow: hidden;
+        margin: 24px 0;
+    }
+    .visor-casos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--linea-media);
+    }
+    .visor-casos button {
+        font-size: 0.82rem;
+        padding: 7px 14px;
+        border-radius: var(--radio-chico);
+        border: 1px solid var(--linea-media);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transicion);
+    }
+    .visor-casos button:hover { color: var(--text-main); border-color: var(--accent); }
+    .visor-casos button[aria-pressed="true"] {
+        background: var(--velo-medio);
+        border-color: var(--accent);
+        color: var(--text-main);
+        font-weight: 600;
+    }
+    .visor-casos .caso-nota {
+        margin-left: auto;
+        align-self: center;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    .visor-barra {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 12px 14px;
+        background: var(--velo-medio);
+        border-bottom: 1px solid var(--linea-media);
+    }
+    .visor-barra button {
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.72rem;
+        padding: 5px 9px;
+        border-radius: var(--radio-chico);
+        border: 1px solid var(--linea-media);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transicion);
+    }
+    .visor-barra button:hover { color: var(--text-main); border-color: var(--accent); }
+    .visor-barra button[aria-current="step"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #0b0f19;
+        font-weight: 700;
+    }
+    .visor-cuerpo {
+        display: grid;
+        grid-template-columns: minmax(0, 330px) minmax(0, 1fr);
+    }
+    @media (max-width: 860px) { .visor-cuerpo { grid-template-columns: 1fr; } }
+
+    .visor-sql {
+        background: var(--bg-code);
+        padding: 18px 6px;
+        border-right: 1px solid var(--linea-media);
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.8rem;
+        line-height: 1.85;
+        white-space: pre;
+        overflow-x: auto;
+    }
+    @media (max-width: 860px) { .visor-sql { border-right: none; border-bottom: 1px solid var(--linea-media); } }
+    .visor-sql .linea {
+        display: block;
+        opacity: .32;
+        border-left: 2px solid transparent;
+        padding-left: 10px;
+        transition: var(--transicion);
+    }
+    .visor-sql .linea.hecha { opacity: .6; }
+    .visor-sql .linea.activa {
+        opacity: 1;
+        border-left-color: var(--accent);
+        background: var(--velo-medio);
+    }
+
+    .visor-panel { padding: 18px 18px 20px; min-width: 0; overflow-x: auto; }
+    .visor-titulo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .visor-titulo h3 { margin: 0; font-size: 1.02rem; color: var(--text-main); }
+    .visor-etapa {
+        font-family: "Fira Code", monospace;
+        font-size: 0.7rem;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        padding: 2px 8px;
+    }
+    .visor-dice { color: var(--text-body); font-size: 0.9rem; margin: 8px 0 14px; }
+    .visor-cuenta {
+        font-family: "Fira Code", monospace;
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+    }
+    .visor-cuenta strong { color: var(--text-main); }
+    .visor-cuenta .baja { color: var(--bloque-carmin); }
+
+    .visor-tabla { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .visor-tabla th, .visor-tabla td {
+        text-align: left;
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--linea-sutil);
+        font-family: "Fira Code", ui-monospace, monospace;
+        white-space: nowrap;
+    }
+    .visor-tabla th { color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: .06em; }
+    .visor-tabla td { color: var(--text-body); }
+    .visor-tabla tr.se-va td { color: var(--bloque-carmin); text-decoration: line-through; opacity: .7; }
+    .visor-tabla tr.continua td { color: var(--text-muted); text-align: center; letter-spacing: .3em; }
+    .visor-tabla td.nuevo { color: var(--bloque-verde); }
+    .visor-tabla td.detalle { color: var(--text-muted); font-size: 0.74rem; white-space: normal; }
+    .visor-nota {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-left: 3px solid var(--bloque-ambar);
+        background: var(--velo-sutil);
+        color: var(--text-body);
+        font-size: 0.85rem;
+    }
+
+    /* --- marcas de la tabla resumen --- */
+    .si { color: var(--bloque-verde); font-weight: 700; }
+    .no { color: var(--bloque-carmin); font-weight: 700; }
+    .segun { color: var(--bloque-ambar); font-weight: 700; }
+    </style>
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Clase 26 · complemento</span>
+            <h1>El orden en que corre una consulta</h1>
+            <p>Las cláusulas de un SELECT, la etapa en que entra cada una y qué existe en cada momento</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">El orden en que corre una consulta</span>
+        </nav>
+
+        <nav class="indice-apunte" aria-label="Contenido">
+            <h2>Recorrido</h2>
+            <ol>
+                <li><a href="#dos-listas">Dos listas que no coinciden</a></li>
+                <li><a href="#visor">La consulta, etapa por etapa</a></li>
+                <li><a href="#falta-relacion">Cuando falta la condición que relaciona</a></li>
+                <li><a href="#que-es-un-grupo">Qué queda cuando el grupo reemplaza a la fila</a></li>
+                <li><a href="#alias">El alias que todavía no existe</a></li>
+                <li><a href="#where-having">La misma condición en dos lugares</a></li>
+                <li><a href="#contar">Qué cuenta cada COUNT</a></li>
+                <li><a href="#distinct">DISTINCT trabaja sobre lo ya proyectado</a></li>
+                <li><a href="#order-limit">ORDER BY y LIMIT, al final de todo</a></li>
+                <li><a href="#resumen">Qué existe en cada etapa</a></li>
+                <li><a href="#plan-real">El orden lógico y el plan real</a></li>
+            </ol>
+        </nav>
+
+        <div class="diapositivas">
+
+            <section class="diapositiva" id="dos-listas">
+              <div class="diapo-num">01</div>
+              <h2>Dos listas que no coinciden</h2>
+              <p>Una consulta se escribe empezando por <code>SELECT</code> y termina en <code>LIMIT</code>.
+                 El motor la resuelve en otro orden: primero arma el conjunto de filas del que va a salir
+                 todo, y recién al final decide qué columnas mostrar y cómo ordenarlas.</p>
+
+              <div class="dos-ordenes">
+                <div class="lista-orden escritura">
+                  <h3>Cómo se escribe</h3>
+                  <ol>
+                    <li><span class="cl">SELECT</span></li>
+                    <li><span class="cl">FROM</span></li>
+                    <li><span class="cl">JOIN … ON</span></li>
+                    <li><span class="cl">WHERE</span></li>
+                    <li><span class="cl">GROUP BY</span></li>
+                    <li><span class="cl">HAVING</span></li>
+                    <li><span class="cl">ORDER BY</span></li>
+                    <li><span class="cl">LIMIT</span></li>
+                  </ol>
+                </div>
+                <div class="lista-orden ejecucion">
+                  <h3>Cómo se resuelve</h3>
+                  <ol>
+                    <li><span class="cl">FROM</span> <span class="aclara">de dónde salen las filas</span></li>
+                    <li><span class="cl">JOIN … ON</span> <span class="aclara">se suman las otras tablas</span></li>
+                    <li><span class="cl">WHERE</span> <span class="aclara">se descartan filas</span></li>
+                    <li><span class="cl">GROUP BY</span> <span class="aclara">las filas se reparten en grupos</span></li>
+                    <li><span class="aclara">se calculan los agregados</span></li>
+                    <li><span class="cl">HAVING</span> <span class="aclara">se descartan grupos</span></li>
+                    <li><span class="cl">SELECT</span> <span class="aclara">se arman las columnas de salida</span></li>
+                    <li><span class="cl">DISTINCT</span> <span class="aclara">se sacan las repetidas</span></li>
+                    <li><span class="cl">ORDER BY</span> <span class="aclara">se ordena el resultado</span></li>
+                    <li><span class="cl">LIMIT</span> <span class="aclara">se corta</span></li>
+                  </ol>
+                </div>
+              </div>
+
+              <p>La lista de la derecha vale igual para las consultas que cruzan tablas con una coma, sin
+                 <code>JOIN</code>. Ahí desaparece la etapa 2 y el cruce entero ocurre en el
+                 <code>FROM</code>, que produce todas las combinaciones posibles; la condición que empareja
+                 las filas baja al <code>WHERE</code>, junto con los filtros. El resto del recorrido es el
+                 mismo.</p>
+
+              <div class="theory-box">
+                <p>Casi todo lo que sorprende de SQL sale de la distancia entre estas dos listas: por qué
+                   un alias funciona en <code>ORDER BY</code> y falla en <code>WHERE</code>, por qué la
+                   misma condición da resultados distintos según esté en <code>WHERE</code> o en
+                   <code>HAVING</code>, por qué después de agrupar hay columnas que dejan de poder nombrarse.
+                   Las diez etapas de la derecha alcanzan para explicar todo eso.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="visor">
+              <div class="diapo-num">02</div>
+              <h2>La consulta, etapa por etapa</h2>
+              <p>Dos consultas sobre El Chip, con el juego de datos ampliado (8 órdenes, 8 clientes).
+                 Piden lo mismo y devuelven lo mismo; se diferencian en cómo cruzan las tablas. La primera
+                 usa la coma en el <code>FROM</code> y pone la relación en el <code>WHERE</code>, como se
+                 escribía antes de SQL-92. La segunda usa <code>JOIN … ON</code>.</p>
+              <p>Avanzá por las etapas y mirá qué tiene el motor en la mano en cada momento. Con la coma,
+                 la primera etapa arranca en 64 filas; con el <code>JOIN</code>, en 8. Las dos terminan en
+                 la misma fila, con tres columnas que no existían al empezar.</p>
+
+              <div class="visor" id="visor-etapas">
+                <div class="visor-casos" id="visor-casos" role="group" aria-label="Consulta a seguir"></div>
+                <div class="visor-barra" id="visor-barra" role="group" aria-label="Etapas de la consulta"></div>
+                <div class="visor-cuerpo">
+                  <div class="visor-sql" id="visor-sql"></div>
+                  <div class="visor-panel">
+                    <div class="visor-titulo">
+                      <span class="visor-etapa" id="visor-etapa"></span>
+                      <h3 id="visor-nombre"></h3>
+                    </div>
+                    <p class="visor-dice" id="visor-dice"></p>
+                    <p class="visor-cuenta" id="visor-cuenta"></p>
+                    <div style="overflow-x:auto">
+                      <table class="visor-tabla" id="visor-tabla"></table>
+                    </div>
+                    <div class="visor-nota" id="visor-nota"></div>
+                  </div>
+                </div>
+              </div>
+
+              <p>Ninguna etapa vuelve atrás: lo que descarta el <code>WHERE</code> no lo puede recuperar el
+                 <code>HAVING</code>, y lo que el <code>SELECT</code> no proyectó ya no está para que lo
+                 ordene el <code>ORDER BY</code>. Las dos versiones se separan en las tres primeras etapas y
+                 desde el <code>GROUP BY</code> recorren lo mismo, porque llegan ahí con las mismas seis filas.</p>
+
+              <div class="theory-box">
+                <p>La versión con coma muestra el mecanismo con más crudeza: el <code>FROM</code> produce
+                   todas las combinaciones posibles y el <code>WHERE</code> se queda con las que sirven. Esa
+                   es la definición del cruce, y el <code>JOIN … ON</code> es la manera de escribirla
+                   separando en dos lugares las dos condiciones que la coma mezcla en uno solo.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="falta-relacion">
+              <div class="diapo-num">03</div>
+              <h2>Cuando falta la condición que relaciona</h2>
+              <p>Con la coma, la condición que empareja las tablas y la que filtra viven juntas en el
+                 <code>WHERE</code>. Olvidar la primera no produce ningún error: la consulta corre y
+                 devuelve números.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Falta O.id_cliente = C.id_cliente</span>
+<span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.total &gt; <span class="sql-number">0</span>
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+              </div>
+
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>ordenes</th><th>facturado</th></tr></thead>
+                  <tbody>
+                    <tr><td>Ferreyra</td><td>6</td><td>168500.00</td></tr>
+                    <tr><td>García</td><td>6</td><td>168500.00</td></tr>
+                    <tr><td>López</td><td>6</td><td>168500.00</td></tr>
+                    <tr><td>Martínez</td><td>6</td><td>168500.00</td></tr>
+                    <tr><td>Pérez</td><td>12</td><td>337000.00</td></tr>
+                    <tr><td>Rossi</td><td>12</td><td>337000.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>Sin la condición de relación, el <code>WHERE</code> solo descarta las órdenes en cero y
+                 quedan 48 filas: las 6 órdenes que facturaron, apareadas con los 8 clientes. Cada cliente
+                 termina emparejado con todas las órdenes del taller, así que a cada apellido se le atribuye
+                 la facturación completa. Marcos Ferreyra, que no tiene ninguna orden, aparece con seis.</p>
+
+              <div class="warning-box">
+                <p>Los apellidos Pérez y Rossi duplican todo porque los comparten dos clientes: sus grupos
+                   reúnen dos veces las mismas 6 filas. Ese 337.000 es el doble exacto de 168.500, que a su
+                   vez es todo lo que cobró el taller. Cuando un total da redondo y repetido en varias filas,
+                   la primera sospecha es una condición de relación que falta.</p>
+              </div>
+
+              <p>El <code>JOIN</code> resuelve esto por gramática: <code>FROM orden_servicio O INNER JOIN
+                 cliente C</code> sin <code>ON</code> es un error de sintaxis y la consulta no llega a
+                 correr. Es el motivo por el que conviene escribir los cruces con <code>JOIN</code> aunque
+                 el resultado sea idéntico y el motor arme el mismo plan.</p>
+            </section>
+
+            <section class="diapositiva" id="que-es-un-grupo">
+              <div class="diapo-num">04</div>
+              <h2>Qué queda cuando el grupo reemplaza a la fila</h2>
+              <p>La etapa del <code>GROUP BY</code> es la que más cambia el terreno. Antes de agrupar, el
+                 motor tiene filas: cada una con todas sus columnas. Después de agrupar tiene grupos, y de
+                 cada grupo solamente puede nombrar dos cosas.</p>
+              <ul>
+                <li><strong>Las columnas por las que agrupó.</strong> Valen para todo el grupo: si el grupo
+                    se armó por <code>C.apellido</code>, ese apellido es único adentro del grupo.</li>
+                <li><strong>Los resultados de funciones de agregación.</strong> <code>COUNT</code>,
+                    <code>SUM</code>, <code>AVG</code>, <code>MIN</code> y <code>MAX</code> resumen el grupo
+                    entero en un valor.</li>
+              </ul>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Agrupa por apellido y pide también el nombre de pila</span>
+<span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+              </div>
+
+              <p>La consulta falla, y el mensaje explica exactamente el problema:</p>
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">MySQL</span></div>
+<pre><code><span class="sql-comment">ERROR 1055 (42000): Expression #2 of SELECT list is not in GROUP BY
+clause and contains nonaggregated column 'el_chip.C.nombre' which is
+not functionally dependent on columns in GROUP BY clause; this is
+incompatible with sql_mode=only_full_group_by</span></code></pre>
+              </div>
+
+              <p>El grupo <code>Rossi</code> junta la orden de Diego Rossi y la de Sofía Rossi. Preguntar
+                 «¿cuál es el nombre de pila del grupo Rossi?» no tiene respuesta, y el motor lo dice en
+                 lugar de elegir uno. Hay dos salidas, y eligen cosas distintas:</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- (a) Agrupar más fino: un grupo por persona, no por apellido</span>
+<span class="sql-keyword">SELECT</span> C.apellido, C.nombre, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre;
+
+<span class="sql-comment">-- (b) Resumir el nombre con un agregado, si el apellido es lo que interesa</span>
+<span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> C.id_cliente) <span class="sql-keyword">AS</span> personas,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+              </div>
+
+              <p class="result-caption">Resultado de (b) sobre el juego ampliado</p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>personas</th><th>ordenes</th></tr></thead>
+                  <tbody>
+                    <tr><td>García</td><td>1</td><td>2</td></tr>
+                    <tr><td>Pérez</td><td>2</td><td>4</td></tr>
+                    <tr><td>Rossi</td><td>2</td><td>2</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="warning-box">
+                <p>Las cuatro órdenes de «Pérez» son de dos personas distintas: Juan Pérez tiene tres y su
+                   homónimo, una. Agrupar por apellido responde una pregunta sobre apellidos. Si la pregunta
+                   era por cliente, el grupo tiene que armarse por <code>id_cliente</code>.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="alias">
+              <div class="diapo-num">05</div>
+              <h2>El alias que todavía no existe</h2>
+              <p>El alias de una columna nace en la etapa 7, cuando corre el <code>SELECT</code>. Todo lo que
+                 se ejecuta antes trabaja sin él.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- El WHERE corre en la etapa 3: con_descuento todavía no existe</span>
+<span class="sql-keyword">SELECT</span> nro_orden, total, <span class="sql-keyword">ROUND</span>(total * <span class="sql-number">0.9</span>, <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> con_descuento
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> con_descuento &gt; <span class="sql-number">20000</span>;
+<span class="sql-comment">-- ERROR 1054 (42S22): Unknown column 'con_descuento' in 'where clause'</span>
+
+<span class="sql-comment">-- El ORDER BY corre en la etapa 9: el alias ya está armado</span>
+<span class="sql-keyword">SELECT</span> nro_orden, total, <span class="sql-keyword">ROUND</span>(total * <span class="sql-number">0.9</span>, <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> con_descuento
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> total &gt; <span class="sql-number">0</span>
+<span class="sql-keyword">ORDER BY</span> con_descuento <span class="sql-keyword">DESC</span>;</code></pre>
+              </div>
+
+              <p class="result-caption">La segunda consulta, sobre el juego ampliado</p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>nro_orden</th><th>total</th><th>con_descuento</th></tr></thead>
+                  <tbody>
+                    <tr><td>1</td><td>53500.00</td><td>48150.00</td></tr>
+                    <tr><td>2</td><td>40500.00</td><td>36450.00</td></tr>
+                    <tr><td>5</td><td>27000.00</td><td>24300.00</td></tr>
+                    <tr><td>6</td><td>20000.00</td><td>18000.00</td></tr>
+                    <tr><td>4</td><td>18500.00</td><td>16650.00</td></tr>
+                    <tr><td>8</td><td>9000.00</td><td>8100.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>Para filtrar por el valor calculado hay que repetir la expresión en el <code>WHERE</code>
+                 —<code>WHERE ROUND(total * 0.9, 2) &gt; 20000</code>— o envolver la consulta en otra y
+                 filtrar afuera. El motor calcula dos veces; a cambio, la regla se sostiene sin excepciones.</p>
+
+              <div class="warning-box">
+                <p><strong>Una excepción de MySQL.</strong> En <code>HAVING</code>, MySQL acepta el alias del
+                   <code>SELECT</code> aunque por orden de ejecución todavía no exista. Es una extensión
+                   propia: PostgreSQL, SQL Server y Oracle rechazan lo mismo. La consola del sitio corre sobre
+                   PostgreSQL, así que ahí conviene escribir el agregado completo —<code>HAVING SUM(O.total)
+                   &gt; 20000</code>— que funciona en todos los motores.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="where-having">
+              <div class="diapo-num">06</div>
+              <h2>La misma condición en dos lugares</h2>
+              <p><code>WHERE</code> corre antes de agrupar y decide qué filas entran a los grupos.
+                 <code>HAVING</code> corre después y decide qué grupos sobreviven. Cambiar una condición de
+                 lugar cambia la composición de los grupos, no solamente el largo de la lista final.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- (a) La orden sin cobrar se descarta ANTES de agrupar</span>
+<span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">WHERE</span> O.total &gt; <span class="sql-number">0</span>
+<span class="sql-keyword">GROUP BY</span> C.apellido;
+
+<span class="sql-comment">-- (b) Entran todas las órdenes y el filtro se aplica al grupo</span>
+<span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.apellido
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(O.total) &gt; <span class="sql-number">0</span>;</code></pre>
+              </div>
+
+              <p class="result-caption">(a) con WHERE — 6 filas entran a los grupos</p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>ordenes</th><th>facturado</th></tr></thead>
+                  <tbody>
+                    <tr><td>García</td><td>2</td><td>60500.00</td></tr>
+                    <tr><td>Pérez</td><td>3</td><td>99000.00</td></tr>
+                    <tr><td>Rossi</td><td>1</td><td>9000.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p class="result-caption">(b) con HAVING — entran las 8 y después se filtra</p>
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>ordenes</th><th>facturado</th></tr></thead>
+                  <tbody>
+                    <tr><td>García</td><td>2</td><td>60500.00</td></tr>
+                    <tr><td>Pérez</td><td>4</td><td>99000.00</td></tr>
+                    <tr><td>Rossi</td><td>2</td><td>9000.00</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>Las dos listas tienen los mismos tres apellidos y los mismos totales. La columna
+                 <code>ordenes</code> no coincide: en (b) el grupo Pérez cuenta cuatro órdenes y el grupo
+                 Rossi cuenta dos, porque las órdenes pendientes en cero entraron a los grupos y aportaron 0
+                 a la suma sin desaparecer del <code>COUNT</code>. Ninguna de las dos está mal: (a) responde
+                 «cuánto facturó cada apellido, contando las órdenes que cobraron algo» y (b) responde
+                 «cuántas órdenes trajo cada apellido, de los que alguna vez pagaron».</p>
+
+              <div class="theory-box">
+                <p><strong>Cómo se elige.</strong> Si la condición se puede decidir mirando una fila sola,
+                   va en el <code>WHERE</code>. Si necesita el grupo entero —un <code>COUNT</code>, una
+                   <code>SUM</code>, un promedio—, no puede ir en el <code>WHERE</code>: en la etapa 3 los
+                   grupos todavía no existen. Escribir <code>WHERE COUNT(*) &gt; 1</code> devuelve
+                   <code>ERROR 1111 (HY000): Invalid use of group function</code>.</p>
+              </div>
+
+              <p>Cuando las dos ubicaciones dan el mismo resultado, conviene el <code>WHERE</code>: descarta
+                 filas antes de armar los grupos, así que el motor agrupa menos. La diferencia no se nota con
+                 ocho órdenes y sí con medio millón, que es el terreno de la clase de optimización.</p>
+            </section>
+
+            <section class="diapositiva" id="contar">
+              <div class="diapo-num">07</div>
+              <h2>Qué cuenta cada COUNT</h2>
+              <p>Los agregados se calculan en la etapa 5, sobre las filas que quedaron en cada grupo. Con un
+                 <code>LEFT JOIN</code> hay grupos que existen por una fila donde la tabla de la derecha no
+                 aportó nada, y ahí <code>COUNT(*)</code> y <code>COUNT(columna)</code> se separan.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-keyword">SELECT</span> C.apellido, C.nombre,
+       <span class="sql-keyword">COUNT</span>(*)             <span class="sql-keyword">AS</span> con_asterisco,
+       <span class="sql-keyword">COUNT</span>(O.nro_orden)   <span class="sql-keyword">AS</span> con_columna,
+       <span class="sql-keyword">SUM</span>(O.total)         <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido, C.nombre;</code></pre>
+              </div>
+
+              <div class="table-scroll">
+                <table class="result-table">
+                  <thead><tr><th>apellido</th><th>nombre</th><th>con_asterisco</th><th>con_columna</th><th>facturado</th></tr></thead>
+                  <tbody>
+                    <tr><td>Pérez</td><td>Juan</td><td>3</td><td>3</td><td>99000.00</td></tr>
+                    <tr><td>García</td><td>María</td><td>2</td><td>2</td><td>60500.00</td></tr>
+                    <tr><td>López</td><td>Carlos</td><td>1</td><td>0</td><td>NULL</td></tr>
+                    <tr><td>Martínez</td><td>Ana</td><td>1</td><td>0</td><td>NULL</td></tr>
+                    <tr><td>Rossi</td><td>Diego</td><td>1</td><td>1</td><td>0.00</td></tr>
+                    <tr><td>Pérez</td><td>Juan</td><td>1</td><td>1</td><td>0.00</td></tr>
+                    <tr><td>Rossi</td><td>Sofía</td><td>1</td><td>1</td><td>9000.00</td></tr>
+                    <tr><td>Ferreyra</td><td>Marcos</td><td>1</td><td>0</td><td>NULL</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <ul>
+                <li><strong><code>COUNT(*)</code> cuenta filas del grupo.</strong> López, Martínez y Ferreyra
+                    no tienen ninguna orden, pero el <code>LEFT JOIN</code> les dejó una fila con las columnas
+                    de <code>orden_servicio</code> en <code>NULL</code>. Esa fila se cuenta igual: da 1.</li>
+                <li><strong><code>COUNT(columna)</code> ignora los <code>NULL</code>.</strong> Por eso da 0,
+                    que es la respuesta correcta a «¿cuántas órdenes tiene?».</li>
+                <li><strong><code>SUM</code> de un grupo sin valores da <code>NULL</code>, no 0.</strong> Para
+                    mostrar cero se envuelve: <code>IFNULL(SUM(O.total), 0)</code>.</li>
+              </ul>
+
+              <p>Las dos últimas columnas también distinguen dos ceros distintos: Ferreyra no tiene órdenes
+                 (<code>NULL</code>) y Diego Rossi tiene una orden pendiente que todavía no facturó nada
+                 (<code>0.00</code>).</p>
+            </section>
+
+            <section class="diapositiva" id="distinct">
+              <div class="diapo-num">08</div>
+              <h2>DISTINCT trabaja sobre lo ya proyectado</h2>
+              <p><code>DISTINCT</code> corre en la etapa 8, después de que el <code>SELECT</code> armó las
+                 columnas. Compara filas de salida completas, no filas de las tablas.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Apellidos de clientes que trajeron equipos: 3 filas</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> C.apellido
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente;
+
+<span class="sql-comment">-- Con el nro_orden agregado: 8 filas, DISTINCT no saca nada</span>
+<span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> C.apellido, O.nro_orden
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente;</code></pre>
+              </div>
+
+              <p>La segunda consulta devuelve las ocho filas: el número de orden es distinto en cada una, así
+                 que ninguna fila de salida se repite. <code>DISTINCT</code> se aplica a la fila entera que
+                 quedó proyectada, y sumar una columna a la lista casi siempre lo vuelve inofensivo.</p>
+
+              <div class="warning-box">
+                <p>Del mismo orden sale otra regla: con <code>DISTINCT</code>, el <code>ORDER BY</code> solo
+                   puede nombrar columnas que estén en el <code>SELECT</code>. Ordenar por
+                   <code>O.total</code> una lista de apellidos únicos no tiene sentido —cada apellido quedó
+                   con varias filas detrás, con totales distintos— y el motor lo rechaza en lugar de elegir uno.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="order-limit">
+              <div class="diapo-num">09</div>
+              <h2>ORDER BY y LIMIT, al final de todo</h2>
+              <p><code>ORDER BY</code> es la anteúltima etapa. Sin <code>GROUP BY</code> ni
+                 <code>DISTINCT</code> puede ordenar por columnas que no están en el <code>SELECT</code>,
+                 porque las filas de origen siguen disponibles.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Ordena por total sin mostrarlo: válido</span>
+<span class="sql-keyword">SELECT</span> C.apellido, C.nombre
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">ORDER BY</span> O.total <span class="sql-keyword">DESC</span>;
+
+<span class="sql-comment">-- Después de agrupar, esa columna ya no existe</span>
+<span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.apellido
+<span class="sql-keyword">ORDER BY</span> O.total <span class="sql-keyword">DESC</span>;   <span class="sql-comment">-- ERROR 1055</span></code></pre>
+              </div>
+
+              <p>Después del <code>GROUP BY</code>, el <code>ORDER BY</code> ordena grupos y solo puede
+                 nombrar lo que el grupo conserva: las columnas agrupadas y los agregados. Para ordenar por
+                 el total hay que agregarlo —<code>ORDER BY SUM(O.total) DESC</code>— y ahí sí funciona.</p>
+
+              <p><code>LIMIT</code> cierra la fila de etapas. Corta el resultado ya ordenado, lo que tiene
+                 dos consecuencias que conviene tener presentes:</p>
+              <ul>
+                <li><strong>Un «top 3» sin <code>ORDER BY</code> devuelve las tres filas que hayan quedado
+                    adelante.</strong> El motor no garantiza cuáles: con una tabla chica suelen salir por
+                    orden de inserción, y con una tabla grande, o después de un borrado, cambian sin aviso.</li>
+                <li><strong><code>LIMIT</code> no le ahorra trabajo al motor.</strong> Para saber cuáles son
+                    las tres primeras hay que resolver el <code>JOIN</code>, filtrar, agrupar y ordenar todo.
+                    Un <code>LIMIT 3</code> sobre medio millón de filas ordena medio millón de filas.</li>
+              </ul>
+            </section>
+
+            <section class="diapositiva" id="resumen">
+              <div class="diapo-num">10</div>
+              <h2>Qué existe en cada etapa</h2>
+              <p>La tabla resume lo que se puede nombrar en cada cláusula, y es la que conviene tener a mano
+                 cuando el motor devuelve un error de columna desconocida.</p>
+
+              <div class="table-scroll">
+                <table class="tabla-apunte">
+                  <thead>
+                    <tr>
+                      <th>En esta cláusula</th>
+                      <th>Columnas de las tablas</th>
+                      <th>Funciones de agregación</th>
+                      <th>Alias del SELECT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>ON</code> (etapa 2)</td>
+                      <td class="si">sí</td>
+                      <td class="no">no</td>
+                      <td class="no">no</td>
+                    </tr>
+                    <tr>
+                      <td><code>WHERE</code> (etapa 3)</td>
+                      <td class="si">sí</td>
+                      <td class="no">no</td>
+                      <td class="no">no</td>
+                    </tr>
+                    <tr>
+                      <td><code>GROUP BY</code> (etapa 4)</td>
+                      <td class="si">sí</td>
+                      <td class="no">no</td>
+                      <td class="segun">en MySQL sí</td>
+                    </tr>
+                    <tr>
+                      <td><code>HAVING</code> (etapa 6)</td>
+                      <td class="segun">solo las agrupadas</td>
+                      <td class="si">sí</td>
+                      <td class="segun">en MySQL sí</td>
+                    </tr>
+                    <tr>
+                      <td><code>SELECT</code> (etapa 7)</td>
+                      <td class="segun">solo las agrupadas</td>
+                      <td class="si">sí</td>
+                      <td class="no">no, se están creando</td>
+                    </tr>
+                    <tr>
+                      <td><code>ORDER BY</code> (etapa 9)</td>
+                      <td class="segun">solo las agrupadas</td>
+                      <td class="si">sí</td>
+                      <td class="si">sí</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>La columna «solo las agrupadas» vale cuando hay <code>GROUP BY</code>. Sin agrupación, esas
+                 tres cláusulas ven todas las columnas de las tablas del <code>FROM</code>.</p>
+
+              <div class="theory-box">
+                <p><strong>Las tres excepciones de MySQL.</strong> MySQL acepta el alias del
+                   <code>SELECT</code> en <code>GROUP BY</code> y en <code>HAVING</code>, y con
+                   <code>sql_mode</code> sin <code>ONLY_FULL_GROUP_BY</code> deja proyectar columnas que no
+                   están en el grupo, eligiendo un valor cualquiera. Desde MySQL 5.7 ese modo viene activado,
+                   así que el error 1055 es lo esperable. Escribir la versión estricta funciona en cualquier
+                   motor y evita depender de una configuración.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="plan-real">
+              <div class="diapo-num">11</div>
+              <h2>El orden lógico y el plan real</h2>
+              <p>Las diez etapas describen el <em>significado</em> de la consulta: el resultado tiene que ser
+                 el mismo que si el motor las ejecutara una tras otra, en ese orden. Lo que el motor hace
+                 adentro es otra cosa.</p>
+
+              <p>Ninguna base de datos arma de verdad el producto de las tablas para después descartar el 99 %
+                 con el <code>WHERE</code>. El optimizador reordena: empuja los filtros hacia abajo para que
+                 el <code>JOIN</code> trabaje con menos filas, elige por cuál tabla empezar, usa índices para
+                 saltear la lectura completa. Todo eso está permitido mientras el resultado no cambie.</p>
+
+              <div class="code-container">
+                <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- Qué plan eligió el motor para esta consulta</span>
+<span class="sql-keyword">EXPLAIN</span> <span class="sql-keyword">SELECT</span> C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">WHERE</span> O.total &gt; <span class="sql-number">0</span>
+<span class="sql-keyword">GROUP BY</span> C.apellido;</code></pre>
+              </div>
+
+              <p>El orden lógico sirve para dos cosas distintas, y las dos hacen falta: predecir qué va a
+                 devolver una consulta y entender por qué un error aparece donde aparece. El plan de
+                 ejecución real, con <code>EXPLAIN</code>, es el tema de la clase de optimización, donde la
+                 pregunta pasa a ser cuánto tarda.</p>
+
+              <div class="theory-box">
+                <p><strong>Para practicar.</strong> Abrí la <a href="../../consola.html">consola</a> con el
+                   juego de datos ampliado (opción <strong>2 · Compendio</strong>) y corré las dos consultas
+                   del visor cortándolas por etapa, agregando una cláusula por vez. Con la coma las cuentas
+                   de filas tienen que darte 64, 8, 6 y 3 grupos; con el <code>JOIN</code>, 8, 8, 6 y 3.
+                   Para contar sin leer todo, envolvé cada paso en un
+                   <code>SELECT COUNT(*) FROM ( … ) AS t</code>.</p>
+              </div>
+            </section>
+
+        </div>
+    </main>
+
+<script>
+/* ---------------------------------------------------------------------------
+   El visor de etapas
+
+   Dos consultas equivalentes sobre el mismo juego de datos: la primera cruza
+   las tablas con una coma, la segunda con JOIN. Las dos terminan en la misma
+   fila, y el recorrido hasta ahí es lo que cambia.
+
+   Los datos están calculados sobre el juego ampliado de El Chip (poblar_elchip
+   + poblar_elchip_compendio) y verificados contra el motor. Si se cambia el
+   juego de datos, hay que recalcularlos: acá no se ejecuta SQL.
+   ------------------------------------------------------------------------ */
+
+/* Las seis etapas finales son idénticas en las dos consultas: una vez que el
+   WHERE dejó las mismas seis filas, lo que sigue no distingue cómo se cruzaron
+   las tablas. Se generan de nuevo en cada caso para no compartir objetos. */
+function etapasFinales () {
+  return [
+    {
+      rotulo: 'GROUP BY',
+      nombre: 'Las filas se reparten en grupos',
+      dice: 'Las seis filas que quedaron se reparten por apellido. A partir de acá el motor deja de tener filas sueltas: tiene tres grupos.',
+      cuenta: '6 filas → <strong>3 grupos</strong>',
+      cols: ['apellido', 'filas que quedaron adentro'],
+      detalle: 1,
+      filas: [
+        ['García', 'órdenes 2 y 6'],
+        ['Pérez', 'órdenes 1, 4 y 5'],
+        ['Rossi', 'orden 8']
+      ],
+      nota: 'El grupo Pérez tiene tres órdenes porque la 7, del homónimo, la descartó el WHERE. El grupo Rossi quedó con la orden de Sofía: la de Diego también se fue en el WHERE.'
+    },
+    {
+      rotulo: 'agregados',
+      nombre: 'Se calculan COUNT y SUM',
+      dice: 'Cada función de agregación recorre las filas de su grupo y devuelve un valor. Recién ahora existen los números que el HAVING va a poder mirar.',
+      cuenta: '3 grupos · 2 valores calculados',
+      cols: ['apellido', 'COUNT(*)', 'SUM(O.total)'],
+      nuevas: [1, 2],
+      filas: [
+        ['García', '2', '60500.00'],
+        ['Pérez', '3', '99000.00'],
+        ['Rossi', '1', '9000.00']
+      ],
+      nota: 'Los agregados se calculan antes que el SELECT. Por eso el HAVING puede usar COUNT(*) aunque el SELECT todavía no corrió.'
+    },
+    {
+      rotulo: 'HAVING',
+      nombre: 'Se descartan grupos',
+      dice: 'La condición mira un grupo por vez, usando los valores recién calculados. El grupo Rossi tiene una sola orden y se va entero.',
+      cuenta: '3 grupos → <strong>2 grupos</strong> <span class="baja">(−1)</span>',
+      cols: ['apellido', 'COUNT(*)', 'SUM(O.total)'],
+      filas: [
+        ['García', '2', '60500.00'],
+        ['Pérez', '3', '99000.00'],
+        ['Rossi', '1', '9000.00']
+      ],
+      seVan: [2],
+      nota: 'La misma condición escrita como WHERE COUNT(*) > 1 falla: en la etapa del WHERE los grupos no existen todavía.'
+    },
+    {
+      rotulo: 'SELECT',
+      nombre: 'Se arman las columnas de salida',
+      dice: 'El motor proyecta lo que se pidió y le pone nombre a cada columna. Acá nacen los alias ordenes y facturado.',
+      cuenta: '2 filas · 3 columnas',
+      cols: ['apellido', 'ordenes', 'facturado'],
+      nuevas: [1, 2],
+      filas: [
+        ['García', '2', '60500.00'],
+        ['Pérez', '3', '99000.00']
+      ],
+      nota: 'Los alias existen a partir de esta etapa. Un WHERE que los nombre falla; un ORDER BY que los nombre funciona.'
+    },
+    {
+      rotulo: 'ORDER BY',
+      nombre: 'Se ordena el resultado',
+      dice: 'El ORDER BY puede nombrar el alias facturado porque el SELECT ya corrió. Pérez, con 99.000, pasa al primer lugar.',
+      cuenta: '2 filas, ahora ordenadas',
+      cols: ['apellido', 'ordenes', 'facturado'],
+      filas: [
+        ['Pérez', '3', '99000.00'],
+        ['García', '2', '60500.00']
+      ],
+      nota: 'Sin esta cláusula el orden no está garantizado, y el LIMIT de la etapa siguiente se quedaría con una fila cualquiera.'
+    },
+    {
+      rotulo: 'LIMIT',
+      nombre: 'Se corta',
+      dice: 'La última etapa se queda con la primera fila. El motor ya hizo todo el trabajo: cruzar, filtrar, agrupar, calcular y ordenar.',
+      cuenta: '2 filas → <strong>1 fila</strong> <span class="baja">(−1)</span>',
+      cols: ['apellido', 'ordenes', 'facturado'],
+      filas: [
+        ['Pérez', '3', '99000.00'],
+        ['García', '2', '60500.00']
+      ],
+      seVan: [1],
+      nota: 'De las filas del principio queda una, con tres columnas que ninguna tabla tiene: dos son cuentas y la tercera vino de la otra tabla.'
+    }
+  ]
+}
+
+const CASOS = [
+  {
+    id: 'coma',
+    boton: '1 · Cruce con coma',
+    pie: 'La sintaxis anterior a SQL-92: las dos tablas en el FROM y la relación en el WHERE.',
+    consulta: [
+      { txt: 'SELECT   C.apellido,', etapa: 6 },
+      { txt: '         COUNT(*) AS ordenes,', etapa: 6 },
+      { txt: '         SUM(O.total) AS facturado', etapa: 6 },
+      { txt: 'FROM     orden_servicio O, cliente C', etapa: 0 },
+      { txt: 'WHERE    O.id_cliente = C.id_cliente', etapa: 1 },
+      { txt: '  AND    O.total > 0', etapa: 2 },
+      { txt: 'GROUP BY C.apellido', etapa: 3 },
+      { txt: '         -- se calculan los agregados', etapa: 4 },
+      { txt: 'HAVING   COUNT(*) > 1', etapa: 5 },
+      { txt: 'ORDER BY facturado DESC', etapa: 7 },
+      { txt: 'LIMIT    1', etapa: 8 }
+    ],
+    etapas: [
+      {
+        rotulo: 'FROM',
+        nombre: 'Todas las combinaciones posibles',
+        dice: 'La coma entre las dos tablas pide el producto cartesiano: cada una de las 8 órdenes apareada con cada uno de los 8 clientes. Ninguna condición interviene todavía.',
+        cuenta: '8 × 8 = <strong>64 filas</strong>',
+        cols: ['nro_orden', 'total', 'O.id_cliente', 'C.id_cliente', 'apellido', 'nombre'],
+        filas: [
+          ['1', '53500.00', '1', '1', 'Pérez', 'Juan'],
+          ['1', '53500.00', '1', '2', 'García', 'María'],
+          ['1', '53500.00', '1', '3', 'López', 'Carlos'],
+          ['1', '53500.00', '1', '4', 'Martínez', 'Ana'],
+          ['1', '53500.00', '1', '5', 'Rossi', 'Diego'],
+          ['1', '53500.00', '1', '6', 'Pérez', 'Juan'],
+          ['1', '53500.00', '1', '7', 'Rossi', 'Sofía'],
+          ['1', '53500.00', '1', '8', 'Ferreyra', 'Marcos'],
+          ['…', '…', '…', '…', '…', '…']
+        ],
+        continua: [8],
+        nota: 'La tabla muestra las 8 combinaciones de la orden 1; las 56 restantes son las de las órdenes 2 a 8, con la misma forma. La orden 1 aparece acá emparejada con clientes que no tienen nada que ver con ella.'
+      },
+      {
+        rotulo: 'WHERE · relación',
+        nombre: 'La condición que empareja bien',
+        dice: 'De cada bloque de 8 combinaciones sobrevive una: aquella donde el id_cliente de la orden coincide con el del cliente. Esta condición hace el trabajo que en la otra versión hace el ON.',
+        cuenta: '64 filas → <strong>8 filas</strong> <span class="baja">(−56)</span>',
+        cols: ['nro_orden', 'total', 'O.id_cliente', 'C.id_cliente', 'apellido', 'nombre'],
+        filas: [
+          ['1', '53500.00', '1', '1', 'Pérez', 'Juan'],
+          ['1', '53500.00', '1', '2', 'García', 'María'],
+          ['1', '53500.00', '1', '3', 'López', 'Carlos'],
+          ['1', '53500.00', '1', '4', 'Martínez', 'Ana'],
+          ['1', '53500.00', '1', '5', 'Rossi', 'Diego'],
+          ['1', '53500.00', '1', '6', 'Pérez', 'Juan'],
+          ['1', '53500.00', '1', '7', 'Rossi', 'Sofía'],
+          ['1', '53500.00', '1', '8', 'Ferreyra', 'Marcos'],
+          ['…', '…', '…', '…', '…', '…']
+        ],
+        seVan: [1, 2, 3, 4, 5, 6, 7],
+        continua: [8],
+        nota: 'Olvidar esta condición no produce ningún error: la consulta corre igual y devuelve las 64 filas emparejadas al azar. Es la diferencia con el JOIN, donde la gramática obliga a escribir el ON.'
+      },
+      {
+        rotulo: 'WHERE · filtro',
+        nombre: 'La condición que descarta filas',
+        dice: 'La segunda parte del WHERE mira el total de cada orden. Las órdenes 3 y 7, pendientes y en cero, se van.',
+        cuenta: '8 filas → <strong>6 filas</strong> <span class="baja">(−2)</span>',
+        cols: ['nro_orden', 'total', 'apellido', 'nombre'],
+        filas: [
+          ['1', '53500.00', 'Pérez', 'Juan'],
+          ['2', '40500.00', 'García', 'María'],
+          ['3', '0.00', 'Rossi', 'Diego'],
+          ['4', '18500.00', 'Pérez', 'Juan'],
+          ['5', '27000.00', 'Pérez', 'Juan'],
+          ['6', '20000.00', 'García', 'María'],
+          ['7', '0.00', 'Pérez', 'Juan'],
+          ['8', '9000.00', 'Rossi', 'Sofía']
+        ],
+        seVan: [2, 6],
+        nota: 'Las dos condiciones están unidas por un AND en el mismo WHERE y son una sola etapa. Acá se muestran separadas para ver qué hace cada una: la de arriba relaciona, esta filtra.'
+      }
+    ]
+  },
+  {
+    id: 'join',
+    boton: '2 · Cruce con JOIN',
+    pie: 'La misma consulta con la sintaxis de SQL-92: la relación en el ON y el filtro en el WHERE.',
+    consulta: [
+      { txt: 'SELECT   C.apellido,', etapa: 6 },
+      { txt: '         COUNT(*) AS ordenes,', etapa: 6 },
+      { txt: '         SUM(O.total) AS facturado', etapa: 6 },
+      { txt: 'FROM     orden_servicio O', etapa: 0 },
+      { txt: 'JOIN     cliente C', etapa: 1 },
+      { txt: '         ON C.id_cliente = O.id_cliente', etapa: 1 },
+      { txt: 'WHERE    O.total > 0', etapa: 2 },
+      { txt: 'GROUP BY C.apellido', etapa: 3 },
+      { txt: '         -- se calculan los agregados', etapa: 4 },
+      { txt: 'HAVING   COUNT(*) > 1', etapa: 5 },
+      { txt: 'ORDER BY facturado DESC', etapa: 7 },
+      { txt: 'LIMIT    1', etapa: 8 }
+    ],
+    etapas: [
+      {
+        rotulo: 'FROM',
+        nombre: 'Las filas de la primera tabla',
+        dice: 'El motor abre orden_servicio y se queda con sus ocho filas. Todavía no sabe nada de clientes ni de filtros.',
+        cuenta: '8 filas',
+        cols: ['nro_orden', 'fecha_ingreso', 'total', 'id_cliente'],
+        filas: [
+          ['1', '2026-05-01', '53500.00', '1'],
+          ['2', '2026-05-02', '40500.00', '2'],
+          ['3', '2026-05-10', '0.00', '5'],
+          ['4', '2026-05-15', '18500.00', '1'],
+          ['5', '2026-05-20', '27000.00', '1'],
+          ['6', '2026-05-22', '20000.00', '2'],
+          ['7', '2026-06-01', '0.00', '6'],
+          ['8', '2026-03-10', '9000.00', '7']
+        ],
+        nota: 'La consulta se escribió empezando por SELECT, pero la primera línea que corre es esta.'
+      },
+      {
+        rotulo: 'JOIN … ON',
+        nombre: 'Se suma la segunda tabla',
+        dice: 'Cada orden se aparea con su cliente. El ON deja pasar solo las combinaciones donde los id coinciden: de las 64 posibles quedan 8.',
+        cuenta: '8 filas · 2 columnas nuevas',
+        cols: ['nro_orden', 'total', 'id_cliente', 'apellido', 'nombre'],
+        nuevas: [3, 4],
+        filas: [
+          ['1', '53500.00', '1', 'Pérez', 'Juan'],
+          ['2', '40500.00', '2', 'García', 'María'],
+          ['3', '0.00', '5', 'Rossi', 'Diego'],
+          ['4', '18500.00', '1', 'Pérez', 'Juan'],
+          ['5', '27000.00', '1', 'Pérez', 'Juan'],
+          ['6', '20000.00', '2', 'García', 'María'],
+          ['7', '0.00', '6', 'Pérez', 'Juan'],
+          ['8', '9000.00', '7', 'Rossi', 'Sofía']
+        ],
+        nota: 'Los clientes López, Martínez y Ferreyra no aparecen: no tienen órdenes, y el INNER JOIN los deja afuera. Con LEFT JOIN entrarían con las columnas de la orden en NULL.'
+      },
+      {
+        rotulo: 'WHERE',
+        nombre: 'Se descartan filas',
+        dice: 'La condición mira una fila por vez. Las órdenes 3 y 7, ambas pendientes y en cero, no la cumplen y se van.',
+        cuenta: '8 filas → <strong>6 filas</strong> <span class="baja">(−2)</span>',
+        cols: ['nro_orden', 'total', 'apellido', 'nombre'],
+        filas: [
+          ['1', '53500.00', 'Pérez', 'Juan'],
+          ['2', '40500.00', 'García', 'María'],
+          ['3', '0.00', 'Rossi', 'Diego'],
+          ['4', '18500.00', 'Pérez', 'Juan'],
+          ['5', '27000.00', 'Pérez', 'Juan'],
+          ['6', '20000.00', 'García', 'María'],
+          ['7', '0.00', 'Pérez', 'Juan'],
+          ['8', '9000.00', 'Rossi', 'Sofía']
+        ],
+        seVan: [2, 6],
+        nota: 'Estas dos filas ya no vuelven. El HAVING filtra grupos, y no puede recuperar filas que el WHERE descartó.'
+      }
+    ]
+  }
+]
+
+CASOS.forEach(c => { c.etapas = c.etapas.concat(etapasFinales()) })
+
+let caso = 0
+let actual = 0
+
+function pintarCasos () {
+  const caja = document.getElementById('visor-casos')
+  caja.innerHTML = ''
+  CASOS.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.textContent = c.boton
+    b.setAttribute('aria-pressed', i === caso ? 'true' : 'false')
+    b.addEventListener('click', () => { caso = i; actual = 0; pintar() })
+    caja.appendChild(b)
+  })
+  const pie = document.createElement('span')
+  pie.className = 'caso-nota'
+  pie.textContent = CASOS[caso].pie
+  caja.appendChild(pie)
+}
+
+function pintarBarra () {
+  const barra = document.getElementById('visor-barra')
+  barra.innerHTML = ''
+  CASOS[caso].etapas.forEach((e, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.textContent = (i + 1) + ' · ' + e.rotulo
+    if (i === actual) b.setAttribute('aria-current', 'step')
+    b.addEventListener('click', () => { actual = i; pintar() })
+    barra.appendChild(b)
+  })
+}
+
+function pintarSQL () {
+  const caja = document.getElementById('visor-sql')
+  caja.innerHTML = ''
+  CASOS[caso].consulta.forEach(l => {
+    const span = document.createElement('span')
+    span.className = 'linea'
+    if (l.etapa === actual) span.classList.add('activa')
+    else if (l.etapa < actual) span.classList.add('hecha')
+    span.textContent = l.txt
+    caja.appendChild(span)
+  })
+}
+
+function pintarTabla () {
+  const e = CASOS[caso].etapas[actual]
+  const tabla = document.getElementById('visor-tabla')
+  tabla.innerHTML = ''
+
+  const thead = document.createElement('thead')
+  const trh = document.createElement('tr')
+  e.cols.forEach(c => {
+    const th = document.createElement('th')
+    th.textContent = c
+    trh.appendChild(th)
+  })
+  thead.appendChild(trh)
+  tabla.appendChild(thead)
+
+  const tbody = document.createElement('tbody')
+  e.filas.forEach((fila, i) => {
+    const tr = document.createElement('tr')
+    if (e.continua && e.continua.includes(i)) tr.className = 'continua'
+    else if (e.seVan && e.seVan.includes(i)) tr.className = 'se-va'
+    fila.forEach((valor, j) => {
+      const td = document.createElement('td')
+      if (e.nuevas && e.nuevas.includes(j)) td.className = 'nuevo'
+      if (e.detalle === j) td.className = 'detalle'
+      td.textContent = valor
+      tr.appendChild(td)
+    })
+    tbody.appendChild(tr)
+  })
+  tabla.appendChild(tbody)
+}
+
+function pintar () {
+  const e = CASOS[caso].etapas[actual]
+  document.getElementById('visor-etapa').textContent = 'Etapa ' + (actual + 1)
+  document.getElementById('visor-nombre').textContent = e.nombre
+  document.getElementById('visor-dice').textContent = e.dice
+  document.getElementById('visor-cuenta').innerHTML = e.cuenta
+  document.getElementById('visor-nota').textContent = e.nota
+  pintarCasos()
+  pintarBarra()
+  pintarSQL()
+  pintarTabla()
+}
+
+document.addEventListener('keydown', ev => {
+  const ultima = CASOS[caso].etapas.length - 1
+  if (ev.key === 'ArrowRight' && actual < ultima) { actual++; pintar() }
+  if (ev.key === 'ArrowLeft' && actual > 0) { actual--; pintar() }
+})
+
+pintar()
+</script>
+
+</body>
+</html>

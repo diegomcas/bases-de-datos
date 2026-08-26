@@ -200,8 +200,8 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abie
   [[unidad.clase]]
   numero = "Clase 26"
   titulo = "Agregación y grupos"
-  nota = "COUNT, SUM, AVG, GROUP BY y HAVING: pasar de listar filas a resumirlas."
-  materiales = ["taller-de-agrupacion", "compendio-de-agrupacion"]
+  nota = "COUNT, SUM, AVG, GROUP BY y HAVING: pasar de listar filas a resumirlas. El apunte del orden de ejecución cierra la unidad: recién con los grupos ya vistos se puede explicar por qué el WHERE y el HAVING no son intercambiables."
+  materiales = ["taller-de-agrupacion", "compendio-de-agrupacion", "el-orden-en-que-corre-una-consulta"]
 
 [[unidad]]
 id = "u4b"
