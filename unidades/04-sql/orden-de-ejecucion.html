@@ -66,16 +66,18 @@
         overflow: hidden;
         margin: 24px 0;
     }
-    .visor-casos {
+
+    /* la progresión de consultas */
+    .visor-pasos {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
         padding: 12px 14px;
         border-bottom: 1px solid var(--linea-media);
     }
-    .visor-casos button {
-        font-size: 0.82rem;
-        padding: 7px 14px;
+    .visor-pasos button {
+        font-size: 0.78rem;
+        padding: 6px 11px;
         border-radius: var(--radio-chico);
         border: 1px solid var(--linea-media);
         background: transparent;
@@ -83,20 +85,22 @@
         cursor: pointer;
         transition: var(--transicion);
     }
-    .visor-casos button:hover { color: var(--text-main); border-color: var(--accent); }
-    .visor-casos button[aria-pressed="true"] {
+    .visor-pasos button:hover { color: var(--text-main); border-color: var(--accent); }
+    .visor-pasos button[aria-pressed="true"] {
         background: var(--velo-medio);
         border-color: var(--accent);
         color: var(--text-main);
         font-weight: 600;
     }
-    .visor-casos .caso-nota {
-        margin-left: auto;
-        align-self: center;
-        font-size: 0.78rem;
+    .visor-pie {
+        padding: 0 14px 12px;
+        margin: 0;
+        font-size: 0.82rem;
         color: var(--text-muted);
+        border-bottom: 1px solid var(--linea-media);
     }
 
+    /* las etapas de la consulta elegida */
     .visor-barra {
         display: flex;
         flex-wrap: wrap;
@@ -123,38 +127,39 @@
         color: #0b0f19;
         font-weight: 700;
     }
+
     .visor-cuerpo {
         display: grid;
-        grid-template-columns: minmax(0, 330px) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
     }
-    @media (max-width: 860px) { .visor-cuerpo { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .visor-cuerpo { grid-template-columns: 1fr; } }
 
     .visor-sql {
         background: var(--bg-code);
         padding: 18px 6px;
         border-right: 1px solid var(--linea-media);
         font-family: "Fira Code", ui-monospace, monospace;
-        font-size: 0.8rem;
+        font-size: 0.79rem;
         line-height: 1.85;
         white-space: pre;
         overflow-x: auto;
     }
-    @media (max-width: 860px) { .visor-sql { border-right: none; border-bottom: 1px solid var(--linea-media); } }
+    @media (max-width: 900px) { .visor-sql { border-right: none; border-bottom: 1px solid var(--linea-media); } }
     .visor-sql .linea {
         display: block;
-        opacity: .32;
+        opacity: .3;
         border-left: 2px solid transparent;
         padding-left: 10px;
         transition: var(--transicion);
     }
-    .visor-sql .linea.hecha { opacity: .6; }
+    .visor-sql .linea.hecha { opacity: .58; }
     .visor-sql .linea.activa {
         opacity: 1;
         border-left-color: var(--accent);
         background: var(--velo-medio);
     }
 
-    .visor-panel { padding: 18px 18px 20px; min-width: 0; overflow-x: auto; }
+    .visor-panel { padding: 18px 18px 20px; min-width: 0; }
     .visor-titulo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
     .visor-titulo h3 { margin: 0; font-size: 1.02rem; color: var(--text-main); }
     .visor-etapa {
@@ -165,7 +170,7 @@
         border-radius: 999px;
         padding: 2px 8px;
     }
-    .visor-dice { color: var(--text-body); font-size: 0.9rem; margin: 8px 0 14px; }
+    .visor-dice { color: var(--text-body); font-size: 0.9rem; margin: 8px 0 12px; }
     .visor-cuenta {
         font-family: "Fira Code", monospace;
         font-size: 0.76rem;
@@ -175,20 +180,96 @@
     .visor-cuenta strong { color: var(--text-main); }
     .visor-cuenta .baja { color: var(--bloque-carmin); }
 
-    .visor-tabla { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    /* la tabla de trabajo: siempre las mismas columnas, con scroll propio */
+    .visor-scroll {
+        max-height: 360px;
+        overflow: auto;
+        border: 1px solid var(--linea-sutil);
+        border-radius: var(--radio-chico);
+    }
+    .visor-tabla { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     .visor-tabla th, .visor-tabla td {
         text-align: left;
-        padding: 6px 10px;
+        padding: 5px 10px;
         border-bottom: 1px solid var(--linea-sutil);
         font-family: "Fira Code", ui-monospace, monospace;
         white-space: nowrap;
     }
-    .visor-tabla th { color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: .06em; }
+    .visor-tabla thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--bg-theory);
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
     .visor-tabla td { color: var(--text-body); }
-    .visor-tabla tr.se-va td { color: var(--bloque-carmin); text-decoration: line-through; opacity: .7; }
-    .visor-tabla tr.continua td { color: var(--text-muted); text-align: center; letter-spacing: .3em; }
+    .visor-tabla td.num { text-align: right; }
+
+    /* qué le pasó a cada fila */
+    .visor-tabla tr.se-va td { color: var(--bloque-carmin); text-decoration: line-through; }
+    .visor-tabla td.nulo { color: var(--bloque-ambar); font-style: italic; opacity: .8; }
     .visor-tabla td.nuevo { color: var(--bloque-verde); }
-    .visor-tabla td.detalle { color: var(--text-muted); font-size: 0.74rem; white-space: normal; }
+    .visor-tabla tr.con-nulos td:first-child { border-left: 3px solid var(--bloque-ambar); }
+    .visor-tabla tr.ida td { color: var(--text-muted); opacity: .35; text-decoration: line-through; }
+
+    /* los grupos, como bloques con sus filas adentro */
+    .visor-tabla tr.grupo-cab td {
+        background: var(--velo-medio);
+        color: var(--text-main);
+        font-weight: 700;
+        border-top: 1px solid var(--linea-media);
+        padding-top: 9px;
+    }
+    .visor-tabla tr.grupo-cab .chapa {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 2px;
+        margin-right: 8px;
+        background: var(--tono);
+        vertical-align: middle;
+    }
+    .visor-tabla tr.del-grupo td:first-child { border-left: 3px solid var(--tono); }
+    .visor-tabla tr.grupo-calc td {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        white-space: normal;
+        padding-bottom: 9px;
+    }
+    .visor-tabla tr.grupo-calc .fn { color: var(--bloque-verde); font-weight: 700; }
+    .visor-tabla tr.grupo-calc .igual { color: var(--text-main); font-weight: 700; }
+    .visor-tabla tr.grupo-se-va td { opacity: .4; text-decoration: line-through; }
+    .visor-tabla tr.grupo-se-va.grupo-cab td { color: var(--bloque-carmin); opacity: .75; }
+
+    /* la tabla de salida */
+    .visor-salida { border-color: color-mix(in srgb, var(--bloque-verde) 40%, transparent); }
+    .visor-salida .visor-tabla thead th { color: var(--bloque-verde); }
+    .visor-leyenda {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin: 10px 0 0;
+        font-size: 0.74rem;
+        color: var(--text-muted);
+    }
+    .visor-leyenda span::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        margin-right: 6px;
+        vertical-align: middle;
+        background: currentColor;
+    }
+    .visor-leyenda .l-queda { color: var(--bloque-verde); }
+    .visor-leyenda .l-sale { color: var(--bloque-carmin); }
+    .visor-leyenda .l-ida { color: var(--text-muted); }
+    .visor-leyenda .l-nula { color: var(--bloque-ambar); }
+
     .visor-nota {
         margin-top: 14px;
         padding: 10px 12px;
@@ -197,6 +278,191 @@
         color: var(--text-body);
         font-size: 0.85rem;
     }
+
+
+    /* --- el panel de los JOIN, con sus diagramas --- */
+    .panel-join {
+        background: var(--bg-card);
+        border: 1px solid var(--linea-media);
+        border-radius: var(--radio);
+        overflow: hidden;
+        margin: 24px 0;
+    }
+    .join-menu {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 14px;
+        border-bottom: 1px solid var(--linea-media);
+    }
+    @media (max-width: 720px) { .join-menu { grid-template-columns: repeat(2, 1fr); } }
+    .join-menu button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 6px 8px;
+        border-radius: var(--radio-chico);
+        border: 1px solid var(--linea-media);
+        background: transparent;
+        color: var(--text-muted);
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: var(--transicion);
+    }
+    .join-menu button:hover { color: var(--text-main); border-color: var(--accent); }
+    .join-menu button[aria-pressed="true"] {
+        background: var(--velo-medio);
+        border-color: var(--accent);
+        color: var(--text-main);
+        font-weight: 700;
+    }
+
+    .join-cuerpo {
+        display: grid;
+        grid-template-columns: minmax(0, 290px) minmax(0, 1fr);
+    }
+    @media (max-width: 900px) { .join-cuerpo { grid-template-columns: 1fr; } }
+    .join-izq {
+        padding: 18px 14px;
+        border-right: 1px solid var(--linea-media);
+        text-align: center;
+    }
+    @media (max-width: 900px) { .join-izq { border-right: none; border-bottom: 1px solid var(--linea-media); } }
+    .join-dibujo { display: flex; justify-content: center; }
+    .join-sql {
+        margin: 14px 0 0;
+        padding: 12px;
+        background: var(--bg-code);
+        border-radius: var(--radio-chico);
+        text-align: left;
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.74rem;
+        line-height: 1.7;
+        color: #ff9ec9;
+        white-space: pre;
+        overflow-x: auto;
+    }
+    .join-der { padding: 18px 18px 20px; min-width: 0; }
+    .join-der h3 {
+        margin: 0 0 6px;
+        font-size: 1.02rem;
+        color: var(--text-main);
+        font-family: "Fira Code", ui-monospace, monospace;
+    }
+
+    /* los diagramas */
+    .venn { overflow: visible; }
+    .venn-borde { fill: none; stroke: var(--text-muted); stroke-width: 2; }
+    .venn-region { stroke: none; }
+    .venn-region.activa { stroke: none; }
+    .venn-raya { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+    .venn-rotulo {
+        fill: var(--text-muted);
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 13px;
+        text-anchor: middle;
+    }
+    .join-menu button[aria-pressed="true"] .venn-borde { stroke: var(--text-main); }
+
+
+    /* --- el panel de las subconsultas --- */
+    .panel-sub {
+        background: var(--bg-card);
+        border: 1px solid var(--linea-media);
+        border-radius: var(--radio);
+        overflow: hidden;
+        margin: 24px 0;
+    }
+    .sub-menu {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 14px;
+        border-bottom: 1px solid var(--linea-media);
+    }
+    @media (max-width: 720px) { .sub-menu { grid-template-columns: repeat(2, 1fr); } }
+    .sub-menu button {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 9px 11px;
+        border-radius: var(--radio-chico);
+        border: 1px solid var(--linea-media);
+        background: transparent;
+        color: var(--text-muted);
+        text-align: left;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: var(--transicion);
+    }
+    .sub-menu button:hover { color: var(--text-main); border-color: var(--accent); }
+    .sub-menu button[aria-pressed="true"] {
+        background: var(--velo-medio);
+        border-color: var(--accent);
+        color: var(--text-main);
+        font-weight: 600;
+    }
+    .sub-menu .sub-veces {
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.68rem;
+        color: var(--bloque-ambar);
+    }
+
+    .sub-cuerpo {
+        display: grid;
+        grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    }
+    @media (max-width: 900px) { .sub-cuerpo { grid-template-columns: 1fr; } }
+    .sub-izq {
+        border-right: 1px solid var(--linea-media);
+        padding: 16px 14px;
+    }
+    @media (max-width: 900px) { .sub-izq { border-right: none; border-bottom: 1px solid var(--linea-media); } }
+    .sub-sql {
+        margin: 0;
+        padding: 12px 10px;
+        background: var(--bg-code);
+        border-radius: var(--radio-chico);
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.74rem;
+        line-height: 1.75;
+        color: #ff9ec9;
+        white-space: pre;
+        overflow-x: auto;
+    }
+    .sub-sql .linea { display: block; padding: 0 4px; border-left: 2px solid transparent; }
+    .sub-sql .linea.interna {
+        background: color-mix(in srgb, var(--bloque-cian) 14%, transparent);
+        border-left-color: var(--bloque-cian);
+        color: #b9f0ff;
+    }
+    .sub-datos {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 12px;
+        margin: 14px 0 0;
+        font-size: 0.8rem;
+    }
+    .sub-datos dt {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .sub-datos dd { margin: 0; color: var(--text-body); }
+
+    .sub-der { padding: 18px 18px 20px; min-width: 0; }
+    .sub-titulo {
+        margin: 14px 0 6px;
+        font-family: "Fira Code", ui-monospace, monospace;
+        font-size: 0.74rem;
+        color: var(--text-muted);
+        text-transform: lowercase;
+    }
+    .sub-interna-caja { border-color: color-mix(in srgb, var(--bloque-cian) 40%, transparent); }
+    .sub-interna-caja .visor-tabla thead th { color: var(--bloque-cian); }
 
     /* --- marcas de la tabla resumen --- */
     .si { color: var(--bloque-verde); font-weight: 700; }
@@ -231,8 +497,10 @@
             <h2>Recorrido</h2>
             <ol>
                 <li><a href="#dos-listas">Dos listas que no coinciden</a></li>
-                <li><a href="#visor">La consulta, etapa por etapa</a></li>
+                <li><a href="#visor">Una consulta que va creciendo</a></li>
                 <li><a href="#falta-relacion">Cuando falta la condición que relaciona</a></li>
+                <li><a href="#panel-join">Las ocho maneras de cruzar dos tablas</a></li>
+                <li><a href="#panel-sub">Dónde corre una subconsulta</a></li>
                 <li><a href="#que-es-un-grupo">Qué queda cuando el grupo reemplaza a la fila</a></li>
                 <li><a href="#alias">El alias que todavía no existe</a></li>
                 <li><a href="#where-having">La misma condición en dos lugares</a></li>
@@ -301,17 +569,19 @@
 
             <section class="diapositiva" id="visor">
               <div class="diapo-num">02</div>
-              <h2>La consulta, etapa por etapa</h2>
-              <p>Dos consultas sobre El Chip, con el juego de datos ampliado (8 órdenes, 8 clientes).
-                 Piden lo mismo y devuelven lo mismo; se diferencian en cómo cruzan las tablas. La primera
-                 usa la coma en el <code>FROM</code> y pone la relación en el <code>WHERE</code>, como se
-                 escribía antes de SQL-92. La segunda usa <code>JOIN … ON</code>.</p>
-              <p>Avanzá por las etapas y mirá qué tiene el motor en la mano en cada momento. Con la coma,
-                 la primera etapa arranca en 64 filas; con el <code>JOIN</code>, en 8. Las dos terminan en
-                 la misma fila, con tres columnas que no existían al empezar.</p>
+              <h2>Una consulta que va creciendo</h2>
+              <p>Once consultas sobre El Chip, con el juego de datos ampliado. La primera tiene un
+                 <code>SELECT</code> y un <code>FROM</code>; cada una agrega una cláusula a la anterior, y
+                 el recorrido de etapas se alarga con ella. Las últimas cambian de sintaxis para cubrir lo
+                 que faltaba: <code>INNER JOIN</code>, <code>LEFT JOIN</code>, <code>DISTINCT</code> y una
+                 subconsulta en el <code>FROM</code>. Elegí una consulta arriba y avanzá por sus etapas.</p>
+              <p>La tabla de abajo muestra lo que el motor tiene en la mano en ese momento, con las mismas
+                 columnas de punta a punta. Las filas que una etapa descarta quedan tachadas en lugar de
+                 desaparecer, para poder ver qué se fue y en qué momento.</p>
 
               <div class="visor" id="visor-etapas">
-                <div class="visor-casos" id="visor-casos" role="group" aria-label="Consulta a seguir"></div>
+                <div class="visor-pasos" id="visor-pasos" role="group" aria-label="Consulta a seguir"></div>
+                <p class="visor-pie" id="visor-pie"></p>
                 <div class="visor-barra" id="visor-barra" role="group" aria-label="Etapas de la consulta"></div>
                 <div class="visor-cuerpo">
                   <div class="visor-sql" id="visor-sql"></div>
@@ -322,25 +592,40 @@
                     </div>
                     <p class="visor-dice" id="visor-dice"></p>
                     <p class="visor-cuenta" id="visor-cuenta"></p>
-                    <div style="overflow-x:auto">
+                    <div class="visor-scroll" id="visor-scroll">
                       <table class="visor-tabla" id="visor-tabla"></table>
                     </div>
+                    <p class="visor-leyenda" id="visor-leyenda"></p>
                     <div class="visor-nota" id="visor-nota"></div>
                   </div>
                 </div>
               </div>
 
-              <p>Ninguna etapa vuelve atrás: lo que descarta el <code>WHERE</code> no lo puede recuperar el
-                 <code>HAVING</code>, y lo que el <code>SELECT</code> no proyectó ya no está para que lo
-                 ordene el <code>ORDER BY</code>. Las dos versiones se separan en las tres primeras etapas y
-                 desde el <code>GROUP BY</code> recorren lo mismo, porque llegan ahí con las mismas seis filas.</p>
+              <p>Conviene recorrerlos en orden. Los tres primeros trabajan sobre una sola tabla y el orden
+                 de escritura todavía se parece al de ejecución. En el cuarto entra la segunda tabla y el
+                 conjunto de partida salta a 64 filas. Del quinto al séptimo aparecen los grupos, y ahí la
+                 tabla deja de tener filas sueltas. Los cuatro últimos completan las cláusulas que faltaban.</p>
 
               <div class="theory-box">
-                <p>La versión con coma muestra el mecanismo con más crudeza: el <code>FROM</code> produce
-                   todas las combinaciones posibles y el <code>WHERE</code> se queda con las que sirven. Esa
-                   es la definición del cruce, y el <code>JOIN … ON</code> es la manera de escribirla
-                   separando en dos lugares las dos condiciones que la coma mezcla en uno solo.</p>
+                <p><strong>Qué mirar en cada paso.</strong> En el 2, que el <code>WHERE</code> descarta antes
+                   de que el <code>SELECT</code> exista. En el 4, que el <code>FROM</code> produce
+                   combinaciones sin sentido y el <code>WHERE</code> se queda solo con las que emparejan. En
+                   el 5, que agrupar no pierde ninguna fila —las reparte— y que la función de agregación
+                   resume cada bloque en un número. En el 6, que el <code>HAVING</code> descarta el grupo
+                   entero, con sus filas adentro. En el 7, que el <code>LIMIT</code> corta al final, cuando
+                   el trabajo ya está hecho.</p>
+                <p>En el 8, que la consulta del 7 escrita con <code>JOIN</code> arranca en 8 filas en lugar
+                   de 64 y termina en la misma. En el 9, las filas que el <code>LEFT JOIN</code> completa
+                   con <code>NULL</code> y por qué <code>COUNT(*)</code> y <code>COUNT(O.nro_orden)</code>
+                   dan distinto en tres grupos. En el 10, que <code>DISTINCT</code> compara filas que el
+                   <code>SELECT</code> ya armó. Y en el 11, que la subconsulta del <code>FROM</code> se
+                   resuelve entera antes de que empiece el recorrido de afuera.</p>
               </div>
+
+              <p>Entre los once pasos aparecen todas las cláusulas de un <code>SELECT</code> y las diez
+                 etapas de la lista de arriba. Las subconsultas tienen su propio panel más abajo, porque
+                 agregan un nivel en lugar de una cláusula. Lo que queda afuera son <code>UNION</code>, las
+                 funciones de ventana y <code>WITH</code>, cada una con su propio lugar en el recorrido.</p>
             </section>
 
             <section class="diapositiva" id="falta-relacion">
@@ -388,13 +673,120 @@
               <p>El <code>JOIN</code> resuelve esto por gramática: <code>FROM orden_servicio O INNER JOIN
                  cliente C</code> sin <code>ON</code> es un error de sintaxis y la consulta no llega a
                  correr. Es el motivo por el que conviene escribir los cruces con <code>JOIN</code> aunque
-                 el resultado sea idéntico y el motor arme el mismo plan.</p>
+                 el resultado sea idéntico y el motor arme el mismo plan. El paso 8 del visor tiene esta
+                 misma consulta escrita con <code>JOIN</code>: sirve para comparar los dos recorridos
+                 completos, uno que pasa por 64 filas y otro que arranca en 8.</p>
+            </section>
+
+            <section class="diapositiva" id="panel-join">
+              <div class="diapo-num">04</div>
+              <h2>Las ocho maneras de cruzar dos tablas</h2>
+              <p>El <code>ON</code> parte las filas de las dos tablas en tres regiones: las que emparejan,
+                 las que quedaron solas del lado izquierdo y las que quedaron solas del derecho. Cada tipo
+                 de <code>JOIN</code> se queda con una combinación distinta de esas regiones.</p>
+              <p>Elegí uno y mirá el resultado real sobre El Chip, cruzando <code>cliente</code> con
+                 <code>orden_servicio</code> por <code>id_cliente</code>.</p>
+
+              <div class="panel-join">
+                <div class="join-menu" id="join-menu" role="group" aria-label="Tipo de cruce"></div>
+                <div class="join-cuerpo">
+                  <div class="join-izq">
+                    <div class="join-dibujo" id="join-dibujo"></div>
+                    <pre class="join-sql" id="join-sql"></pre>
+                  </div>
+                  <div class="join-der">
+                    <h3 id="join-nombre"></h3>
+                    <p class="visor-dice" id="join-dice"></p>
+                    <p class="visor-cuenta" id="join-cuenta"></p>
+                    <div class="visor-scroll">
+                      <table class="visor-tabla" id="join-tabla"></table>
+                    </div>
+                    <div class="visor-nota" id="join-nota"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="warning-box">
+                <p><strong>Hasta dónde llega el diagrama.</strong> Los círculos representan conjuntos de
+                   claves, y el <code>JOIN</code> devuelve pares de filas. El <code>INNER JOIN</code> de acá
+                   arriba da 8 filas aunque los clientes que participan sean 5: Juan Pérez tiene tres
+                   órdenes y aporta tres pares él solo. Cuando la clave se repite de los dos lados, la
+                   intersección puede tener más filas que cualquiera de las dos tablas, y el dibujo sugiere
+                   lo contrario.</p>
+              </div>
+
+              <p>El diagrama tampoco muestra qué regiones puede llenar una base concreta. En El Chip, <code>id_cliente</code> es una clave foránea obligatoria: ninguna orden puede
+                 existir sin cliente. Por eso la región derecha está siempre vacía, el
+                 <code>RIGHT JOIN</code> devuelve lo mismo que el <code>INNER</code> y el
+                 <code>FULL</code> lo mismo que el <code>LEFT</code>. Los cuatro tipos existen en el
+                 lenguaje, y sobre esta base dos de ellos no llegan a aportar ninguna fila propia.</p>
+
+              <div class="theory-box">
+                <p><strong>Cómo se elige.</strong> Para decidir hay que mirar qué pasa con las filas que no
+                   tienen pareja. Si no interesan, <code>INNER</code>. Si hay que conservarlas de un lado
+                   —para contar cuántas órdenes tiene cada cliente, incluidos los que tienen cero—,
+                   <code>LEFT</code> con esa tabla a la izquierda. Si además hay que encontrarlas,
+                   <code>LEFT</code> y un <code>WHERE … IS NULL</code>. El <code>CROSS</code> se usa a
+                   propósito en muy pocos casos: armar combinaciones, generar calendarios, completar
+                   grillas.</p>
+              </div>
+            </section>
+
+            <section class="diapositiva" id="panel-sub">
+              <div class="diapo-num">05</div>
+              <h2>Dónde corre una subconsulta</h2>
+              <p>Un <code>SELECT</code> puede aparecer adentro de otro, y el lugar donde se escribe decide
+                 en qué etapa del recorrido se resuelve. Si la subconsulta nombra alguna columna de la
+                 consulta de afuera, su resultado cambia con cada fila y el motor tiene que correrla de
+                 nuevo para cada una; si no la nombra, la resuelve una sola vez.</p>
+
+              <div class="panel-sub">
+                <div class="sub-menu" id="sub-menu" role="group" aria-label="Dónde va la subconsulta"></div>
+                <div class="sub-cuerpo">
+                  <div class="sub-izq">
+                    <pre class="sub-sql" id="sub-sql"></pre>
+                    <dl class="sub-datos">
+                      <dt>se resuelve</dt>
+                      <dd id="sub-donde"></dd>
+                      <dt>cuántas veces</dt>
+                      <dd id="sub-corridas"></dd>
+                    </dl>
+                  </div>
+                  <div class="sub-der">
+                    <p class="visor-dice" id="sub-dice"></p>
+                    <div id="sub-medio"></div>
+                    <div class="visor-nota" id="sub-nota"></div>
+                  </div>
+                </div>
+              </div>
+
+              <p>Los dos casos correlacionados muestran la corrida completa: ocho clientes, ocho ejecuciones
+                 de la subconsulta, cada una con lo que devolvió y con la decisión que produjo. Los otros
+                 cuatro resuelven una vez y reutilizan el valor.</p>
+
+              <div class="theory-box">
+                <p><strong>La subconsulta del FROM y el alias.</strong> En la sección del alias quedó
+                   planteado que un nombre creado en el <code>SELECT</code> no sirve para el
+                   <code>WHERE</code>. La subconsulta derivada es la salida limpia: cuando la interna
+                   termina, su resultado es una tabla con nombre —<code>t</code>— y sus alias pasaron a ser
+                   columnas de verdad. El <code>WHERE</code> de afuera puede nombrarlas porque, para él,
+                   nunca fueron alias.</p>
+              </div>
+
+              <div class="warning-box">
+                <p>Casi toda consulta con subconsulta correlacionada se puede reescribir con un
+                   <code>JOIN</code> y una agrupación. El <code>EXISTS</code> del cuarto caso devuelve los
+                   mismos cinco clientes que el <code>INNER JOIN</code> del panel anterior, y la del
+                   <code>SELECT</code> devuelve lo mismo que un <code>LEFT JOIN</code> con
+                   <code>GROUP BY</code>. Conviene saber escribir las dos formas y entender por qué una
+                   corre una vez y la otra tantas veces como filas haya.</p>
+              </div>
             </section>
 
             <section class="diapositiva" id="que-es-un-grupo">
-              <div class="diapo-num">04</div>
+              <div class="diapo-num">06</div>
               <h2>Qué queda cuando el grupo reemplaza a la fila</h2>
-              <p>La etapa del <code>GROUP BY</code> es la que más cambia el terreno. Antes de agrupar, el
+              <p>La etapa del <code>GROUP BY</code> cambia el terreno más que las demás. Antes de agrupar, el
                  motor tiene filas: cada una con todas sus columnas. Después de agrupar tiene grupos, y de
                  cada grupo solamente puede nombrar dos cosas.</p>
               <ul>
@@ -463,20 +855,20 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="alias">
-              <div class="diapo-num">05</div>
+              <div class="diapo-num">07</div>
               <h2>El alias que todavía no existe</h2>
-              <p>El alias de una columna nace en la etapa 7, cuando corre el <code>SELECT</code>. Todo lo que
-                 se ejecuta antes trabaja sin él.</p>
+              <p>El alias de una columna nace cuando corre el <code>SELECT</code>, en la séptima de las diez
+                 etapas. Todo lo que se ejecuta antes trabaja sin él.</p>
 
               <div class="code-container">
                 <div class="code-header"><span class="code-lang">SQL</span></div>
-<pre><code><span class="sql-comment">-- El WHERE corre en la etapa 3: con_descuento todavía no existe</span>
+<pre><code><span class="sql-comment">-- El WHERE corre antes que el SELECT: con_descuento todavía no existe</span>
 <span class="sql-keyword">SELECT</span> nro_orden, total, <span class="sql-keyword">ROUND</span>(total * <span class="sql-number">0.9</span>, <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> con_descuento
 <span class="sql-keyword">FROM</span> orden_servicio
 <span class="sql-keyword">WHERE</span> con_descuento &gt; <span class="sql-number">20000</span>;
 <span class="sql-comment">-- ERROR 1054 (42S22): Unknown column 'con_descuento' in 'where clause'</span>
 
-<span class="sql-comment">-- El ORDER BY corre en la etapa 9: el alias ya está armado</span>
+<span class="sql-comment">-- El ORDER BY corre después del SELECT: el alias ya está armado</span>
 <span class="sql-keyword">SELECT</span> nro_orden, total, <span class="sql-keyword">ROUND</span>(total * <span class="sql-number">0.9</span>, <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> con_descuento
 <span class="sql-keyword">FROM</span> orden_servicio
 <span class="sql-keyword">WHERE</span> total &gt; <span class="sql-number">0</span>
@@ -512,7 +904,7 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="where-having">
-              <div class="diapo-num">06</div>
+              <div class="diapo-num">08</div>
               <h2>La misma condición en dos lugares</h2>
               <p><code>WHERE</code> corre antes de agrupar y decide qué filas entran a los grupos.
                  <code>HAVING</code> corre después y decide qué grupos sobreviven. Cambiar una condición de
@@ -569,20 +961,21 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
               <div class="theory-box">
                 <p><strong>Cómo se elige.</strong> Si la condición se puede decidir mirando una fila sola,
                    va en el <code>WHERE</code>. Si necesita el grupo entero —un <code>COUNT</code>, una
-                   <code>SUM</code>, un promedio—, no puede ir en el <code>WHERE</code>: en la etapa 3 los
-                   grupos todavía no existen. Escribir <code>WHERE COUNT(*) &gt; 1</code> devuelve
+                   <code>SUM</code>, un promedio—, no puede ir en el <code>WHERE</code>: cuando esa cláusula
+                   corre, los grupos todavía no existen. Escribir <code>WHERE COUNT(*) &gt; 1</code> devuelve
                    <code>ERROR 1111 (HY000): Invalid use of group function</code>.</p>
               </div>
 
               <p>Cuando las dos ubicaciones dan el mismo resultado, conviene el <code>WHERE</code>: descarta
                  filas antes de armar los grupos, así que el motor agrupa menos. La diferencia no se nota con
-                 ocho órdenes y sí con medio millón, que es el terreno de la clase de optimización.</p>
+                 ocho órdenes y sí con medio millón, la escala en la que trabaja la clase de optimización.</p>
             </section>
 
             <section class="diapositiva" id="contar">
-              <div class="diapo-num">07</div>
+              <div class="diapo-num">09</div>
               <h2>Qué cuenta cada COUNT</h2>
-              <p>Los agregados se calculan en la etapa 5, sobre las filas que quedaron en cada grupo. Con un
+              <p>Los agregados se calculan apenas los grupos están armados, sobre las filas que quedaron en
+                 cada uno. Con un
                  <code>LEFT JOIN</code> hay grupos que existen por una fila donde la tabla de la derecha no
                  aportó nada, y ahí <code>COUNT(*)</code> y <code>COUNT(columna)</code> se separan.</p>
 
@@ -619,8 +1012,9 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
                     de <code>orden_servicio</code> en <code>NULL</code>. Esa fila se cuenta igual: da 1.</li>
                 <li><strong><code>COUNT(columna)</code> ignora los <code>NULL</code>.</strong> Por eso da 0,
                     que es la respuesta correcta a «¿cuántas órdenes tiene?».</li>
-                <li><strong><code>SUM</code> de un grupo sin valores da <code>NULL</code>, no 0.</strong> Para
-                    mostrar cero se envuelve: <code>IFNULL(SUM(O.total), 0)</code>.</li>
+                <li><strong><code>SUM</code> de un grupo sin valores devuelve <code>NULL</code></strong>,
+                    donde suele esperarse un cero. Para mostrarlo se envuelve:
+                    <code>IFNULL(SUM(O.total), 0)</code>.</li>
               </ul>
 
               <p>Las dos últimas columnas también distinguen dos ceros distintos: Ferreyra no tiene órdenes
@@ -629,10 +1023,10 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="distinct">
-              <div class="diapo-num">08</div>
+              <div class="diapo-num">10</div>
               <h2>DISTINCT trabaja sobre lo ya proyectado</h2>
-              <p><code>DISTINCT</code> corre en la etapa 8, después de que el <code>SELECT</code> armó las
-                 columnas. Compara filas de salida completas, no filas de las tablas.</p>
+              <p><code>DISTINCT</code> corre después de que el <code>SELECT</code> armó las columnas, y
+                 compara las filas de salida ya proyectadas, columna por columna.</p>
 
               <div class="code-container">
                 <div class="code-header"><span class="code-lang">SQL</span></div>
@@ -660,7 +1054,7 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="order-limit">
-              <div class="diapo-num">09</div>
+              <div class="diapo-num">11</div>
               <h2>ORDER BY y LIMIT, al final de todo</h2>
               <p><code>ORDER BY</code> es la anteúltima etapa. Sin <code>GROUP BY</code> ni
                  <code>DISTINCT</code> puede ordenar por columnas que no están en el <code>SELECT</code>,
@@ -699,10 +1093,10 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="resumen">
-              <div class="diapo-num">10</div>
+              <div class="diapo-num">12</div>
               <h2>Qué existe en cada etapa</h2>
-              <p>La tabla resume lo que se puede nombrar en cada cláusula, y es la que conviene tener a mano
-                 cuando el motor devuelve un error de columna desconocida.</p>
+              <p>La tabla resume lo que se puede nombrar en cada cláusula, y conviene tenerla a mano cuando
+                 el motor devuelve un error de columna desconocida.</p>
 
               <div class="table-scroll">
                 <table class="tabla-apunte">
@@ -769,11 +1163,11 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
             </section>
 
             <section class="diapositiva" id="plan-real">
-              <div class="diapo-num">11</div>
+              <div class="diapo-num">13</div>
               <h2>El orden lógico y el plan real</h2>
               <p>Las diez etapas describen el <em>significado</em> de la consulta: el resultado tiene que ser
-                 el mismo que si el motor las ejecutara una tras otra, en ese orden. Lo que el motor hace
-                 adentro es otra cosa.</p>
+                 el mismo que si el motor las ejecutara una tras otra, en ese orden. Adentro, el motor puede
+                 resolverla de otra manera.</p>
 
               <p>Ninguna base de datos arma de verdad el producto de las tablas para después descartar el 99 %
                  con el <code>WHERE</code>. El optimizador reordena: empuja los filtros hacia abajo para que
@@ -797,11 +1191,13 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
 
               <div class="theory-box">
                 <p><strong>Para practicar.</strong> Abrí la <a href="../../consola.html">consola</a> con el
-                   juego de datos ampliado (opción <strong>2 · Compendio</strong>) y corré las dos consultas
-                   del visor cortándolas por etapa, agregando una cláusula por vez. Con la coma las cuentas
-                   de filas tienen que darte 64, 8, 6 y 3 grupos; con el <code>JOIN</code>, 8, 8, 6 y 3.
-                   Para contar sin leer todo, envolvé cada paso en un
-                   <code>SELECT COUNT(*) FROM ( … ) AS t</code>.</p>
+                   juego de datos ampliado (opción <strong>2 · Compendio</strong>) y rehacé la progresión
+                   vos mismo, escribiendo una cláusula por vez y mirando cómo cambia el resultado. Las
+                   cuentas de filas tienen que darte 8, después 6, después 64 al sumar la segunda tabla, de
+                   nuevo 6 al relacionar y filtrar, y 3 grupos al agrupar. La versión con <code>JOIN</code>
+                   del paso 8 tiene que devolver exactamente lo mismo que la del 7, y el
+                   <code>LEFT JOIN</code> del paso 9, once filas antes de agrupar. Para contar sin leer
+                   todo, envolvé cada paso en un <code>SELECT COUNT(*) FROM ( … ) AS t</code>.</p>
               </div>
             </section>
 
@@ -810,291 +1206,1116 @@ incompatible with sql_mode=only_full_group_by</span></code></pre>
 
 <script>
 /* ---------------------------------------------------------------------------
-   El visor de etapas
+   Motor del visor: los datos de El Chip y el recorrido de una consulta
 
-   Dos consultas equivalentes sobre el mismo juego de datos: la primera cruza
-   las tablas con una coma, la segunda con JOIN. Las dos terminan en la misma
-   fila, y el recorrido hasta ahí es lo que cambia.
-
-   Los datos están calculados sobre el juego ampliado de El Chip (poblar_elchip
-   + poblar_elchip_compendio) y verificados contra el motor. Si se cambia el
-   juego de datos, hay que recalcularlos: acá no se ejecuta SQL.
+   No es un intérprete de SQL. Cada consulta del apunte se declara con sus
+   partes (origen, condiciones, agrupación, agregados, proyección, orden) y
+   este código produce el estado de la tabla de trabajo en cada etapa del
+   orden de ejecución. Así ninguna tabla intermedia se escribe a mano.
    ------------------------------------------------------------------------ */
 
-/* Las seis etapas finales son idénticas en las dos consultas: una vez que el
-   WHERE dejó las mismas seis filas, lo que sigue no distingue cómo se cruzaron
-   las tablas. Se generan de nuevo en cada caso para no compartir objetos. */
-function etapasFinales () {
-  return [
-    {
-      rotulo: 'GROUP BY',
-      nombre: 'Las filas se reparten en grupos',
-      dice: 'Las seis filas que quedaron se reparten por apellido. A partir de acá el motor deja de tener filas sueltas: tiene tres grupos.',
-      cuenta: '6 filas → <strong>3 grupos</strong>',
-      cols: ['apellido', 'filas que quedaron adentro'],
-      detalle: 1,
-      filas: [
-        ['García', 'órdenes 2 y 6'],
-        ['Pérez', 'órdenes 1, 4 y 5'],
-        ['Rossi', 'orden 8']
-      ],
-      nota: 'El grupo Pérez tiene tres órdenes porque la 7, del homónimo, la descartó el WHERE. El grupo Rossi quedó con la orden de Sofía: la de Diego también se fue en el WHERE.'
-    },
-    {
-      rotulo: 'agregados',
-      nombre: 'Se calculan COUNT y SUM',
-      dice: 'Cada función de agregación recorre las filas de su grupo y devuelve un valor. Recién ahora existen los números que el HAVING va a poder mirar.',
-      cuenta: '3 grupos · 2 valores calculados',
-      cols: ['apellido', 'COUNT(*)', 'SUM(O.total)'],
-      nuevas: [1, 2],
-      filas: [
-        ['García', '2', '60500.00'],
-        ['Pérez', '3', '99000.00'],
-        ['Rossi', '1', '9000.00']
-      ],
-      nota: 'Los agregados se calculan antes que el SELECT. Por eso el HAVING puede usar COUNT(*) aunque el SELECT todavía no corrió.'
-    },
-    {
-      rotulo: 'HAVING',
-      nombre: 'Se descartan grupos',
-      dice: 'La condición mira un grupo por vez, usando los valores recién calculados. El grupo Rossi tiene una sola orden y se va entero.',
-      cuenta: '3 grupos → <strong>2 grupos</strong> <span class="baja">(−1)</span>',
-      cols: ['apellido', 'COUNT(*)', 'SUM(O.total)'],
-      filas: [
-        ['García', '2', '60500.00'],
-        ['Pérez', '3', '99000.00'],
-        ['Rossi', '1', '9000.00']
-      ],
-      seVan: [2],
-      nota: 'La misma condición escrita como WHERE COUNT(*) > 1 falla: en la etapa del WHERE los grupos no existen todavía.'
-    },
-    {
-      rotulo: 'SELECT',
-      nombre: 'Se arman las columnas de salida',
-      dice: 'El motor proyecta lo que se pidió y le pone nombre a cada columna. Acá nacen los alias ordenes y facturado.',
-      cuenta: '2 filas · 3 columnas',
-      cols: ['apellido', 'ordenes', 'facturado'],
-      nuevas: [1, 2],
-      filas: [
-        ['García', '2', '60500.00'],
-        ['Pérez', '3', '99000.00']
-      ],
-      nota: 'Los alias existen a partir de esta etapa. Un WHERE que los nombre falla; un ORDER BY que los nombre funciona.'
-    },
-    {
-      rotulo: 'ORDER BY',
-      nombre: 'Se ordena el resultado',
-      dice: 'El ORDER BY puede nombrar el alias facturado porque el SELECT ya corrió. Pérez, con 99.000, pasa al primer lugar.',
-      cuenta: '2 filas, ahora ordenadas',
-      cols: ['apellido', 'ordenes', 'facturado'],
-      filas: [
-        ['Pérez', '3', '99000.00'],
-        ['García', '2', '60500.00']
-      ],
-      nota: 'Sin esta cláusula el orden no está garantizado, y el LIMIT de la etapa siguiente se quedaría con una fila cualquiera.'
-    },
-    {
-      rotulo: 'LIMIT',
-      nombre: 'Se corta',
-      dice: 'La última etapa se queda con la primera fila. El motor ya hizo todo el trabajo: cruzar, filtrar, agrupar, calcular y ordenar.',
-      cuenta: '2 filas → <strong>1 fila</strong> <span class="baja">(−1)</span>',
-      cols: ['apellido', 'ordenes', 'facturado'],
-      filas: [
-        ['Pérez', '3', '99000.00'],
-        ['García', '2', '60500.00']
-      ],
-      seVan: [1],
-      nota: 'De las filas del principio queda una, con tres columnas que ninguna tabla tiene: dos son cuentas y la tercera vino de la otra tabla.'
-    }
-  ]
+const ORDEN_SERVICIO = [
+  { nro_orden: 1, fecha_ingreso: '2026-05-01', total: 53500, id_cliente: 1, id_orden_estado: 3 },
+  { nro_orden: 2, fecha_ingreso: '2026-05-02', total: 40500, id_cliente: 2, id_orden_estado: 3 },
+  { nro_orden: 3, fecha_ingreso: '2026-05-10', total: 0, id_cliente: 5, id_orden_estado: 1 },
+  { nro_orden: 4, fecha_ingreso: '2026-05-15', total: 18500, id_cliente: 1, id_orden_estado: 2 },
+  { nro_orden: 5, fecha_ingreso: '2026-05-20', total: 27000, id_cliente: 1, id_orden_estado: 3 },
+  { nro_orden: 6, fecha_ingreso: '2026-05-22', total: 20000, id_cliente: 2, id_orden_estado: 3 },
+  { nro_orden: 7, fecha_ingreso: '2026-06-01', total: 0, id_cliente: 6, id_orden_estado: 1 },
+  { nro_orden: 8, fecha_ingreso: '2026-03-10', total: 9000, id_cliente: 7, id_orden_estado: 4 }
+]
+
+const CLIENTE = [
+  { id_cliente: 1, nombre: 'Juan', apellido: 'Pérez' },
+  { id_cliente: 2, nombre: 'María', apellido: 'García' },
+  { id_cliente: 3, nombre: 'Carlos', apellido: 'López' },
+  { id_cliente: 4, nombre: 'Ana', apellido: 'Martínez' },
+  { id_cliente: 5, nombre: 'Diego', apellido: 'Rossi' },
+  { id_cliente: 6, nombre: 'Juan', apellido: 'Pérez' },
+  { id_cliente: 7, nombre: 'Sofía', apellido: 'Rossi' },
+  { id_cliente: 8, nombre: 'Marcos', apellido: 'Ferreyra' }
+]
+
+const TABLAS = { orden_servicio: ORDEN_SERVICIO, cliente: CLIENTE }
+
+/* La tabla que devuelve la subconsulta derivada del paso 11. Se calcula acá,
+   una sola vez, porque eso es exactamente lo que hace el motor con ella. */
+TABLAS.t = (function () {
+  const cuenta = new Map()
+  ORDEN_SERVICIO.forEach(o => {
+    const c = CLIENTE.find(x => x.id_cliente === o.id_cliente)
+    cuenta.set(c.apellido, (cuenta.get(c.apellido) || 0) + 1)
+  })
+  return [...cuenta.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+    .map(([apellido, ordenes]) => ({ apellido, ordenes }))
+})()
+
+const pesos = n => n.toFixed(2)
+
+/* Arma la fila combinada que ve el motor: prefija cada columna con el alias
+   de su tabla, como O.total o C.apellido. */
+function combinar (partes) {
+  const fila = {}
+  partes.forEach(({ alias, dato }) => {
+    Object.keys(dato).forEach(col => { fila[alias + '.' + col] = dato[col] })
+  })
+  return fila
 }
 
-const CASOS = [
-  {
-    id: 'coma',
-    boton: '1 · Cruce con coma',
-    pie: 'La sintaxis anterior a SQL-92: las dos tablas en el FROM y la relación en el WHERE.',
-    consulta: [
-      { txt: 'SELECT   C.apellido,', etapa: 6 },
-      { txt: '         COUNT(*) AS ordenes,', etapa: 6 },
-      { txt: '         SUM(O.total) AS facturado', etapa: 6 },
-      { txt: 'FROM     orden_servicio O, cliente C', etapa: 0 },
-      { txt: 'WHERE    O.id_cliente = C.id_cliente', etapa: 1 },
-      { txt: '  AND    O.total > 0', etapa: 2 },
-      { txt: 'GROUP BY C.apellido', etapa: 3 },
-      { txt: '         -- se calculan los agregados', etapa: 4 },
-      { txt: 'HAVING   COUNT(*) > 1', etapa: 5 },
-      { txt: 'ORDER BY facturado DESC', etapa: 7 },
-      { txt: 'LIMIT    1', etapa: 8 }
-    ],
-    etapas: [
-      {
-        rotulo: 'FROM',
-        nombre: 'Todas las combinaciones posibles',
-        dice: 'La coma entre las dos tablas pide el producto cartesiano: cada una de las 8 órdenes apareada con cada uno de los 8 clientes. Ninguna condición interviene todavía.',
-        cuenta: '8 × 8 = <strong>64 filas</strong>',
-        cols: ['nro_orden', 'total', 'O.id_cliente', 'C.id_cliente', 'apellido', 'nombre'],
-        filas: [
-          ['1', '53500.00', '1', '1', 'Pérez', 'Juan'],
-          ['1', '53500.00', '1', '2', 'García', 'María'],
-          ['1', '53500.00', '1', '3', 'López', 'Carlos'],
-          ['1', '53500.00', '1', '4', 'Martínez', 'Ana'],
-          ['1', '53500.00', '1', '5', 'Rossi', 'Diego'],
-          ['1', '53500.00', '1', '6', 'Pérez', 'Juan'],
-          ['1', '53500.00', '1', '7', 'Rossi', 'Sofía'],
-          ['1', '53500.00', '1', '8', 'Ferreyra', 'Marcos'],
-          ['…', '…', '…', '…', '…', '…']
-        ],
-        continua: [8],
-        nota: 'La tabla muestra las 8 combinaciones de la orden 1; las 56 restantes son las de las órdenes 2 a 8, con la misma forma. La orden 1 aparece acá emparejada con clientes que no tienen nada que ver con ella.'
-      },
-      {
-        rotulo: 'WHERE · relación',
-        nombre: 'La condición que empareja bien',
-        dice: 'De cada bloque de 8 combinaciones sobrevive una: aquella donde el id_cliente de la orden coincide con el del cliente. Esta condición hace el trabajo que en la otra versión hace el ON.',
-        cuenta: '64 filas → <strong>8 filas</strong> <span class="baja">(−56)</span>',
-        cols: ['nro_orden', 'total', 'O.id_cliente', 'C.id_cliente', 'apellido', 'nombre'],
-        filas: [
-          ['1', '53500.00', '1', '1', 'Pérez', 'Juan'],
-          ['1', '53500.00', '1', '2', 'García', 'María'],
-          ['1', '53500.00', '1', '3', 'López', 'Carlos'],
-          ['1', '53500.00', '1', '4', 'Martínez', 'Ana'],
-          ['1', '53500.00', '1', '5', 'Rossi', 'Diego'],
-          ['1', '53500.00', '1', '6', 'Pérez', 'Juan'],
-          ['1', '53500.00', '1', '7', 'Rossi', 'Sofía'],
-          ['1', '53500.00', '1', '8', 'Ferreyra', 'Marcos'],
-          ['…', '…', '…', '…', '…', '…']
-        ],
-        seVan: [1, 2, 3, 4, 5, 6, 7],
-        continua: [8],
-        nota: 'Olvidar esta condición no produce ningún error: la consulta corre igual y devuelve las 64 filas emparejadas al azar. Es la diferencia con el JOIN, donde la gramática obliga a escribir el ON.'
-      },
-      {
-        rotulo: 'WHERE · filtro',
-        nombre: 'La condición que descarta filas',
-        dice: 'La segunda parte del WHERE mira el total de cada orden. Las órdenes 3 y 7, pendientes y en cero, se van.',
-        cuenta: '8 filas → <strong>6 filas</strong> <span class="baja">(−2)</span>',
-        cols: ['nro_orden', 'total', 'apellido', 'nombre'],
-        filas: [
-          ['1', '53500.00', 'Pérez', 'Juan'],
-          ['2', '40500.00', 'García', 'María'],
-          ['3', '0.00', 'Rossi', 'Diego'],
-          ['4', '18500.00', 'Pérez', 'Juan'],
-          ['5', '27000.00', 'Pérez', 'Juan'],
-          ['6', '20000.00', 'García', 'María'],
-          ['7', '0.00', 'Pérez', 'Juan'],
-          ['8', '9000.00', 'Rossi', 'Sofía']
-        ],
-        seVan: [2, 6],
-        nota: 'Las dos condiciones están unidas por un AND en el mismo WHERE y son una sola etapa. Acá se muestran separadas para ver qué hace cada una: la de arriba relaciona, esta filtra.'
+function nulos (alias, tabla) {
+  const fila = {}
+  Object.keys(TABLAS[tabla][0]).forEach(col => { fila[alias + '.' + col] = null })
+  return fila
+}
+
+function producto (origenes) {
+  let filas = [{}]
+  origenes.filter(o => !o.join).forEach(({ alias, tabla }) => {
+    const nuevas = []
+    filas.forEach(acumulada => {
+      TABLAS[tabla].forEach(dato => {
+        nuevas.push(Object.assign({}, acumulada, combinar([{ alias, dato }])))
+      })
+    })
+    filas = nuevas
+  })
+  return filas
+}
+
+/* --------------------------------------------------------------------------
+   El recorrido: devuelve un estado por etapa.
+
+   Cada estado lleva la tabla de trabajo completa, con las filas marcadas
+   según lo que la etapa hizo con ellas: 'queda', 'se-va' (descartada acá) o
+   'ida' (descartada antes). Nada se borra: lo descartado sigue a la vista.
+   -------------------------------------------------------------------------- */
+function recorrer (c) {
+  const etapas = []
+  const cols = c.columnas
+  const vivas = f => f.estado === 'queda'
+
+  /* Lo que se resuelve antes de que empiece el recorrido de afuera */
+  if (c.previa) {
+    etapas.push({
+      rotulo: c.previa.rotulo,
+      nombre: c.previa.nombre,
+      dice: c.previa.dice,
+      cuenta: '<strong>' + TABLAS[c.previa.tabla].length + ' filas</strong> · la tabla ' + c.previa.tabla,
+      cols: c.previa.columnas,
+      filas: TABLAS[c.previa.tabla].map(dato => ({ datos: combinar([{ alias: c.previa.alias, dato }]), estado: 'queda' })),
+      nota: c.previa.nota
+    })
+  }
+
+  /* ---- FROM ---- */
+  let filas = producto(c.origenes).map(datos => ({ datos, estado: 'queda' }))
+  const conComa = c.origenes.filter(o => !o.join)
+  const nOrigenes = conComa.length
+  etapas.push({
+    rotulo: 'FROM',
+    nombre: nOrigenes > 1 ? 'Todas las combinaciones posibles' : 'Las filas de la tabla',
+    dice: c.dice.from,
+    cuenta: nOrigenes > 1
+      ? conComa.map(o => TABLAS[o.tabla].length).join(' × ') + ' = <strong>' + filas.length + ' filas</strong>'
+      : '<strong>' + filas.length + ' filas</strong>',
+    cols,
+    filas: filas.map(f => Object.assign({}, f)),
+    nota: c.notas.from
+  })
+
+  /* ---- JOIN … ON: se suma una tabla por vez ---- */
+  c.origenes.filter(o => o.join).forEach(o => {
+    const antes = filas.length
+    const nuevas = []
+    let huerfanas = 0
+    let rellenadas = 0
+    filas.forEach(f => {
+      const parejas = TABLAS[o.tabla].filter(dato => o.on(Object.assign({}, f.datos, combinar([{ alias: o.alias, dato }]))))
+      if (parejas.length) {
+        parejas.forEach(dato => {
+          nuevas.push({ datos: Object.assign({}, f.datos, combinar([{ alias: o.alias, dato }])), estado: 'queda' })
+        })
+      } else if (o.join === 'LEFT') {
+        rellenadas++
+        nuevas.push({ datos: Object.assign({}, f.datos, nulos(o.alias, o.tabla)), estado: 'queda', conNulos: true })
+      } else {
+        huerfanas++
+        nuevas.push({ datos: Object.assign({}, f.datos, nulos(o.alias, o.tabla)), estado: 'se-va' })
       }
-    ]
-  },
+    })
+    filas = nuevas
+    const quedan = filas.filter(vivas).length
+    etapas.push({
+      rotulo: o.rotulo,
+      nombre: o.nombre,
+      dice: o.dice,
+      cuenta: antes + ' filas → <strong>' + quedan + ' filas</strong>' +
+              (huerfanas ? ' <span class="baja">(−' + huerfanas + ' sin pareja)</span>' : '') +
+              (rellenadas ? ' · ' + rellenadas + ' con NULL' : ''),
+      cols,
+      nuevas: o.columnasNuevas,
+      filas: filas.map(f => Object.assign({}, f)),
+      nota: o.nota
+    })
+    filas = filas.filter(vivas).map(f => ({ datos: f.datos, estado: 'queda', conNulos: f.conNulos }))
+  })
+
+  /* ---- WHERE, condición por condición ---- */
+  ;(c.where || []).forEach(cond => {
+    let bajas = 0
+    filas = filas.map(f => {
+      if (f.estado !== 'queda') return { datos: f.datos, estado: 'ida' }
+      if (cond.prueba(f.datos)) return { datos: f.datos, estado: 'queda' }
+      bajas++
+      return { datos: f.datos, estado: 'se-va' }
+    })
+    const quedan = filas.filter(vivas).length
+    etapas.push({
+      rotulo: cond.rotulo,
+      nombre: cond.nombre,
+      dice: cond.dice,
+      cuenta: (quedan + bajas) + ' filas → <strong>' + quedan + ' filas</strong> <span class="baja">(−' + bajas + ')</span>',
+      cols,
+      filas: filas.map(f => Object.assign({}, f)),
+      nota: cond.nota
+    })
+    filas = filas.map(f => ({ datos: f.datos, estado: f.estado === 'queda' ? 'queda' : 'ida' }))
+  })
+
+  /* ---- GROUP BY: las filas se reordenan en bloques y siguen a la vista ---- */
+  let grupos = null
+  if (c.groupBy) {
+    const orden = []
+    const mapa = new Map()
+    filas.filter(vivas).forEach(f => {
+      const clave = c.groupBy.valor(f.datos)
+      if (!mapa.has(clave)) { mapa.set(clave, []); orden.push(clave) }
+      mapa.get(clave).push(f)
+    })
+    orden.sort((a, b) => String(a).localeCompare(String(b), 'es'))
+    grupos = orden.map(clave => {
+      const suyas = mapa.get(clave)
+      const rotulo = c.groupBy.rotulo ? c.groupBy.rotulo(suyas[0].datos) : clave
+      return { clave, rotulo, filas: suyas, estado: 'queda' }
+    })
+
+    etapas.push({
+      rotulo: 'GROUP BY',
+      nombre: 'Las filas se reparten en grupos',
+      dice: c.dice.group,
+      cuenta: filas.filter(vivas).length + ' filas → <strong>' + grupos.length + ' grupos</strong>',
+      cols,
+      grupos: grupos.map(g => ({ clave: g.clave, rotulo: g.rotulo, filas: g.filas.slice(), estado: 'queda' })),
+      nota: c.notas.group
+    })
+
+    /* ---- Los agregados, con la cuenta a la vista ---- */
+    grupos.forEach(g => {
+      g.valores = c.agregados.map(a => {
+        const nums = g.filas.map(f => a.col ? f.datos[a.col] : 1).filter(n => n !== null && n !== undefined)
+        if (a.tipo === 'count') {
+          if (a.col) {
+            const conValor = g.filas.filter(f => f.datos[a.col] !== null && f.datos[a.col] !== undefined).length
+            const nulas = g.filas.length - conValor
+            return {
+              nombre: a.nombre,
+              fn: 'COUNT(' + a.col + ')',
+              expr: 'cuenta los valores que no son NULL' + (nulas ? ' (descarta ' + nulas + ')' : '') + ' = ' + conValor,
+              valor: conValor
+            }
+          }
+          return {
+            nombre: a.nombre,
+            fn: 'COUNT(*)',
+            expr: (g.filas.length === 1 ? 'cuenta la fila del grupo = ' : 'cuenta las ' + g.filas.length + ' filas del grupo = ') + g.filas.length,
+            valor: g.filas.length
+          }
+        }
+        const suma = nums.reduce((s, n) => s + n, 0)
+        return {
+          nombre: a.nombre,
+          fn: 'SUM(' + a.col + ')',
+          expr: nums.map(pesos).join(' + ') + (nums.length > 1 ? ' = ' + pesos(suma) : ''),
+          valor: suma
+        }
+      })
+    })
+    etapas.push({
+      rotulo: 'agregados',
+      nombre: 'Se calculan las funciones de cada grupo',
+      dice: c.dice.agregados,
+      cuenta: grupos.length + ' grupos · ' + c.agregados.length + (c.agregados.length === 1 ? ' función' : ' funciones'),
+      cols,
+      grupos: grupos.map(g => ({ clave: g.clave, rotulo: g.rotulo, filas: g.filas.slice(), valores: g.valores, estado: 'queda' })),
+      nota: c.notas.agregados
+    })
+
+    /* ---- HAVING: se descarta el grupo entero ---- */
+    if (c.having) {
+      let bajas = 0
+      grupos.forEach(g => {
+        const dato = {}
+        g.valores.forEach(v => { dato[v.nombre] = v.valor })
+        if (!c.having.prueba(dato)) { g.estado = 'se-va'; bajas++ }
+      })
+      etapas.push({
+        rotulo: 'HAVING',
+        nombre: 'Se descartan grupos enteros',
+        dice: c.having.dice,
+        cuenta: grupos.length + ' grupos → <strong>' + (grupos.length - bajas) + ' grupos</strong> <span class="baja">(−' + bajas + ')</span>',
+        cols,
+        grupos: grupos.map(g => ({ clave: g.clave, rotulo: g.rotulo, filas: g.filas.slice(), valores: g.valores, estado: g.estado })),
+        nota: c.having.nota
+      })
+      grupos = grupos.filter(g => g.estado === 'queda')
+    }
+  }
+
+  /* ---- SELECT: la proyección. Acá los grupos colapsan a una fila ---- */
+  let salida
+  if (grupos) {
+    salida = grupos.map(g => {
+      const fila = {}
+      c.select.forEach(s => {
+        fila[s.titulo] = s.desde ? g.filas[0].datos[s.desde] : g.valores.find(v => v.nombre === s.agregado).valor
+      })
+      return fila
+    })
+  } else {
+    salida = filas.filter(vivas).map(f => {
+      const fila = {}
+      c.select.forEach(s => { fila[s.titulo] = f.datos[s.desde] })
+      return fila
+    })
+  }
+  etapas.push({
+    rotulo: 'SELECT',
+    nombre: grupos ? 'Cada grupo colapsa en una fila' : 'Se arman las columnas de salida',
+    dice: c.dice.select,
+    cuenta: grupos
+      ? grupos.reduce((s, g) => s + g.filas.length, 0) + ' filas en ' + grupos.length + ' grupos → <strong>' + salida.length + (salida.length === 1 ? ' fila' : ' filas') + '</strong>'
+      : '<strong>' + salida.length + ' filas</strong> · ' + c.select.length + ' columnas',
+    colsSalida: c.select.map(s => s.titulo),
+    salida: salida.map(f => Object.assign({}, f)),
+    proyectadas: c.select.map(s => s.desde || null).filter(Boolean),
+    cols,
+    nota: c.notas.select
+  })
+
+  /* ---- DISTINCT: compara filas de salida ya proyectadas ---- */
+  if (c.distinct) {
+    const vistas = new Set()
+    const marcadas = salida.map(f => {
+      const clave = JSON.stringify(f)
+      const repetida = vistas.has(clave)
+      vistas.add(clave)
+      return { fila: f, repetida }
+    })
+    const bajas = marcadas.filter(m => m.repetida).length
+    etapas.push({
+      rotulo: 'DISTINCT',
+      nombre: 'Se descartan las filas repetidas',
+      dice: c.distinct.dice,
+      cuenta: salida.length + ' filas → <strong>' + (salida.length - bajas) + ' filas</strong> <span class="baja">(−' + bajas + ')</span>',
+      colsSalida: c.select.map(s => s.titulo),
+      salida: marcadas.map(m => m.fila),
+      repetidas: marcadas.map((m, i) => m.repetida ? i : -1).filter(i => i !== -1),
+      cols,
+      nota: c.distinct.nota
+    })
+    salida = marcadas.filter(m => !m.repetida).map(m => m.fila)
+  }
+
+  /* ---- ORDER BY ---- */
+  if (c.orderBy) {
+    const antes = salida.map(f => Object.assign({}, f))
+    salida = salida.slice().sort((a, b) => {
+      const x = a[c.orderBy.por], y = b[c.orderBy.por]
+      const cmp = typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'es')
+      return c.orderBy.desc ? -cmp : cmp
+    })
+    const cambio = salida.some((f, i) => f !== antes[i] && JSON.stringify(f) !== JSON.stringify(antes[i]))
+    etapas.push({
+      rotulo: 'ORDER BY',
+      nombre: 'Se ordena el resultado',
+      dice: c.orderBy.dice,
+      cuenta: salida.length + (salida.length === 1 ? ' fila' : ' filas') + (cambio ? ', en otro orden' : ', ya estaban en ese orden'),
+      colsSalida: c.select.map(s => s.titulo),
+      salida: salida.map(f => Object.assign({}, f)),
+      cols,
+      nota: c.orderBy.nota
+    })
+  }
+
+  /* ---- LIMIT ---- */
+  if (c.limit) {
+    etapas.push({
+      rotulo: 'LIMIT',
+      nombre: 'Se corta',
+      dice: c.limit.dice,
+      cuenta: salida.length + ' filas → <strong>' + Math.min(c.limit.n, salida.length) + (c.limit.n === 1 ? ' fila' : ' filas') + '</strong>',
+      colsSalida: c.select.map(s => s.titulo),
+      salida: salida.map(f => Object.assign({}, f)),
+      cortaDesde: c.limit.n,
+      cols,
+      nota: c.limit.nota
+    })
+    salida = salida.slice(0, c.limit.n)
+  }
+
+  return { etapas, salida }
+}
+
+
+/* ---------------------------------------------------------------------------
+   La progresión: diez consultas sobre El Chip.
+
+   Cada una agrega una cláusula a la anterior. El recorrido de etapas se
+   alarga en consecuencia, y el visor lo arma solo a partir de estas partes.
+   ------------------------------------------------------------------------ */
+
+const SOLO_ORDENES = [{ alias: 'O', tabla: 'orden_servicio' }]
+const DOS_TABLAS = [{ alias: 'O', tabla: 'orden_servicio' }, { alias: 'C', tabla: 'cliente' }]
+
+const COLS_ORDENES = [
+  { clave: 'O.nro_orden', titulo: 'nro_orden' },
+  { clave: 'O.fecha_ingreso', titulo: 'fecha_ingreso' },
+  { clave: 'O.total', titulo: 'total', numero: true },
+  { clave: 'O.id_cliente', titulo: 'id_cliente' }
+]
+
+const COLS_DOS = [
+  { clave: 'O.nro_orden', titulo: 'O.nro_orden' },
+  { clave: 'O.total', titulo: 'O.total', numero: true },
+  { clave: 'O.id_cliente', titulo: 'O.id_cliente' },
+  { clave: 'C.id_cliente', titulo: 'C.id_cliente' },
+  { clave: 'C.apellido', titulo: 'C.apellido' },
+  { clave: 'C.nombre', titulo: 'C.nombre' }
+]
+
+const W_TOTAL = {
+  rotulo: 'WHERE',
+  nombre: 'Se descartan filas',
+  dice: 'La condición mira una fila por vez, sin saber nada de las demás. Las órdenes 3 y 7, pendientes y en cero, no la cumplen.',
+  prueba: f => f['O.total'] > 0,
+  nota: 'Las filas descartadas quedan tachadas para poder verlas, pero el motor ya no las tiene: ninguna etapa posterior las recupera.'
+}
+
+const W_RELACION = {
+  rotulo: 'WHERE · relación',
+  nombre: 'La condición que empareja bien',
+  dice: 'De cada bloque de 8 combinaciones sobrevive una: aquella donde el id_cliente de la orden coincide con el del cliente.',
+  prueba: f => f['O.id_cliente'] === f['C.id_cliente'],
+  nota: 'Esta condición hace el trabajo que en la sintaxis con JOIN hace el ON. Olvidarla no da error: devuelve las 64 filas emparejadas al azar.'
+}
+
+const CONSULTAS = [
   {
-    id: 'join',
-    boton: '2 · Cruce con JOIN',
-    pie: 'La misma consulta con la sintaxis de SQL-92: la relación en el ON y el filtro en el WHERE.',
-    consulta: [
-      { txt: 'SELECT   C.apellido,', etapa: 6 },
-      { txt: '         COUNT(*) AS ordenes,', etapa: 6 },
-      { txt: '         SUM(O.total) AS facturado', etapa: 6 },
-      { txt: 'FROM     orden_servicio O', etapa: 0 },
-      { txt: 'JOIN     cliente C', etapa: 1 },
-      { txt: '         ON C.id_cliente = O.id_cliente', etapa: 1 },
-      { txt: 'WHERE    O.total > 0', etapa: 2 },
-      { txt: 'GROUP BY C.apellido', etapa: 3 },
-      { txt: '         -- se calculan los agregados', etapa: 4 },
-      { txt: 'HAVING   COUNT(*) > 1', etapa: 5 },
-      { txt: 'ORDER BY facturado DESC', etapa: 7 },
-      { txt: 'LIMIT    1', etapa: 8 }
+    id: 'p1',
+    boton: '1 · SELECT y FROM',
+    pie: 'Sin filtros: la tabla entera.',
+    sql: [
+      ['SELECT   nro_orden, total, id_cliente', 'SELECT'],
+      ['FROM     orden_servicio', 'FROM']
     ],
-    etapas: [
+    origenes: SOLO_ORDENES,
+    columnas: COLS_ORDENES,
+    select: [
+      { titulo: 'nro_orden', desde: 'O.nro_orden' },
+      { titulo: 'total', desde: 'O.total', numero: true },
+      { titulo: 'id_cliente', desde: 'O.id_cliente' }
+    ],
+    dice: {
+      from: 'El motor abre orden_servicio y se queda con sus ocho filas, con todas sus columnas. Es el conjunto del que va a salir todo lo demás.',
+      select: 'Recién ahora se decide qué columnas se muestran. fecha_ingreso queda afuera: estuvo disponible todo el recorrido y no se proyectó.'
+    },
+    notas: {
+      from: 'La consulta se escribió empezando por SELECT, pero la primera línea que corre es esta.',
+      select: 'Descartar una columna en el SELECT no ahorra trabajo previo: el motor leyó la fila completa para llegar hasta acá.'
+    }
+  },
+
+  {
+    id: 'p2',
+    boton: '2 · + WHERE',
+    pie: 'Aparece el filtro, y con él la primera etapa que descarta.',
+    sql: [
+      ['SELECT   nro_orden, total, id_cliente', 'SELECT'],
+      ['FROM     orden_servicio', 'FROM'],
+      ['WHERE    total > 0', 'WHERE']
+    ],
+    origenes: SOLO_ORDENES,
+    columnas: COLS_ORDENES,
+    where: [W_TOTAL],
+    select: [
+      { titulo: 'nro_orden', desde: 'O.nro_orden' },
+      { titulo: 'total', desde: 'O.total', numero: true },
+      { titulo: 'id_cliente', desde: 'O.id_cliente' }
+    ],
+    dice: {
+      from: 'El punto de partida no cambió: las mismas ocho filas.',
+      select: 'La proyección trabaja sobre las seis filas que sobrevivieron al WHERE.'
+    },
+    notas: {
+      from: 'El WHERE está escrito abajo del FROM y corre después: es la única cláusula de esta consulta que se escribe y se ejecuta en el mismo orden.',
+      select: 'El WHERE pudo nombrar total porque es una columna de la tabla. Un alias creado acá, en el SELECT, no le habría servido.'
+    }
+  },
+
+  {
+    id: 'p3',
+    boton: '3 · + ORDER BY',
+    pie: 'El orden se decide al final, sobre el resultado ya armado.',
+    sql: [
+      ['SELECT   nro_orden, total, id_cliente', 'SELECT'],
+      ['FROM     orden_servicio', 'FROM'],
+      ['WHERE    total > 0', 'WHERE'],
+      ['ORDER BY total DESC', 'ORDER BY']
+    ],
+    origenes: SOLO_ORDENES,
+    columnas: COLS_ORDENES,
+    where: [W_TOTAL],
+    select: [
+      { titulo: 'nro_orden', desde: 'O.nro_orden' },
+      { titulo: 'total', desde: 'O.total', numero: true },
+      { titulo: 'id_cliente', desde: 'O.id_cliente' }
+    ],
+    orderBy: {
+      por: 'total',
+      desc: true,
+      dice: 'Las mismas seis filas, en otro orden. El ORDER BY es la última etapa que toca el resultado, y por eso puede nombrar los alias que creó el SELECT.',
+      nota: 'Ordenar no descarta ni agrega filas. Con estas seis da igual pedirlo antes o después de mirar; con medio millón, ordenar suele ser lo más caro de la consulta.'
+    },
+    dice: {
+      from: 'El punto de partida no cambió: las mismas ocho filas.',
+      select: 'Las columnas de salida se arman antes de ordenar. El ORDER BY de la etapa siguiente ya trabaja sobre estas tres columnas.'
+    },
+    notas: {
+      from: 'Tres cláusulas escritas, tres etapas: por ahora el orden de escritura y el de ejecución se parecen bastante.',
+      select: 'Acá empiezan a separarse: el SELECT está escrito primero y corre anteúltimo.'
+    }
+  },
+
+  {
+    id: 'p4',
+    boton: '4 · + una segunda tabla',
+    pie: 'Dos tablas cruzadas con una coma: el FROM arranca en 64 filas.',
+    sql: [
+      ['SELECT   O.nro_orden, O.total, C.apellido', 'SELECT'],
+      ['FROM     orden_servicio O, cliente C', 'FROM'],
+      ['WHERE    O.id_cliente = C.id_cliente', 'WHERE · relación'],
+      ['  AND    O.total > 0', 'WHERE'],
+      ['ORDER BY O.total DESC', 'ORDER BY']
+    ],
+    origenes: DOS_TABLAS,
+    columnas: COLS_DOS,
+    where: [W_RELACION, W_TOTAL],
+    select: [
+      { titulo: 'nro_orden', desde: 'O.nro_orden' },
+      { titulo: 'total', desde: 'O.total', numero: true },
+      { titulo: 'apellido', desde: 'C.apellido' }
+    ],
+    orderBy: {
+      por: 'total',
+      desc: true,
+      dice: 'El resultado final: seis órdenes con el apellido de su dueño, de mayor a menor.',
+      nota: 'Los tres clientes sin órdenes —López, Martínez y Ferreyra— no aparecen: sus combinaciones se fueron en la condición de relación.'
+    },
+    dice: {
+      from: 'La coma entre las dos tablas pide el producto cartesiano: cada una de las 8 órdenes apareada con cada uno de los 8 clientes, sin mirar ninguna condición.',
+      select: 'De las seis columnas disponibles se proyectan tres. C.nombre estuvo a mano todo el recorrido y no se pidió.'
+    },
+    notas: {
+      from: 'Acá se ve por qué el orden de ejecución importa: el conjunto de partida es ocho veces más grande que el resultado, y son todas combinaciones que no significan nada.',
+      select: 'El WHERE trabajó sobre las seis columnas, incluidas las dos que el SELECT no proyecta.'
+    }
+  },
+
+  {
+    id: 'p5',
+    boton: '5 · + GROUP BY',
+    pie: 'Las filas se reparten en grupos y las funciones resumen cada uno.',
+    sql: [
+      ['SELECT   C.apellido,', 'SELECT'],
+      ['         COUNT(*) AS ordenes,', ['SELECT', 'agregados']],
+      ['         SUM(O.total) AS facturado', ['SELECT', 'agregados']],
+      ['FROM     orden_servicio O, cliente C', 'FROM'],
+      ['WHERE    O.id_cliente = C.id_cliente', 'WHERE · relación'],
+      ['  AND    O.total > 0', 'WHERE'],
+      ['GROUP BY C.apellido', 'GROUP BY']
+    ],
+    origenes: DOS_TABLAS,
+    columnas: COLS_DOS,
+    where: [W_RELACION, W_TOTAL],
+    groupBy: { valor: f => f['C.apellido'], titulo: 'C.apellido' },
+    agregados: [
+      { nombre: 'ordenes', tipo: 'count' },
+      { nombre: 'facturado', tipo: 'sum', col: 'O.total' }
+    ],
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' },
+      { titulo: 'ordenes', agregado: 'ordenes' },
+      { titulo: 'facturado', agregado: 'facturado', numero: true }
+    ],
+    dice: {
+      from: 'Las mismas 64 combinaciones del paso anterior.',
+      group: 'Las seis filas que sobrevivieron se reparten por apellido. Ninguna se pierde: cambia de qué manera están organizadas.',
+      agregados: 'Cada función recorre las filas de su grupo y devuelve un valor. La cuenta está a la vista: es el conjunto entero resumido en un número.',
+      select: 'Recién ahora cada grupo se convierte en una fila. Las filas de detalle dejan de existir en el resultado.'
+    },
+    notas: {
+      from: 'El GROUP BY no cambia el punto de partida: agrupa lo que le llega.',
+      group: 'El grupo Pérez tiene tres órdenes porque la 7, del homónimo, la descartó el WHERE. El grupo Rossi quedó con la orden de Sofía: la de Diego también se fue.',
+      agregados: 'Los agregados se calculan antes que el SELECT. Por eso el HAVING, que corre después de esta etapa, puede usarlos.',
+      select: 'Desde acá el motor ya no puede nombrar O.nro_orden: esa columna vale por fila, y las filas se fueron. Solo quedan la columna agrupada y los agregados.'
+    }
+  },
+
+  {
+    id: 'p6',
+    boton: '6 · + HAVING',
+    pie: 'La condición que se aplica a un grupo entero.',
+    sql: [
+      ['SELECT   C.apellido,', 'SELECT'],
+      ['         COUNT(*) AS ordenes,', ['SELECT', 'agregados']],
+      ['         SUM(O.total) AS facturado', ['SELECT', 'agregados']],
+      ['FROM     orden_servicio O, cliente C', 'FROM'],
+      ['WHERE    O.id_cliente = C.id_cliente', 'WHERE · relación'],
+      ['  AND    O.total > 0', 'WHERE'],
+      ['GROUP BY C.apellido', 'GROUP BY'],
+      ['HAVING   COUNT(*) > 1', 'HAVING']
+    ],
+    origenes: DOS_TABLAS,
+    columnas: COLS_DOS,
+    where: [W_RELACION, W_TOTAL],
+    groupBy: { valor: f => f['C.apellido'], titulo: 'C.apellido' },
+    agregados: [
+      { nombre: 'ordenes', tipo: 'count' },
+      { nombre: 'facturado', tipo: 'sum', col: 'O.total' }
+    ],
+    having: {
+      prueba: g => g.ordenes > 1,
+      dice: 'La condición mira un grupo por vez, usando los valores recién calculados. El grupo Rossi tiene una sola orden y se va completo, con su fila adentro.',
+      nota: 'La misma condición escrita como WHERE COUNT(*) > 1 falla: cuando corre el WHERE los grupos todavía no existen. El motor responde «Invalid use of group function».'
+    },
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' },
+      { titulo: 'ordenes', agregado: 'ordenes' },
+      { titulo: 'facturado', agregado: 'facturado', numero: true }
+    ],
+    dice: {
+      from: 'Las mismas 64 combinaciones.',
+      group: 'Los mismos tres grupos del paso anterior.',
+      agregados: 'Los mismos valores. El HAVING de la etapa siguiente los necesita calculados para poder mirarlos.',
+      select: 'Quedaron dos grupos y salen dos filas.'
+    },
+    notas: {
+      from: 'El HAVING tampoco cambia el punto de partida.',
+      group: 'Comparar con el WHERE: aquel descarta filas antes de agrupar, y el HAVING descarta grupos ya armados.',
+      agregados: 'Un grupo con una sola fila también tiene agregados: COUNT vale 1 y SUM vale el total de esa fila.',
+      select: 'La lista final no menciona a Rossi. Sus filas entraron, se agruparon y se calcularon: el descarte ocurrió recién en el HAVING.'
+    }
+  },
+
+  {
+    id: 'p7',
+    boton: '7 · + ORDER BY y LIMIT',
+    pie: 'La consulta completa, con las diez etapas del orden de ejecución.',
+    sql: [
+      ['SELECT   C.apellido,', 'SELECT'],
+      ['         COUNT(*) AS ordenes,', ['SELECT', 'agregados']],
+      ['         SUM(O.total) AS facturado', ['SELECT', 'agregados']],
+      ['FROM     orden_servicio O, cliente C', 'FROM'],
+      ['WHERE    O.id_cliente = C.id_cliente', 'WHERE · relación'],
+      ['  AND    O.total > 0', 'WHERE'],
+      ['GROUP BY C.apellido', 'GROUP BY'],
+      ['HAVING   COUNT(*) > 1', 'HAVING'],
+      ['ORDER BY facturado DESC', 'ORDER BY'],
+      ['LIMIT    1', 'LIMIT']
+    ],
+    origenes: DOS_TABLAS,
+    columnas: COLS_DOS,
+    where: [W_RELACION, W_TOTAL],
+    groupBy: { valor: f => f['C.apellido'], titulo: 'C.apellido' },
+    agregados: [
+      { nombre: 'ordenes', tipo: 'count' },
+      { nombre: 'facturado', tipo: 'sum', col: 'O.total' }
+    ],
+    having: {
+      prueba: g => g.ordenes > 1,
+      dice: 'El grupo Rossi se va completo: una sola orden no cumple la condición.',
+      nota: 'Descartar un grupo acá tira a la basura el trabajo de agruparlo y calcularlo. Cuando la condición se puede escribir como WHERE, sale más barato.'
+    },
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' },
+      { titulo: 'ordenes', agregado: 'ordenes' },
+      { titulo: 'facturado', agregado: 'facturado', numero: true }
+    ],
+    orderBy: {
+      por: 'facturado',
+      desc: true,
+      dice: 'El ORDER BY nombra el alias facturado, que existe desde que corrió el SELECT. Pérez, con 99.000, pasa al primer lugar.',
+      nota: 'El mismo alias en el WHERE habría fallado: cuando el WHERE corrió, el SELECT todavía no había armado ninguna columna.'
+    },
+    limit: {
+      n: 1,
+      dice: 'La última etapa se queda con la primera fila. El motor ya cruzó 64 combinaciones, filtró dos veces, agrupó, calculó, descartó un grupo y ordenó.',
+      nota: 'Sin el ORDER BY de la etapa anterior, este LIMIT devolvería una fila cualquiera de las dos. Un «primero» exige haber ordenado.'
+    },
+    dice: {
+      from: '64 combinaciones para terminar en una fila.',
+      group: 'Tres grupos, que en dos etapas más van a ser uno.',
+      agregados: 'Estos son los números que el HAVING mira y por los que el ORDER BY ordena.',
+      select: 'Los dos grupos que sobrevivieron se convierten en dos filas, con los alias ordenes y facturado ya puestos.'
+    },
+    notas: {
+      from: 'Todo el recorrido está acá: FROM, WHERE dos veces, GROUP BY, agregados, HAVING, SELECT, ORDER BY y LIMIT.',
+      group: 'Las filas siguen a la vista porque el motor todavía las tiene. Recién las suelta en el SELECT.',
+      agregados: 'Un mismo grupo puede tener varias funciones: acá una cuenta filas y la otra suma una columna.',
+      select: 'Tres columnas que ninguna tabla tiene: una vino de cliente y las otras dos son cuentas.'
+    }
+  }
+,
+
+  {
+    id: 'p8',
+    boton: '8 · con JOIN',
+    pie: 'La misma consulta del paso 7, con la relación declarada en un ON.',
+    sql: [
+      ['SELECT   C.apellido,', ['SELECT', 'agregados']],
+      ['         COUNT(*) AS ordenes,', ['SELECT', 'agregados']],
+      ['         SUM(O.total) AS facturado', ['SELECT', 'agregados']],
+      ['FROM     orden_servicio O', 'FROM'],
+      ['INNER JOIN cliente C', 'JOIN … ON'],
+      ['         ON C.id_cliente = O.id_cliente', 'JOIN … ON'],
+      ['WHERE    O.total > 0', 'WHERE'],
+      ['GROUP BY C.apellido', 'GROUP BY'],
+      ['HAVING   COUNT(*) > 1', 'HAVING'],
+      ['ORDER BY facturado DESC', 'ORDER BY'],
+      ['LIMIT    1', 'LIMIT']
+    ],
+    origenes: [
+      { alias: 'O', tabla: 'orden_servicio' },
       {
-        rotulo: 'FROM',
-        nombre: 'Las filas de la primera tabla',
-        dice: 'El motor abre orden_servicio y se queda con sus ocho filas. Todavía no sabe nada de clientes ni de filtros.',
-        cuenta: '8 filas',
-        cols: ['nro_orden', 'fecha_ingreso', 'total', 'id_cliente'],
-        filas: [
-          ['1', '2026-05-01', '53500.00', '1'],
-          ['2', '2026-05-02', '40500.00', '2'],
-          ['3', '2026-05-10', '0.00', '5'],
-          ['4', '2026-05-15', '18500.00', '1'],
-          ['5', '2026-05-20', '27000.00', '1'],
-          ['6', '2026-05-22', '20000.00', '2'],
-          ['7', '2026-06-01', '0.00', '6'],
-          ['8', '2026-03-10', '9000.00', '7']
-        ],
-        nota: 'La consulta se escribió empezando por SELECT, pero la primera línea que corre es esta.'
-      },
-      {
+        alias: 'C',
+        tabla: 'cliente',
+        join: 'INNER',
+        on: f => f['O.id_cliente'] === f['C.id_cliente'],
         rotulo: 'JOIN … ON',
         nombre: 'Se suma la segunda tabla',
-        dice: 'Cada orden se aparea con su cliente. El ON deja pasar solo las combinaciones donde los id coinciden: de las 64 posibles quedan 8.',
-        cuenta: '8 filas · 2 columnas nuevas',
-        cols: ['nro_orden', 'total', 'id_cliente', 'apellido', 'nombre'],
-        nuevas: [3, 4],
-        filas: [
-          ['1', '53500.00', '1', 'Pérez', 'Juan'],
-          ['2', '40500.00', '2', 'García', 'María'],
-          ['3', '0.00', '5', 'Rossi', 'Diego'],
-          ['4', '18500.00', '1', 'Pérez', 'Juan'],
-          ['5', '27000.00', '1', 'Pérez', 'Juan'],
-          ['6', '20000.00', '2', 'García', 'María'],
-          ['7', '0.00', '6', 'Pérez', 'Juan'],
-          ['8', '9000.00', '7', 'Rossi', 'Sofía']
-        ],
-        nota: 'Los clientes López, Martínez y Ferreyra no aparecen: no tienen órdenes, y el INNER JOIN los deja afuera. Con LEFT JOIN entrarían con las columnas de la orden en NULL.'
-      },
-      {
-        rotulo: 'WHERE',
-        nombre: 'Se descartan filas',
-        dice: 'La condición mira una fila por vez. Las órdenes 3 y 7, ambas pendientes y en cero, no la cumplen y se van.',
-        cuenta: '8 filas → <strong>6 filas</strong> <span class="baja">(−2)</span>',
-        cols: ['nro_orden', 'total', 'apellido', 'nombre'],
-        filas: [
-          ['1', '53500.00', 'Pérez', 'Juan'],
-          ['2', '40500.00', 'García', 'María'],
-          ['3', '0.00', 'Rossi', 'Diego'],
-          ['4', '18500.00', 'Pérez', 'Juan'],
-          ['5', '27000.00', 'Pérez', 'Juan'],
-          ['6', '20000.00', 'García', 'María'],
-          ['7', '0.00', 'Pérez', 'Juan'],
-          ['8', '9000.00', 'Rossi', 'Sofía']
-        ],
-        seVan: [2, 6],
-        nota: 'Estas dos filas ya no vuelven. El HAVING filtra grupos, y no puede recuperar filas que el WHERE descartó.'
+        dice: 'El motor busca, para cada orden, el cliente que cumple la condición del ON. La tabla de 64 filas nunca llega a existir: el emparejamiento y la condición son una sola etapa.',
+        nota: 'Si alguna orden no tuviera cliente, el INNER JOIN la dejaría afuera acá mismo. En esta base ninguna se pierde: todas tienen su id_cliente cargado.',
+        columnasNuevas: ['C.id_cliente', 'C.apellido', 'C.nombre']
       }
-    ]
+    ],
+    columnas: COLS_DOS,
+    where: [W_TOTAL],
+    groupBy: { valor: f => f['C.apellido'], titulo: 'C.apellido' },
+    agregados: [
+      { nombre: 'ordenes', tipo: 'count' },
+      { nombre: 'facturado', tipo: 'sum', col: 'O.total' }
+    ],
+    having: {
+      prueba: g => g.ordenes > 1,
+      dice: 'El grupo Rossi se va completo: una sola orden no cumple la condición.',
+      nota: 'Hasta acá, todo idéntico al paso 7. El cambio quedó atrás, en cómo se armaron las ocho filas con las que trabajó el WHERE.'
+    },
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' },
+      { titulo: 'ordenes', agregado: 'ordenes' },
+      { titulo: 'facturado', agregado: 'facturado', numero: true }
+    ],
+    orderBy: {
+      por: 'facturado',
+      desc: true,
+      dice: 'Mismo orden y mismo resultado que en el paso 7.',
+      nota: 'Las dos versiones son equivalentes y el motor arma para las dos el mismo plan de ejecución. Con la coma, quien escribe puede olvidarse la condición de relación; con el JOIN, la gramática se lo impide.'
+    },
+    limit: {
+      n: 1,
+      dice: 'Una fila, la misma del paso 7.',
+      nota: 'Vale comparar los dos recorridos completos: el de la coma pasa por 64 filas y este arranca en 8. El resultado no distingue cuál se usó.'
+    },
+    dice: {
+      from: 'Con la sintaxis de JOIN, el FROM nombra una sola tabla: las ocho filas de orden_servicio.',
+      group: 'Los mismos tres grupos del paso 7.',
+      agregados: 'Los mismos valores del paso 7.',
+      select: 'Los dos grupos que sobrevivieron se convierten en dos filas.'
+    },
+    notas: {
+      from: 'La diferencia con el paso 7 se ve acá: el conjunto de partida tiene 8 filas en lugar de 64.',
+      group: 'Agrupar no distingue cómo se cruzaron las tablas: le llegan las mismas seis filas.',
+      agregados: 'La igualdad con los valores del paso 7 no es casualidad: las dos consultas describen lo mismo.',
+      select: 'Del GROUP BY en adelante, los dos recorridos son indistinguibles.'
+    }
+  },
+
+  {
+    id: 'p9',
+    boton: '9 · LEFT JOIN',
+    pie: 'Conservar las filas de la izquierda que no tienen pareja, y qué hace COUNT con ellas.',
+    sql: [
+      ['SELECT   C.apellido, C.nombre,', ['SELECT', 'agregados']],
+      ['         COUNT(*) AS filas,', ['SELECT', 'agregados']],
+      ['         COUNT(O.nro_orden) AS ordenes', ['SELECT', 'agregados']],
+      ['FROM     cliente C', 'FROM'],
+      ['LEFT JOIN orden_servicio O', 'LEFT JOIN … ON'],
+      ['         ON O.id_cliente = C.id_cliente', 'LEFT JOIN … ON'],
+      ['GROUP BY C.id_cliente, C.apellido, C.nombre', 'GROUP BY']
+    ],
+    origenes: [
+      { alias: 'C', tabla: 'cliente' },
+      {
+        alias: 'O',
+        tabla: 'orden_servicio',
+        join: 'LEFT',
+        on: f => f['O.id_cliente'] === f['C.id_cliente'],
+        rotulo: 'LEFT JOIN … ON',
+        nombre: 'Se conservan las filas sin pareja',
+        dice: 'Cada cliente se aparea con sus órdenes. Los tres que no tienen ninguna entran igual, con las columnas de orden_servicio en NULL: son las filas que el INNER JOIN habría descartado.',
+        nota: 'De 8 clientes salen 11 filas: cinco aportan sus 8 órdenes entre todos, y tres aportan una fila vacía cada uno.',
+        columnasNuevas: ['O.nro_orden', 'O.total']
+      }
+    ],
+    columnas: [
+      { clave: 'C.id_cliente', titulo: 'C.id_cliente' },
+      { clave: 'C.apellido', titulo: 'C.apellido' },
+      { clave: 'C.nombre', titulo: 'C.nombre' },
+      { clave: 'O.nro_orden', titulo: 'O.nro_orden' },
+      { clave: 'O.total', titulo: 'O.total', numero: true }
+    ],
+    groupBy: {
+      valor: f => f['C.id_cliente'],
+      rotulo: f => f['C.apellido'] + ', ' + f['C.nombre'],
+      titulo: 'C.id_cliente'
+    },
+    agregados: [
+      { nombre: 'filas', tipo: 'count' },
+      { nombre: 'ordenes', tipo: 'count', col: 'O.nro_orden' }
+    ],
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' },
+      { titulo: 'nombre', desde: 'C.nombre' },
+      { titulo: 'filas', agregado: 'filas' },
+      { titulo: 'ordenes', agregado: 'ordenes' }
+    ],
+    dice: {
+      from: 'Esta vez el FROM arranca por cliente: las ocho personas, incluidas las que nunca trajeron nada al taller.',
+      group: 'Un grupo por cliente, no por apellido: así los dos Juan Pérez y las dos Rossi quedan separados.',
+      agregados: 'Acá se separan las dos maneras de contar. COUNT(*) cuenta filas del grupo; COUNT(O.nro_orden) cuenta valores, y los NULL no son valores.',
+      select: 'Ocho grupos, ocho filas de salida. Tres de ellas dicen que el cliente tiene una fila y cero órdenes.'
+    },
+    notas: {
+      from: 'Cuál tabla va primero decide qué filas se conservan: el LEFT JOIN protege a la de la izquierda.',
+      group: 'Agrupar por id_cliente en vez de por apellido es lo que permite proyectar el nombre de pila sin que el motor proteste.',
+      agregados: 'Mirá los grupos de López, Martínez y Ferreyra: COUNT(*) da 1 y COUNT(O.nro_orden) da 0. La diferencia es la fila con NULL que puso el LEFT JOIN.',
+      select: 'Para preguntar «cuántas órdenes tiene cada cliente», la columna correcta es la última. La otra cuenta las filas de una tabla intermedia que el LEFT JOIN acaba de armar.'
+    }
+  },
+
+  {
+    id: 'p10',
+    boton: '10 · DISTINCT',
+    pie: 'La etapa que corre entre el SELECT y el ORDER BY.',
+    sql: [
+      ['SELECT   DISTINCT C.apellido', ['SELECT', 'DISTINCT']],
+      ['FROM     orden_servicio O', 'FROM'],
+      ['INNER JOIN cliente C', 'JOIN … ON'],
+      ['         ON C.id_cliente = O.id_cliente', 'JOIN … ON'],
+      ['ORDER BY C.apellido', 'ORDER BY']
+    ],
+    origenes: [
+      { alias: 'O', tabla: 'orden_servicio' },
+      {
+        alias: 'C',
+        tabla: 'cliente',
+        join: 'INNER',
+        on: f => f['O.id_cliente'] === f['C.id_cliente'],
+        rotulo: 'JOIN … ON',
+        nombre: 'Se suma la segunda tabla',
+        dice: 'Ocho órdenes con su cliente, igual que en el paso 8.',
+        nota: 'Los clientes sin órdenes no llegan a esta lista: el INNER JOIN los deja afuera.',
+        columnasNuevas: ['C.id_cliente', 'C.apellido', 'C.nombre']
+      }
+    ],
+    columnas: COLS_DOS,
+    select: [
+      { titulo: 'apellido', desde: 'C.apellido' }
+    ],
+    distinct: {
+      dice: 'Las ocho filas proyectadas quedan en tres. DISTINCT compara la fila de salida completa, que acá tiene una sola columna.',
+      nota: 'Si el SELECT también proyectara O.nro_orden, ninguna fila se repetiría y el DISTINCT no descartaría nada. Trabaja sobre lo que el SELECT armó, columna por columna.'
+    },
+    orderBy: {
+      por: 'apellido',
+      desc: false,
+      dice: 'Los tres apellidos, en orden alfabético.',
+      nota: 'Con DISTINCT, el ORDER BY solo puede nombrar columnas que estén en el SELECT. Ordenar por O.total una lista de apellidos únicos no tendría sentido, y el motor lo rechaza.'
+    },
+    dice: {
+      from: 'Las ocho órdenes.',
+      select: 'De las seis columnas disponibles se proyecta una sola, y ahí aparecen las repeticiones: cuatro filas dicen Pérez.'
+    },
+    notas: {
+      from: 'Una consulta corta, para ver la etapa que faltaba.',
+      select: 'Las repeticiones aparecen con la proyección: al quedarse con una sola columna, varias filas de origen dan la misma fila de salida.'
+    }
+  }
+,
+
+  {
+    id: 'p11',
+    boton: '11 · subconsulta en el FROM',
+    pie: 'Una consulta que empieza resolviendo otra consulta entera.',
+    sql: [
+      ['SELECT   apellido, ordenes', 'SELECT'],
+      ['FROM     (SELECT   C.apellido, COUNT(*) AS ordenes', ['la subconsulta', 'FROM']],
+      ['          FROM     orden_servicio O', 'la subconsulta'],
+      ['          JOIN     cliente C ON C.id_cliente = O.id_cliente', 'la subconsulta'],
+      ['          GROUP BY C.apellido) AS t', ['la subconsulta', 'FROM']],
+      ['WHERE    ordenes > 2', 'WHERE']
+    ],
+    previa: {
+      rotulo: 'la subconsulta',
+      nombre: 'Primero se resuelve la de adentro',
+      alias: 't',
+      tabla: 't',
+      columnas: [
+        { clave: 't.apellido', titulo: 'apellido' },
+        { clave: 't.ordenes', titulo: 'ordenes' }
+      ],
+      dice: 'La subconsulta del FROM se ejecuta completa —con su propio JOIN, su GROUP BY y su COUNT— antes de que empiece nada de la consulta de afuera. Su resultado es una tabla con nombre: t.',
+      nota: 'Es el mismo recorrido de los pasos 5 a 7, pero terminado. Para la consulta de afuera, t no se distingue de una tabla del modelo.'
+    },
+    origenes: [{ alias: 't', tabla: 't' }],
+    columnas: [
+      { clave: 't.apellido', titulo: 't.apellido' },
+      { clave: 't.ordenes', titulo: 't.ordenes' }
+    ],
+    where: [{
+      rotulo: 'WHERE',
+      nombre: 'Se descartan filas de la tabla derivada',
+      dice: 'El WHERE de afuera nombra ordenes, que adentro era un alias del SELECT. Acá ya es una columna de t, así que puede usarlo sin problema.',
+      prueba: f => f['t.ordenes'] > 2,
+      nota: 'Envolver la consulta convierte sus alias en columnas de verdad, y con eso se resuelve el problema de la sección «El alias que todavía no existe».'
+    }],
+    select: [
+      { titulo: 'apellido', desde: 't.apellido' },
+      { titulo: 'ordenes', desde: 't.ordenes' }
+    ],
+    dice: {
+      from: 'El FROM de la consulta de afuera toma la tabla t, con sus tres filas ya calculadas.',
+      select: 'Las dos columnas de t, para la única fila que pasó el filtro.'
+    },
+    notas: {
+      from: 'Las ocho órdenes y los ocho clientes quedaron atrás, en la subconsulta. La consulta de afuera no los ve.',
+      select: 'Pérez tiene cuatro órdenes contando la del homónimo: acá no hay WHERE que descarte las órdenes en cero, a diferencia de los pasos 5 a 8.'
+    }
   }
 ]
 
-CASOS.forEach(c => { c.etapas = c.etapas.concat(etapasFinales()) })
 
-let caso = 0
+const TONOS = ['var(--bloque-cian)', 'var(--bloque-violeta)', 'var(--bloque-ambar)',
+               'var(--bloque-rosa)', 'var(--bloque-azul)', 'var(--bloque-verde)']
+
+let paso = 0
 let actual = 0
+let recorrido = recorrer(CONSULTAS[0])
 
-function pintarCasos () {
-  const caja = document.getElementById('visor-casos')
+const $ = id => document.getElementById(id)
+
+function celda (fila, col, nuevas) {
+  const td = document.createElement('td')
+  const valor = fila[col.clave]
+  const clases = []
+  if (valor === null || valor === undefined) {
+    td.textContent = 'NULL'
+    clases.push('nulo')
+  } else {
+    td.textContent = col.numero ? Number(valor).toFixed(2) : valor
+    if (col.numero) clases.push('num')
+  }
+  if (nuevas && nuevas.includes(col.clave)) clases.push('nuevo')
+  td.className = clases.join(' ')
+  return td
+}
+
+function encabezado (tabla, titulos, numericas) {
+  const thead = document.createElement('thead')
+  const tr = document.createElement('tr')
+  titulos.forEach((t, i) => {
+    const th = document.createElement('th')
+    th.textContent = t
+    if (numericas && numericas[i]) th.className = 'num'
+    tr.appendChild(th)
+  })
+  thead.appendChild(tr)
+  tabla.appendChild(thead)
+}
+
+/* Una fila que ocupa todo el ancho, para los rótulos de grupo y sus cuentas */
+function filaAncha (clases, ancho, armar) {
+  const tr = document.createElement('tr')
+  tr.className = clases
+  const td = document.createElement('td')
+  td.colSpan = ancho
+  armar(td)
+  tr.appendChild(td)
+  return tr
+}
+
+function pintarTabla (e) {
+  const tabla = $('visor-tabla')
+  tabla.innerHTML = ''
+  const caja = $('visor-scroll')
+  caja.className = 'visor-scroll' + (e.salida ? ' visor-salida' : '')
+
+  /* --- el resultado ya proyectado --- */
+  if (e.salida) {
+    const titulos = e.colsSalida
+    encabezado(tabla, titulos, titulos.map(t => e.salida.some(f => typeof f[t] === 'number')))
+    const tbody = document.createElement('tbody')
+    e.salida.forEach((fila, i) => {
+      const tr = document.createElement('tr')
+      if (e.cortaDesde !== undefined && i >= e.cortaDesde) tr.className = 'se-va'
+      if (e.repetidas && e.repetidas.includes(i)) tr.className = 'se-va'
+      titulos.forEach(t => {
+        const td = document.createElement('td')
+        const v = fila[t]
+        td.textContent = typeof v === 'number' && String(t) !== 'ordenes' ? v.toFixed(2) : v
+        if (typeof v === 'number') td.className = 'num'
+        tr.appendChild(td)
+      })
+      tbody.appendChild(tr)
+    })
+    tabla.appendChild(tbody)
+    return
+  }
+
+  const cols = e.cols
+  encabezado(tabla, cols.map(c => c.titulo), cols.map(c => c.numero))
+  const tbody = document.createElement('tbody')
+
+  /* --- los grupos, con sus filas adentro --- */
+  if (e.grupos) {
+    e.grupos.forEach((g, i) => {
+      const tono = TONOS[i % TONOS.length]
+      const seVa = g.estado === 'se-va'
+
+      const cab = filaAncha('grupo-cab' + (seVa ? ' grupo-se-va' : ''), cols.length, td => {
+        const chapa = document.createElement('span')
+        chapa.className = 'chapa'
+        td.appendChild(chapa)
+        td.appendChild(document.createTextNode(
+          'grupo «' + (g.rotulo !== undefined ? g.rotulo : g.clave) + '» · ' + g.filas.length + (g.filas.length === 1 ? ' fila' : ' filas')))
+      })
+      cab.style.setProperty('--tono', tono)
+      tbody.appendChild(cab)
+
+      g.filas.forEach(f => {
+        const tr = document.createElement('tr')
+        tr.className = 'del-grupo' + (seVa ? ' grupo-se-va' : '')
+        tr.style.setProperty('--tono', tono)
+        cols.forEach(c => tr.appendChild(celda(f.datos, c)))
+        if (f.conNulos) tr.classList.add('con-nulos')
+        tbody.appendChild(tr)
+      })
+
+      if (g.valores) {
+        const calc = filaAncha('grupo-calc' + (seVa ? ' grupo-se-va' : ''), cols.length, td => {
+          g.valores.forEach((v, j) => {
+            if (j) {
+              const br = document.createElement('br')
+              td.appendChild(br)
+            }
+            const fn = document.createElement('span')
+            fn.className = 'fn'
+            fn.textContent = v.fn + '  '
+            td.appendChild(fn)
+            td.appendChild(document.createTextNode(v.expr + '   →   '))
+            const alias = document.createElement('span')
+            alias.className = 'igual'
+            alias.textContent = v.nombre
+            td.appendChild(alias)
+          })
+        })
+        tbody.appendChild(calc)
+      }
+    })
+
+    ;(e.descartadas || []).forEach(f => {
+      const tr = document.createElement('tr')
+      tr.className = 'ida'
+      cols.forEach(c => tr.appendChild(celda(f.datos, c)))
+      tbody.appendChild(tr)
+    })
+    tabla.appendChild(tbody)
+    return
+  }
+
+  /* --- la tabla de trabajo --- */
+  e.filas.forEach(f => {
+    const tr = document.createElement('tr')
+    const clases = []
+    if (f.estado !== 'queda') clases.push(f.estado)
+    if (f.conNulos) clases.push('con-nulos')
+    tr.className = clases.join(' ')
+    cols.forEach(c => tr.appendChild(celda(f.datos, c, e.nuevas)))
+    tbody.appendChild(tr)
+  })
+  tabla.appendChild(tbody)
+}
+
+function pintarLeyenda (e) {
+  const caja = $('visor-leyenda')
   caja.innerHTML = ''
-  CASOS.forEach((c, i) => {
+  const marcas = []
+  if (e.salida) {
+    marcas.push(['l-queda', e.cortaDesde !== undefined ? 'se devuelven' : 'filas del resultado'])
+    if (e.cortaDesde !== undefined) marcas.push(['l-sale', 'las corta el LIMIT'])
+    if (e.repetidas && e.repetidas.length) marcas.push(['l-sale', 'repetidas, las descarta DISTINCT'])
+  } else if (e.grupos) {
+    marcas.push(['l-queda', 'cada bloque es un grupo'])
+    if (e.grupos.some(g => g.estado === 'se-va')) marcas.push(['l-sale', 'grupo descartado entero'])
+    if ((e.descartadas || []).length) marcas.push(['l-ida', 'filas que ya había descartado el WHERE'])
+  } else {
+    marcas.push(['l-queda', 'siguen en juego'])
+    if (e.filas.some(f => f.estado === 'se-va')) marcas.push(['l-sale', 'las descarta esta etapa'])
+    if (e.filas.some(f => f.conNulos)) marcas.push(['l-nula', 'sin pareja: el LEFT JOIN las completa con NULL'])
+    if (e.filas.some(f => f.estado === 'ida')) marcas.push(['l-ida', 'ya estaban descartadas'])
+  }
+  marcas.forEach(([clase, texto]) => {
+    const s = document.createElement('span')
+    s.className = clase
+    s.textContent = texto
+    caja.appendChild(s)
+  })
+}
+
+function pintarPasos () {
+  const caja = $('visor-pasos')
+  caja.innerHTML = ''
+  CONSULTAS.forEach((c, i) => {
     const b = document.createElement('button')
     b.type = 'button'
     b.textContent = c.boton
-    b.setAttribute('aria-pressed', i === caso ? 'true' : 'false')
-    b.addEventListener('click', () => { caso = i; actual = 0; pintar() })
+    b.setAttribute('aria-pressed', i === paso ? 'true' : 'false')
+    b.addEventListener('click', () => {
+      paso = i
+      actual = 0
+      recorrido = recorrer(CONSULTAS[paso])
+      pintar()
+    })
     caja.appendChild(b)
   })
-  const pie = document.createElement('span')
-  pie.className = 'caso-nota'
-  pie.textContent = CASOS[caso].pie
-  caja.appendChild(pie)
+  $('visor-pie').textContent = CONSULTAS[paso].pie
 }
 
 function pintarBarra () {
-  const barra = document.getElementById('visor-barra')
+  const barra = $('visor-barra')
   barra.innerHTML = ''
-  CASOS[caso].etapas.forEach((e, i) => {
+  recorrido.etapas.forEach((e, i) => {
     const b = document.createElement('button')
     b.type = 'button'
     b.textContent = (i + 1) + ' · ' + e.rotulo
@@ -1105,70 +2326,663 @@ function pintarBarra () {
 }
 
 function pintarSQL () {
-  const caja = document.getElementById('visor-sql')
+  const caja = $('visor-sql')
   caja.innerHTML = ''
-  CASOS[caso].consulta.forEach(l => {
+  const rotulos = recorrido.etapas.map(e => e.rotulo)
+  const enCurso = rotulos[actual]
+  CONSULTAS[paso].sql.forEach(([txt, rotulo]) => {
     const span = document.createElement('span')
     span.className = 'linea'
-    if (l.etapa === actual) span.classList.add('activa')
-    else if (l.etapa < actual) span.classList.add('hecha')
-    span.textContent = l.txt
+    const suyos = Array.isArray(rotulo) ? rotulo : [rotulo]
+    const primera = Math.min.apply(null, suyos.map(r => rotulos.indexOf(r)).filter(i => i !== -1))
+    if (suyos.includes(enCurso)) span.classList.add('activa')
+    else if (primera !== Infinity && primera < actual) span.classList.add('hecha')
+    span.textContent = txt
     caja.appendChild(span)
   })
 }
 
-function pintarTabla () {
-  const e = CASOS[caso].etapas[actual]
-  const tabla = document.getElementById('visor-tabla')
-  tabla.innerHTML = ''
+function pintar () {
+  const e = recorrido.etapas[actual]
+  $('visor-etapa').textContent = 'Etapa ' + (actual + 1) + ' de ' + recorrido.etapas.length
+  $('visor-nombre').textContent = e.nombre
+  $('visor-dice').textContent = e.dice
+  $('visor-cuenta').innerHTML = e.cuenta
+  $('visor-nota').textContent = e.nota
+  pintarPasos()
+  pintarBarra()
+  pintarSQL()
+  pintarTabla(e)
+  pintarLeyenda(e)
+}
 
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'ArrowRight' && actual < recorrido.etapas.length - 1) { actual++; pintar() }
+  if (ev.key === 'ArrowLeft' && actual > 0) { actual--; pintar() }
+})
+
+pintar()
+
+/* ---------------------------------------------------------------------------
+   El panel de los JOIN
+
+   Ocho maneras de cruzar cliente con orden_servicio, cada una con su diagrama
+   y con el resultado real sobre El Chip. Las filas también se calculan acá: no
+   hay ninguna escrita a mano.
+   ------------------------------------------------------------------------ */
+
+const COLS_JOIN = [
+  { clave: 'C.id_cliente', titulo: 'C.id_cliente' },
+  { clave: 'C.apellido', titulo: 'C.apellido' },
+  { clave: 'C.nombre', titulo: 'C.nombre' },
+  { clave: 'O.nro_orden', titulo: 'O.nro_orden' },
+  { clave: 'O.total', titulo: 'O.total', numero: true }
+]
+
+/* Cruza las dos tablas de las ocho maneras. 'izq' es cliente y 'der' es
+   orden_servicio; emparejan por id_cliente. */
+function cruzar (tipo) {
+  const izq = TABLAS.cliente
+  const der = TABLAS.orden_servicio
+  const par = (c, o) => Object.assign({},
+    combinar([{ alias: 'C', dato: c }]),
+    o ? combinar([{ alias: 'O', dato: o }]) : nulos('O', 'orden_servicio'))
+  const soloDer = o => Object.assign({}, nulos('C', 'cliente'), combinar([{ alias: 'O', dato: o }]))
+  const empareja = (c, o) => o.id_cliente === c.id_cliente
+
+  const emparejadas = []
+  const izqSolas = []
+  izq.forEach(c => {
+    const suyas = der.filter(o => empareja(c, o))
+    if (suyas.length) suyas.forEach(o => emparejadas.push(par(c, o)))
+    else izqSolas.push(par(c, null))
+  })
+  const derSolas = der.filter(o => !izq.some(c => empareja(c, o))).map(soloDer)
+
+  switch (tipo) {
+    case 'inner': return emparejadas
+    case 'left': return emparejadas.concat(izqSolas)
+    case 'leftEx': return izqSolas
+    case 'right': return emparejadas.concat(derSolas)
+    case 'rightEx': return derSolas
+    case 'full': return emparejadas.concat(izqSolas, derSolas)
+    case 'fullEx': return izqSolas.concat(derSolas)
+    case 'cross': {
+      const todas = []
+      izq.forEach(c => der.forEach(o => todas.push(par(c, o))))
+      return todas
+    }
+  }
+  return []
+}
+
+const CASOS_JOIN = [
+  {
+    id: 'inner',
+    nombre: 'INNER JOIN',
+    regiones: ['inter'],
+    sql: 'FROM cliente C\nINNER JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente',
+    dice: 'Solo los pares que emparejan. Un cliente sin órdenes no aparece, y una orden sin cliente tampoco.',
+    nota: 'Las 8 filas son 8 pares, pero los clientes involucrados son 5: Juan Pérez aporta tres pares él solo. El diagrama sugiere que la intersección es lo más chico, y acá tiene más filas que clientes.'
+  },
+  {
+    id: 'left',
+    nombre: 'LEFT JOIN',
+    regiones: ['izq', 'inter'],
+    sql: 'FROM cliente C\nLEFT JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente',
+    dice: 'Todos los clientes, tengan órdenes o no. Los que no tienen entran una vez, con las columnas de orden_servicio en NULL.',
+    nota: 'Sirve para preguntar «y los que no». Cuidado con COUNT(*) después de un LEFT JOIN: cuenta también la fila con NULL.'
+  },
+  {
+    id: 'leftEx',
+    nombre: 'LEFT excluyente',
+    regiones: ['izq'],
+    sql: 'FROM cliente C\nLEFT JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente\nWHERE O.nro_orden IS NULL',
+    dice: 'Solo los clientes que no tienen ninguna orden. Se consigue con un LEFT JOIN y un filtro por NULL.',
+    nota: 'El WHERE tiene que preguntar por una columna que no admita NULL en la tabla de origen —una clave primaria, por ejemplo—, o el filtro se confunde con los NULL que ya existían.'
+  },
+  {
+    id: 'right',
+    nombre: 'RIGHT JOIN',
+    regiones: ['inter', 'der'],
+    sql: 'FROM cliente C\nRIGHT JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente',
+    dice: 'Todas las órdenes, tengan cliente o no. En esta base ninguna está huérfana, así que devuelve lo mismo que el INNER JOIN.',
+    nota: 'La región derecha está vacía porque id_cliente es una clave foránea obligatoria: el modelo impide que exista una orden sin cliente. El diagrama muestra cuatro regiones y esta base solo puede llenar dos.'
+  },
+  {
+    id: 'rightEx',
+    nombre: 'RIGHT excluyente',
+    regiones: ['der'],
+    sql: 'FROM cliente C\nRIGHT JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente\nWHERE C.id_cliente IS NULL',
+    dice: 'Las órdenes sin cliente. No hay ninguna, y el resultado vacío es la respuesta.',
+    nota: 'Una consulta que devuelve cero filas puede ser exactamente lo que se quería saber. Esta sirve como control de integridad: si algún día devuelve algo, hay datos rotos.'
+  },
+  {
+    id: 'full',
+    nombre: 'FULL OUTER JOIN',
+    regiones: ['izq', 'inter', 'der'],
+    sql: 'FROM cliente C\nFULL OUTER JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente',
+    dice: 'Todo de los dos lados: los pares, los clientes sin órdenes y las órdenes sin cliente.',
+    nota: 'MySQL no tiene FULL OUTER JOIN. Se arma con la unión de los otros dos: un LEFT JOIN UNION un RIGHT JOIN. PostgreSQL —el motor de la consola del sitio— sí lo acepta.'
+  },
+  {
+    id: 'fullEx',
+    nombre: 'FULL excluyente',
+    regiones: ['izq', 'der'],
+    sql: 'FROM cliente C\nFULL OUTER JOIN orden_servicio O\n  ON O.id_cliente = C.id_cliente\nWHERE C.id_cliente IS NULL\n   OR O.nro_orden IS NULL',
+    dice: 'Lo que quedó suelto de los dos lados. Acá son los tres clientes sin órdenes, porque del otro lado no hay nada suelto.',
+    nota: 'Busca datos huérfanos en las dos direcciones a la vez. En una base con integridad referencial, la mitad viene vacía.'
+  },
+  {
+    id: 'cross',
+    nombre: 'CROSS JOIN',
+    regiones: [],
+    sql: 'FROM cliente C\nCROSS JOIN orden_servicio O',
+    dice: 'Todas las combinaciones: cada cliente con cada orden, sin condición que las empareje. Es lo mismo que la coma del paso 4 del visor.',
+    nota: 'El diagrama no lo representa: sus regiones describen la unión de dos conjuntos y el CROSS devuelve el producto de los dos. 8 clientes × 8 órdenes = 64 filas, y solo 8 de esas combinaciones significan algo.'
+  }
+]
+
+const SVG_NS = 'http://www.w3.org/2000/svg'
+
+/* Dibuja los dos círculos y trama las regiones que pide el caso. Cada diagrama
+   lleva su propio sufijo de id porque en la página hay varios a la vez. */
+function venn (regiones, ancho, sufijo, rotulos) {
+  const alto = Math.round(ancho * 0.62)
+  const e = ancho / 260
+  const svg = document.createElementNS(SVG_NS, 'svg')
+  svg.setAttribute('viewBox', '0 0 260 160')
+  svg.setAttribute('width', ancho)
+  svg.setAttribute('height', alto)
+  svg.setAttribute('role', 'img')
+  svg.setAttribute('class', 'venn')
+
+  const defs = document.createElementNS(SVG_NS, 'defs')
+  const trama = document.createElementNS(SVG_NS, 'pattern')
+  trama.setAttribute('id', 'trama' + sufijo)
+  trama.setAttribute('patternUnits', 'userSpaceOnUse')
+  trama.setAttribute('width', '7')
+  trama.setAttribute('height', '7')
+  const raya = document.createElementNS(SVG_NS, 'path')
+  raya.setAttribute('d', 'M0,7 l7,-7 M-1,1 l2,-2 M6,8 l2,-2')
+  raya.setAttribute('class', 'venn-raya')
+  trama.appendChild(raya)
+  defs.appendChild(trama)
+
+  const circulo = (cx) => {
+    const c = document.createElementNS(SVG_NS, 'circle')
+    c.setAttribute('cx', cx); c.setAttribute('cy', '80'); c.setAttribute('r', '58')
+    return c
+  }
+  const CX_A = 100, CX_B = 160
+
+  const clip = document.createElementNS(SVG_NS, 'clipPath')
+  clip.setAttribute('id', 'clipA' + sufijo)
+  clip.appendChild(circulo(CX_A))
+  defs.appendChild(clip)
+
+  const mascara = (id, quita) => {
+    const m = document.createElementNS(SVG_NS, 'mask')
+    m.setAttribute('id', id)
+    const fondo = document.createElementNS(SVG_NS, 'rect')
+    fondo.setAttribute('width', '260'); fondo.setAttribute('height', '160'); fondo.setAttribute('fill', 'white')
+    m.appendChild(fondo)
+    const hueco = circulo(quita)
+    hueco.setAttribute('fill', 'black')
+    m.appendChild(hueco)
+    return m
+  }
+  defs.appendChild(mascara('soloA' + sufijo, CX_B))
+  defs.appendChild(mascara('soloB' + sufijo, CX_A))
+  svg.appendChild(defs)
+
+  const pintar = (elem, activa) => {
+    elem.setAttribute('fill', activa ? 'url(#trama' + sufijo + ')' : 'transparent')
+    elem.setAttribute('class', 'venn-region' + (activa ? ' activa' : ''))
+    svg.appendChild(elem)
+  }
+
+  const izq = circulo(CX_A)
+  izq.setAttribute('mask', 'url(#soloA' + sufijo + ')')
+  pintar(izq, regiones.includes('izq'))
+
+  const der = circulo(CX_B)
+  der.setAttribute('mask', 'url(#soloB' + sufijo + ')')
+  pintar(der, regiones.includes('der'))
+
+  const inter = circulo(CX_B)
+  inter.setAttribute('clip-path', 'url(#clipA' + sufijo + ')')
+  pintar(inter, regiones.includes('inter'))
+
+  ;[CX_A, CX_B].forEach(cx => {
+    const borde = circulo(cx)
+    borde.setAttribute('class', 'venn-borde')
+    svg.appendChild(borde)
+  })
+
+  if (rotulos) {
+    const texto = (x, t) => {
+      const n = document.createElementNS(SVG_NS, 'text')
+      n.setAttribute('x', x); n.setAttribute('y', '18')
+      n.setAttribute('class', 'venn-rotulo')
+      n.textContent = t
+      svg.appendChild(n)
+    }
+    texto(58, 'cliente')
+    texto(202, 'orden_servicio')
+  }
+  return svg
+}
+
+let casoJoin = 0
+
+function pintarJoin () {
+  const caso = CASOS_JOIN[casoJoin]
+  const filas = cruzar(caso.id)
+
+  const menu = document.getElementById('join-menu')
+  menu.innerHTML = ''
+  CASOS_JOIN.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.setAttribute('aria-pressed', i === casoJoin ? 'true' : 'false')
+    b.appendChild(venn(c.regiones, 56, '-m' + i, false))
+    const t = document.createElement('span')
+    t.textContent = c.nombre
+    b.appendChild(t)
+    b.addEventListener('click', () => { casoJoin = i; pintarJoin() })
+    menu.appendChild(b)
+  })
+
+  const dibujo = document.getElementById('join-dibujo')
+  dibujo.innerHTML = ''
+  dibujo.appendChild(venn(caso.regiones, 260, '-g', true))
+
+  document.getElementById('join-nombre').textContent = caso.nombre
+  document.getElementById('join-sql').textContent = caso.sql
+  document.getElementById('join-dice').textContent = caso.dice
+  document.getElementById('join-nota').textContent = caso.nota
+  document.getElementById('join-cuenta').innerHTML = filas.length
+    ? '<strong>' + filas.length + (filas.length === 1 ? ' fila' : ' filas') + '</strong> sobre El Chip'
+    : '<strong>ninguna fila</strong> · Empty set'
+
+  const tabla = document.getElementById('join-tabla')
+  tabla.innerHTML = ''
   const thead = document.createElement('thead')
   const trh = document.createElement('tr')
-  e.cols.forEach(c => {
+  COLS_JOIN.forEach(c => {
     const th = document.createElement('th')
-    th.textContent = c
+    th.textContent = c.titulo
+    if (c.numero) th.className = 'num'
     trh.appendChild(th)
   })
   thead.appendChild(trh)
   tabla.appendChild(thead)
-
   const tbody = document.createElement('tbody')
-  e.filas.forEach((fila, i) => {
+  filas.forEach(f => {
     const tr = document.createElement('tr')
-    if (e.continua && e.continua.includes(i)) tr.className = 'continua'
-    else if (e.seVan && e.seVan.includes(i)) tr.className = 'se-va'
-    fila.forEach((valor, j) => {
-      const td = document.createElement('td')
-      if (e.nuevas && e.nuevas.includes(j)) td.className = 'nuevo'
-      if (e.detalle === j) td.className = 'detalle'
-      td.textContent = valor
-      tr.appendChild(td)
-    })
+    if (f['O.nro_orden'] === null || f['C.id_cliente'] === null) tr.className = 'con-nulos'
+    COLS_JOIN.forEach(c => tr.appendChild(celda(f, c)))
     tbody.appendChild(tr)
   })
   tabla.appendChild(tbody)
 }
 
-function pintar () {
-  const e = CASOS[caso].etapas[actual]
-  document.getElementById('visor-etapa').textContent = 'Etapa ' + (actual + 1)
-  document.getElementById('visor-nombre').textContent = e.nombre
-  document.getElementById('visor-dice').textContent = e.dice
-  document.getElementById('visor-cuenta').innerHTML = e.cuenta
-  document.getElementById('visor-nota').textContent = e.nota
-  pintarCasos()
-  pintarBarra()
-  pintarSQL()
-  pintarTabla()
+pintarJoin()
+
+/* ---------------------------------------------------------------------------
+   El panel de las subconsultas
+
+   Seis lugares donde puede aparecer un SELECT adentro de otro, con la etapa en
+   que se resuelve y cuántas veces corre. Las correlacionadas muestran la
+   corrida fila por fila. Como en los otros paneles, los resultados se calculan
+   con los datos embebidos.
+   ------------------------------------------------------------------------ */
+
+const ORDENES = TABLAS.orden_servicio
+const CLIENTES = TABLAS.cliente
+
+const promedioTotal = ORDENES.reduce((s, o) => s + o.total, 0) / ORDENES.length
+const ordenesDe = id => ORDENES.filter(o => o.id_cliente === id)
+
+/* Los grupos por apellido, que usan dos de los casos */
+function porApellido (soloConTotal) {
+  const mapa = new Map()
+  ORDENES.forEach(o => {
+    if (soloConTotal && o.total <= 0) return
+    const c = CLIENTES.find(x => x.id_cliente === o.id_cliente)
+    if (!mapa.has(c.apellido)) mapa.set(c.apellido, [])
+    mapa.get(c.apellido).push(o)
+  })
+  return [...mapa.entries()]
+    .map(([apellido, suyas]) => ({
+      apellido,
+      ordenes: suyas.length,
+      facturado: suyas.reduce((s, o) => s + o.total, 0)
+    }))
+    .sort((a, b) => a.apellido.localeCompare(b.apellido, 'es'))
 }
 
-document.addEventListener('keydown', ev => {
-  const ultima = CASOS[caso].etapas.length - 1
-  if (ev.key === 'ArrowRight' && actual < ultima) { actual++; pintar() }
-  if (ev.key === 'ArrowLeft' && actual > 0) { actual--; pintar() }
-})
+const CASOS_SUB = [
+  {
+    id: 'derivada',
+    boton: 'En el FROM',
+    tipo: 'derivada',
+    corridas: '1 vez',
+    donde: 'Antes de la etapa 1 de la consulta de afuera',
+    sql: [
+      ['SELECT   apellido, ordenes', false],
+      ['FROM     (SELECT   C.apellido, COUNT(*) AS ordenes', true],
+      ['          FROM     orden_servicio O', true],
+      ['          JOIN     cliente C ON C.id_cliente = O.id_cliente', true],
+      ['          GROUP BY C.apellido) AS t', true],
+      ['WHERE    ordenes > 2', false]
+    ],
+    dice: 'La subconsulta se resuelve entera y su resultado pasa a ser una tabla, con nombre y columnas propias. Recién entonces empieza el recorrido de afuera, que la trata como a cualquier tabla.',
+    nota: 'Fijate en el WHERE de afuera: nombra ordenes, que adentro era un alias del SELECT. Puede hacerlo porque para esta consulta ordenes ya es una columna de la tabla t, con el mismo estatus que cualquier otra. Es la salida al problema de la sección «El alias que todavía no existe».',
+    calcular () {
+      // la subconsulta proyecta apellido y ordenes: el resto no llega a t
+      const filas = porApellido(false).map(g => ({ apellido: g.apellido, ordenes: g.ordenes }))
+      const cols = [{ clave: 'apellido', titulo: 'apellido' }, { clave: 'ordenes', titulo: 'ordenes' }]
+      return {
+        interna: { titulo: 'lo que devuelve la subconsulta · la tabla t', cols, filas },
+        salida: { cols, filas: filas.filter(f => f.ordenes > 2) }
+      }
+    }
+  },
 
-pintar()
+  {
+    id: 'escalarWhere',
+    boton: 'En el WHERE, escalar',
+    tipo: 'escalar',
+    corridas: '1 vez',
+    donde: 'Antes de que el WHERE compare la primera fila',
+    sql: [
+      ['SELECT   nro_orden, total', false],
+      ['FROM     orden_servicio', false],
+      ['WHERE    total > (SELECT AVG(total)', true],
+      ['                  FROM   orden_servicio)', true]
+    ],
+    dice: 'La subconsulta no menciona ninguna columna de la consulta de afuera, así que su resultado es siempre el mismo. El motor la resuelve una sola vez y compara las ocho filas contra ese número.',
+    nota: 'Devuelve un valor único: por eso se la llama escalar y puede aparecer donde iría un número. Si devolviera más de una fila, el motor cortaría con «Subquery returns more than 1 row».',
+    calcular () {
+      return {
+        interna: {
+          titulo: 'lo que devuelve la subconsulta · un solo valor',
+          cols: [{ clave: 'AVG(total)', titulo: 'AVG(total)', numero: true }],
+          filas: [{ 'AVG(total)': promedioTotal }]
+        },
+        salida: {
+          cols: [{ clave: 'nro_orden', titulo: 'nro_orden' }, { clave: 'total', titulo: 'total', numero: true }],
+          filas: ORDENES.filter(o => o.total > promedioTotal)
+            .map(o => ({ nro_orden: o.nro_orden, total: o.total }))
+        }
+      }
+    }
+  },
+
+  {
+    id: 'inWhere',
+    boton: 'En el WHERE, con IN',
+    tipo: 'lista',
+    corridas: '1 vez',
+    donde: 'Antes del WHERE, igual que la escalar',
+    sql: [
+      ['SELECT   apellido, nombre', false],
+      ['FROM     cliente', false],
+      ['WHERE    id_cliente IN (SELECT id_cliente', true],
+      ['                        FROM   orden_servicio', true],
+      ['                        WHERE  total > 20000)', true]
+    ],
+    dice: 'Acá la subconsulta devuelve una columna con varias filas. El motor la resuelve una vez, arma la lista de valores y después pregunta, fila por fila, si el id_cliente está en esa lista.',
+    nota: 'La lista tiene repetidos —el cliente 1 aparece dos veces, por sus dos órdenes caras— y a IN no le molesta. Con NOT IN, en cambio, un solo NULL en la lista hace que la consulta no devuelva ninguna fila.',
+    calcular () {
+      const lista = ORDENES.filter(o => o.total > 20000).map(o => ({ id_cliente: o.id_cliente }))
+      const ids = lista.map(l => l.id_cliente)
+      return {
+        interna: {
+          titulo: 'lo que devuelve la subconsulta · una lista de valores',
+          cols: [{ clave: 'id_cliente', titulo: 'id_cliente' }],
+          filas: lista
+        },
+        salida: {
+          cols: [{ clave: 'apellido', titulo: 'apellido' }, { clave: 'nombre', titulo: 'nombre' }],
+          filas: CLIENTES.filter(c => ids.includes(c.id_cliente))
+            .map(c => ({ apellido: c.apellido, nombre: c.nombre }))
+        }
+      }
+    }
+  },
+
+  {
+    id: 'exists',
+    boton: 'Correlacionada, EXISTS',
+    tipo: 'correlacionada',
+    corridas: '8 veces · una por fila',
+    donde: 'Adentro del WHERE, para cada fila que evalúa',
+    sql: [
+      ['SELECT   C.apellido, C.nombre', false],
+      ['FROM     cliente C', false],
+      ['WHERE    EXISTS (SELECT 1', true],
+      ['                 FROM   orden_servicio O', true],
+      ['                 WHERE  O.id_cliente = C.id_cliente)', true]
+    ],
+    dice: 'La subconsulta menciona C.id_cliente, una columna de la consulta de afuera. Su resultado cambia con cada fila, así que el motor la corre de nuevo para cada una: ocho clientes, ocho corridas.',
+    nota: 'EXISTS no mira qué devuelve la subconsulta, solo si devolvió algo. Por eso se escribe SELECT 1: el valor da igual. Devuelve los mismos cinco clientes que el INNER JOIN del panel de cruces, con otro costo.',
+    calcular () {
+      const corrida = CLIENTES.map(c => {
+        const suyas = ordenesDe(c.id_cliente)
+        return {
+          fila: c.id_cliente + ' · ' + c.apellido + ', ' + c.nombre,
+          devuelve: suyas.length ? suyas.length + (suyas.length === 1 ? ' fila' : ' filas') : 'ninguna fila',
+          decision: suyas.length ? 'EXISTS = verdadero' : 'EXISTS = falso',
+          pasa: suyas.length > 0
+        }
+      })
+      return {
+        corrida,
+        salida: {
+          cols: [{ clave: 'apellido', titulo: 'apellido' }, { clave: 'nombre', titulo: 'nombre' }],
+          filas: CLIENTES.filter(c => ordenesDe(c.id_cliente).length)
+            .map(c => ({ apellido: c.apellido, nombre: c.nombre }))
+        }
+      }
+    }
+  },
+
+  {
+    id: 'escalarSelect',
+    boton: 'En el SELECT',
+    tipo: 'correlacionada',
+    corridas: '8 veces · una por fila de salida',
+    donde: 'En la etapa de proyección',
+    sql: [
+      ['SELECT   C.apellido, C.nombre,', false],
+      ['         (SELECT COUNT(*)', true],
+      ['          FROM   orden_servicio O', true],
+      ['          WHERE  O.id_cliente = C.id_cliente) AS ordenes', true],
+      ['FROM     cliente C', false]
+    ],
+    dice: 'Una subconsulta correlacionada puesta como columna. Se resuelve cuando corre el SELECT, una vez por cada fila que se va a proyectar, y su valor ocupa el lugar de la columna.',
+    nota: 'Devuelve lo mismo que un LEFT JOIN con GROUP BY, y suele ser más lenta: son ocho consultas en lugar de un recorrido. Con ocho clientes no se nota; con ocho mil, sí.',
+    calcular () {
+      const corrida = CLIENTES.map(c => ({
+        fila: c.apellido + ', ' + c.nombre,
+        devuelve: String(ordenesDe(c.id_cliente).length),
+        decision: 'ordenes = ' + ordenesDe(c.id_cliente).length,
+        pasa: true
+      }))
+      return {
+        corrida,
+        salida: {
+          cols: [
+            { clave: 'apellido', titulo: 'apellido' },
+            { clave: 'nombre', titulo: 'nombre' },
+            { clave: 'ordenes', titulo: 'ordenes' }
+          ],
+          filas: CLIENTES.map(c => ({
+            apellido: c.apellido, nombre: c.nombre, ordenes: ordenesDe(c.id_cliente).length
+          }))
+        }
+      }
+    }
+  },
+
+  {
+    id: 'having',
+    boton: 'En el HAVING',
+    tipo: 'escalar',
+    corridas: '1 vez',
+    donde: 'En la etapa del HAVING, después de calcular los agregados',
+    sql: [
+      ['SELECT   C.apellido, SUM(O.total) AS facturado', false],
+      ['FROM     orden_servicio O', false],
+      ['JOIN     cliente C ON C.id_cliente = O.id_cliente', false],
+      ['GROUP BY C.apellido', false],
+      ['HAVING   SUM(O.total) > (SELECT AVG(total)', true],
+      ['                         FROM   orden_servicio)', true]
+    ],
+    dice: 'La misma subconsulta escalar del segundo caso, pero comparada contra el agregado de cada grupo. Se resuelve una vez y el HAVING la usa para decidir qué grupos siguen.',
+    nota: 'El grupo Rossi factura 9.000 y queda afuera. Comparar un agregado del grupo contra un número que sale de toda la tabla es un uso habitual de la subconsulta en el HAVING.',
+    calcular () {
+      const grupos = porApellido(false)
+      return {
+        interna: {
+          titulo: 'lo que devuelve la subconsulta · el promedio de las 8 órdenes',
+          cols: [{ clave: 'AVG(total)', titulo: 'AVG(total)', numero: true }],
+          filas: [{ 'AVG(total)': promedioTotal }]
+        },
+        salida: {
+          cols: [{ clave: 'apellido', titulo: 'apellido' }, { clave: 'facturado', titulo: 'facturado', numero: true }],
+          filas: grupos.filter(g => g.facturado > promedioTotal)
+            .map(g => ({ apellido: g.apellido, facturado: g.facturado }))
+        }
+      }
+    }
+  }
+]
+
+let casoSub = 0
+
+function tablaSimple (destino, cols, filas) {
+  destino.innerHTML = ''
+  const thead = document.createElement('thead')
+  const trh = document.createElement('tr')
+  cols.forEach(c => {
+    const th = document.createElement('th')
+    th.textContent = c.titulo
+    if (c.numero) th.className = 'num'
+    trh.appendChild(th)
+  })
+  thead.appendChild(trh)
+  destino.appendChild(thead)
+  const tbody = document.createElement('tbody')
+  filas.forEach(f => {
+    const tr = document.createElement('tr')
+    cols.forEach(c => tr.appendChild(celda(f, c)))
+    tbody.appendChild(tr)
+  })
+  destino.appendChild(tbody)
+}
+
+function pintarSub () {
+  const caso = CASOS_SUB[casoSub]
+  const r = caso.calcular()
+
+  const menu = document.getElementById('sub-menu')
+  menu.innerHTML = ''
+  CASOS_SUB.forEach((c, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'
+    b.setAttribute('aria-pressed', i === casoSub ? 'true' : 'false')
+    const t = document.createElement('span')
+    t.textContent = c.boton
+    b.appendChild(t)
+    const v = document.createElement('span')
+    v.className = 'sub-veces'
+    v.textContent = c.corridas.split(' ·')[0]
+    b.appendChild(v)
+    b.addEventListener('click', () => { casoSub = i; pintarSub() })
+    menu.appendChild(b)
+  })
+
+  const sql = document.getElementById('sub-sql')
+  sql.innerHTML = ''
+  caso.sql.forEach(([txt, esInterna]) => {
+    const linea = document.createElement('span')
+    linea.className = 'linea' + (esInterna ? ' interna' : '')
+    linea.textContent = txt
+    sql.appendChild(linea)
+  })
+
+  document.getElementById('sub-donde').textContent = caso.donde
+  document.getElementById('sub-corridas').textContent = caso.corridas
+  document.getElementById('sub-dice').textContent = caso.dice
+  document.getElementById('sub-nota').textContent = caso.nota
+
+  const medio = document.getElementById('sub-medio')
+  medio.innerHTML = ''
+  if (r.corrida) {
+    const titulo = document.createElement('p')
+    titulo.className = 'sub-titulo'
+    titulo.textContent = 'la subconsulta corre ' + r.corrida.length + ' veces, una por fila'
+    medio.appendChild(titulo)
+    const caja = document.createElement('div')
+    caja.className = 'visor-scroll'
+    const t = document.createElement('table')
+    t.className = 'visor-tabla'
+    const thead = document.createElement('thead')
+    const trh = document.createElement('tr')
+    ;['fila de afuera', 'la subconsulta devuelve', 'decisión'].forEach(x => {
+      const th = document.createElement('th')
+      th.textContent = x
+      trh.appendChild(th)
+    })
+    thead.appendChild(trh)
+    t.appendChild(thead)
+    const tbody = document.createElement('tbody')
+    r.corrida.forEach(c => {
+      const tr = document.createElement('tr')
+      if (!c.pasa) tr.className = 'se-va'
+      ;[c.fila, c.devuelve, c.decision].forEach(x => {
+        const td = document.createElement('td')
+        td.textContent = x
+        tr.appendChild(td)
+      })
+      tbody.appendChild(tr)
+    })
+    t.appendChild(tbody)
+    caja.appendChild(t)
+    medio.appendChild(caja)
+  } else {
+    const titulo = document.createElement('p')
+    titulo.className = 'sub-titulo'
+    titulo.textContent = r.interna.titulo
+    medio.appendChild(titulo)
+    const caja = document.createElement('div')
+    caja.className = 'visor-scroll sub-interna-caja'
+    const t = document.createElement('table')
+    t.className = 'visor-tabla'
+    caja.appendChild(t)
+    medio.appendChild(caja)
+    tablaSimple(t, r.interna.cols, r.interna.filas)
+  }
+
+  const salida = document.createElement('p')
+  salida.className = 'sub-titulo'
+  salida.textContent = 'lo que devuelve la consulta completa · ' + r.salida.filas.length +
+                       (r.salida.filas.length === 1 ? ' fila' : ' filas')
+  medio.appendChild(salida)
+  const cajaSal = document.createElement('div')
+  cajaSal.className = 'visor-scroll visor-salida'
+  const tSal = document.createElement('table')
+  tSal.className = 'visor-tabla'
+  cajaSal.appendChild(tSal)
+  medio.appendChild(cajaSal)
+  tablaSimple(tSal, r.salida.cols, r.salida.filas)
+}
+
+pintarSub()
 </script>
 
 </body>

@@ -477,7 +477,7 @@ ciclos = [2026]
 [[material]]
 id = "el-orden-en-que-corre-una-consulta"
 titulo = "El orden en que corre una consulta"
-descripcion = "Las diez etapas, con el visor que sigue dos consultas equivalentes: una cruza con coma y la otra con JOIN"
+descripcion = "Las diez etapas en un visor de consultas que crecen de a una cláusula, más los ocho cruces y los seis lugares de una subconsulta"
 unidad = "SQL · primera parte"
 icono = "presentacion"
 caso = "el-chip"
