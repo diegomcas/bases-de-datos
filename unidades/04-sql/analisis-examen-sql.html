@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis del examen de SQL · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+
+    <style>
+    /* propio de esta página: la grilla de aciertos, el gráfico de notas y las
+       tarjetas de cada pregunta. Los colores de acierto y error son los mismos
+       del análisis docente, elegidos para leerse sobre fondo oscuro. */
+    .analisis{
+      --bg:var(--bg-main); --surface:var(--bg-card); --sunk:var(--bg-theory);
+      --ink:var(--text-main); --muted:var(--text-muted); --faint:var(--bloque-gris); --line:var(--linea-media);
+      --ok:#8AA8F4; --ok-soft:#2A3A5E; --bad:#EE8C72; --bad-soft:#4A2C25; --grey:#4B5466;
+      --f-display:'Outfit',system-ui,sans-serif;
+      --f-mono:'Fira Code','Cascadia Code',Consolas,monospace;
+      display:grid; gap:56px; font-size:15px; line-height:1.55; color:var(--text-body);
+    }
+    .analisis h2,.analisis h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;color:var(--ink)}
+    .analisis h2{font-size:24px;font-weight:600}
+    .analisis h3{font-size:19px;font-weight:600}
+    .analisis a{color:var(--ok)}
+    .analisis section{display:grid;gap:20px}
+    .lede{color:var(--muted);max-width:70ch}
+    .sec-head{display:grid;gap:6px}
+    .intro{display:grid;gap:14px}
+
+    .stats{display:flex;flex-wrap:wrap;gap:10px 32px;padding-top:14px;border-top:1px solid var(--line)}
+    .stat{display:grid;gap:0}
+    .stat b{font-family:var(--f-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink)}
+    .stat span{font-size:13px;color:var(--muted)}
+
+    .grilla{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+    .fila{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:6px}
+    .fila-lbl{font-size:12px;color:var(--muted);margin-bottom:-6px}
+    .celda{position:relative;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:2px;padding:6px 2px 5px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);text-decoration:none;overflow:hidden;min-height:78px;isolation:isolate}
+    .analisis a.celda{color:var(--ink)}
+    .celda::before{content:"";position:absolute;inset:auto 0 0 0;height:var(--h);background:var(--ok-soft);z-index:-1}
+    .celda.baja::before{background:var(--bad-soft)}
+    .celda:hover{border-color:var(--ok)}
+    .celda .qn{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+    .celda .ql{font-family:var(--f-mono);font-size:18px;font-weight:600;align-self:center}
+    .celda .qp{font-family:var(--f-mono);font-size:11px;font-variant-numeric:tabular-nums}
+    .leyenda{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--muted)}
+    .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+    @media (max-width:720px){.fila{grid-template-columns:repeat(7,minmax(0,1fr))}}
+
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px}
+    .chart-wrap{overflow-x:auto}
+    .chart-wrap svg{display:block;width:100%;min-width:560px;height:auto}
+    .analisis svg text{font-family:var(--f-mono);font-size:12px;fill:var(--muted)}
+    .analisis svg .t-ink{fill:var(--ink)}
+    .dot{fill:var(--ok);stroke:var(--surface);stroke-width:2;cursor:default}
+    .dot.bajo{fill:var(--bad)}
+    .dot:hover,.dot:focus{stroke:var(--ink)}
+
+    .patrones{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+    .patron{padding:14px 16px;border:1px solid var(--line);border-radius:8px;background:var(--surface);display:grid;gap:8px;align-content:start}
+    .patron h3{font-size:16px}
+    .patron p{color:var(--muted);font-size:14px}
+    .chips{display:flex;flex-wrap:wrap;gap:6px}
+    .chip{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);text-decoration:none;background:var(--bg)}
+    .analisis a.chip{color:var(--ink)}
+    .analisis a.chip:hover{border-color:var(--ok);color:var(--ok)}
+
+    .barra{position:sticky;top:0;z-index:5;background:var(--bg);padding-block:10px;display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;border-bottom:1px solid var(--line)}
+    .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+    .seg button{font:inherit;font-size:13px;border:0;background:transparent;color:var(--ink);padding:6px 11px;cursor:pointer}
+    .seg button+button{border-left:1px solid var(--line)}
+    .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+    .barra label,.barra .grp{font-size:13px;color:var(--muted);display:inline-flex;gap:8px;align-items:center}
+
+    .lista{display:grid;gap:16px}
+    .preg{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:16px;scroll-margin-top:70px}
+    .preg-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+    .preg-head h3{font-size:20px}
+    .preg-head .parte{font-size:13px;color:var(--muted)}
+    .metricas{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px 16px;font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+    .metricas b{color:var(--ink);font-weight:600}
+    .tags{display:flex;flex-wrap:wrap;gap:6px}
+    .tag{font-size:12px;padding:2px 8px;border-radius:4px;background:var(--sunk);color:var(--ink)}
+    .tag.alerta{background:var(--bad-soft)}
+    .cuerpo{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px}
+    @media (max-width:820px){.cuerpo{grid-template-columns:1fr}}
+    .enun{display:grid;gap:8px;font-size:14px;align-content:start}
+    .enun .enunciado{color:var(--ink)}
+    .enun pre.sql{margin:0;font-family:var(--f-mono);font-size:12.5px;line-height:1.5;background:var(--bg-code);padding:10px 12px;border-radius:6px;overflow-x:auto;white-space:pre;overflow-wrap:normal}
+    .enun .variantes{display:grid;gap:6px}
+    .enun .v{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:baseline}
+    .enun .v .rot{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+    .enun code{font-family:var(--f-mono);font-size:12.5px;background:var(--sunk);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+    .enun .v code{display:block;padding:6px 8px;white-space:pre-wrap}
+    body.sin-enun .enun{display:none}
+    body.sin-enun .cuerpo{grid-template-columns:1fr}
+
+    .opts{display:grid;gap:8px;align-content:start}
+    .opt{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:6px 8px;border-radius:6px;position:relative}
+    .opt:hover,.opt:focus-within{background:var(--bg)}
+    .letra{font-family:var(--f-mono);font-weight:600;font-size:13px;width:24px;height:24px;display:grid;place-items:center;border-radius:5px;border:1px solid var(--line);color:var(--muted)}
+    .opt.ok .letra{background:var(--ok);border-color:var(--ok);color:var(--bg-main)}
+    .opt.dom .letra{border-color:var(--bad);color:var(--bad)}
+    .otext{font-size:13.5px;line-height:1.35;color:var(--ink)}
+    .otext code{font-family:var(--f-mono);font-size:12px}
+    .ocount{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+    .bar{grid-column:2 / 4;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+    .track{height:10px;background:var(--sunk);border-radius:0 3px 3px 0;overflow:hidden}
+    .fill{height:100%;background:var(--grey);border-radius:0 3px 3px 0;min-width:0}
+    .opt.ok .fill{background:var(--ok)}
+    .opt.dom .fill{background:var(--bad)}
+    .media{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap;min-width:9.5ch;text-align:right}
+
+    .pie{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;padding-top:14px;border-top:1px solid var(--line)}
+    @media (max-width:820px){.pie{grid-template-columns:1fr}}
+    .nota-txt{font-size:14.5px;max-width:66ch;display:grid;gap:8px}
+    .grupos{display:grid;gap:6px;align-content:start}
+    .glbl{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+    .g{display:grid;grid-template-columns:52px minmax(0,1fr) 40px;gap:10px;align-items:center;font-size:13px}
+    .g .track{height:8px}
+    .g .fill{background:var(--ok)}
+    .g .v{font-family:var(--f-mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+
+    .fuentes{display:grid;gap:6px;padding-top:12px;border-top:1px dashed var(--line)}
+    .fuentes ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+    .fuentes li{font-size:14px;display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+    .fuentes .mat{color:var(--muted)}
+    .analisis .fuentes .res{font-size:12.5px;color:var(--muted)}
+    .analisis .fuentes .res:hover{color:var(--ok)}
+    .fuentes .obs{font-size:12.5px;color:var(--muted);font-style:italic}
+
+    #tip{position:fixed;z-index:20;pointer-events:none;background:var(--text-main);color:var(--bg-main);font-size:12.5px;line-height:1.4;padding:8px 10px;border-radius:6px;max-width:280px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+    .vacio{color:var(--muted);font-size:14px}
+    .pie-pagina{color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+    </style>
+</head>
+<body data-tema="presentacion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">devolución</span>
+            <h1>Análisis del examen de SQL</h1>
+            <p>Caso Biblioteca Municipal: cómo resolvió el curso cada pregunta y dónde repasar cada tema</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Análisis del examen de SQL</span>
+        </nav>
+
+<div class="analisis">
+  <div class="intro">
+    <p class="lede">El examen, pregunta por pregunta: qué opción eligió el curso, cuánto la acertaron los grupos de nota alta, media y baja, qué errores se repiten y en qué caso de estudio de los apuntes se trabaja cada tema. Los datos son de las 22 grillas corregidas, sin nombres.</p>
+    <p class="lede">Para comprobar una respuesta, cargá la base del examen con <a href="../../casos/biblioteca/Biblioteca.sql">Biblioteca.sql</a> y <a href="../../casos/biblioteca/poblar_biblioteca.sql">poblar_biblioteca.sql</a>, en ese orden, y ejecutá la consulta.</p>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <section aria-labelledby="h-plantilla">
+    <div class="sec-head">
+      <h2 id="h-plantilla">La grilla, pregunta por pregunta</h2>
+      <p class="lede">La misma grilla de respuestas del examen, con la letra correcta. El relleno de cada casillero es el porcentaje de alumnos que la acertó. Tocá un casillero para ir a la pregunta.</p>
+    </div>
+    <div class="grilla" id="grilla"></div>
+  </section>
+
+  <section aria-labelledby="h-notas">
+    <div class="sec-head">
+      <h2 id="h-notas">Las notas del curso</h2>
+      <p class="lede">Cada punto es una nota. La franja marca un desvío estándar a cada lado de la media. Nota = 9 × aciertos de la 1 a la 25 ÷ 25 + 0,5 por cada acierto del cierre.</p>
+    </div>
+    <div class="panel">
+      <div class="chart-wrap" id="dotplot"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-patrones">
+    <div class="sec-head">
+      <h2 id="h-patrones">Errores que se repiten</h2>
+      <p class="lede">Grupos de preguntas donde aparece el mismo tipo de error o el mismo comportamiento de la pregunta.</p>
+    </div>
+    <div class="patrones" id="patrones"></div>
+  </section>
+
+  <section aria-labelledby="h-preguntas">
+    <div class="sec-head">
+      <h2 id="h-preguntas">Pregunta por pregunta</h2>
+      <p class="lede">En rojo, la opción incorrecta más elegida cuando la eligieron 3 alumnos o más. «Media» es la nota promedio de quienes eligieron esa opción; si la eligieron menos de 3, no se muestra. <strong>r</strong> es la discriminación: cuanto más alta, más la aciertan los que rinden mejor en el resto del examen; con 22 alumnos, solo los valores extremos son confiables.</p>
+    </div>
+    <div class="barra" role="toolbar" aria-label="Filtros de preguntas">
+      <span class="grp">Parte
+        <span class="seg" id="f-parte">
+          <button type="button" id="p-todas" data-v="todas" aria-pressed="true">Todas</button>
+          <button type="button" id="p-1" data-v="I" aria-pressed="false">I</button>
+          <button type="button" id="p-2" data-v="II" aria-pressed="false">II</button>
+          <button type="button" id="p-3" data-v="III" aria-pressed="false">III</button>
+          <button type="button" id="p-4" data-v="IV" aria-pressed="false">IV</button>
+        </span>
+      </span>
+      <span class="grp">Orden
+        <span class="seg" id="f-orden">
+          <button type="button" id="o-num" data-v="num" aria-pressed="true">Número</button>
+          <button type="button" id="o-dif" data-v="dif" aria-pressed="false">Menos aciertos</button>
+          <button type="button" id="o-disc" data-v="disc" aria-pressed="false">Menor r</button>
+        </span>
+      </span>
+      <label for="c-enun"><input type="checkbox" id="c-enun" checked> Enunciados</label>
+    </div>
+    <div class="lista" id="lista"></div>
+  </section>
+
+  <p class="pie-pagina">Grupos: alto = nota 7,34 o más (8 alumnos) · medio = 5,18 a 6,98 (8) · bajo = 5,04 o menos (6). Las casillas en blanco de la grilla cuentan como incorrectas. La discriminación r es la correlación entre acertar la pregunta y los aciertos en las otras 26, sin ponderar.</p>
+</div>
+    </main>
+
+<div id="tip" hidden></div>
+
+<script>
+const D = {"n": 22, "media": 6.0, "desvio": 1.69, "mediana": 6.26, "alumnos": [{"nota": 3.24, "grupo": "bajo"}, {"nota": 3.24, "grupo": "bajo"}, {"nota": 3.24, "grupo": "bajo"}, {"nota": 3.24, "grupo": "bajo"}, {"nota": 5.04, "grupo": "bajo"}, {"nota": 5.04, "grupo": "bajo"}, {"nota": 5.18, "grupo": "medio"}, {"nota": 5.18, "grupo": "medio"}, {"nota": 5.4, "grupo": "medio"}, {"nota": 5.9, "grupo": "medio"}, {"nota": 6.26, "grupo": "medio"}, {"nota": 6.26, "grupo": "medio"}, {"nota": 6.4, "grupo": "medio"}, {"nota": 6.98, "grupo": "medio"}, {"nota": 7.34, "grupo": "alto"}, {"nota": 7.34, "grupo": "alto"}, {"nota": 7.34, "grupo": "alto"}, {"nota": 7.34, "grupo": "alto"}, {"nota": 7.34, "grupo": "alto"}, {"nota": 7.48, "grupo": "alto"}, {"nota": 8.42, "grupo": "alto"}, {"nota": 8.78, "grupo": "alto"}], "items": [{"n": 1, "clave": "b", "aciertos": 17, "r": 0.25, "grupos": {"alto": [7, 8], "medio": [7, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta la siguiente consulta:</div>\n    <pre class=\"sql\">SELECT titulo, stock FROM libro WHERE stock &lt; 3 ORDER BY precio DESC;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve y cuál aparece en primer lugar?</div>", "opciones": ["3 filas; primera: <em>Los detectives salvajes</em>", "5 filas; primera: <em>Los detectives salvajes</em>", "5 filas; primera: <em>El Aleph</em>", "La consulta falla: no se puede ordenar por una columna que no figura en el SELECT"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 17, "media": 6.31}, "c": {"c": 3, "media": 5.21}, "d": {"c": 2, "media": null}}}, {"n": 2, "clave": "a", "aciertos": 21, "r": 0.32, "grupos": {"alto": [8, 8], "medio": [8, 8], "bajo": [5, 6]}, "cuerpo": "<div class=\"enunciado\">La bibliotecaria pide los libros que cuestan entre $5.000 y $9.000, <strong>incluyendo ambos extremos</strong>. Se proponen tres cláusulas:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>WHERE precio BETWEEN 5000 AND 9000</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>WHERE precio &gt;= 5000 AND precio &lt;= 9000</code></div>\n        <div class=\"v\"><span class=\"rot\">III.</span> <code>WHERE precio &gt; 5000 AND precio &lt; 9000</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuáles resuelven <strong>exactamente</strong> lo pedido, y cuántos libros son?</div>", "opciones": ["I y II — 7 libros", "Solo I — 7 libros", "Las tres — 7 libros", "II y III — 6 libros"], "elecciones": {"a": {"c": 21, "media": 6.13}, "b": {"c": 1, "media": null}, "c": {"c": 0, "media": null}, "d": {"c": 0, "media": null}}}, {"n": 3, "clave": "d", "aciertos": 17, "r": 0.23, "grupos": {"alto": [7, 8], "medio": [6, 8], "bajo": [4, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT COUNT(*) FROM prestamo WHERE fecha_devolucion IS NULL;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve la consulta y qué valor muestra?</div>", "opciones": ["6 filas, cada una con el valor 1", "1 fila con el valor 8", "1 fila con el valor 14", "1 fila con el valor 6"], "elecciones": {"a": {"c": 5, "media": 5.11}, "b": {"c": 0, "media": null}, "c": {"c": 0, "media": null}, "d": {"c": 17, "media": 6.26}}}, {"n": 4, "clave": "a", "aciertos": 18, "r": 0.36, "grupos": {"alto": [8, 8], "medio": [6, 8], "bajo": [4, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT DISTINCT ciudad FROM socio;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve?</div>", "opciones": ["3", "8, una por cada socio", "4", "1, porque DISTINCT resume todo en una sola fila"], "elecciones": {"a": {"c": 18, "media": 6.34}, "b": {"c": 0, "media": null}, "c": {"c": 2, "media": null}, "d": {"c": 2, "media": null}}}, {"n": 5, "clave": "c", "aciertos": 16, "r": 0.23, "grupos": {"alto": [8, 8], "medio": [4, 8], "bajo": [4, 6]}, "cuerpo": "<div class=\"enunciado\">El sistema muestra el catálogo en páginas de 3 libros, ordenados alfabéticamente por título. Para la <strong>segunda página</strong> se ejecuta:</div>\n    <pre class=\"sql\">SELECT titulo FROM libro ORDER BY titulo ASC LIMIT 3 OFFSET 3;</pre>\n    <div class=\"enunciado\">¿Qué títulos devuelve?</div>", "opciones": ["<em>Boquitas pintadas</em>, <em>Cien años de soledad</em>, <em>El Aleph</em>", "<em>El Aleph</em>, <em>El túnel</em>, <em>Ficciones</em>", "<em>El túnel</em>, <em>Ficciones</em>, <em>La ciudad y los perros</em>", "<em>Los detectives salvajes</em>, <em>Nocturno de Chile</em>, <em>Pedro Páramo</em>"], "elecciones": {"a": {"c": 3, "media": 4.53}, "b": {"c": 0, "media": null}, "c": {"c": 16, "media": 6.32}, "d": {"c": 3, "media": 5.78}}}, {"n": 6, "clave": "b", "aciertos": 14, "r": 0.15, "grupos": {"alto": [6, 8], "medio": [5, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Ahora las páginas son de 4 libros, ordenados por precio de mayor a menor. Para la <strong>tercera página</strong> se ejecuta:</div>\n    <pre class=\"sql\">SELECT titulo FROM libro ORDER BY precio DESC LIMIT 4 OFFSET 8;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve?</div>", "opciones": ["4", "2", "0", "Error: el OFFSET no puede ser mayor que el LIMIT"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 14, "media": 6.3}, "c": {"c": 2, "media": null}, "d": {"c": 6, "media": 5.22}}}, {"n": 7, "clave": "a", "aciertos": 19, "r": 0.35, "grupos": {"alto": [8, 8], "medio": [7, 8], "bajo": [4, 6]}, "cuerpo": "<div class=\"enunciado\">Se necesita el <strong>valor total del inventario</strong>: para cada libro, su precio multiplicado por las unidades en stock, sumando todos los resultados.</div>\n    <div class=\"enunciado\">¿Cuál consulta lo calcula correctamente?</div>", "opciones": ["<code>SELECT SUM(stock * precio) FROM libro;</code>", "<code>SELECT SUM(stock) * SUM(precio) FROM libro;</code>", "<code>SELECT SUM(stock) + SUM(precio) FROM libro;</code>", "<code>SELECT COUNT(*) * MAX(precio) FROM libro;</code>"], "elecciones": {"a": {"c": 19, "media": 6.28}, "b": {"c": 3, "media": 4.25}, "c": {"c": 0, "media": null}, "d": {"c": 0, "media": null}}}, {"n": 8, "clave": "b", "aciertos": 13, "r": 0.49, "grupos": {"alto": [7, 8], "medio": [5, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT MIN(precio), MAX(precio) FROM libro;</pre>\n    <div class=\"enunciado\">¿Qué devuelve?</div>", "opciones": ["10 filas, cada una con su precio", "1 fila: 4900.00 y 15300.00", "1 fila: 5200.00 y 15300.00", "2 filas: una con el mínimo y otra con el máximo"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 13, "media": 6.8}, "c": {"c": 0, "media": null}, "d": {"c": 9, "media": 4.85}}}, {"n": 9, "clave": "c", "aciertos": 18, "r": 0.36, "grupos": {"alto": [8, 8], "medio": [7, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT id_socio, COUNT(*) FROM prestamo GROUP BY id_socio HAVING COUNT(*) &gt; 2;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve?</div>", "opciones": ["5", "2", "3", "8"], "elecciones": {"a": {"c": 3, "media": 4.85}, "b": {"c": 0, "media": null}, "c": {"c": 18, "media": 6.34}, "d": {"c": 1, "media": null}}}, {"n": 10, "clave": "a", "aciertos": 13, "r": 0.56, "grupos": {"alto": [8, 8], "medio": [4, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT titulo FROM libro WHERE precio &gt; (SELECT AVG(precio) FROM libro);</pre>\n    <div class=\"enunciado\">¿Cuántos libros devuelve?</div>", "opciones": ["4", "5", "6", "Error: no se puede usar una consulta dentro del WHERE"], "elecciones": {"a": {"c": 13, "media": 6.88}, "b": {"c": 1, "media": null}, "c": {"c": 1, "media": null}, "d": {"c": 7, "media": 4.51}}}, {"n": 11, "clave": "c", "aciertos": 3, "r": 0.48, "grupos": {"alto": [3, 8], "medio": [0, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\">Un alumno quiere listar los préstamos no devueltos y escribe:</div>\n    <pre class=\"sql\">SELECT id_prestamo FROM prestamo WHERE fecha_devolucion = NULL;</pre>\n    <div class=\"enunciado\">¿Qué ocurre al ejecutarla?</div>", "opciones": ["Devuelve 6 filas, que es lo correcto", "Devuelve 8 filas", "Devuelve 0 filas y no se produce ningún error", "Se produce un error de sintaxis: NULL no puede usarse en una comparación"], "elecciones": {"a": {"c": 5, "media": 5.24}, "b": {"c": 0, "media": null}, "c": {"c": 3, "media": 8.18}, "d": {"c": 14, "media": 5.8}}}, {"n": 12, "clave": "b", "aciertos": 13, "r": 0.39, "grupos": {"alto": [6, 8], "medio": [6, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecutan estas dos sentencias, en este orden:</div>\n    <pre class=\"sql\">DELETE FROM socio WHERE id_socio = 8;\nINSERT INTO socio (nombre, apellido, ciudad) VALUES ('Nadia', 'Vera', 'Funes');</pre>\n    <div class=\"enunciado\">¿Qué <code>id_socio</code> recibe Nadia Vera?</div>", "opciones": ["8, porque ese número quedó liberado", "9", "El INSERT falla porque no se indicó fecha_alta", "1, porque el contador vuelve a empezar al borrarse la última fila"], "elecciones": {"a": {"c": 4, "media": 5.47}, "b": {"c": 13, "media": 6.65}, "c": {"c": 3, "media": 4.65}, "d": {"c": 2, "media": null}}}, {"n": 13, "clave": "a", "aciertos": 8, "r": 0.09, "grupos": {"alto": [4, 8], "medio": [2, 8], "bajo": [2, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT titulo FROM libro WHERE titulo LIKE '%el%';</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve? (Recordá la configuración de MySQL indicada en las instrucciones.)</div>", "opciones": ["3 filas", "2 filas", "1 fila", "0 filas: no hay ningún título que empiece con «el»"], "elecciones": {"a": {"c": 8, "media": 6.42}, "b": {"c": 4, "media": 5.2}, "c": {"c": 8, "media": 6.27}, "d": {"c": 2, "media": null}}}, {"n": 14, "clave": "d", "aciertos": 18, "r": 0.6, "grupos": {"alto": [8, 8], "medio": [7, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT COUNT(*), COUNT(fecha_devolucion), COUNT(DISTINCT id_socio) FROM prestamo;</pre>\n    <div class=\"enunciado\">¿Qué valores devuelve, en ese orden?</div>", "opciones": ["14, 14, 8", "14, 6, 8", "14, 8, 8", "14, 8, 5"], "elecciones": {"a": {"c": 1, "media": null}, "b": {"c": 2, "media": null}, "c": {"c": 1, "media": null}, "d": {"c": 18, "media": 6.5}}}, {"n": 15, "clave": "c", "aciertos": 6, "r": 0.3, "grupos": {"alto": [3, 8], "medio": [3, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\">Se quieren los libros de las editoriales 1 o 3, y se escribe:</div>\n    <pre class=\"sql\">SELECT titulo FROM libro WHERE id_editorial = 1 OR 3;</pre>\n    <div class=\"enunciado\">¿Cuál es el resultado?</div>", "opciones": ["6 filas: los libros de las editoriales 1 y 3, como se esperaba", "4 filas: solo los libros de la editorial 1", "10 filas: devuelve la tabla completa", "Error de sintaxis en la cláusula WHERE"], "elecciones": {"a": {"c": 6, "media": 5.1}, "b": {"c": 0, "media": null}, "c": {"c": 6, "media": 7.02}, "d": {"c": 10, "media": 5.93}}}, {"n": 16, "clave": "c", "aciertos": 19, "r": 0.29, "grupos": {"alto": [8, 8], "medio": [6, 8], "bajo": [5, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta esta actualización sobre los datos originales:</div>\n    <pre class=\"sql\">UPDATE libro SET stock = stock + 5 WHERE stock = 0;</pre>\n    <div class=\"enunciado\">Inmediatamente después se ejecuta <code>SELECT COUNT(*) FROM libro WHERE stock &lt; 3;</code>. ¿Qué valor devuelve esta segunda consulta?</div>", "opciones": ["5", "2", "3", "0"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 1, "media": null}, "c": {"c": 19, "media": 6.23}, "d": {"c": 2, "media": null}}}, {"n": 17, "clave": "b", "aciertos": 12, "r": 0.42, "grupos": {"alto": [6, 8], "medio": [5, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecutan estas tres consultas sobre los datos originales:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT AVG(stock) FROM libro;</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT SUM(stock)/COUNT(*) FROM libro;</code></div>\n        <div class=\"v\"><span class=\"rot\">III.</span> <code>SELECT SUM(stock)/COUNT(stock) FROM libro;</code></div>\n    </div>\n    <div class=\"enunciado\">¿Qué se obtiene?</div>", "opciones": ["Las tres devuelven 3.1000, y seguirían coincidiendo aunque <code>stock</code> admitiera NULL", "Las tres devuelven 3.1000; si <code>stock</code> admitiera NULL, la II daría un valor menor que las otras dos", "La I devuelve 3.1000 y las otras dos fallan: no se puede dividir el resultado de dos funciones de agregación", "La I y la III devuelven 3.1000, y la II devuelve 31"], "elecciones": {"a": {"c": 1, "media": null}, "b": {"c": 12, "media": 6.77}, "c": {"c": 7, "media": 5.86}, "d": {"c": 2, "media": null}}}, {"n": 18, "clave": "d", "aciertos": 15, "r": 0.36, "grupos": {"alto": [8, 8], "medio": [4, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">UPDATE libro SET precio = precio * 1.10 WHERE titulo LIKE 'El %';</pre>\n    <div class=\"enunciado\">¿Cuántas filas modifica?</div>", "opciones": ["3", "10", "0: hay que escribir <code>LIKE '%El %'</code> para que encuentre algo", "2"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 0, "media": null}, "c": {"c": 7, "media": 4.91}, "d": {"c": 15, "media": 6.51}}}, {"n": 19, "clave": "a", "aciertos": 17, "r": -0.1, "grupos": {"alto": [7, 8], "medio": [4, 8], "bajo": [6, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT E.nombre, COUNT(*) AS libros\nFROM libro L, editorial E\nWHERE L.id_editorial = E.id_editorial\nGROUP BY E.nombre;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve?</div>", "opciones": ["4 filas: Minotauro no aparece porque no tiene libros cargados", "5 filas, una por cada editorial", "10 filas, una por cada libro", "5 filas, y Minotauro muestra el valor 0"], "elecciones": {"a": {"c": 17, "media": 5.98}, "b": {"c": 0, "media": null}, "c": {"c": 0, "media": null}, "d": {"c": 5, "media": 6.07}}}, {"n": 20, "clave": "d", "aciertos": 3, "r": 0.13, "grupos": {"alto": [2, 8], "medio": [1, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\">Para corregir el problema anterior, se reescribe la consulta así:</div>\n    <pre class=\"sql\">SELECT E.nombre, COUNT(*) AS libros\nFROM editorial E\nLEFT JOIN libro L ON L.id_editorial = E.id_editorial\nGROUP BY E.id_editorial, E.nombre;</pre>\n    <div class=\"enunciado\">¿Cuántas filas devuelve y qué valor muestra la fila de Minotauro?</div>", "opciones": ["5 filas; Minotauro muestra 0, que es lo correcto", "4 filas; Minotauro sigue sin aparecer", "5 filas; Minotauro muestra NULL", "5 filas; Minotauro muestra 1, que es incorrecto: debería contarse <code>COUNT(L.id_libro)</code>"], "elecciones": {"a": {"c": 12, "media": 5.75}, "b": {"c": 2, "media": null}, "c": {"c": 5, "media": 6.09}, "d": {"c": 3, "media": 6.86}}}, {"n": 21, "clave": "c", "aciertos": 10, "r": 0.32, "grupos": {"alto": [5, 8], "medio": [5, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\">Se quieren listar los libros que <strong>nunca fueron prestados</strong>. Se proponen tres consultas:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT L.titulo FROM libro L, prestamo P WHERE P.id_libro = L.id_libro GROUP BY L.id_libro, L.titulo HAVING COUNT(*) = 0;</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT L.titulo FROM libro L LEFT JOIN prestamo P ON P.id_libro = L.id_libro GROUP BY L.id_libro, L.titulo HAVING COUNT(P.id_prestamo) = 0;</code></div>\n        <div class=\"v\"><span class=\"rot\">III.</span> <code>SELECT L.titulo FROM libro L LEFT JOIN prestamo P ON P.id_libro = L.id_libro GROUP BY L.id_libro, L.titulo HAVING COUNT(*) = 0;</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuál resuelve el pedido, y cuántas filas devuelve?</div>", "opciones": ["La I — 2 filas", "La III — 2 filas", "La II — 2 filas", "Las tres devuelven el mismo resultado"], "elecciones": {"a": {"c": 4, "media": 6.01}, "b": {"c": 2, "media": null}, "c": {"c": 10, "media": 6.78}, "d": {"c": 6, "media": 4.31}}}, {"n": 22, "clave": "d", "aciertos": 7, "r": 0.13, "grupos": {"alto": [2, 8], "medio": [4, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT ciudad, nombre, COUNT(*) FROM socio GROUP BY ciudad;</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT id_socio, COUNT(*) FROM prestamo WHERE COUNT(*) &gt; 2 GROUP BY id_socio;</code></div>\n        <div class=\"v\"><span class=\"rot\">III.</span> <code>SELECT COUNT(*) FROM libro HAVING COUNT(*) &gt; 5;</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuál de estas consultas se ejecuta <strong>sin producir error</strong>?</div>", "opciones": ["Solo la I", "Solo la II", "Ninguna de las tres", "Solo la III"], "elecciones": {"a": {"c": 5, "media": 6.91}, "b": {"c": 5, "media": 6.06}, "c": {"c": 5, "media": 4.2}, "d": {"c": 7, "media": 6.59}}}, {"n": 23, "clave": "b", "aciertos": 20, "r": -0.21, "grupos": {"alto": [7, 8], "medio": [7, 8], "bajo": [6, 6]}, "cuerpo": "<div class=\"enunciado\">El bibliotecario sospecha que una misma persona fue dada de alta dos veces. Compara dos consultas:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT apellido, COUNT(*) FROM socio GROUP BY apellido HAVING COUNT(*) &gt; 1;  → devuelve 2 filas</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT nombre, apellido, COUNT(*) FROM socio GROUP BY nombre, apellido HAVING COUNT(*) &gt; 1;  → devuelve 1 fila</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuál identifica correctamente el caso sospechoso, y por qué?</div>", "opciones": ["La I, porque detecta más casos y conviene revisarlos todos", "La II, porque agrupa por la combinación completa; en la I, Pablo Sosa y Carla Sosa son personas distintas que comparten apellido", "Las dos son equivalentes: la diferencia en la cantidad de filas se debe al HAVING", "Ninguna sirve: los duplicados solo pueden detectarse con WHERE"], "elecciones": {"a": {"c": 0, "media": null}, "b": {"c": 20, "media": 5.92}, "c": {"c": 1, "media": null}, "d": {"c": 1, "media": null}}}, {"n": 24, "clave": "c", "aciertos": 15, "r": 0.13, "grupos": {"alto": [6, 8], "medio": [6, 8], "bajo": [3, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecutan estas dos consultas:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT nombre, apellido FROM socio WHERE id_socio IN (SELECT id_socio FROM prestamo WHERE fecha_devolucion IS NULL);</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT nombre, apellido FROM socio WHERE id_socio NOT IN (SELECT id_socio FROM prestamo);</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuántas filas devuelve cada una?</div>", "opciones": ["I devuelve 6 y II devuelve 3", "I devuelve 4 y II devuelve 5", "I devuelve 4 y II devuelve 3", "I devuelve 4 y II devuelve 0: NOT IN no funciona con subconsultas"], "elecciones": {"a": {"c": 6, "media": 5.77}, "b": {"c": 0, "media": null}, "c": {"c": 15, "media": 6.27}, "d": {"c": 1, "media": null}}}, {"n": 25, "clave": "d", "aciertos": 11, "r": 0.63, "grupos": {"alto": [8, 8], "medio": [2, 8], "bajo": [1, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta esta consulta:</div>\n    <pre class=\"sql\">SELECT L.titulo FROM libro L\nWHERE NOT EXISTS (SELECT 1 FROM prestamo P WHERE P.id_libro = L.id_libro);</pre>\n    <div class=\"enunciado\">¿Qué devuelve, comparada con la consulta II de la pregunta 21?</div>", "opciones": ["La tabla completa: NOT EXISTS no puede comparar contra otra tabla", "0 filas: había que escribir <code>SELECT id_libro</code> en vez de <code>SELECT 1</code>", "Las 8 filas de los libros que sí se prestaron", "Lo mismo: <em>El túnel</em> y <em>Pedro Páramo</em>"], "elecciones": {"a": {"c": 3, "media": 5.13}, "b": {"c": 4, "media": 4.45}, "c": {"c": 4, "media": 5.02}, "d": {"c": 11, "media": 7.16}}}, {"n": 26, "clave": "b", "aciertos": 14, "r": 0.64, "grupos": {"alto": [8, 8], "medio": [6, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\">Se ejecuta:</div>\n    <pre class=\"sql\">SELECT E.nombre, AVG(L.precio) AS promedio\nFROM editorial E\nJOIN libro L ON L.id_editorial = E.id_editorial\nGROUP BY E.id_editorial, E.nombre\nHAVING AVG(L.precio) &gt; (SELECT AVG(precio) FROM libro);</pre>\n    <div class=\"enunciado\">¿Qué editoriales devuelve?</div>", "opciones": ["Sudamericana, Planeta y Anagrama", "Planeta y Anagrama", "Anagrama solamente", "Ninguna: la subconsulta del HAVING se recalcula para cada grupo y siempre termina dando el mismo valor que <code>AVG(L.precio)</code>"], "elecciones": {"a": {"c": 2, "media": null}, "b": {"c": 14, "media": 6.9}, "c": {"c": 1, "media": null}, "d": {"c": 4, "media": 4.71}, "n": {"c": 1, "media": null}}}, {"n": 27, "clave": "c", "aciertos": 3, "r": 0.13, "grupos": {"alto": [1, 8], "medio": [2, 8], "bajo": [0, 6]}, "cuerpo": "<div class=\"enunciado\"><strong>Pedro Páramo está cargado sin año</strong> —su columna <code>anio</code> es NULL— y es el único libro de Siglo XXI, la editorial 4. Se ejecutan estas dos consultas:</div>\n    <div class=\"variantes\">\n        <div class=\"v\"><span class=\"rot\">I.</span> <code>SELECT titulo FROM libro WHERE anio NOT IN (SELECT anio FROM libro WHERE id_editorial = 4);</code></div>\n        <div class=\"v\"><span class=\"rot\">II.</span> <code>SELECT titulo FROM libro L WHERE NOT EXISTS (SELECT 1 FROM libro X WHERE X.id_editorial = 4 AND X.anio = L.anio);</code></div>\n    </div>\n    <div class=\"enunciado\">¿Cuántas filas devuelve cada una?</div>", "opciones": ["Las dos devuelven 9", "Las dos devuelven 10", "I devuelve 0 y II devuelve 10", "I devuelve 9 y II devuelve 10"], "elecciones": {"a": {"c": 7, "media": 5.79}, "b": {"c": 0, "media": null}, "c": {"c": 3, "media": 6.95}, "d": {"c": 11, "media": 5.96}, "n": {"c": 1, "media": null}}}]};
+
+const PARTES = n => n <= 10 ? "I" : n <= 18 ? "II" : n <= 25 ? "III" : "IV";
+const NOMBRE_PARTE = {I:"Parte I · Leer el resultado", II:"Parte II · Cómo se comporta cada cláusula", III:"Parte III · Elegir entre consultas", IV:"Parte IV · Cierre"};
+const fmt = (x, d=2) => x.toLocaleString("es-AR", {minimumFractionDigits:d, maximumFractionDigits:d});
+const pct = (a, b) => Math.round(100 * a / b);
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const NOTAS = {
+  1: {tags:[], txt:"<strong>c</strong> pone primero a <em>El Aleph</em>, que es el primero de los cinco en el orden en que está cargada la tabla: parece que no se aplicó el ORDER BY. <strong>d</strong> (no se puede ordenar por una columna fuera del SELECT) era el error que se esperaba, pero la eligieron solo dos alumnos."},
+  2: {tags:["Fácil"], txt:"Se equivocó un solo alumno."},
+  3: {tags:[], txt:"<strong>a</strong> («6 filas, cada una con el valor 1») la eligieron alumnos de todos los niveles, también del grupo alto. Tres de esos cinco acertaron la 14, que también usa COUNT: parece más un error al leer «cuántas filas» que no entender COUNT."},
+  4: {tags:[], txt:"<strong>d</strong> («DISTINCT resume todo en una fila») y <strong>c</strong> (4 filas) las eligieron dos alumnos cada una."},
+  5: {tags:[], txt:"Es la única pregunta donde el grupo medio rinde peor que el bajo. <strong>a</strong> son los títulos de la primera página. <strong>d</strong> son los títulos 7 a 9, que es lo que sale si se lee <code>OFFSET 3</code> como «página 3» (hipótesis)."},
+  6: {tags:["Espera un error"], txt:"<strong>d</strong> (6 alumnos) supone que da error porque el OFFSET es mayor que el LIMIT, como si el motor controlara la relación entre los dos. En realidad devuelve las 2 filas que quedan."},
+  7: {tags:["Fácil"], txt:"Solo tres alumnos eligieron <code>SUM(stock) * SUM(precio)</code>."},
+  8: {tags:["Discrimina bien"], txt:"<strong>d</strong> («2 filas, una con el mínimo y otra con el máximo») la eligieron 9 alumnos. Nadie eligió <strong>c</strong>, que era el error que se esperaba. Cuatro de esos nueve respondieron en la 17 que no se puede dividir el resultado de dos agregaciones: en las dos aparece la idea de que cada función de agregación da un resultado separado."},
+  9: {tags:[], txt:"Tres alumnos eligieron 5, el total de socios con préstamos, como si no hubiera HAVING."},
+  10: {tags:["Discrimina bien","Espera un error"], txt:"<strong>d</strong> (7 alumnos, media 4,51) supone que no se puede usar una subconsulta dentro del WHERE. Así respondió la mitad del grupo medio. Tres de esos siete eligieron en la 26 la opción de la subconsulta que se recalcula para cada grupo."},
+  11: {tags:["Espera un error","NULL"], txt:"La acertaron solo tres alumnos, los tres del grupo alto. Hay dos errores distintos: <strong>d</strong> (14 alumnos) espera un error de sintaxis y <strong>a</strong> (5) supone que <code>= NULL</code> funciona. Siete alumnos eligieron «error de sintaxis» también en la 15: suponen que el motor rechaza la consulta mal escrita, cuando la ejecuta y devuelve un resultado equivocado."},
+  12: {tags:[], txt:"Casi todo el grupo bajo falló. <strong>a</strong> reusa el 8, <strong>c</strong> supone que el INSERT falla por no indicar <code>fecha_alta</code> y <strong>d</strong> hace volver el contador a 1."},
+  13: {tags:["Configuración MySQL","No discrimina"], txt:"<strong>c</strong> (1 fila) es lo que sale si la comparación distinguiera mayúsculas: solo «Rayuela» tiene «el» en minúscula. La eligieron 8 alumnos con una media casi igual a la de los que acertaron. Siete de esos ocho acertaron la 18, donde el patrón coincide en mayúscula con los datos: entienden LIKE, y lo que no aplicaron es la aclaración de las instrucciones. <strong>b</strong> (2 filas): no vieron el «el» dentro de «Rayuela»."},
+  14: {tags:["Discrimina bien"], txt:"Fallaron cuatro alumnos, tres de ellos del grupo bajo. Separa al grupo bajo del resto."},
+  15: {tags:["Espera un error"], txt:"<strong>d</strong> (10 alumnos) espera un error de sintaxis, el mismo patrón que en la 11. <strong>a</strong> (6) supone que devuelve los libros de las editoriales 1 y 3. La acertaron alumnos del grupo alto y del medio."},
+  16: {tags:["Fácil"], txt:"Nadie eligió <strong>a</strong>, el valor anterior al UPDATE, que era el error que se esperaba."},
+  17: {tags:[], txt:"<strong>c</strong> (7 alumnos) supone que no se puede dividir el resultado de dos funciones de agregación. Las opciones a y d solo las eligieron alumnos del grupo bajo."},
+  18: {tags:[], txt:"Todo el grupo alto acertó; en el medio, la mitad. <strong>c</strong> («hay que escribir <code>'%El %'</code>») muestra que falta distinguir cuándo hace falta el % al principio (la 13) y cuándo no (esta)."},
+  19: {tags:["r negativo","NULL"], txt:"<strong>d</strong> («5 filas, Minotauro muestra 0») la eligieron cinco alumnos, casi todos del grupo medio; el grupo bajo acertó completo. Cuatro de esos cinco eligieron también «Minotauro muestra 0» en la 20: suponen que una editorial sin libros aparece con 0. Hipótesis: el grupo bajo cuenta lo que ve en la tabla y el medio aplica una regla aprendida a medias. Con 5 casos no se puede confirmar."},
+  20: {tags:["NULL","Redacción a revisar"], txt:"<strong>a</strong> («Minotauro muestra 0, que es lo correcto») la eligieron 12 alumnos. Seis de ellos acertaron la 21, que depende de lo mismo (<code>COUNT(*)</code> cuenta la fila con NULL): probablemente parte de los aciertos de la 21 salen de elegir la consulta que parece más cuidadosa. El enunciado empieza con «Para corregir el problema anterior», y eso puede hacer creer que la corrección funciona."},
+  21: {tags:[], txt:"<strong>d</strong> («las tres dan lo mismo», media 4,31) es la elección del grupo bajo, donde no la acertó nadie. De los 10 que acertaron esta pregunta, solo 2 acertaron también la 20."},
+  22: {tags:["Configuración MySQL","No discrimina","Redacción a revisar"], txt:"Respuestas casi parejas. <strong>a</strong> («solo la I») tiene la nota media más alta, incluso más que la correcta: esos alumnos suponen que la I corre, lo que pasaría con ONLY_FULL_GROUP_BY desactivado, y las instrucciones aclaran que está activo. <strong>c</strong> («ninguna», media 4,20) supone que HAVING sin GROUP BY da error. Es la única pregunta de la Parte III sin frase de contexto antes de las consultas."},
+  23: {tags:["Fácil","r negativo"], txt:"Fallaron dos alumnos, cada uno con una opción distinta. Con solo dos errores, el r negativo es casualidad."},
+  24: {tags:[], txt:"<strong>a</strong> («I devuelve 6», media 5,77) cuenta préstamos abiertos en vez de socios: no tiene en cuenta que IN no repite socios. El error aparece en todos los niveles."},
+  25: {tags:["Discrimina bien"], txt:"El grupo alto acertó completo; en el medio, 2 de 8. Es la pregunta que más separa esos dos grupos. Los errores se reparten entre a, b y c."},
+  26: {tags:["Discrimina bien"], txt:"La que mejor discrimina: el grupo alto acertó 8 de 8 y el bajo, 0 de 6. <strong>d</strong> confunde esta subconsulta con una correlacionada; <strong>a</strong> incluye a Sudamericana."},
+  27: {tags:["NULL"], txt:"La acertaron solo tres alumnos, de los grupos alto y medio. <strong>d</strong> (11 alumnos) resolvió bien la II (NOT EXISTS): lo que falló es cómo afecta el NULL al NOT IN. Junto con la 20, es el tema que peor resolvió el curso entero."}
+};
+
+/* De qué caso de los apuntes sale cada pregunta (el origen anotado en generar_examen.py) */
+const APUNTES = {
+  sp: {nombre:"Taller: primeras consultas", archivo:"taller-sql-practica", res:true},
+  ta: {nombre:"Taller de agrupación", archivo:"taller-agrupacion", res:true},
+  ca: {nombre:"Compendio de agrupación", archivo:"compendio-agrupacion", res:true},
+  ts: {nombre:"Taller de subconsultas", archivo:"taller-subconsultas", res:true},
+  cs: {nombre:"Compendio de subconsultas", archivo:"compendio-subconsultas", res:true},
+  oe: {nombre:"El orden en que corre una consulta", archivo:"orden-de-ejecucion", res:false}
+};
+const FUENTES = {
+  1: [{m:"sp", r:"1-1", t:"Repuestos con stock crítico"}],
+  2: [{m:"sp", r:"1-5", t:"Rango de mano de obra"}],
+  3: [{m:"sp", r:"1-6", t:"Órdenes todavía no entregadas"}, {m:"ta", r:"1-3", t:"Cantidad total de clientes"}],
+  4: [{m:"sp", r:"1-4", t:"Catálogo de tipos de equipo"}],
+  5: [{m:"sp", r:"5-2", t:"Simulando la página 2"}],
+  6: [{m:"sp", r:"5-2", t:"Simulando la página 2", obs:"la última página incompleta está en la resolución"}],
+  7: [{m:"ca", r:"1-4", t:"Capital inmovilizado en el depósito"}, {m:"ta", r:"1-1", t:"Valor total del stock en depósito"}],
+  8: [{m:"ta", r:"1-2", t:"Extremos de precios en repuestos"}],
+  9: [{m:"ta", r:"3-1", t:"Clientes recurrentes (Fidelidad)"}, {m:"ca", r:"4-1", t:"Clientes que volvieron"}],
+  10: [{m:"ts", r:"1-1", t:"Repuestos por encima del promedio"}, {m:"cs", r:"1-1", t:"Repuestos por debajo del stock promedio"}],
+  11: [{m:"sp", r:"1-6", t:"Órdenes todavía no entregadas"}],
+  12: [{m:"sp", r:"2-1", t:"Alta de un repuesto", obs:"lo del AUTO_INCREMENT después de un DELETE se comentó en clase"}],
+  13: [{m:"sp", r:"1-2", t:"Buscar un cliente por apellido"}],
+  14: [{m:"ca", r:"1-2", t:"Las tres formas de contar"}],
+  15: [{m:"sp", r:"1-7", t:"Equipos de marcas puntuales"}],
+  16: [{m:"sp", r:"3-1", t:"Aumento general del 10%"}],
+  17: [{m:"ca", r:"1-2", t:"Las tres formas de contar", obs:"el NULL en la agregación"}],
+  18: [{m:"sp", r:"3-2", t:"Aumento selectivo por nombre"}],
+  19: [{m:"ca", r:"2-4", t:"Facturación por cliente (y los que faltan)"}],
+  20: [{m:"ca", r:"6-1", t:"Cuánto se pagó de cada orden (incluidas las que no pagaron)"}],
+  21: [{m:"ca", r:"6-2", t:"Los métodos de pago que nadie usa"}],
+  22: [{m:"oe", a:"where-having", t:"La misma condición en dos lugares"}, {m:"oe", a:"que-es-un-grupo", t:"Qué queda cuando el grupo reemplaza a la fila"}],
+  23: [{m:"ca", r:"4-4", t:"Cazar clientes duplicados"}],
+  24: [{m:"ts", r:"2-1", t:"Clientes con órdenes activas (Pertenencia)"}, {m:"ts", r:"2-2", t:"Clientes sin visitas registradas (Exclusión)"}],
+  25: [{m:"ts", r:"3-2", t:"Clientes sin correo electrónico (NOT EXISTS)"}, {m:"cs", r:"7-1", t:"Mismo resultado por dos caminos"}],
+  26: [{m:"cs", r:"5-1", t:"Métodos de pago por encima del promedio"}, {m:"oe", a:"panel-sub", t:"Dónde corre una subconsulta"}],
+  27: [{m:"cs", a:"nulls", t:"Por qué el NULL rompe el NOT IN", obs:"sustento teórico del bloque 7"}, {m:"cs", r:"7-2", t:"Provocar la hoja en blanco"}]
+};
+const RUTA_APUNTES = "";
+function fuentes(num){
+  const lista = FUENTES[num] || [];
+  if (!lista.length) return "";
+  const items = lista.map(f => {
+    const ap = APUNTES[f.m];
+    const ancla = f.r ? "reto-" + f.r : f.a;
+    const cons = ap.res ? `${ap.archivo}-consignas.html` : `${ap.archivo}.html`;
+    const rot = f.r ? `Reto ${f.r.replace("-", ".")} · ` : "";
+    const res = ap.res && f.r ? `<a class="res" href='${RUTA_APUNTES}${ap.archivo}-resoluciones.html#${ancla}' target="_blank" rel="noopener">resolución</a>` : "";
+    return `<li><span class="mat">${ap.nombre}</span><a href='${RUTA_APUNTES}${cons}#${ancla}' target="_blank" rel="noopener">${rot}«${f.t}»</a>${res}${f.obs ? `<span class="obs">${f.obs}</span>` : ""}</li>`;
+  }).join("");
+  return `<div class="fuentes"><span class="glbl">Casos de estudio en los apuntes</span><ul>${items}</ul></div>`;
+}
+
+const PATRONES = [
+  {t:"NULL y grupos sin filas", p:"Tema sin aprender en todo el curso: la comparación con NULL, la fila con NULL del LEFT JOIN y el NULL dentro de NOT IN. Fallan también los alumnos de nota alta.", q:[11,19,20,27]},
+  {t:"Esperan un error que no llega", p:"El motor ejecuta la consulta y devuelve un resultado (a veces equivocado), pero los alumnos creen que la rechaza.", q:[6,10,11,15]},
+  {t:"No aplicaron la configuración de MySQL", p:"Las instrucciones aclaran que no se distinguen mayúsculas y que ONLY_FULL_GROUP_BY está activo. Estos errores los cometieron también alumnos de nota alta.", q:[13,22]},
+  {t:"Las que mejor separan", p:"Preguntas que aciertan los alumnos de nota alta y fallan los de nota baja. La 11 separa solo dentro del grupo alto.", q:[8,10,14,25,26]},
+  {t:"Las más acertadas", p:"Las acertó el 85 % o más del curso.", q:[2,7,16,23]},
+  {t:"Enunciados a revisar", p:"La 20 empieza con «Para corregir el problema anterior», que sugiere que la corrección funciona. A la 22 le falta la frase de contexto antes de las consultas.", q:[20,22]}
+];
+
+/* Cabecera */
+const n = D.n;
+const notas = D.alumnos.map(a => a.nota);
+document.getElementById("stats").innerHTML = [
+  [n, "alumnos"], [fmt(D.media), "nota media"], [fmt(D.desvio), "desvío estándar"],
+  [fmt(D.mediana), "mediana"], [notas.filter(x => x >= 6).length, "con 6 o más"], ["27", "preguntas"]
+].map(([v, l]) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+
+/* Grilla */
+const celda = it => {
+  const p = pct(it.aciertos, n);
+  return `<a class="celda${p < 34 ? " baja" : ""}" href="#q${it.n}" style="--h:${p}%" aria-label="Pregunta ${it.n}, clave ${it.clave}, ${p} % de aciertos">
+    <span class="qn">${it.n}</span><span class="ql">${it.clave}</span><span class="qp">${p}%</span></a>`;
+};
+const I = D.items;
+document.getElementById("grilla").innerHTML = `
+  <div class="fila">${I.slice(0,14).map(celda).join("")}</div>
+  <div class="fila">${I.slice(14,25).map(celda).join("")}</div>
+  <p class="fila-lbl">Cierre · las dos que definen el 10</p>
+  <div class="fila">${I.slice(25).map(celda).join("")}</div>
+  <div class="leyenda">
+    <span><i class="sw" style="background:var(--ok-soft);border:1px solid var(--line)"></i>Porcentaje de aciertos</span>
+    <span><i class="sw" style="background:var(--bad-soft);border:1px solid var(--line)"></i>Menos de un tercio del curso la acertó</span>
+  </div>`;
+
+/* Dot plot */
+(function(){
+  const W = 760, H = 190, L = 30, R = 30, base = 130;
+  const x = v => L + (W - L - R) * v / 10;
+  const m = D.media, s = D.desvio;
+  const pilas = {};
+  const alumnos = [...D.alumnos].sort((a,b) => a.nota - b.nota);
+  let dots = "";
+  alumnos.forEach(a => {
+    const k = a.nota.toFixed(2); pilas[k] = (pilas[k] || 0) + 1;
+    const cy = base - 9 - (pilas[k] - 1) * 15;
+    dots += `<circle class="dot${a.grupo === "bajo" ? " bajo" : ""}" cx="${x(a.nota)}" cy="${cy}" r="6.5" tabindex="0" data-tip="Nota ${fmt(a.nota)}"><title>Nota ${fmt(a.nota)}</title></circle>`;
+  });
+  let ticks = "";
+  for (let v = 0; v <= 10; v++) ticks += `<line x1="${x(v)}" x2="${x(v)}" y1="${base}" y2="${base+5}" stroke="var(--faint)"/><text x="${x(v)}" y="${base+20}" text-anchor="middle">${v}</text>`;
+  document.getElementById("dotplot").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribución de las 22 notas, media ${fmt(m)}, desvío ${fmt(s)}">
+    <rect x="${x(m-s)}" y="18" width="${x(m+s)-x(m-s)}" height="${base-18}" fill="var(--sunk)"/>
+    <line x1="${x(m)}" x2="${x(m)}" y1="14" y2="${base}" stroke="var(--ink)" stroke-dasharray="3 3"/>
+    <text x="${x(m)}" y="10" text-anchor="middle" class="t-ink">media ${fmt(m)}</text>
+    <text x="${x(m-s)-6}" y="32" text-anchor="end">−1 desvío · ${fmt(m-s)}</text>
+    <text x="${x(m+s)+6}" y="32">+1 desvío · ${fmt(m+s)}</text>
+    <line x1="${L}" x2="${W-R}" y1="${base}" y2="${base}" stroke="var(--faint)"/>
+    ${ticks}${dots}
+    <text x="${W/2}" y="${H-4}" text-anchor="middle">nota</text>
+  </svg>
+  <div class="leyenda"><span><i class="sw" style="background:var(--ok)"></i>Grupos alto y medio</span><span><i class="sw" style="background:var(--bad)"></i>Grupo bajo (5,04 o menos)</span><span>Los 4 alumnos con 3,24 quedan separados: entre 3,24 y 5,04 no hay ninguna nota. Sin ellos, el desvío baja de 1,69 a 1,16.</span></div>`;
+
+})();
+
+/* Patrones */
+document.getElementById("patrones").innerHTML = PATRONES.map(p => `<div class="patron"><h3>${p.t}</h3><p>${p.p}</p><div class="chips">${p.q.map(q => `<a class="chip" href="#q${q}">Pregunta ${q}</a>`).join("")}</div></div>`).join("");
+
+/* Preguntas */
+function tarjeta(it){
+  const nt = NOTAS[it.n];
+  const letras = Object.keys(it.elecciones);
+  let dom = null, max = 0;
+  letras.forEach(l => { const c = it.elecciones[l].c; if (l !== it.clave && l !== "n" && c > max) { max = c; dom = l; } });
+  if (max < 3) dom = null;
+  const opts = letras.map((l, i) => {
+    const e = it.elecciones[l], c = e.c;
+    const txt = l === "n" ? "<em>En blanco</em>" : it.opciones["abcd".indexOf(l)];
+    const cls = l === it.clave ? " ok" : l === dom ? " dom" : "";
+    const tip = c ? `${c} ${c === 1 ? "alumno la eligió" : "alumnos la eligieron"}` : "Nadie eligió esta opción";
+    return `<div class="opt${cls}" tabindex="0" data-tip="${esc(tip)}">
+      <span class="letra" aria-label="${l === it.clave ? "opción correcta " : "opción "}${l}">${l === "n" ? "–" : l}</span>
+      <span class="otext">${txt}</span>
+      <span class="ocount">${c} · ${pct(c, n)} %</span>
+      <span></span>
+      <span class="bar"><span class="track"><span class="fill" style="width:${100*c/n}%;display:block"></span></span><span class="media">${e.media != null ? "media " + fmt(e.media) : "—"}</span></span>
+    </div>`;
+  }).join("");
+  const g = it.grupos;
+  const grupos = ["alto","medio","bajo"].map(k => `<div class="g"><span>${k[0].toUpperCase()+k.slice(1)}</span><span class="track"><span class="fill" style="width:${100*g[k][0]/g[k][1]}%;display:block"></span></span><span class="v">${g[k][0]}/${g[k][1]}</span></div>`).join("");
+  const parte = PARTES(it.n);
+  const alertas = ["NULL","Espera un error","Configuración MySQL","Redacción a revisar","No discrimina","r negativo"];
+  return `<article class="preg" id="q${it.n}" data-parte="${parte}">
+    <div class="preg-head">
+      <h3>Pregunta ${it.n}</h3><span class="parte">${NOMBRE_PARTE[parte]}</span>
+      <span class="metricas"><span>clave <b>${it.clave}</b></span><span>aciertos <b>${it.aciertos}/${n}</b> (${pct(it.aciertos,n)} %)</span><span>r <b>${fmt(it.r)}</b></span></span>
+    </div>
+    ${nt.tags.length ? `<div class="tags">${nt.tags.map(t => `<span class="tag${alertas.includes(t) ? " alerta" : ""}">${t}</span>`).join("")}</div>` : ""}
+    <div class="cuerpo">
+      <div class="enun">${it.cuerpo}</div>
+      <div class="opts">${opts}</div>
+    </div>
+    <div class="pie">
+      <div class="nota-txt"><p>${nt.txt}</p></div>
+      <div class="grupos"><span class="glbl">Aciertos por grupo</span>${grupos}</div>
+    </div>
+    ${fuentes(it.n)}
+  </article>`;
+}
+
+const estado = {parte:"todas", orden:"num"};
+function render(){
+  let its = [...I];
+  if (estado.parte !== "todas") its = its.filter(it => PARTES(it.n) === estado.parte);
+  if (estado.orden === "dif") its.sort((a,b) => a.aciertos - b.aciertos || a.n - b.n);
+  if (estado.orden === "disc") its.sort((a,b) => a.r - b.r || a.n - b.n);
+  document.getElementById("lista").innerHTML = its.map(tarjeta).join("") || `<p class="vacio">No hay preguntas con ese filtro.</p>`;
+}
+function seg(id, campo){
+  const el = document.getElementById(id);
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    estado[campo] = b.dataset.v; render();
+  });
+}
+seg("f-parte","parte"); seg("f-orden","orden");
+const cEnun = document.getElementById("c-enun");
+cEnun.addEventListener("change", () => document.body.classList.toggle("sin-enun", !cEnun.checked));
+document.querySelectorAll('.grilla a, .chips a').forEach(a => a.addEventListener("click", () => {
+  if (estado.parte !== "todas") { document.getElementById("p-todas").click(); }
+}));
+render();
+
+/* Tooltip */
+const tip = document.getElementById("tip");
+function mostrar(el, x, y){
+  tip.textContent = el.dataset.tip; tip.hidden = false;
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+}
+document.addEventListener("pointermove", e => {
+  const el = e.target.closest("[data-tip]");
+  if (el) mostrar(el, e.clientX, e.clientY); else tip.hidden = true;
+});
+document.addEventListener("focusin", e => {
+  const el = e.target.closest("[data-tip]");
+  if (el) { const r = el.getBoundingClientRect(); mostrar(el, r.left + 20, r.bottom); } else tip.hidden = true;
+});
+document.addEventListener("focusout", () => { tip.hidden = true; });
+</script>
+
+</body>
+</html>

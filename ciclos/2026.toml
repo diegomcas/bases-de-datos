@@ -215,6 +215,12 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abie
   nota = "Va al final porque necesita todo lo anterior: recorre las diez etapas de un SELECT con las uniones, la agregación y las subconsultas ya vistas, y deja planteada la clase de optimización."
   materiales = ["el-orden-en-que-corre-una-consulta"]
 
+  [[unidad.clase]]
+  numero = "Evaluación"
+  titulo = "Examen de SQL"
+  nota = "Sobre el caso Biblioteca Municipal. El análisis acompaña la autocorrección: cada pregunta lleva al caso de estudio donde se trabaja el tema."
+  materiales = ["analisis-del-examen-de-sql"]
+
 [[unidad]]
 id = "u4b"
 numero = "IV"

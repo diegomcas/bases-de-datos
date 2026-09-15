@@ -525,6 +525,20 @@ ciclos = [2026]
   variante = "principal"
 
 [[material]]
+id = "analisis-del-examen-de-sql"
+titulo = "Análisis del examen de SQL"
+descripcion = "Pregunta por pregunta: qué eligió el curso, qué errores se repiten y en qué caso de estudio repasar cada tema"
+unidad = "SQL · primera parte"
+icono = "reporte"
+caso = "biblioteca"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/analisis-examen-sql.html"
+  variante = "principal"
+
+[[material]]
 id = "taller-de-optimizacion"
 titulo = "Taller de optimización"
 descripcion = "14 retos sobre 500.000 filas. Medir, leer el plan y decidir qué indexar"
