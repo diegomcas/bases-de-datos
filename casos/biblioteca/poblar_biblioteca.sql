@@ -1,6 +1,6 @@
 -- =====================================================================
 --  BIBLIOTECA MUNICIPAL - Datos
---  Caso de estudio del examen de SQL (DML + Agrupación)
+--  Caso de estudio del examen de SQL (DML, agrupación y subconsultas)
 -- =====================================================================
 --  Requisito previo: Biblioteca.sql ya ejecutado.
 --
@@ -18,6 +18,9 @@
 --    - 6 préstamos tienen fecha_devolucion en NULL (siguen prestados).
 --    - La ciudad y los perros cuesta exactamente $9.000, que es el
 --      extremo del rango de la pregunta 2.
+--    - Pedro Páramo está cargado sin año (anio en NULL) y es el único
+--      libro de Siglo XXI: es lo que deja vacío el NOT IN de la
+--      pregunta 27.
 -- =====================================================================
 
 USE `biblioteca`;
@@ -57,7 +60,7 @@ INSERT INTO `libro` (`id_libro`, `titulo`, `id_editorial`, `anio`, `precio`, `st
 (6,  'Los detectives salvajes', 3, 1998, 15300.00, 1),
 (7,  'Nocturno de Chile',       3, 2000,  7400.00, 6),
 (8,  'El túnel',                1, 1948,  4900.00, 8),   -- nunca prestado
-(9,  'Pedro Páramo',            4, 1955,  5200.00, 0),   -- nunca prestado
+(9,  'Pedro Páramo',            4, NULL,  5200.00, 0),   -- nunca prestado, sin año
 (10, 'Boquitas pintadas',       2, 1969,  6800.00, 2);
 
 -- ---------------------------------------------------------------------
@@ -85,10 +88,11 @@ INSERT INTO `prestamo` (`id_prestamo`, `id_socio`, `id_libro`, `fecha_prestamo`,
 
 -- =====================================================================
 --  VERIFICACIÓN
---  Los cuatro números tienen que dar exactos. Si no coinciden, la base
+--  Los cinco números tienen que dar exactos. Si no coinciden, la base
 --  no quedó bien cargada y los resultados del examen no van a dar.
 -- =====================================================================
 SELECT 'editoriales' AS tabla, COUNT(*) AS filas,  5 AS esperado FROM `editorial`
 UNION ALL SELECT 'socios',     COUNT(*),  8 FROM `socio`
 UNION ALL SELECT 'libros',     COUNT(*), 10 FROM `libro`
-UNION ALL SELECT 'prestamos',  COUNT(*), 14 FROM `prestamo`;
+UNION ALL SELECT 'prestamos',  COUNT(*), 14 FROM `prestamo`
+UNION ALL SELECT 'libros sin año', COUNT(*), 1 FROM `libro` WHERE `anio` IS NULL;

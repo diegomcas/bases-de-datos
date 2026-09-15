@@ -1,6 +1,6 @@
 -- =====================================================================
 --  BIBLIOTECA MUNICIPAL - Estructura
---  Caso de estudio del examen de SQL (DML + Agrupación)
+--  Caso de estudio del examen de SQL (DML, agrupación y subconsultas)
 -- =====================================================================
 --  Ejecutar PRIMERO este script y DESPUÉS poblar_biblioteca.sql
 --
@@ -10,7 +10,7 @@
 --  El juego de caracteres y la collation se declaran de forma explícita
 --  (utf8mb4_0900_ai_ci, la de MySQL 8 por defecto) porque el examen
 --  supone comparaciones de texto que IGNORAN mayúsculas y tildes.
---  Si se cambia por una collation _cs o _bin, la pregunta 7 del examen
+--  Si se cambia por una collation _cs o _bin, la pregunta 13 del examen
 --  pasa a tener otra respuesta.
 -- =====================================================================
 
@@ -44,8 +44,8 @@ CREATE TABLE `socio` (
 -- ---------------------------------------------------------------------
 -- 2. TABLAS CON CLAVES FORÁNEAS
 --    Todas las FK son ON DELETE RESTRICT: no se puede borrar una fila
---    que tenga hijos. Es lo que hace fallar los borrados de la
---    pregunta 9 del examen.
+--    que tenga hijos. Por eso la pregunta 12 del examen borra al
+--    socio 8, que no tiene préstamos.
 -- ---------------------------------------------------------------------
 
 CREATE TABLE `libro` (
