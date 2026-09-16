@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Fechas y horas - El Chip (Consignas)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-leer      { --c: var(--bloque-azul); }
+    .block-filtrar   { --c: var(--bloque-verde); }
+    .block-calcular  { --c: var(--bloque-naranja); }
+    .block-texto     { --c: var(--bloque-violeta); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="consigna">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Taller corto</span>
+            <h1>Fechas y horas en SQL</h1>
+            <p>Leer, filtrar y calcular con las fechas de las órdenes de El Chip</p>
+            <a href="taller-fechas-resoluciones.html" class="nav-docente">
+                Ver las Resoluciones del Taller
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de fechas y horas</span>
+        </nav>
+
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Antes de empezar</h2>
+            </div>
+            <div class="explanation-text">
+                <p style="margin-bottom: 12px;"><strong>Base:</strong> este taller usa la <strong>base ampliada</strong> de El Chip: <code>ElChip.sql</code>, <code>poblar_elchip.sql</code> y <code>poblar_elchip_compendio.sql</code>, en ese orden. Son 8 órdenes que ingresaron entre marzo y junio de 2026, cada una con día y hora.</p>
+                <p><strong>Motor:</strong> hacelo en el MySQL de la escuela. La consola del sitio traduce <code>DATE_FORMAT</code>, <code>DATEDIFF</code>, <code>YEAR</code>, <code>MONTH</code>, <code>DAY</code> y <code>CURDATE</code>, pero no el resto de las funciones que aparecen acá.</p>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1: LEER UNA FECHA -->
+        <section class="block-card block-leer" id="leer">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Leer una fecha</h2>
+                    <p>Sacarle partes y mostrarla como se escribe en Argentina</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Estoy pensando en abrir solo a la mañana. ¿Cuántas órdenes me entran antes del mediodía? Y cuando me muestren fechas, pónganlas como las escribo yo: día, mes y año."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        Sustento Teórico: tipos y partes de una fecha
+                    </h4>
+                    <ul>
+                        <li><strong>Tipos:</strong> <code>DATE</code> guarda solo el día (<code>2026-05-22</code>). <code>DATETIME</code> guarda día y hora (<code>2026-05-22 11:05:00</code>). En El Chip, <code>fecha_ingreso</code> y <code>fecha_pago</code> son <code>DATETIME</code>.</li>
+                        <li><strong>Formato de almacenamiento:</strong> MySQL escribe y lee las fechas como <code>'AAAA-MM-DD hh:mm:ss'</code>, del año al segundo.</li>
+                        <li><strong>Extraer partes:</strong> <code>DATE(f)</code> y <code>TIME(f)</code> separan día y hora. <code>YEAR(f)</code>, <code>MONTH(f)</code>, <code>DAY(f)</code>, <code>HOUR(f)</code> y <code>MINUTE(f)</code> devuelven un número.</li>
+                        <li><strong>Mostrar:</strong> <code>DATE_FORMAT(f, patrón)</code> arma un texto. En el patrón, <code>%d</code> es el día, <code>%m</code> el mes, <code>%Y</code> el año con cuatro cifras, <code>%H</code> la hora de 00 a 23 e <code>%i</code> los minutos.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-1-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.1</span>
+                        <h3>Las órdenes de la mañana</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Listá el <code>nro_orden</code>, el día de ingreso (sin la hora) y la hora de ingreso (solo el número) de las órdenes que entraron <strong>antes de las 12</strong>. Ordená por número de orden.</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-1-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-1-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 1.2</span>
+                        <h3>Fechas en formato argentino</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá el <code>nro_orden</code> y la fecha de ingreso con el formato <code>22/05/2026 11:05</code>, con el alias <code>ingreso</code>. Ejecutala dos veces: primero con <code>ORDER BY ingreso</code> y después con <code>ORDER BY fecha_ingreso</code>.</p>
+                        <p>Antes de ejecutar, anotá cuál orden esperás que aparezca primera en cada caso. ¿Por qué no dan lo mismo?</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-1-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2: FILTRAR POR FECHAS -->
+        <section class="block-card block-filtrar" id="filtrar">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Filtrar por fechas</h2>
+                    <p>Un rango de días sobre una columna que también guarda la hora</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Necesito las órdenes que entraron del 15 al 22 de mayo, los dos días incluidos. Me acuerdo de que el 22 entró una a media mañana."</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        Sustento Teórico: comparar fechas
+                    </h4>
+                    <ul>
+                        <li>Las fechas se comparan con los operadores de siempre (<code>=</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>BETWEEN</code>) contra un literal entre comillas: <code>fecha_ingreso &gt;= '2026-05-15'</code>.</li>
+                        <li>Si el literal no trae hora y la columna es <code>DATETIME</code>, MySQL completa la hora con <code>00:00:00</code>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-2-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 2.1</span>
+                        <h3>Las órdenes de una semana</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Escribí la consulta con <code>BETWEEN '2026-05-15' AND '2026-05-22'</code> y mostrá <code>nro_orden</code> y <code>fecha_ingreso</code>. ¿Aparece la orden del 22 que recordaba Martín? Explicá qué pasó y corregí la condición para que el 22 quede incluido entero.</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-2-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3: CALCULAR CON FECHAS -->
+        <section class="block-card block-calcular" id="calcular">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Calcular con fechas</h2>
+                    <p>Cuánto pasó entre dos momentos, qué día cae un plazo y cuánto falta desde hoy</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"Quiero saber cuánto tarda la gente en pagarme desde que deja el equipo. Y otra cosa: si un equipo pendiente pasa 60 días sin que lo vengan a buscar, lo doy por abandonado. ¿Qué día vence cada uno, y cuáles ya vencieron?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        Sustento Teórico: aritmética de fechas
+                    </h4>
+                    <ul>
+                        <li><code>DATEDIFF(fin, inicio)</code> cuenta los días de calendario entre dos fechas. Ignora la hora.</li>
+                        <li><code>TIMESTAMPDIFF(unidad, inicio, fin)</code> cuenta cuántas unidades <strong>completas</strong> pasaron. La unidad puede ser <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code> o <code>YEAR</code>, entre otras. Fijate que el orden de los argumentos es el inverso al de <code>DATEDIFF</code>.</li>
+                        <li><code>DATE_ADD(f, INTERVAL n unidad)</code> y <code>DATE_SUB(f, INTERVAL n unidad)</code> suman o restan un intervalo: <code>DATE_ADD(fecha_ingreso, INTERVAL 60 DAY)</code>.</li>
+                        <li><code>CURDATE()</code> devuelve la fecha de hoy y <code>NOW()</code>, la fecha y la hora. Una consulta que las usa da un resultado distinto cada día.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-3-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.1</span>
+                        <h3>Cuánto tardó cada cobro</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Para cada pago, mostrá el <code>nro_orden</code>, la <code>fecha_ingreso</code> de la orden, la <code>fecha_pago</code> y el tiempo transcurrido de tres maneras: en minutos, en horas y en días con <code>DATEDIFF</code>. Ordená por orden y por fecha de pago.</p>
+                        <p>Mirá los dos pagos de la orden 8. ¿Por qué uno da 1 día y 17 horas a la vez? Y tres pagos van a mostrar tiempos que no tienen sentido: revisá su <code>fecha_pago</code> y buscá en <code>poblar_elchip.sql</code> cómo se cargaron.</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-3-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-2">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.2</span>
+                        <h3>El vencimiento de las órdenes pendientes</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Mostrá el <code>nro_orden</code>, la <code>fecha_ingreso</code> y la fecha en que vence cada orden pendiente (<code>id_orden_estado = 1</code>), 60 días después del ingreso.</p>
+                        <p>Después cambiá <code>INTERVAL 60 DAY</code> por <code>INTERVAL 2 MONTH</code>. ¿Da lo mismo?</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-3-2">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+
+                <li class="consigna-item" id="reto-3-3">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 3.3</span>
+                        <h3>Cuánto hace que esperan</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Supongamos que hoy es el <strong>15 de julio de 2026</strong>. Para cada orden pendiente, mostrá el <code>nro_orden</code>, cuántos días lleva esperando y una columna <code>vencida</code> que diga si ya pasó su vencimiento. Escribí la fecha de hoy como literal: <code>'2026-07-15'</code>.</p>
+                        <p>Cuando te dé, reemplazá el literal por <code>CURDATE()</code> y volvé a ejecutar. ¿Qué cambió, y por qué tu resultado puede no coincidir con el de un compañero que lo corra otro día?</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-3-3">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4: FECHAS ESCRITAS COMO TEXTO -->
+        <section class="block-card block-texto" id="texto">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Fechas escritas como texto</h2>
+                    <p>Convertir lo que alguien anotó a mano en una fecha que la base entienda</p>
+                </div>
+            </div>
+
+            <div class="chat-martin">
+                <div class="avatar">M</div>
+                <div class="chat-content">
+                    <h4>Martín dice:</h4>
+                    <p>"En el cuaderno tengo anotado <em>10/03/2026 15:30</em> al lado de una notebook que nunca vinieron a buscar. ¿Me encuentran esa orden en la base?"</p>
+                </div>
+            </div>
+
+            <div class="explicacion">
+                <div class="theory-box">
+                    <h4>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                        Sustento Teórico: de texto a fecha
+                    </h4>
+                    <ul>
+                        <li><code>STR_TO_DATE(texto, patrón)</code> hace el camino inverso a <code>DATE_FORMAT</code>: lee un texto según el patrón y devuelve una fecha. Los símbolos del patrón son los mismos.</li>
+                        <li>El patrón le dice a MySQL qué número es el día y cuál el mes. <code>'10/03/2026'</code> es el 10 de marzo con <code>'%d/%m/%Y'</code> y el 3 de octubre con <code>'%m/%d/%Y'</code>, que es como se escribe en Estados Unidos.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="consignas-list">
+                <li class="consigna-item" id="reto-4-1">
+                    <div class="consigna-header">
+                        <span class="consigna-tag">Reto 4.1</span>
+                        <h3>La orden del cuaderno</h3>
+                    </div>
+                    <div class="consigna-body">
+                        <p>Primero, sin tocar ninguna tabla, convertí <code>'10/03/2026 15:30'</code> a fecha con <code>SELECT STR_TO_DATE(...)</code>. Probá también con el patrón estadounidense y compará.</p>
+                        <p>Después buscá en <code>orden_servicio</code> la orden cuya <code>fecha_ingreso</code> coincide con lo anotado, usando la conversión en el <code>WHERE</code>.</p>
+
+                        <a class="salto-nav" href="taller-fechas-resoluciones.html#reto-4-1">Ver la resolución <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <nav class="paginacion" aria-label="Recorrido del curso">
+            <a class="pag-ant" href="taller-integracion-consignas.html">
+                <span class="rotulo"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Anterior</span>
+                <strong>Taller de integración</strong>
+            </a>
+            <a class="pag-sig" href="taller-vistas-procedimientos-triggers-consignas.html">
+                <span class="rotulo">Siguiente <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                <strong>Vistas, procedimientos y triggers</strong>
+            </a>
+        </nav>
+</main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-fechas-resoluciones.html">Resoluciones</a>.</p>
+    </footer>
+
+</body>
+</html>

@@ -593,6 +593,24 @@ ciclos = [2026]
   variante = "docente"
 
 [[material]]
+id = "taller-de-fechas"
+titulo = "Taller: fechas y horas"
+descripcion = "7 retos. Mostrar, filtrar y calcular con fechas: DATE_FORMAT, DATEDIFF, DATE_ADD y STR_TO_DATE"
+unidad = "SQL · segunda parte"
+icono = "calendario"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Consignas"
+  href = "unidades/04-sql/taller-fechas-consignas.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "Resoluciones"
+  href = "unidades/04-sql/taller-fechas-resoluciones.html"
+  variante = "docente"
+
+[[material]]
 id = "taller-indices-vistas-procedimientos-y"
 titulo = "Taller: índices, vistas, procedimientos y triggers"
 descripcion = "11 retos. Cuando la base empieza a reaccionar sola"

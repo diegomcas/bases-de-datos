@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller SQL: Fechas y horas - El Chip (Resoluciones)</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+    <link rel="stylesheet" href="../../assets/css/taller.css">
+
+    <style>
+    /* colores de los bloques de este taller */
+    .block-leer      { --c: var(--bloque-azul); }
+    .block-filtrar   { --c: var(--bloque-verde); }
+    .block-calcular  { --c: var(--bloque-naranja); }
+    .block-texto     { --c: var(--bloque-violeta); }
+
+    @media print {
+                .salto-nav { display: none; }
+            }
+    </style>
+</head>
+<body data-tema="resolucion">
+
+    <header>
+        <div class="header-container">
+            <span class="badge">Guía Docente / Respuestas</span>
+            <h1>Resoluciones del Taller de Fechas y Horas</h1>
+            <p>Los 7 retos resueltos sobre la base ampliada, con los errores que conviene provocar en clase</p>
+            <a href="taller-fechas-consignas.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver a las Consignas
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4b">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Taller de fechas y horas · resoluciones</span>
+        </nav>
+
+        <section class="block-card" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Antes de empezar</h2>
+            </div>
+            <div class="explanation-text">
+                <p style="margin-bottom: 12px;"><strong>Dataset:</strong> base ampliada, la misma de los compendios: <code>ElChip.sql</code> + <code>poblar_elchip.sql</code> + <code>poblar_elchip_compendio.sql</code>, sobre una base recién creada. Las órdenes que usa el taller son estas ocho:</p>
+                <div class="table-scroll">
+                <table class="result-table">
+                    <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>estado</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>2026-05-01 10:00:00</td><td>Entregado</td></tr>
+                        <tr><td>2</td><td>2026-05-02 11:30:00</td><td>Entregado</td></tr>
+                        <tr><td>3</td><td>2026-05-10 10:45:00</td><td>Pendiente</td></tr>
+                        <tr><td>4</td><td>2026-05-15 09:20:00</td><td>Reparado</td></tr>
+                        <tr><td>5</td><td>2026-05-20 16:40:00</td><td>Entregado</td></tr>
+                        <tr><td>6</td><td>2026-05-22 11:05:00</td><td>Entregado</td></tr>
+                        <tr><td>7</td><td>2026-06-01 10:15:00</td><td>Pendiente</td></tr>
+                        <tr><td>8</td><td>2026-03-10 15:30:00</td><td>Abandonado</td></tr>
+                    </tbody>
+                </table>
+                </div>
+                <p style="margin: 12px 0;">Los resultados de esta guía se <strong>ejecutaron en MySQL 8.0</strong> sobre ese dataset. Si te dan otros números, lo primero a revisar es la carga de datos.</p>
+                <div class="warning-box">
+                    <strong>⚠️ Dos columnas con datos que no sirven para calcular:</strong> <code>fecha_entrega</code> está en <code>NULL</code> en las ocho órdenes, así que ningún reto la usa. Y los tres pagos del dataset base (órdenes 1 y 2) se insertan sin <code>fecha_pago</code>, de modo que toman <code>CURRENT_TIMESTAMP</code>: la fecha y hora en que se cargó la base. El Reto 3.1 los deja aparecer a propósito.
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOQUE 1 -->
+        <section class="block-card block-leer" id="leer">
+            <div class="block-header">
+                <div class="block-num">01</div>
+                <div class="block-title">
+                    <h2>Leer una fecha - Resoluciones</h2>
+                    <p>Retos 1.1 y 1.2</p>
+                </div>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-1-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>Las órdenes de la mañana</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-1-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden,
+       <span class="sql-keyword">DATE</span>(fecha_ingreso) <span class="sql-keyword">AS</span> dia,
+       <span class="sql-keyword">HOUR</span>(fecha_ingreso) <span class="sql-keyword">AS</span> hora
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">HOUR</span>(fecha_ingreso) &lt; <span class="sql-number">12</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>dia</th><th>hora</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>2026-05-01</td><td>10</td></tr>
+                                <tr><td>2</td><td>2026-05-02</td><td>11</td></tr>
+                                <tr><td>3</td><td>2026-05-10</td><td>10</td></tr>
+                                <tr><td>4</td><td>2026-05-15</td><td>9</td></tr>
+                                <tr><td>6</td><td>2026-05-22</td><td>11</td></tr>
+                                <tr><td>7</td><td>2026-06-01</td><td>10</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> seis de las ocho órdenes entraron a la mañana. Las otras dos, la 5 (16:40) y la 8 (15:30), quedan afuera. <code>HOUR()</code> devuelve un número entero, así que se compara contra <code>12</code> sin comillas.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Para preguntar en clase:</strong> ¿una orden que entra a las 11:59 cumple la condición? Sí, porque <code>HOUR()</code> descarta los minutos y devuelve 11. ¿Y una a las 12:00? No: devuelve 12.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-1-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 1.2</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Fechas en formato argentino</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-1-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden,
+       <span class="sql-keyword">DATE_FORMAT</span>(fecha_ingreso, <span class="sql-string">'%d/%m/%Y %H:%i'</span>) <span class="sql-keyword">AS</span> ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">ORDER BY</span> ingreso;   <span class="sql-comment">-- ordena el texto</span></code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>ingreso</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>01/05/2026 10:00</td></tr>
+                                <tr><td>7</td><td>01/06/2026 10:15</td></tr>
+                                <tr><td>2</td><td>02/05/2026 11:30</td></tr>
+                                <tr><td>8</td><td>10/03/2026 15:30</td></tr>
+                                <tr><td>3</td><td>10/05/2026 10:45</td></tr>
+                                <tr><td>4</td><td>15/05/2026 09:20</td></tr>
+                                <tr><td>5</td><td>20/05/2026 16:40</td></tr>
+                                <tr><td>6</td><td>22/05/2026 11:05</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> <code>DATE_FORMAT</code> devuelve texto, y el alias <code>ingreso</code> nombra ese texto. <code>ORDER BY ingreso</code> ordena carácter por carácter, empezando por el día: junio (orden 7) queda segundo y marzo (orden 8), cuarto. Con <code>ORDER BY fecha_ingreso</code> se ordena la columna original, que es <code>DATETIME</code>, y el orden sale cronológico: 8, 1, 2, 3, 4, 5, 6, 7.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Qué llevarse:</strong> el formato se aplica en el <code>SELECT</code>, para mostrar. Para ordenar, filtrar y calcular se usa la columna tal como está guardada. El formato <code>AAAA-MM-DD</code> que usa MySQL ordena bien incluso como texto, porque va de la unidad más grande a la más chica.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 2 -->
+        <section class="block-card block-filtrar" id="filtrar">
+            <div class="block-header">
+                <div class="block-num">02</div>
+                <div class="block-title">
+                    <h2>Filtrar por fechas - Resoluciones</h2>
+                    <p>Reto 2.1</p>
+                </div>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-2-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 2.1</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Las órdenes de una semana</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-2-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Primera versión: pierde la orden del 22</span>
+<span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_ingreso <span class="sql-keyword">BETWEEN</span> <span class="sql-string">'2026-05-15'</span> <span class="sql-keyword">AND</span> <span class="sql-string">'2026-05-22'</span>;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th></tr></thead>
+                            <tbody>
+                                <tr><td>4</td><td>2026-05-15 09:20:00</td></tr>
+                                <tr><td>5</td><td>2026-05-20 16:40:00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Qué pasó:</strong> el literal <code>'2026-05-22'</code> no tiene hora, y al compararlo con un <code>DATETIME</code> MySQL lo completa como <code>2026-05-22 00:00:00</code>, la medianoche con que empieza el 22. La orden 6 entró ese día a las 11:05, que es después del límite.
+                        </p>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-comment">-- Corregida: desde el 15 inclusive hasta antes del 23</span>
+<span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_ingreso &gt;= <span class="sql-string">'2026-05-15'</span>
+  <span class="sql-keyword">AND</span> fecha_ingreso &lt;  <span class="sql-string">'2026-05-23'</span>;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th></tr></thead>
+                            <tbody>
+                                <tr><td>4</td><td>2026-05-15 09:20:00</td></tr>
+                                <tr><td>5</td><td>2026-05-20 16:40:00</td></tr>
+                                <tr><td>6</td><td>2026-05-22 11:05:00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Por qué así:</strong> el rango semiabierto (<code>&gt;=</code> el primer día, <code>&lt;</code> el día siguiente al último) incluye el último día entero sin tener que escribir ninguna hora.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Otra solución que aparece:</strong> <code>WHERE DATE(fecha_ingreso) BETWEEN '2026-05-15' AND '2026-05-22'</code> devuelve las mismas tres filas y es correcta. Tiene un costo que se ve en el <a href="taller-optimizacion-consignas.html">taller de optimización</a>: una función aplicada sobre la columna impide que el motor use un índice sobre <code>fecha_ingreso</code>. Con ocho órdenes no se nota.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 3 -->
+        <section class="block-card block-calcular" id="calcular">
+            <div class="block-header">
+                <div class="block-num">03</div>
+                <div class="block-title">
+                    <h2>Calcular con fechas - Resoluciones</h2>
+                    <p>Retos 3.1 a 3.3</p>
+                </div>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-3-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.1</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Cuánto tardó cada cobro</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-3-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> o.nro_orden,
+       o.fecha_ingreso,
+       p.fecha_pago,
+       <span class="sql-keyword">TIMESTAMPDIFF</span>(<span class="sql-keyword">MINUTE</span>, o.fecha_ingreso, p.fecha_pago) <span class="sql-keyword">AS</span> minutos,
+       <span class="sql-keyword">TIMESTAMPDIFF</span>(<span class="sql-keyword">HOUR</span>,   o.fecha_ingreso, p.fecha_pago) <span class="sql-keyword">AS</span> horas,
+       <span class="sql-keyword">DATEDIFF</span>(p.fecha_pago, o.fecha_ingreso)                <span class="sql-keyword">AS</span> dias
+<span class="sql-keyword">FROM</span> orden_servicio o
+<span class="sql-keyword">JOIN</span> orden_servicio_pago p <span class="sql-keyword">ON</span> p.nro_orden = o.nro_orden
+<span class="sql-keyword">ORDER BY</span> o.nro_orden, p.fecha_pago;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>fecha_pago</th><th>minutos</th><th>horas</th><th>dias</th></tr></thead>
+                            <tbody>
+                                <tr><td>1</td><td>2026-05-01 10:00:00</td><td><em>momento de la carga</em></td><td>—</td><td>—</td><td>—</td></tr>
+                                <tr><td>1</td><td>2026-05-01 10:00:00</td><td><em>momento de la carga</em></td><td>—</td><td>—</td><td>—</td></tr>
+                                <tr><td>2</td><td>2026-05-02 11:30:00</td><td><em>momento de la carga</em></td><td>—</td><td>—</td><td>—</td></tr>
+                                <tr><td>4</td><td>2026-05-15 09:20:00</td><td>2026-05-15 18:00:00</td><td>520</td><td>8</td><td>0</td></tr>
+                                <tr><td>4</td><td>2026-05-15 09:20:00</td><td>2026-05-15 18:05:00</td><td>525</td><td>8</td><td>0</td></tr>
+                                <tr><td>5</td><td>2026-05-20 16:40:00</td><td>2026-05-20 17:30:00</td><td>50</td><td>0</td><td>0</td></tr>
+                                <tr><td>6</td><td>2026-05-22 11:05:00</td><td>2026-05-22 12:00:00</td><td>55</td><td>0</td><td>0</td></tr>
+                                <tr><td>6</td><td>2026-05-22 11:05:00</td><td>2026-05-22 12:02:00</td><td>57</td><td>0</td><td>0</td></tr>
+                                <tr><td>8</td><td>2026-03-10 15:30:00</td><td>2026-03-10 16:00:00</td><td>30</td><td>0</td><td>0</td></tr>
+                                <tr><td>8</td><td>2026-03-10 15:30:00</td><td>2026-03-11 09:00:00</td><td>1050</td><td>17</td><td>1</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> la última fila es el centro del reto. Entre las 15:30 del 10 de marzo y las 9:00 del 11 pasaron 1050 minutos, que son 17 horas y media. <code>TIMESTAMPDIFF(HOUR, ...)</code> cuenta horas completas y descarta la media: da 17. <code>DATEDIFF</code> no mira la hora, solo cuenta que el calendario pasó del 10 al 11: da 1. Las dos respuestas son correctas para preguntas distintas. Si Martín quiere saber "¿me pagó al día siguiente?", sirve <code>DATEDIFF</code>; si quiere saber "¿cuánto esperé la plata?", sirve <code>TIMESTAMPDIFF</code>.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Las tres primeras filas:</strong> esos pagos están en <code>poblar_elchip.sql</code> y se insertan sin <code>fecha_pago</code>. La columna tiene <code>DEFAULT CURRENT_TIMESTAMP</code>, así que guardó el momento en que cada alumno ejecutó el script. Los tres tienen la misma fecha, porque se insertan en una sola sentencia, y los tiempos salen de meses: dependen de cuándo se cargó la base y no dicen nada sobre el negocio. Sirven para mostrar qué pasa con un valor por defecto cuando se cargan datos históricos.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Error clásico:</strong> invertir los argumentos. <code>DATEDIFF</code> recibe primero la fecha final y <code>TIMESTAMPDIFF</code> recibe primero la inicial. Con el orden cambiado, los números salen negativos.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-2">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.2</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>El vencimiento de las órdenes pendientes</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-3-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden,
+       fecha_ingreso,
+       <span class="sql-keyword">DATE_ADD</span>(fecha_ingreso, <span class="sql-keyword">INTERVAL</span> <span class="sql-number">60</span> <span class="sql-keyword">DAY</span>) <span class="sql-keyword">AS</span> vence
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> id_orden_estado = <span class="sql-number">1</span>;   <span class="sql-comment">-- Pendiente</span></code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>vence</th></tr></thead>
+                            <tbody>
+                                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>2026-07-09 10:45:00</td></tr>
+                                <tr><td>7</td><td>2026-06-01 10:15:00</td><td>2026-07-31 10:15:00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> <code>DATE_ADD</code> sabe cuántos días tiene cada mes. De la orden 3 al vencimiento hay 21 días de mayo, 30 de junio y 9 de julio. La hora se conserva porque la columna es <code>DATETIME</code>.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Con <code>INTERVAL 2 MONTH</code>:</strong> los vencimientos pasan a ser <code>2026-07-10 10:45:00</code> y <code>2026-08-01 10:15:00</code>. Mayo y julio tienen 31 días, así que dos meses desde esas fechas son 61 días. Cuál corresponde lo decide Martín: ¿el plazo es de 60 días o de dos meses?
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Para ampliar:</strong> sumar un mes a un día que no existe en el mes de llegada lleva al último día de ese mes. <code>SELECT DATE_ADD('2026-01-31', INTERVAL 1 MONTH);</code> devuelve <code>2026-02-28</code>.
+                        </p>
+                    </div>
+                </li>
+
+                <li class="resolution-item" id="reto-3-3">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 3.3</span>
+                        <span class="nivel-tag">Conceptual</span>
+                        <h3>Cuánto hace que esperan</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-3-3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden,
+       <span class="sql-keyword">DATEDIFF</span>(<span class="sql-string">'2026-07-15'</span>, fecha_ingreso) <span class="sql-keyword">AS</span> dias_esperando,
+       <span class="sql-string">'2026-07-15'</span> &gt; <span class="sql-keyword">DATE_ADD</span>(fecha_ingreso, <span class="sql-keyword">INTERVAL</span> <span class="sql-number">60</span> <span class="sql-keyword">DAY</span>) <span class="sql-keyword">AS</span> vencida
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> id_orden_estado = <span class="sql-number">1</span>;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>dias_esperando</th><th>vencida</th></tr></thead>
+                            <tbody>
+                                <tr><td>3</td><td>66</td><td>1</td></tr>
+                                <tr><td>7</td><td>44</td><td>0</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> en MySQL una comparación devuelve <code>1</code> si se cumple y <code>0</code> si no, así que puede ir en el <code>SELECT</code> como una columna más. Al 15 de julio, la orden 3 venció el día 9 y la 7 todavía tiene hasta el 31.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Con <code>CURDATE()</code>:</strong> el resultado cambia con el día en que se ejecuta. Corrida el 16 de septiembre de 2026, da 129 y 107 días, y las dos órdenes figuran vencidas. Por eso el reto empieza con una fecha fija: para comparar resultados entre compañeros, o para escribir una resolución, el "hoy" tiene que ser el mismo para todos. En un sistema real, en cambio, se usa <code>CURDATE()</code>, porque el reporte tiene que responder por el día en que se pide.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Detalle con la hora:</strong> <code>'2026-07-15'</code> se completa como medianoche, igual que en el Reto 2.1. El 9 de julio a las 00:00 la orden 3 todavía no figuraría vencida, porque su plazo termina a las 10:45 de ese día.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <!-- BLOQUE 4 -->
+        <section class="block-card block-texto" id="texto">
+            <div class="block-header">
+                <div class="block-num">04</div>
+                <div class="block-title">
+                    <h2>Fechas escritas como texto - Resoluciones</h2>
+                    <p>Reto 4.1</p>
+                </div>
+            </div>
+
+            <ul class="resolutions-list">
+                <li class="resolution-item" id="reto-4-1">
+                    <div class="resolution-header">
+                        <span class="resolution-tag">Reto 4.1</span>
+                        <span class="nivel-tag">Básico</span>
+                        <h3>La orden del cuaderno</h3>
+
+                        <a class="salto-nav" href="taller-fechas-consignas.html#reto-4-1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Volver a la consigna</a>
+                    </div>
+                    <div class="solution-box">
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">STR_TO_DATE</span>(<span class="sql-string">'10/03/2026 15:30'</span>, <span class="sql-string">'%d/%m/%Y %H:%i'</span>) <span class="sql-keyword">AS</span> argentino,
+       <span class="sql-keyword">STR_TO_DATE</span>(<span class="sql-string">'10/03/2026 15:30'</span>, <span class="sql-string">'%m/%d/%Y %H:%i'</span>) <span class="sql-keyword">AS</span> estadounidense;</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>argentino</th><th>estadounidense</th></tr></thead>
+                            <tbody>
+                                <tr><td>2026-03-10 15:30:00</td><td>2026-10-03 15:30:00</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <div class="code-container">
+                            <div class="code-header">
+                                <span class="code-lang">SQL</span>
+                                <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+                            </div>
+                            <pre><code><span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso, id_orden_estado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_ingreso = <span class="sql-keyword">STR_TO_DATE</span>(<span class="sql-string">'10/03/2026 15:30'</span>, <span class="sql-string">'%d/%m/%Y %H:%i'</span>);</code></pre>
+                        </div>
+                        <div class="table-scroll">
+                        <table class="result-table">
+                            <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>id_orden_estado</th></tr></thead>
+                            <tbody>
+                                <tr><td>8</td><td>2026-03-10 15:30:00</td><td>4</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                        <p class="explanation-text">
+                            <strong>Explicación:</strong> es la orden 8, en estado Abandonado (4), la notebook que Martín tenía anotada. <code>STR_TO_DATE</code> y <code>DATE_FORMAT</code> usan los mismos símbolos: uno lee el texto con el patrón y el otro lo escribe.
+                        </p>
+                        <p class="explanation-text">
+                            <strong>Para mostrar en clase:</strong> con el patrón estadounidense la consulta no da error. Devuelve cero filas, porque no hay ninguna orden del 3 de octubre. Un patrón equivocado produce una fecha válida y distinta, y el único síntoma es un resultado vacío o incorrecto. Con días mayores a 12 hay una señal: <code>STR_TO_DATE('22/05/2026', '%m/%d/%Y')</code> devuelve <code>NULL</code> y un aviso, porque no existe el mes 22. Con días del 1 al 12 no aparece ninguna.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </section>
+
+        <section class="block-card" id="resumen" style="border-left: 4px solid var(--accent);">
+            <div class="block-title" style="margin-bottom: 15px;">
+                <h2 style="font-size: 1.6rem;">Para llevarse</h2>
+            </div>
+            <div class="explanation-text">
+                <ol style="margin-left: 20px; display: flex; flex-direction: column; gap: 10px;">
+                    <li><strong>Mostrar y operar van por separado:</strong> <code>DATE_FORMAT</code> produce texto para leer. Para ordenar, filtrar y calcular se usa la columna guardada (Reto 1.2).</li>
+                    <li><strong>Un <code>DATETIME</code> comparado con un día sin hora</strong> se compara contra la medianoche. Para incluir un día entero se usa el rango semiabierto: <code>&gt;= día</code> y <code>&lt; día siguiente</code> (Reto 2.1).</li>
+                    <li><strong><code>DATEDIFF</code> cuenta cambios de fecha en el calendario; <code>TIMESTAMPDIFF</code> cuenta unidades completas.</strong> Entre las 15:30 de un día y las 9:00 del siguiente, uno da 1 día y el otro 0 días o 17 horas (Reto 3.1).</li>
+                    <li><strong>60 días y 2 meses son plazos distintos</strong> (Reto 3.2).</li>
+                    <li><strong><code>CURDATE()</code> vuelve variable el resultado.</strong> Para comparar o corregir, se fija la fecha con un literal (Reto 3.3).</li>
+                    <li><strong>El patrón de <code>STR_TO_DATE</code> decide qué número es el día.</strong> Si el día no pasa de 12, un patrón equivocado no da ninguna señal (Reto 4.1).</li>
+                </ol>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Taller Diseñado para la cátedra de Bases de Datos - "El Chip" &copy; 2026. Volver a las <a href="taller-fechas-consignas.html">Consignas</a>.</p>
+    </footer>
+
+    <script>
+        // Copy Code to Clipboard Utility
+        function copyCode(button) {
+            const pre = button.parentElement.nextElementSibling;
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copiado!';
+                button.style.borderColor = 'var(--accent)';
+                button.style.color = '#fff';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    button.style.color = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -241,6 +241,12 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos 
 
   [[unidad.clase]]
   numero = ""
+  titulo = "Fechas y horas"
+  nota = "Un taller corto sobre las fechas de las órdenes: extraer partes, filtrar un rango que incluye la hora, calcular plazos y convertir texto en fecha."
+  materiales = ["taller-de-fechas"]
+
+  [[unidad.clase]]
+  numero = ""
   titulo = "Vistas, procedimientos y triggers"
   nota = "Un solo taller cubre las cuatro clases: índices, vistas y seguridad, procedimientos almacenados y disparadores."
   materiales = ["taller-indices-vistas-procedimientos-y"]
