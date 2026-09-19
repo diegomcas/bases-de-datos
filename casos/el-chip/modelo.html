@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El modelo de El Chip</title>
+<link rel="stylesheet" href="../../assets/css/fuentes.css">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/apunte.css">
+<link rel="stylesheet" href="../../assets/css/estudio.css">
+<link rel="stylesheet" href="../../assets/css/modelo.css">
+<script src="../../assets/js/resaltador.js" defer></script>
+</head>
+<body data-tema="apunte">
+
+<div class="progreso-lectura" aria-hidden="true"></div>
+
+<header>
+  <div class="header-container">
+    <span class="badge">Hoja de referencia</span>
+    <h1>El modelo de El Chip</h1>
+    <p>Las 19 tablas de la base, sus columnas y las 18 claves foráneas que las unen. Imprimila una vez y tenela al lado mientras escribís consultas.</p>
+  </div>
+</header>
+
+<nav class="mapa-lateral" aria-label="Partes del modelo">
+  <h2>El modelo</h2>
+  <ol>
+    <li><a href="#mapa" class="parte">El mapa</a></li>
+    <li><a href="#orden">La orden de trabajo</a></li>
+    <li><a href="#equipo">Equipo y problema</a></li>
+    <li><a href="#repuesto">Los repuestos</a></li>
+    <li><a href="#pago">El cobro</a></li>
+    <li><a href="#contacto">Los contactos</a></li>
+    <li><a href="#referencia" class="parte">Todas las tablas</a></li>
+    <li><a href="#como-leerlo">Cómo leer el diagrama</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<nav class="migas" aria-label="Ubicación">
+  <a href="../../index.html">Índice</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <a href="../../index.html#casos">Casos de estudio</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <span aria-current="page">El modelo de El Chip</span>
+</nav>
+
+<article class="apunte">
+
+<h2 id="mapa" class="sin-corte">El mapa</h2>
+
+<p>La base del taller de Martín son 19 tablas. Puestas todas juntas en un solo dibujo no se entienden, así que están repartidas en cuatro bloques según de qué hablan. Todo pasa por la orden de trabajo: es la tabla que conecta a las demás.</p>
+
+<figure class="figura-modelo">
+<svg viewBox="0 0 590 250" class="dg" role="img" aria-label="Mapa general del modelo">
+<path d="M 200.0 123.0 L 200.0 123.0 Q 195.0 123.0 195.0 118.0 L 195.0 53.0 Q 195.0 48.0 190.0 48.0 L 190 48.0" class="dg-fk"/>
+<path d="M 360.0 123.0 L 372.0 123.0 Q 380.0 123.0 380.0 115.0 L 380.0 56.0 Q 380.0 48.0 388.0 48.0 L 400 48.0" class="dg-fk"/>
+<path d="M 360.0 123.0 L 372.0 123.0 Q 380.0 123.0 380.0 131.0 L 380.0 195.0 Q 380.0 203.0 388.0 203.0 L 400 203.0" class="dg-fk"/>
+<g class="dg-focal">
+<rect x="200" y="95" width="160" height="56" rx="6" class="dg-mask"/>
+<rect x="200" y="95" width="160" height="56" rx="6" class="dg-borde"/>
+<text x="280.0" y="118" class="dg-tabla" text-anchor="middle">La orden</text>
+<text x="280.0" y="136" class="dg-tipo" text-anchor="middle">5 tablas</text>
+</g>
+<g class="dg-caja">
+<rect x="30" y="20" width="160" height="56" rx="6" class="dg-mask"/>
+<rect x="30" y="20" width="160" height="56" rx="6" class="dg-borde"/>
+<text x="110.0" y="43" class="dg-tabla" text-anchor="middle">El trabajo</text>
+<text x="110.0" y="61" class="dg-tipo" text-anchor="middle">6 tablas</text>
+</g>
+<g class="dg-caja">
+<rect x="400" y="20" width="160" height="56" rx="6" class="dg-mask"/>
+<rect x="400" y="20" width="160" height="56" rx="6" class="dg-borde"/>
+<text x="480.0" y="43" class="dg-tabla" text-anchor="middle">El cobro</text>
+<text x="480.0" y="61" class="dg-tipo" text-anchor="middle">2 tablas</text>
+</g>
+<g class="dg-caja">
+<rect x="400" y="175" width="160" height="56" rx="6" class="dg-mask"/>
+<rect x="400" y="175" width="160" height="56" rx="6" class="dg-borde"/>
+<text x="480.0" y="198" class="dg-tabla" text-anchor="middle">El contacto</text>
+<text x="480.0" y="216" class="dg-tipo" text-anchor="middle">6 tablas</text>
+</g>
+</svg>
+<figcaption>Cada bloque se explica abajo con sus tablas, sus columnas y sus claves. La referencia completa, tabla por tabla, está al final.</figcaption>
+</figure>
+
+<div class="regla">
+  <h4>Cómo se usa esta hoja</h4>
+  <p>Los apuntes de SQL no repiten el modelo: lo referencian. La idea es imprimir esta hoja <strong>una vez</strong> y tenerla al lado, sea cual sea el apunte o el taller que estés haciendo.</p>
+  <p>En pantalla, cada nombre de tabla de la referencia final tiene su ancla: <code>modelo.html#t-orden_servicio</code> lleva directo a esa tabla.</p>
+</div>
+
+<section class="bloque-modelo" id="orden">
+  <h3>La orden de trabajo</h3>
+  <p>El centro del modelo. Cada orden apunta a quién la trajo, quién la recibió y en qué estado está.</p>
+  <figure class="figura-modelo">
+<svg viewBox="0 0 590 394" class="dg" role="img" aria-label="La orden de trabajo">
+<defs><marker id="dg-punta" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><polygon points="0 0, 7 3, 0 6" class="dg-punta"/></marker></defs>
+<path d="M 330 242.0 L 289.0 242.0 Q 281.0 242.0 281.0 234.0 L 281.0 195.0 Q 281.0 187.0 273.0 187.0 L 232 187.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 264.0 L 289.0 264.0 Q 281.0 264.0 281.0 256.0 L 281.0 67.0 Q 281.0 59.0 273.0 59.0 L 232 59.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 286.0 L 289.0 286.0 Q 281.0 286.0 281.0 294.0 L 281.0 329.0 Q 281.0 337.0 273.0 337.0 L 232 337.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<g class="dg-caja">
+<rect x="24" y="18" width="208" height="102" rx="6" class="dg-mask"/>
+<rect x="24" y="18" width="208" height="102" rx="6" class="dg-borde"/>
+<rect x="24" y="18" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="42" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="48" x2="232" y2="48" class="dg-hairline"/>
+<text x="34" y="38" class="dg-tabla">cliente</text>
+<text x="34" y="62.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="222" y="62.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="53.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="62.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="70" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="84.5" class="dg-col">nombre</text>
+<text x="222" y="84.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+<text x="34" y="106.5" class="dg-col">apellido</text>
+<text x="222" y="106.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+</g>
+<g class="dg-caja">
+<rect x="24" y="146" width="208" height="124" rx="6" class="dg-mask"/>
+<rect x="24" y="146" width="208" height="124" rx="6" class="dg-borde"/>
+<rect x="24" y="146" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="170" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="176" x2="232" y2="176" class="dg-hairline"/>
+<text x="34" y="166" class="dg-tabla">empleado</text>
+<text x="34" y="190.5" class="dg-col dg-col-clave">id_empleado</text>
+<text x="222" y="190.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="181.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="190.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="198" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="212.5" class="dg-col">usuario</text>
+<text x="222" y="212.5" class="dg-tipo" text-anchor="end">varchar(50)</text>
+<text x="34" y="234.5" class="dg-col">password</text>
+<text x="222" y="234.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<rect x="25" y="242" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="256.5" class="dg-col dg-col-clave">id_rol</text>
+<text x="222" y="256.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="247.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="183.9" y="256.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+<g class="dg-caja">
+<rect x="24" y="296" width="208" height="80" rx="6" class="dg-mask"/>
+<rect x="24" y="296" width="208" height="80" rx="6" class="dg-borde"/>
+<rect x="24" y="296" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="320" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="326" x2="232" y2="326" class="dg-hairline"/>
+<text x="34" y="316" class="dg-tabla">orden_estado</text>
+<text x="34" y="340.5" class="dg-col dg-col-clave">id_orden_estado</text>
+<text x="222" y="340.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="331.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="340.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="348" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="362.5" class="dg-col">nombre</text>
+<text x="222" y="362.5" class="dg-tipo" text-anchor="end">varchar(45)</text>
+</g>
+<g class="dg-focal">
+<rect x="330" y="91" width="208" height="212" rx="6" class="dg-mask"/>
+<rect x="330" y="91" width="208" height="212" rx="6" class="dg-borde"/>
+<rect x="330" y="91" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="115" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="121" x2="538" y2="121" class="dg-hairline"/>
+<text x="340" y="111" class="dg-tabla">orden_servicio</text>
+<text x="340" y="135.5" class="dg-col dg-col-clave">nro_orden</text>
+<text x="528" y="135.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="126.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="489.9" y="135.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="331" y="143" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="157.5" class="dg-col">fecha_ingreso</text>
+<text x="528" y="157.5" class="dg-tipo" text-anchor="end">datetime</text>
+<text x="340" y="179.5" class="dg-col">fecha_entrega</text>
+<text x="528" y="179.5" class="dg-tipo" text-anchor="end">datetime</text>
+<rect x="331" y="187" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="201.5" class="dg-col">descuento</text>
+<text x="528" y="201.5" class="dg-tipo" text-anchor="end">decimal(5,2)</text>
+<text x="340" y="223.5" class="dg-col">total</text>
+<text x="528" y="223.5" class="dg-tipo" text-anchor="end">decimal(10,2)</text>
+<rect x="331" y="231" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="245.5" class="dg-col dg-col-clave">id_empleado</text>
+<text x="528" y="245.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="236.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="245.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="340" y="267.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="528" y="267.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="258.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="267.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="331" y="275" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="289.5" class="dg-col dg-col-clave">id_orden_estado</text>
+<text x="528" y="289.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="280.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="289.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+</svg>
+    <figcaption>Las tres claves foráneas de <code>orden_servicio</code> son <code>NOT NULL</code>: una orden no existe sin cliente, sin empleado y sin estado.</figcaption>
+  </figure>
+</section>
+
+<section class="bloque-modelo" id="equipo">
+  <h3>Qué equipo entró y con qué problema</h3>
+  <p>Una orden puede traer varios equipos, y cada equipo puede entrar con varios problemas. Esa tabla del medio guarda las tres cosas juntas.</p>
+  <figure class="figura-modelo">
+<svg viewBox="0 0 850 310" class="dg" role="img" aria-label="Qué equipo entró y con qué problema">
+<defs><marker id="dg-punta" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><polygon points="0 0, 7 3, 0 6" class="dg-punta"/></marker></defs>
+<path d="M 320 103.0 L 284.0 103.0 Q 276.0 103.0 276.0 111.0 L 276.0 148.0 Q 276.0 156.0 268.0 156.0 L 232 156.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 616 167.0 L 580.0 167.0 Q 572.0 167.0 572.0 159.0 L 572.0 67.0 Q 572.0 59.0 564.0 59.0 L 528 59.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 616 189.0 L 580.0 189.0 Q 572.0 189.0 572.0 197.0 L 572.0 223.0 Q 572.0 231.0 564.0 231.0 L 528 231.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<g class="dg-caja">
+<rect x="24" y="115" width="208" height="80" rx="6" class="dg-mask"/>
+<rect x="24" y="115" width="208" height="80" rx="6" class="dg-borde"/>
+<rect x="24" y="115" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="139" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="145" x2="232" y2="145" class="dg-hairline"/>
+<text x="34" y="135" class="dg-tabla">marca</text>
+<text x="34" y="159.5" class="dg-col dg-col-clave">id_marca</text>
+<text x="222" y="159.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="150.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="159.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="167" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="181.5" class="dg-col">nombre</text>
+<text x="222" y="181.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+</g>
+<g class="dg-caja">
+<rect x="320" y="18" width="208" height="146" rx="6" class="dg-mask"/>
+<rect x="320" y="18" width="208" height="146" rx="6" class="dg-borde"/>
+<rect x="320" y="18" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="320" y="42" width="208" height="6" class="dg-banda"/>
+<line x1="320" y1="48" x2="528" y2="48" class="dg-hairline"/>
+<text x="330" y="38" class="dg-tabla">equipo</text>
+<text x="330" y="62.5" class="dg-col dg-col-clave">id_equipo</text>
+<text x="518" y="62.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="471.4" y="53.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="479.9" y="62.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="321" y="70" width="206" height="22" class="dg-fila-par"/>
+<text x="330" y="84.5" class="dg-col">tipo</text>
+<text x="518" y="84.5" class="dg-tipo" text-anchor="end">varchar(50)</text>
+<text x="330" y="106.5" class="dg-col dg-col-clave">id_marca</text>
+<text x="518" y="106.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="471.4" y="97.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="479.9" y="106.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="321" y="114" width="206" height="22" class="dg-fila-par"/>
+<text x="330" y="128.5" class="dg-col">modelo</text>
+<text x="518" y="128.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+<text x="330" y="150.5" class="dg-col">nro_serie</text>
+<text x="518" y="150.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+</g>
+<g class="dg-caja">
+<rect x="320" y="190" width="208" height="102" rx="6" class="dg-mask"/>
+<rect x="320" y="190" width="208" height="102" rx="6" class="dg-borde"/>
+<rect x="320" y="190" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="320" y="214" width="208" height="6" class="dg-banda"/>
+<line x1="320" y1="220" x2="528" y2="220" class="dg-hairline"/>
+<text x="330" y="210" class="dg-tabla">problema</text>
+<text x="330" y="234.5" class="dg-col dg-col-clave">id_problema</text>
+<text x="518" y="234.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="471.4" y="225.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="479.9" y="234.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="321" y="242" width="206" height="22" class="dg-fila-par"/>
+<text x="330" y="256.5" class="dg-col">descripcion</text>
+<text x="518" y="256.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<text x="330" y="278.5" class="dg-col">mano_obra</text>
+<text x="518" y="278.5" class="dg-tipo" text-anchor="end">decimal(12,2)</text>
+</g>
+<g class="dg-focal">
+<rect x="616" y="104" width="208" height="102" rx="6" class="dg-mask"/>
+<rect x="616" y="104" width="208" height="102" rx="6" class="dg-borde"/>
+<rect x="616" y="104" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="616" y="128" width="208" height="6" class="dg-banda"/>
+<line x1="616" y1="134" x2="824" y2="134" class="dg-hairline"/>
+<text x="626" y="124" class="dg-tabla">orden_servicio_has_equipo</text>
+<text x="626" y="148.5" class="dg-col dg-col-clave">nro_orden</text>
+<text x="814" y="148.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="748.4" y="139.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="756.9" y="148.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="767.4" y="139.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="775.9" y="148.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="617" y="156" width="206" height="22" class="dg-fila-par"/>
+<text x="626" y="170.5" class="dg-col dg-col-clave">id_equipo</text>
+<text x="814" y="170.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="748.4" y="161.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="756.9" y="170.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="767.4" y="161.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="775.9" y="170.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="626" y="192.5" class="dg-col dg-col-clave">id_problema</text>
+<text x="814" y="192.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="748.4" y="183.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="756.9" y="192.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="767.4" y="183.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="775.9" y="192.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+</svg>
+    <figcaption>La clave primaria de la tabla del medio son sus tres columnas juntas: el mismo equipo puede volver en otra orden, y en la misma orden puede tener más de un problema.</figcaption>
+  </figure>
+</section>
+
+<section class="bloque-modelo" id="repuesto">
+  <h3>Qué repuestos lleva cada arreglo</h3>
+  <p>El catálogo de qué se necesita para resolver cada problema, con la cantidad y lo que se cobra.</p>
+  <figure class="figura-modelo">
+<svg viewBox="0 0 590 288" class="dg" role="img" aria-label="Qué repuestos lleva cada arreglo">
+<defs><marker id="dg-punta" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><polygon points="0 0, 7 3, 0 6" class="dg-punta"/></marker></defs>
+<path d="M 330 112.0 L 289.0 112.0 Q 281.0 112.0 281.0 104.0 L 281.0 67.0 Q 281.0 59.0 273.0 59.0 L 232 59.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 134.0 L 289.0 134.0 Q 281.0 134.0 281.0 142.0 L 281.0 179.0 Q 281.0 187.0 273.0 187.0 L 232 187.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<g class="dg-caja">
+<rect x="24" y="18" width="208" height="102" rx="6" class="dg-mask"/>
+<rect x="24" y="18" width="208" height="102" rx="6" class="dg-borde"/>
+<rect x="24" y="18" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="42" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="48" x2="232" y2="48" class="dg-hairline"/>
+<text x="34" y="38" class="dg-tabla">problema</text>
+<text x="34" y="62.5" class="dg-col dg-col-clave">id_problema</text>
+<text x="222" y="62.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="53.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="62.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="70" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="84.5" class="dg-col">descripcion</text>
+<text x="222" y="84.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<text x="34" y="106.5" class="dg-col">mano_obra</text>
+<text x="222" y="106.5" class="dg-tipo" text-anchor="end">decimal(12,2)</text>
+</g>
+<g class="dg-caja">
+<rect x="24" y="146" width="208" height="124" rx="6" class="dg-mask"/>
+<rect x="24" y="146" width="208" height="124" rx="6" class="dg-borde"/>
+<rect x="24" y="146" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="170" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="176" x2="232" y2="176" class="dg-hairline"/>
+<text x="34" y="166" class="dg-tabla">repuesto</text>
+<text x="34" y="190.5" class="dg-col dg-col-clave">id_repuesto</text>
+<text x="222" y="190.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="181.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="190.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="198" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="212.5" class="dg-col">nombre</text>
+<text x="222" y="212.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+<text x="34" y="234.5" class="dg-col">stock</text>
+<text x="222" y="234.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="25" y="242" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="256.5" class="dg-col">precio_unitario</text>
+<text x="222" y="256.5" class="dg-tipo" text-anchor="end">decimal(10,2)</text>
+</g>
+<g class="dg-focal">
+<rect x="330" y="71" width="208" height="146" rx="6" class="dg-mask"/>
+<rect x="330" y="71" width="208" height="146" rx="6" class="dg-borde"/>
+<rect x="330" y="71" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="95" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="101" x2="538" y2="101" class="dg-hairline"/>
+<text x="340" y="91" class="dg-tabla">problema_has_repuesto</text>
+<text x="340" y="115.5" class="dg-col dg-col-clave">id_problema</text>
+<text x="528" y="115.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="462.4" y="106.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="470.9" y="115.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="481.4" y="106.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="115.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="331" y="123" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="137.5" class="dg-col dg-col-clave">id_repuesto</text>
+<text x="528" y="137.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="462.4" y="128.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="470.9" y="137.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="481.4" y="128.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="137.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="340" y="159.5" class="dg-col">cantidad</text>
+<text x="528" y="159.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="331" y="167" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="181.5" class="dg-col">precio_unitario</text>
+<text x="528" y="181.5" class="dg-tipo" text-anchor="end">decimal(10,2)</text>
+<text x="340" y="203.5" class="dg-col">mano_obra</text>
+<text x="528" y="203.5" class="dg-tipo" text-anchor="end">decimal(12,2)</text>
+</g>
+</svg>
+    <figcaption><code>precio_unitario</code> aparece en las dos tablas y no es una repetición: el de <code>repuesto</code> es el precio de hoy, y el de esta tabla es el que se cobró en ese arreglo.</figcaption>
+  </figure>
+</section>
+
+<section class="bloque-modelo" id="pago">
+  <h3>Cómo se pagó</h3>
+  <p>Una orden se puede pagar con varios métodos a la vez: una parte en efectivo y otra con tarjeta.</p>
+  <figure class="figura-modelo">
+<svg viewBox="0 0 590 222" class="dg" role="img" aria-label="Cómo se pagó">
+<defs><marker id="dg-punta" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><polygon points="0 0, 7 3, 0 6" class="dg-punta"/></marker></defs>
+<path d="M 330 90.0 L 289.0 90.0 Q 281.0 90.0 281.0 82.0 L 281.0 67.0 Q 281.0 59.0 273.0 59.0 L 232 59.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 112.0 L 289.0 112.0 Q 281.0 112.0 281.0 120.0 L 281.0 157.0 Q 281.0 165.0 273.0 165.0 L 232 165.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<g class="dg-caja">
+<rect x="24" y="18" width="208" height="80" rx="6" class="dg-mask"/>
+<rect x="24" y="18" width="208" height="80" rx="6" class="dg-borde"/>
+<rect x="24" y="18" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="42" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="48" x2="232" y2="48" class="dg-hairline"/>
+<text x="34" y="38" class="dg-tabla">orden_servicio</text>
+<text x="34" y="62.5" class="dg-col dg-col-clave">nro_orden</text>
+<text x="222" y="62.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="53.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="62.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="70" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="84.5" class="dg-col">total</text>
+<text x="222" y="84.5" class="dg-tipo" text-anchor="end">decimal(10,2)</text>
+</g>
+<g class="dg-caja">
+<rect x="24" y="124" width="208" height="80" rx="6" class="dg-mask"/>
+<rect x="24" y="124" width="208" height="80" rx="6" class="dg-borde"/>
+<rect x="24" y="124" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="148" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="154" x2="232" y2="154" class="dg-hairline"/>
+<text x="34" y="144" class="dg-tabla">metodo_pago</text>
+<text x="34" y="168.5" class="dg-col dg-col-clave">id_metodo_pago</text>
+<text x="222" y="168.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="159.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="168.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="176" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="190.5" class="dg-col">nombre</text>
+<text x="222" y="190.5" class="dg-tipo" text-anchor="end">varchar(45)</text>
+</g>
+<g class="dg-focal">
+<rect x="330" y="49" width="208" height="124" rx="6" class="dg-mask"/>
+<rect x="330" y="49" width="208" height="124" rx="6" class="dg-borde"/>
+<rect x="330" y="49" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="73" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="79" x2="538" y2="79" class="dg-hairline"/>
+<text x="340" y="69" class="dg-tabla">orden_servicio_pago</text>
+<text x="340" y="93.5" class="dg-col dg-col-clave">nro_orden</text>
+<text x="528" y="93.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="462.4" y="84.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="470.9" y="93.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="481.4" y="84.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="93.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="331" y="101" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="115.5" class="dg-col dg-col-clave">id_metodo_pago</text>
+<text x="528" y="115.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="462.4" y="106.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="470.9" y="115.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="481.4" y="106.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="115.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="340" y="137.5" class="dg-col">monto</text>
+<text x="528" y="137.5" class="dg-tipo" text-anchor="end">decimal(10,2)</text>
+<rect x="331" y="145" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="159.5" class="dg-col">fecha_pago</text>
+<text x="528" y="159.5" class="dg-tipo" text-anchor="end">datetime</text>
+</g>
+</svg>
+    <figcaption>Por eso la clave primaria es la pareja <code>nro_orden</code> + <code>id_metodo_pago</code>: cada combinación entra una sola vez.</figcaption>
+  </figure>
+</section>
+
+<section class="bloque-modelo" id="contacto">
+  <h3>Los datos de contacto</h3>
+  <p>Un cliente puede tener varios teléfonos, varios correos y varias direcciones. Las tres tablas tienen la misma forma.</p>
+  <figure class="figura-modelo">
+<svg viewBox="0 0 590 504" class="dg" role="img" aria-label="Los datos de contacto">
+<defs><marker id="dg-punta" markerWidth="7" markerHeight="6" refX="6.5" refY="3" orient="auto"><polygon points="0 0, 7 3, 0 6" class="dg-punta"/></marker></defs>
+<path d="M 330 147.0 L 289.0 147.0 Q 281.0 147.0 281.0 155.0 L 281.0 234.0 Q 281.0 242.0 273.0 242.0 L 232 242.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 297.0 L 289.0 297.0 Q 281.0 297.0 281.0 289.0 L 281.0 257.0 Q 281.0 249.0 273.0 249.0 L 232 249.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<path d="M 330 469.0 L 289.0 469.0 Q 281.0 469.0 281.0 461.0 L 281.0 243.0 Q 281.0 235.0 273.0 235.0 L 232 235.0" class="dg-fk" marker-end="url(#dg-punta)"/>
+<g class="dg-focal">
+<rect x="24" y="201" width="208" height="102" rx="6" class="dg-mask"/>
+<rect x="24" y="201" width="208" height="102" rx="6" class="dg-borde"/>
+<rect x="24" y="201" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="24" y="225" width="208" height="6" class="dg-banda"/>
+<line x1="24" y1="231" x2="232" y2="231" class="dg-hairline"/>
+<text x="34" y="221" class="dg-tabla">cliente</text>
+<text x="34" y="245.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="222" y="245.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="175.4" y="236.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="183.9" y="245.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="25" y="253" width="206" height="22" class="dg-fila-par"/>
+<text x="34" y="267.5" class="dg-col">nombre</text>
+<text x="222" y="267.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+<text x="34" y="289.5" class="dg-col">apellido</text>
+<text x="222" y="289.5" class="dg-tipo" text-anchor="end">varchar(100)</text>
+</g>
+<g class="dg-caja">
+<rect x="330" y="18" width="208" height="146" rx="6" class="dg-mask"/>
+<rect x="330" y="18" width="208" height="146" rx="6" class="dg-borde"/>
+<rect x="330" y="18" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="42" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="48" x2="538" y2="48" class="dg-hairline"/>
+<text x="340" y="38" class="dg-tabla">telefono</text>
+<text x="340" y="62.5" class="dg-col dg-col-clave">id_telefono</text>
+<text x="528" y="62.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="53.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="489.9" y="62.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="331" y="70" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="84.5" class="dg-col">numero</text>
+<text x="528" y="84.5" class="dg-tipo" text-anchor="end">varchar(14)</text>
+<text x="340" y="106.5" class="dg-col">descripcion</text>
+<text x="528" y="106.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<rect x="331" y="114" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="128.5" class="dg-col dg-col-clave">id_telefonotipo</text>
+<text x="528" y="128.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="119.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="128.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="340" y="150.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="528" y="150.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="141.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="150.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+<g class="dg-caja">
+<rect x="330" y="190" width="208" height="124" rx="6" class="dg-mask"/>
+<rect x="330" y="190" width="208" height="124" rx="6" class="dg-borde"/>
+<rect x="330" y="190" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="214" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="220" x2="538" y2="220" class="dg-hairline"/>
+<text x="340" y="210" class="dg-tabla">email</text>
+<text x="340" y="234.5" class="dg-col dg-col-clave">id_email</text>
+<text x="528" y="234.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="225.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="489.9" y="234.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="331" y="242" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="256.5" class="dg-col">email</text>
+<text x="528" y="256.5" class="dg-tipo" text-anchor="end">varchar(150)</text>
+<text x="340" y="278.5" class="dg-col dg-col-clave">id_emailtipo</text>
+<text x="528" y="278.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="269.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="278.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<rect x="331" y="286" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="300.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="528" y="300.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="291.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="300.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+<g class="dg-caja">
+<rect x="330" y="340" width="208" height="146" rx="6" class="dg-mask"/>
+<rect x="330" y="340" width="208" height="146" rx="6" class="dg-borde"/>
+<rect x="330" y="340" width="208" height="30" rx="6" class="dg-banda"/>
+<rect x="330" y="364" width="208" height="6" class="dg-banda"/>
+<line x1="330" y1="370" x2="538" y2="370" class="dg-hairline"/>
+<text x="340" y="360" class="dg-tabla">direccion</text>
+<text x="340" y="384.5" class="dg-col dg-col-clave">id_direccion</text>
+<text x="528" y="384.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="375.0" width="17" height="12" rx="2" class="dg-chip dg-chip-pk"/>
+<text x="489.9" y="384.0" class="dg-chip-txt" text-anchor="middle">PK</text>
+<rect x="331" y="392" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="406.5" class="dg-col">direccion</text>
+<text x="528" y="406.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<text x="340" y="428.5" class="dg-col">descripcion</text>
+<text x="528" y="428.5" class="dg-tipo" text-anchor="end">varchar(255)</text>
+<rect x="331" y="436" width="206" height="22" class="dg-fila-par"/>
+<text x="340" y="450.5" class="dg-col dg-col-clave">id_direcciontipo</text>
+<text x="528" y="450.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="441.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="450.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+<text x="340" y="472.5" class="dg-col dg-col-clave">id_cliente</text>
+<text x="528" y="472.5" class="dg-tipo" text-anchor="end">int</text>
+<rect x="481.4" y="463.0" width="17" height="12" rx="2" class="dg-chip dg-chip-fk"/>
+<text x="489.9" y="472.0" class="dg-chip-txt" text-anchor="middle">FK</text>
+</g>
+</svg>
+    <figcaption>Cada una apunta además a su propio catálogo de tipo —<code>telefonotipo</code>, <code>emailtipo</code> y <code>direcciontipo</code>—, que son tablas de dos columnas y quedan fuera del dibujo.</figcaption>
+  </figure>
+</section>
+
+<h2 id="referencia">Todas las tablas</h2>
+
+<p>La referencia completa: cada tabla con sus columnas, el tipo de cada una y las claves. <span class="marca-pk">PK</span> es clave primaria, <span class="marca-fk">FK</span> clave foránea —con la flecha a dónde apunta—, <span class="marca-ai">AI</span> es <code>AUTO_INCREMENT</code> y <span class="marca-nn">NN</span> es <code>NOT NULL</code>.</p>
+
+<div class="rejilla-modelo">
+<div class="tabla-modelo" id="t-orden_servicio">
+  <h4><code>orden_servicio</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>nro_orden</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>fecha_ingreso</code></td><td><code>datetime</code></td><td> </td></tr>
+      <tr><td><code>fecha_entrega</code></td><td><code>datetime</code></td><td> </td></tr>
+      <tr><td><code>descuento</code></td><td><code>decimal(5,2)</code></td><td> </td></tr>
+      <tr><td><code>total</code></td><td><code>decimal(10,2)</code></td><td> </td></tr>
+      <tr><td><code>id_empleado</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ empleado.id_empleado</span></td></tr>
+      <tr><td><code>id_cliente</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ cliente.id_cliente</span></td></tr>
+      <tr><td><code>id_orden_estado</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ orden_estado.id_orden_estado</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-cliente">
+  <h4><code>cliente</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_cliente</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+      <tr><td><code>apellido</code></td><td><code>varchar(100)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-empleado">
+  <h4><code>empleado</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_empleado</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>usuario</code></td><td><code>varchar(50)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>password</code></td><td><code>varchar(255)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>id_rol</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ rol.id_rol</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-orden_estado">
+  <h4><code>orden_estado</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_orden_estado</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(45)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-rol">
+  <h4><code>rol</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_rol</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(45)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-orden_servicio_has_equipo">
+  <h4><code>orden_servicio_has_equipo</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>nro_orden</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ orden_servicio.nro_orden</span></td></tr>
+      <tr><td><code>id_equipo</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ equipo.id_equipo</span></td></tr>
+      <tr><td><code>id_problema</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ problema.id_problema</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-equipo">
+  <h4><code>equipo</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_equipo</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>tipo</code></td><td><code>varchar(50)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>id_marca</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ marca.id_marca</span></td></tr>
+      <tr><td><code>modelo</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+      <tr><td><code>nro_serie</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-marca">
+  <h4><code>marca</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_marca</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(100)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-problema">
+  <h4><code>problema</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_problema</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>descripcion</code></td><td><code>varchar(255)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>mano_obra</code></td><td><code>decimal(12,2)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-problema_has_repuesto">
+  <h4><code>problema_has_repuesto</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_problema</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ problema.id_problema</span></td></tr>
+      <tr><td><code>id_repuesto</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ repuesto.id_repuesto</span></td></tr>
+      <tr><td><code>cantidad</code></td><td><code>int</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>precio_unitario</code></td><td><code>decimal(10,2)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>mano_obra</code></td><td><code>decimal(12,2)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-repuesto">
+  <h4><code>repuesto</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_repuesto</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(100)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>stock</code></td><td><code>int</code></td><td> </td></tr>
+      <tr><td><code>precio_unitario</code></td><td><code>decimal(10,2)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-orden_servicio_pago">
+  <h4><code>orden_servicio_pago</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>nro_orden</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ orden_servicio.nro_orden</span></td></tr>
+      <tr><td><code>id_metodo_pago</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-fk">FK</span> <span class="apunta">→ metodo_pago.id_metodo_pago</span></td></tr>
+      <tr><td><code>monto</code></td><td><code>decimal(10,2)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>fecha_pago</code></td><td><code>datetime</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-metodo_pago">
+  <h4><code>metodo_pago</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_metodo_pago</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>nombre</code></td><td><code>varchar(45)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-telefono">
+  <h4><code>telefono</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_telefono</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>numero</code></td><td><code>varchar(14)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>descripcion</code></td><td><code>varchar(255)</code></td><td> </td></tr>
+      <tr><td><code>id_telefonotipo</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ telefonotipo.id_telefonotipo</span></td></tr>
+      <tr><td><code>id_cliente</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ cliente.id_cliente</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-email">
+  <h4><code>email</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_email</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>email</code></td><td><code>varchar(150)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>id_emailtipo</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ emailtipo.id_emailtipo</span></td></tr>
+      <tr><td><code>id_cliente</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ cliente.id_cliente</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-direccion">
+  <h4><code>direccion</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_direccion</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>direccion</code></td><td><code>varchar(255)</code></td><td><span class="marca-nn">NN</span> </td></tr>
+      <tr><td><code>descripcion</code></td><td><code>varchar(255)</code></td><td> </td></tr>
+      <tr><td><code>id_direcciontipo</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ direcciontipo.id_direcciontipo</span></td></tr>
+      <tr><td><code>id_cliente</code></td><td><code>int</code></td><td><span class="marca-fk">FK</span> <span class="marca-nn">NN</span> <span class="apunta">→ cliente.id_cliente</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-telefonotipo">
+  <h4><code>telefonotipo</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_telefonotipo</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>tipo</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-emailtipo">
+  <h4><code>emailtipo</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_emailtipo</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>tipo</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="tabla-modelo" id="t-direcciontipo">
+  <h4><code>direcciontipo</code></h4>
+  <table class="tabla-apunte">
+    <thead><tr><th>Columna</th><th>Tipo</th><th>Claves</th></tr></thead>
+    <tbody>
+      <tr><td><code>id_direcciontipo</code></td><td><code>int</code></td><td><span class="marca-pk">PK</span> <span class="marca-ai">AI</span> </td></tr>
+      <tr><td><code>tipo</code></td><td><code>varchar(100)</code></td><td> </td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<h2 id="como-leerlo">Cómo leer el diagrama</h2>
+
+<p>Cada caja es una tabla y cada renglón, una columna con su tipo a la derecha. Las líneas salen de la columna que <em>tiene</em> la clave foránea y llegan a la columna a la que apunta, que siempre es la clave primaria de la otra tabla. Esa línea es exactamente la condición que se escribe en un <code>ON</code>:</p>
+
+<div class="code-container">
+  <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- la línea de orden_servicio.id_cliente → cliente.id_cliente, escrita</span>
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente</code></pre>
+</div>
+
+<p>Por eso el diagrama sirve para escribir consultas: cada flecha es un <code>JOIN</code> posible, y para unir dos tablas que no tienen flecha directa hay que pasar por las del medio. Para ir de <code>cliente</code> a <code>repuesto</code>, por ejemplo, el camino son cuatro saltos: orden, equipo y problema.</p>
+
+<div class="descargas">
+  <h4>Para seguir</h4>
+  <a class="salto-nav" href="../../unidades/04-sql/apunte-sql.html">Apunte de SQL · primera parte</a>
+  <a class="salto-nav" href="../../unidades/04-sql/apunte-sql-2.html">Apunte de SQL · segunda parte</a>
+  <a class="salto-nav" href="../../consola.html">Abrir la consola</a>
+  <a class="salto-nav" href="der.png">El DER original (Workbench)</a>
+</div>
+
+</article>
+
+</main>
+
+<footer>
+  <p>Bases de Datos · 4.º año · Ciclo 2026</p>
+</footer>
+
+</body>
+</html>

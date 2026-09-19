@@ -1,0 +1,781 @@
+/* ==========================================================================
+   ESTUDIO — lo que necesita un apunte largo para estudiarse encima
+
+   Se carga después de apunte.css, en las páginas pensadas para leer de punta
+   a punta y marcar:
+
+       <link rel="stylesheet" href="../../assets/css/base.css">
+       <link rel="stylesheet" href="../../assets/css/apunte.css">
+       <link rel="stylesheet" href="../../assets/css/estudio.css">
+       <body data-tema="apunte">
+       <script src="../../assets/js/resaltador.js" defer></script>
+
+   Trae cuatro cosas que apunte.css no tiene:
+
+     1. el resaltador y el subrayado, con los colores medidos sobre el fondo
+        oscuro y sobre el papel;
+     2. el índice lateral que acompaña el scroll en pantallas anchas;
+     3. las piezas del texto corrido que un apunte de estudio necesita y una
+        clase no: la sintaxis, el ejemplo con su salida, el error frecuente,
+        la ficha de tabla y el pie que remite al taller;
+     4. una impresión pensada para marcar en papel, con margen de anotación.
+
+   El resaltado se guarda en el navegador de cada alumno (localStorage): no
+   viaja al repositorio ni lo ve nadie más.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. RESALTADO Y SUBRAYADO
+   ==========================================================================
+   Sobre fondo oscuro un resaltador opaco tapa el texto, así que el color va
+   como velo y la señal fuerte la da el trazo inferior. En papel se invierte:
+   el fondo se aclara y el texto vuelve a negro.
+   ========================================================================== */
+
+.marca {
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: 0 -2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.marca-amarilla {
+  background: rgba(234, 179, 8, 0.22);
+  box-shadow: inset 0 -0.55em 0 rgba(234, 179, 8, 0.16);
+  border-bottom: 2px solid rgba(234, 179, 8, 0.75);
+}
+
+.marca-verde {
+  background: rgba(16, 185, 129, 0.20);
+  box-shadow: inset 0 -0.55em 0 rgba(16, 185, 129, 0.14);
+  border-bottom: 2px solid rgba(16, 185, 129, 0.75);
+}
+
+.marca-rosa {
+  background: rgba(236, 72, 153, 0.20);
+  box-shadow: inset 0 -0.55em 0 rgba(236, 72, 153, 0.14);
+  border-bottom: 2px solid rgba(236, 72, 153, 0.75);
+}
+
+.marca-linea {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1px;
+}
+
+/* el texto marcado dentro de un bloque de código no pierde el resaltado SQL */
+.code-container .marca {
+  background: rgba(255, 255, 255, 0.10);
+  box-shadow: none;
+}
+
+
+/* ==========================================================================
+   2. BARRA DEL RESALTADOR
+   ==========================================================================
+   Fija abajo, fuera del camino del texto. Se dibuja desde el JS: si el
+   navegador no lo ejecuta, la página sigue leyéndose igual.
+   ========================================================================== */
+
+.barra-estudio {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--linea-media);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.barra-estudio button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--linea-media);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.82rem;
+  color: var(--text-body);
+  transition: var(--transicion);
+}
+
+.barra-estudio button:hover,
+.barra-estudio button:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.barra-estudio button[aria-pressed="true"] {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* van calificadas con el botón: si no, gana el fondo transparente de arriba */
+.barra-estudio button.tinta-amarilla { background: rgba(234, 179, 8, 0.85); }
+.barra-estudio button.tinta-verde    { background: rgba(16, 185, 129, 0.85); }
+.barra-estudio button.tinta-rosa     { background: rgba(236, 72, 153, 0.85); }
+
+.barra-estudio .separador {
+  width: 1px;
+  height: 20px;
+  background: var(--linea-media);
+  margin: 0 2px;
+}
+
+.barra-estudio .cuenta {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  padding: 0 6px;
+  min-width: 2.5em;
+  text-align: center;
+}
+
+/* ==========================================================================
+   2.b. MENÚ PARA LLEVARSE LAS MARCAS
+   ========================================================================== */
+
+.menu-estudio {
+  position: fixed;
+  right: 20px;
+  bottom: 68px;
+  z-index: 55;
+  width: min(330px, calc(100vw - 40px));
+  background: var(--bg-card);
+  border: 1px solid var(--linea-media);
+  border-radius: var(--radio);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 16px 18px;
+}
+
+.menu-estudio h4 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-main);
+  margin: 0 0 6px;
+}
+
+.menu-estudio .acciones-estudio + h4 {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--linea-sutil);
+}
+
+.menu-estudio p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.menu-estudio textarea {
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px 10px;
+  background: var(--bg-code);
+  color: var(--text-body);
+  border: 1px solid var(--linea-media);
+  border-radius: var(--radio-chico);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  resize: vertical;
+}
+
+.menu-estudio textarea:focus-visible { outline: 2px solid var(--accent); }
+
+.acciones-estudio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.acciones-estudio button {
+  flex: 1 1 auto;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--linea-media);
+  background: var(--velo-medio);
+  color: var(--text-body);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: var(--transicion);
+}
+
+.acciones-estudio button:hover,
+.acciones-estudio button:focus-visible {
+  border-color: var(--accent);
+  color: var(--text-main);
+}
+
+/* aviso corto cuando se marca, se borra o no hay nada seleccionado */
+.aviso-estudio {
+  position: fixed;
+  right: 20px;
+  bottom: 70px;
+  z-index: 50;
+  background: var(--bg-card);
+  border: 1px solid var(--linea-media);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radio-chico);
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  color: var(--text-body);
+  max-width: 260px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+
+.aviso-estudio.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* con el menú abierto, el aviso se corre arriba para no quedar tapado */
+.menu-estudio:not([hidden]) ~ .aviso-estudio {
+  bottom: auto;
+  top: 76px;
+}
+
+
+/* ==========================================================================
+   3. ÍNDICE LATERAL
+   ==========================================================================
+   Solo en pantallas anchas: acompaña el scroll y marca dónde estás. Abajo de
+   1200 px desaparece y queda el índice normal del principio.
+   ========================================================================== */
+
+.mapa-lateral { display: none; }
+
+@media (min-width: 1200px) {
+  .mapa-lateral {
+    display: block;
+    position: fixed;
+    top: 90px;
+    left: 24px;
+    width: 210px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding-right: 8px;
+    font-size: 0.8rem;
+    z-index: 20;
+  }
+
+  .mapa-lateral h2 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .mapa-lateral ol {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mapa-lateral a {
+    display: block;
+    padding: 3px 8px;
+    border-left: 2px solid var(--linea-sutil);
+    color: var(--text-muted);
+    text-decoration: none;
+    line-height: 1.35;
+    transition: var(--transicion);
+  }
+
+  .mapa-lateral a:hover { color: var(--text-main); }
+
+  /* Mientras el encabezado está a la vista, el índice no aparece: es fijo y
+     se montaba sobre el degradado, con el renglón del borde cortado a la
+     mitad. Lo pone y lo saca resaltador.js según dónde termina el header; si
+     el JS no corre, el índice queda visible como antes. */
+  .mapa-lateral {
+    transition: opacity 0.2s ease;
+  }
+
+  .mapa-lateral.esperando {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .mapa-lateral a.parte {
+    margin-top: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-body);
+    border-left-color: transparent;
+  }
+
+  .mapa-lateral a.aqui {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--velo-sutil);
+  }
+}
+
+/* la barra de progreso de lectura, arriba de todo */
+.progreso-lectura {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: var(--accent);
+  z-index: 60;
+  transition: width 0.1s linear;
+}
+
+
+/* ==========================================================================
+   4. PIEZAS DEL TEXTO CORRIDO
+   ========================================================================== */
+
+/* --- la sintaxis del comando, antes del ejemplo --- */
+.sintaxis {
+  background: var(--bg-code);
+  border: 1px dashed var(--linea-media);
+  border-radius: var(--radio-chico);
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.88rem;
+  line-height: 1.9;
+  color: var(--text-body);
+  overflow-x: auto;
+}
+
+.sintaxis .opcional { color: var(--text-muted); }
+
+/* --- el ejemplo: consulta, salida y lectura, como una sola unidad --- */
+.ejemplo {
+  margin: 22px 0;
+  border-left: 3px solid var(--bloque-azul);
+  padding-left: 18px;
+}
+
+.ejemplo > h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.ejemplo .code-container { margin-bottom: 10px; }
+
+/* «necesita el script del compendio» y avisos por el estilo, en el título */
+.dato-extra {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bloque-ambar) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bloque-ambar) 40%, transparent);
+  color: var(--bloque-ambar);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.ejemplo .result-table { font-size: 0.85rem; }
+
+/* el recuento que cierra cada resultado; lo escribe generar_apunte.py */
+.filas-devueltas {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
+/* --- el error que se comete siempre --- */
+.error-tipico {
+  margin: 22px 0;
+  padding: 16px 18px;
+  background: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radio-chico);
+}
+
+.error-tipico h4 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #fca5a5;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.error-tipico code { color: #fca5a5; }
+
+.error-tipico p:last-child { margin-bottom: 0; }
+
+/* --- la regla que hay que saber de memoria --- */
+.regla {
+  margin: 22px 0;
+  padding: 16px 20px;
+  background: var(--velo-medio);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radio-chico) var(--radio-chico) 0;
+}
+
+.regla h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.regla p:last-child { margin-bottom: 0; }
+
+/* --- el pie que manda al taller --- */
+.a-practicar {
+  margin: 26px 0 0;
+  padding: 14px 18px;
+  border: 1px solid var(--linea-sutil);
+  border-radius: var(--radio-chico);
+  background: var(--velo-sutil);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 14px;
+  font-size: 0.92rem;
+}
+
+.a-practicar strong {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* el aviso de «imprimila una vez» que llevan los apuntes */
+.hoja-modelo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin: 26px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--linea-media);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  background: var(--velo-sutil);
+}
+
+.hoja-modelo p {
+  margin: 0;
+  flex: 1 1 320px;
+  font-size: 0.92rem;
+  color: var(--text-body);
+}
+
+.hoja-modelo .salto-nav { margin-top: 0; }
+
+/* --- la ficha de una tabla de la base, para no ir a buscar el DER --- */
+.fichas-tablas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.ficha-tabla {
+  background: var(--bg-card);
+  border: 1px solid var(--linea-sutil);
+  border-radius: var(--radio-chico);
+  padding: 12px 14px;
+}
+
+.ficha-tabla h4 {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin: 0 0 6px;
+}
+
+.ficha-tabla ul {
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.76rem;
+  color: var(--text-body);
+}
+
+.ficha-tabla li { padding: 0; }
+
+.ficha-tabla .pk { color: #8ceacf; }
+.ficha-tabla .fk { color: #ffd166; }
+
+.ficha-tabla .nota-ficha {
+  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* --- el recuadro de la base, siempre disponible --- */
+.referencia-base {
+  margin: 30px 0;
+  border: 1px solid var(--linea-media);
+  border-radius: var(--radio);
+  background: var(--velo-sutil);
+  padding: 0 20px;
+}
+
+.referencia-base > summary {
+  cursor: pointer;
+  padding: 16px 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  list-style: none;
+}
+
+.referencia-base > summary::-webkit-details-marker { display: none; }
+
+.referencia-base > summary::before {
+  content: "▸ ";
+  color: var(--accent);
+}
+
+.referencia-base[open] > summary::before { content: "▾ "; }
+
+.referencia-base[open] { padding-bottom: 16px; }
+
+
+/* ==========================================================================
+   5. IMPRESIÓN
+   ==========================================================================
+   El apunte impreso es el que se marca con resaltador de verdad. Sale en
+   negro sobre blanco, con la columna angosta y un margen derecho libre para
+   anotar. Los resaltados hechos en pantalla salen también, en gris claro.
+   ========================================================================== */
+
+@media print {
+  @page {
+    margin: 18mm 22mm 18mm 18mm;
+  }
+
+  .barra-estudio,
+  .menu-estudio,
+  .aviso-estudio,
+  .mapa-lateral,
+  .progreso-lectura,
+  .copy-btn,
+  .referencia-base > summary { display: none !important; }
+
+  /* lo plegable se imprime abierto: en papel no hay dónde hacer clic */
+  .referencia-base {
+    border: 1px solid #999;
+    padding: 12px 16px;
+  }
+
+  .referencia-base > div { display: block !important; }
+
+  /* El tema de pantalla pinta el texto de blanco. En papel hay que devolver
+     todo a negro de forma explícita: los títulos, las negritas y las fichas
+     tienen color propio y no lo heredan del cuerpo. */
+  .apunte,
+  .apunte p,
+  .apunte li,
+  .apunte h2,
+  .apunte h3,
+  .apunte h4,
+  .apunte strong,
+  .apunte em,
+  .apunte td,
+  .apunte th,
+  .apunte code,
+  .ficha-tabla ul,
+  .regla p,
+  .error-tipico p,
+  .a-practicar,
+  .referencia-base { color: #000; }
+
+  .apunte .nota-ficha,
+  .apunte figcaption,
+  .result-caption,
+  .filas-devueltas,
+  .sintaxis .opcional { color: #444; }
+
+  .apunte a { color: #000; }
+
+  /* la bajada del encabezado queda gris claro sobre blanco */
+  header p { color: #333; }
+
+  .apunte {
+    font-size: 10.5pt;
+    color: #000;
+  }
+
+  .apunte h2 {
+    font-size: 15pt;
+    break-before: page;
+    break-after: avoid;
+  }
+
+  /* en papel el índice sirve, y apunte.css lo esconde: acá vuelve */
+  .indice-apunte {
+    display: block !important;
+    border: 1px solid #999;
+    border-left: 3px solid #000;
+    background: none;
+    padding: 12px 16px;
+    break-inside: avoid;
+  }
+
+  .indice-apunte h2,
+  .indice-apunte a { color: #000; }
+
+  .indice-apunte h2 { break-before: auto; font-size: 9pt; }
+
+  .dato-extra {
+    background: none;
+    border: 1px solid #999;
+    color: #333;
+  }
+
+  /* la tabla de resultados, con líneas en vez de fondos */
+  .result-table th,
+  .result-table td {
+    border-bottom: 1px solid #ccc;
+    background: none;
+    color: #000;
+  }
+
+  /* la fila destacada lleva color propio en base.css, que en papel queda
+     ilegible: acá va gris de fondo y texto negro */
+  .result-table tr.destacada td,
+  .result-table tr.match td,
+  .result-table td.match {
+    background: #ececec;
+    color: #000;
+    font-weight: 600;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .code-container,
+  .code-container pre {
+    background: #f7f7f7;
+    border: 1px solid #bbb;
+  }
+
+  .code-container .code-header { background: none; border-bottom: 1px solid #ddd; }
+
+  .code-container code,
+  .code-container .sql-keyword,
+  .code-container .sql-string,
+  .code-container .sql-number,
+  .code-container .sql-comment { color: #000; }
+
+  /* el resaltado del SQL, en papel, por peso y forma */
+  .code-container .sql-keyword { font-weight: 700; }
+  .code-container .sql-comment { font-style: italic; color: #555; }
+
+  .apunte h2.sin-corte { break-before: auto; }
+
+  .apunte h3 { font-size: 12pt; }
+
+  .sintaxis,
+  .ejemplo,
+  .regla,
+  .error-tipico,
+  .ficha-tabla,
+  .a-practicar { break-inside: avoid; }
+
+  .sintaxis {
+    background: #f4f4f4;
+    border: 1px solid #bbb;
+    color: #000;
+  }
+
+  .ejemplo { border-left: 2px solid #666; }
+
+  .regla {
+    background: #f4f4f4;
+    border-left: 2px solid #000;
+  }
+
+  .error-tipico {
+    background: none;
+    border: 1px solid #999;
+  }
+
+  .error-tipico h4 { color: #000; }
+
+  .a-practicar {
+    background: none;
+    border: 1px dashed #999;
+  }
+
+  .a-practicar strong,
+  .ejemplo > h4,
+  .regla h4 { color: #333; }
+
+  .ficha-tabla {
+    background: none;
+    border: 1px solid #bbb;
+  }
+
+  .ficha-tabla h4,
+  .ficha-tabla .pk,
+  .ficha-tabla .fk { color: #000; }
+
+  .fichas-tablas { grid-template-columns: repeat(2, 1fr); }
+
+  /* El modelo se imprime UNA vez, en su propia hoja. En papel, el apunte no
+     repite las fichas: queda la línea que remite a esa hoja, que es lo único
+     que hace falta cuando la tenés al lado. */
+  .hoja-modelo { display: none; }
+
+  [data-referencia-base] .fichas-tablas { display: none; }
+
+  [data-referencia-base] {
+    border: none;
+    border-left: 2px solid #999;
+    border-radius: 0;
+    padding: 2px 0 2px 14px;
+  }
+
+  [data-referencia-base] p { margin: 0; font-style: italic; color: #333; }
+
+  /* los resaltados de pantalla, en papel, como trama gris */
+  .marca {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #e8e8e8 !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid #555 !important;
+    color: #000;
+  }
+
+  .marca-linea { border-bottom: 1px solid #000; }
+}

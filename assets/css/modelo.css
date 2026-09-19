@@ -1,0 +1,248 @@
+/* ==========================================================================
+   MODELO — los diagramas del esquema y la referencia de tablas
+
+   Se carga después de apunte.css en casos/el-chip/modelo.html:
+
+       <link rel="stylesheet" href="../../assets/css/base.css">
+       <link rel="stylesheet" href="../../assets/css/apunte.css">
+       <link rel="stylesheet" href="../../assets/css/estudio.css">
+       <link rel="stylesheet" href="../../assets/css/modelo.css">
+
+   Los diagramas son SVG escrito por herramientas/generar_modelo.py. No traen
+   ningún color adentro: todo sale de los tokens de acá, así que el mismo SVG
+   se ve claro en papel y oscuro en pantalla sin generarlo dos veces.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. TOKENS DEL DIAGRAMA
+   ========================================================================== */
+
+body {
+  --dg-paper:   var(--bg-card);                  /* fondo de las cajas       */
+  --dg-ink:     var(--text-main);                /* nombres de tabla         */
+  --dg-col:     var(--text-body);                /* nombres de columna       */
+  --dg-muted:   var(--text-muted);               /* tipos, notas             */
+  --dg-rule:    rgba(255, 255, 255, 0.16);       /* bordes                   */
+  --dg-banda:   rgba(255, 255, 255, 0.05);       /* cabecera de la caja      */
+  --dg-fila:    rgba(255, 255, 255, 0.025);      /* fila alterna             */
+  --dg-linea:   var(--text-muted);               /* conectores               */
+  --dg-accent:  var(--accent);
+  --dg-accent-velo: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+
+/* ==========================================================================
+   2. EL LIENZO
+   ========================================================================== */
+
+.figura-modelo {
+  margin: 22px 0 30px;
+}
+
+.dg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.figura-modelo figcaption {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-top: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--linea-media);
+}
+
+.figura-modelo figcaption code { font-size: 0.85em; }
+
+
+/* cada bloque del modelo: título, explicación y su figura */
+.bloque-modelo { margin-top: 38px; }
+.bloque-modelo h3 { margin-top: 0; }
+
+/* --- las cajas --- */
+
+/* .dg-caja es el grupo sin acento: no necesita reglas propias, pero se
+   declara para que el diagrama se pueda re-tematizar desde acá */
+.dg-caja { }
+
+.dg-mask   { fill: var(--bg-main); }
+.dg-borde  { fill: var(--dg-paper); stroke: var(--dg-rule); stroke-width: 1; }
+.dg-banda  { fill: var(--dg-banda); }
+.dg-hairline { stroke: var(--dg-rule); stroke-width: 1; }
+.dg-fila-par { fill: var(--dg-fila); }
+
+.dg-focal .dg-borde { stroke: var(--dg-accent); }
+.dg-focal .dg-banda { fill: var(--dg-accent-velo); }
+
+/* --- el texto --- */
+
+.dg-tabla {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--dg-ink);
+}
+
+.dg-focal .dg-tabla { fill: var(--dg-accent); }
+
+.dg-col {
+  font-family: 'Fira Code', monospace;
+  font-size: 10.5px;
+  fill: var(--dg-col);
+}
+
+.dg-col-clave { font-weight: 600; fill: var(--dg-ink); }
+
+.dg-tipo {
+  font-family: 'Fira Code', monospace;
+  font-size: 9px;
+  fill: var(--dg-muted);
+}
+
+/* --- los chips de clave --- */
+
+.dg-chip { fill: none; stroke: var(--dg-rule); stroke-width: 0.8; }
+.dg-chip-pk { stroke: #8ceacf; }
+.dg-chip-fk { stroke: #ffd166; }
+
+.dg-chip-txt {
+  font-family: 'Fira Code', monospace;
+  font-size: 7.5px;
+  fill: var(--dg-muted);
+  letter-spacing: 0.06em;
+}
+
+/* --- los conectores --- */
+
+.dg-punta { fill: var(--dg-linea); }
+
+.dg-fk {
+  fill: none;
+  stroke: var(--dg-linea);
+  stroke-width: 1.2;
+  opacity: 0.75;
+}
+
+
+/* ==========================================================================
+   3. LA REFERENCIA DE TABLAS
+   ========================================================================== */
+
+.rejilla-modelo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.tabla-modelo {
+  border: 1px solid var(--linea-sutil);
+  border-radius: var(--radio-chico);
+  padding: 12px 14px 4px;
+  background: var(--velo-sutil);
+  break-inside: avoid;
+}
+
+.tabla-modelo h4 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.tabla-modelo h4 code { color: var(--accent); }
+
+.tabla-modelo .tabla-apunte { margin: 0; font-size: 0.82rem; }
+.tabla-modelo .tabla-apunte th { font-size: 0.7rem; padding: 6px 8px; }
+.tabla-modelo .tabla-apunte td { padding: 5px 8px; }
+.tabla-modelo code { font-size: 0.88em; }
+
+.marca-pk, .marca-fk, .marca-ai, .marca-nn {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.68rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--linea-media);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.marca-pk { border-color: #8ceacf; color: #8ceacf; }
+.marca-fk { border-color: #ffd166; color: #ffd166; }
+
+.apunta {
+  font-family: 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: inline-block;
+}
+
+/* ==========================================================================
+   4. IMPRESIÓN
+   ==========================================================================
+   La hoja del modelo se imprime una vez y se usa con cualquier apunte al
+   lado. Los mismos SVG salen en negro sobre blanco con solo cambiar tokens.
+   ========================================================================== */
+
+@media print {
+  body {
+    --dg-paper:  #fff;
+    --dg-ink:    #000;
+    --dg-col:    #000;
+    --dg-muted:  #555;
+    --dg-rule:   #999;
+    --dg-banda:  #eee;
+    --dg-fila:   #f4f4f4;
+    --dg-linea:  #333;
+    --dg-accent: #000;
+    --dg-accent-velo: #e4e4e4;
+  }
+
+  .dg-mask { fill: #fff; }
+  .dg-focal .dg-borde { stroke: #000; stroke-width: 1.6; }
+  .dg-chip-pk, .dg-chip-fk { stroke: #666; }
+  .dg-chip-txt { fill: #333; }
+  .dg-fk { opacity: 1; }
+
+  .figura-modelo { break-inside: avoid; }
+  .figura-modelo figcaption { color: #333; border-left-color: #999; }
+
+  .rejilla-modelo { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* en A4 la columna queda angosta: los anchos se fijan y el destino de la
+     clave foránea se parte en vez de desbordar la caja */
+  .tabla-modelo .tabla-apunte {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.72rem;
+  }
+
+  .tabla-modelo .tabla-apunte td:nth-child(1) { width: 44%; padding-right: 10px; }
+  .tabla-modelo .tabla-apunte td:nth-child(2) { width: 26%; }
+  /* los nombres de columna no se parten: cortar «fecha_ingres/o» los vuelve
+     ilegibles. El único que puede partirse es el destino de la clave. */
+  .tabla-modelo .tabla-apunte td { overflow-wrap: normal; }
+
+  .apunta {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 0.66rem;
+  }
+
+  .tabla-modelo {
+    background: none;
+    border: 1px solid #bbb;
+  }
+
+  .tabla-modelo h4 code { color: #000; }
+
+  .marca-pk, .marca-fk, .marca-ai, .marca-nn {
+    color: #000;
+    border-color: #888;
+  }
+
+  .apunta { color: #444; }
+
+}

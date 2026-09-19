@@ -80,7 +80,7 @@ intro = "Casi todos los ejercicios corren sobre <strong>El Chip</strong>, el tal
   [[unidad.clase]]
   numero = "El Chip"
   titulo = "Servicio técnico de dispositivos"
-  materiales = ["el-relato-de-martin", "diagrama-entidad-relacion", "scripts-de-la-base", "consola-sql", "la-base-en-funcionamiento"]
+  materiales = ["el-relato-de-martin", "modelo-de-el-chip", "diagrama-entidad-relacion", "scripts-de-la-base", "consola-sql", "la-base-en-funcionamiento"]
 
   [[unidad.clase]]
   numero = "Biblioteca"
@@ -181,6 +181,12 @@ consola = true
 consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abierta al lado mientras hacés los talleres."
 
   [[unidad.clase]]
+  numero = "Para estudiar"
+  titulo = "Apunte de SQL"
+  nota = "Un solo texto con todo el lenguaje de consulta, en el orden en que se dictó: lo que hasta ahora estaba repartido entre las presentaciones y las cajas de teoría de cada taller. Los ejercicios siguen en los talleres, enlazados al pie de cada tema."
+  materiales = ["apunte-de-sql"]
+
+  [[unidad.clase]]
   numero = ""
   titulo = "Definición de datos (DDL)"
   materiales = ["create-alter-y-drop"]
@@ -232,6 +238,12 @@ trimestre = "t3"
 intro = "Sigue la Unidad IV, que arrancó en el segundo trimestre y llegó hasta las subconsultas."
 consola = true
 consola_texto = "El Chip cargado en el navegador, sin instalar nada. Para estos talleres conviene el juego de datos ampliado: elegí <strong>2 · Compendio</strong> al abrirla."
+
+  [[unidad.clase]]
+  numero = "Para estudiar"
+  titulo = "Apunte de SQL · segunda parte"
+  nota = "El segundo tomo del apunte, con la numeración de secciones que sigue a la del primero: definir la base, fechas, vistas, procedimientos, disparadores, permisos, transacciones e índices."
+  materiales = ["apunte-de-sql-2"]
 
   [[unidad.clase]]
   numero = "Cierre de la unidad"

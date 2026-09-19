@@ -84,6 +84,23 @@ ciclos = [2026]
   href = "casos/el-chip/modelo-workbench.mwb"
 
 [[material]]
+id = "modelo-de-el-chip"
+titulo = "El modelo de El Chip"
+descripcion = "Las 19 tablas, sus columnas y las claves que las unen, en diagramas. La hoja que se imprime una vez y se usa con cualquier apunte."
+unidad = "Casos de estudio"
+icono = "der"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver el modelo"
+  href = "casos/el-chip/modelo.html"
+  variante = "principal"
+  [[material.formato]]
+  texto = "DER original"
+  href = "casos/el-chip/der.png"
+
+[[material]]
 id = "scripts-de-la-base"
 titulo = "Scripts de la base"
 descripcion = "En este orden: estructura → datos base → ampliación de los compendios"
@@ -337,6 +354,20 @@ ciclos = [2026]
   variante = "principal"
 
 [[material]]
+id = "apunte-de-sql"
+titulo = "Apunte de SQL"
+descripcion = "Todo el lenguaje de consulta en un solo texto: preguntar, resumir, cruzar y anidar. Para leer de corrido, marcar y llevar impreso."
+unidad = "SQL · primera parte"
+icono = "libro"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/04-sql/apunte-sql.html"
+  variante = "principal"
+
+[[material]]
 id = "create-alter-y-drop"
 titulo = "CREATE, ALTER y DROP"
 descripcion = "Los cinco sublenguajes de SQL y un ejemplo completo de normalización"
@@ -536,6 +567,20 @@ ciclos = [2026]
   [[material.formato]]
   texto = "Ver"
   href = "unidades/04-sql/analisis-examen-sql.html"
+  variante = "principal"
+
+[[material]]
+id = "apunte-de-sql-2"
+titulo = "Apunte de SQL · segunda parte"
+descripcion = "Definir la base, manejar fechas, hacer que reaccione sola, decidir quién puede qué y lograr que ande rápido. Continúa el apunte de consultas."
+unidad = "SQL · segunda parte"
+icono = "libro"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Leer"
+  href = "unidades/04-sql/apunte-sql-2.html"
   variante = "principal"
 
 [[material]]

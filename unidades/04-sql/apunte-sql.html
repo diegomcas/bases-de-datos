@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apunte de SQL · consultar, resumir, cruzar y anidar</title>
+<link rel="stylesheet" href="../../assets/css/fuentes.css">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/apunte.css">
+<link rel="stylesheet" href="../../assets/css/estudio.css">
+<script src="../../assets/js/resaltador.js" defer></script>
+</head>
+<body data-tema="apunte">
+
+<div class="progreso-lectura" aria-hidden="true"></div>
+
+<header>
+  <div class="header-container">
+    <span class="badge">Apunte · Unidad IV</span>
+    <h1>Apunte de SQL</h1>
+    <p>Todo el lenguaje de consulta en un solo texto: preguntar, resumir, cruzar y anidar. Para leer de corrido, marcar y llevar impreso.</p>
+  </div>
+</header>
+
+<nav class="mapa-lateral" aria-label="Secciones del apunte">
+  <h2>En este apunte</h2>
+  <ol>
+    <li><a href="#como-usarlo" class="parte">Cómo usarlo</a></li>
+    <li><a href="#la-base">La base de El Chip</a></li>
+    <li><a href="#parte-1" class="parte">I · Preguntar</a></li>
+    <li><a href="#s1">1 · SELECT y FROM</a></li>
+    <li><a href="#s2">2 · WHERE</a></li>
+    <li><a href="#s3">3 · El valor NULL</a></li>
+    <li><a href="#s4">4 · Ordenar y recortar</a></li>
+    <li><a href="#parte-2" class="parte">II · Resumir</a></li>
+    <li><a href="#s5">5 · Funciones de agregación</a></li>
+    <li><a href="#s6">6 · GROUP BY</a></li>
+    <li><a href="#s7">7 · HAVING</a></li>
+    <li><a href="#s8">8 · GROUP_CONCAT y ROLLUP</a></li>
+    <li><a href="#s9">9 · El orden de ejecución</a></li>
+    <li><a href="#parte-3" class="parte">III · Cruzar</a></li>
+    <li><a href="#s10">10 · El producto cartesiano</a></li>
+    <li><a href="#s11">11 · INNER JOIN</a></li>
+    <li><a href="#s12">12 · LEFT JOIN</a></li>
+    <li><a href="#s13">13 · Contar con nulos</a></li>
+    <li><a href="#s14">14 · El resto de la familia</a></li>
+    <li><a href="#parte-4" class="parte">IV · Anidar</a></li>
+    <li><a href="#s15">15 · Subconsulta escalar</a></li>
+    <li><a href="#s16">16 · IN y NOT IN</a></li>
+    <li><a href="#s17">17 · EXISTS y correlación</a></li>
+    <li><a href="#s18">18 · Los seis lugares</a></li>
+    <li><a href="#s19">19 · NOT IN contra NOT EXISTS</a></li>
+    <li><a href="#s20">20 · WITH</a></li>
+    <li><a href="#s21">21 · Preguntar por «todos»</a></li>
+    <li><a href="#parte-5" class="parte">V · Modificar</a></li>
+    <li><a href="#s22">22 · INSERT</a></li>
+    <li><a href="#s23">23 · UPDATE</a></li>
+    <li><a href="#s24">24 · DELETE</a></li>
+    <li><a href="#s25">25 · Gobernadas por un SELECT</a></li>
+    <li><a href="#cierre" class="parte">Cierre</a></li>
+    <li><a href="#errores">Los errores de MySQL</a></li>
+    <li><a href="#mapa-talleres">Dónde practicar cada tema</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<nav class="migas" aria-label="Ubicación">
+  <a href="../../index.html">Índice</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <a href="../../index.html#u4a">Unidad IV · SQL</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <span aria-current="page">Apunte de SQL</span>
+</nav>
+
+<div class="indice-apunte">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#como-usarlo">Cómo usar este apunte</a></li>
+    <li><a href="#la-base">La base de El Chip, para tener al lado</a></li>
+    <li><a href="#parte-1">Parte I · Preguntarle a una tabla</a></li>
+    <li><a href="#parte-2">Parte II · Resumir muchas filas en pocas</a></li>
+    <li><a href="#parte-3">Parte III · Cruzar tablas</a></li>
+    <li><a href="#parte-4">Parte IV · Consultas adentro de consultas</a></li>
+    <li><a href="#parte-5">Parte V · Modificar los datos</a></li>
+    <li><a href="#cierre">Cierre · errores, mapa de talleres y lo que sigue</a></li>
+  </ol>
+</div>
+
+<article class="apunte">
+
+<h2 id="como-usarlo" class="sin-corte">Cómo usar este apunte</h2>
+
+<p>Este texto reúne en un solo lugar lo que hasta ahora estaba repartido entre las presentaciones de clase y las cajas de teoría de cada taller. El orden es el de la cursada y también el de las dependencias: cada sección usa lo anterior y nada más. Se puede leer de arriba abajo sin abrir otra pestaña.</p>
+
+<p>Cada tema sigue siempre la misma secuencia: qué resuelve, cómo se escribe, un ejemplo completo sobre El Chip con su resultado, el error que se comete siempre, y al final el taller donde están los ejercicios de ese tema. Los ejercicios no están acá: siguen en los talleres, que son los mismos de siempre y quedan enlazados al pie de cada sección.</p>
+
+<div class="regla">
+  <h4>Las tres formas de estudiar con esto</h4>
+  <p><strong>En pantalla.</strong> Seleccioná un texto y tocá uno de los colores de la barra de abajo a la derecha, o apretá las teclas 1, 2, 3 y 4. Las marcas quedan guardadas en tu navegador y siguen ahí la próxima vez que abras la página. La goma saca una marca; la cruz las saca todas.</p>
+  <p><strong>En otra computadora o en el celular.</strong> Lo que marcás vive en el navegador donde lo marcaste. Para llevarlo a otro, abrí el menú <code>⋯</code> de la barra: bajá el archivo, o copiá el código y pegalo del otro lado. Lo que traés se suma a lo que ya tenías, sin repetir nada.</p>
+  <p><strong>En papel.</strong> El botón de imprimir de la misma barra saca una versión en blanco y negro, con las secciones empezando en página nueva y margen para anotar al costado. Lo que hayas marcado en pantalla se imprime también.</p>
+  <p><strong>Con la base abierta.</strong> Todos los ejemplos están corridos sobre El Chip y se pueden repetir tal cual, en MySQL o en la <a href="../../consola.html">consola del sitio</a>, que no necesita instalar nada. Las tablas de resultado son la salida del motor, verificada contra MySQL 8: si una te da distinto, la diferencia está en tu base o en la consulta.</p>
+</div>
+
+<p>Cada ejemplo dice sobre qué juego de datos corre. La mayoría usa la base tal como queda después de los dos primeros scripts; unos pocos necesitan el tercero, el de los compendios, y lo aclaran arriba. Si un resultado no te coincide, lo primero que hay que revisar es eso.</p>
+
+<h2 id="la-base">La base de El Chip, para tener al lado</h2>
+
+<p>Todas las consultas de este apunte corren sobre la base del taller de Martín. Estas son las tablas que se usan y las columnas de cada una, para no tener que abrir el diagrama cada vez. En verde la clave primaria, en amarillo las foráneas.</p>
+
+<div class="hoja-modelo">
+  <p><strong>El modelo completo está en su propia hoja.</strong> Los diagramas de las tablas, sus columnas y las claves que las unen: imprimila una vez y tenela al lado con cualquiera de los dos apuntes.</p>
+  <a class="salto-nav" href="../../casos/el-chip/modelo.html">Ver el modelo de El Chip</a>
+</div>
+
+<details class="referencia-base" data-referencia-base open>
+<summary>Las tablas y sus columnas, para no salir de acá</summary>
+<div data-fichas>
+<div class="fichas-tablas">
+  <div class="ficha-tabla">
+    <h4>cliente</h4>
+    <ul>
+      <li><span class="pk">id_cliente</span></li>
+      <li>nombre</li>
+      <li>apellido</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span></li>
+      <li>fecha_ingreso</li>
+      <li>fecha_entrega</li>
+      <li>descuento</li>
+      <li>total</li>
+      <li><span class="fk">id_empleado</span></li>
+      <li><span class="fk">id_cliente</span></li>
+      <li><span class="fk">id_orden_estado</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_estado</h4>
+    <ul>
+      <li><span class="pk">id_orden_estado</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>empleado</h4>
+    <ul>
+      <li><span class="pk">id_empleado</span></li>
+      <li>usuario</li>
+      <li>password</li>
+      <li><span class="fk">id_rol</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>equipo</h4>
+    <ul>
+      <li><span class="pk">id_equipo</span></li>
+      <li>tipo</li>
+      <li><span class="fk">id_marca</span></li>
+      <li>modelo</li>
+      <li>nro_serie</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>marca</h4>
+    <ul>
+      <li><span class="pk">id_marca</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>problema</h4>
+    <ul>
+      <li><span class="pk">id_problema</span></li>
+      <li>descripcion</li>
+      <li>mano_obra</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>repuesto</h4>
+    <ul>
+      <li><span class="pk">id_repuesto</span></li>
+      <li>nombre</li>
+      <li>stock</li>
+      <li>precio_unitario</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>metodo_pago</h4>
+    <ul>
+      <li><span class="pk">id_metodo_pago</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio_pago</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_metodo_pago</span> <span class="fk">↗</span></li>
+      <li>monto</li>
+      <li>fecha_pago</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio_has_equipo</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_equipo</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_problema</span> <span class="fk">↗</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>problema_has_repuesto</h4>
+    <ul>
+      <li><span class="pk">id_problema</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_repuesto</span> <span class="fk">↗</span></li>
+      <li>cantidad</li>
+      <li>precio_unitario</li>
+      <li>mano_obra</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>telefono</h4>
+    <ul>
+      <li><span class="pk">id_telefono</span></li>
+      <li>numero</li>
+      <li>descripcion</li>
+      <li><span class="fk">id_telefonotipo</span></li>
+      <li><span class="fk">id_cliente</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>email</h4>
+    <ul>
+      <li><span class="pk">id_email</span></li>
+      <li>email</li>
+      <li><span class="fk">id_emailtipo</span></li>
+      <li><span class="fk">id_cliente</span></li>
+    </ul>
+  </div>
+</div>
+<p>El modelo entero —las 19 tablas, con los tipos de cada columna y los diagramas de cómo se unen— está en <a href="../../casos/el-chip/modelo.html">la hoja del modelo</a>.</p>
+</div>
+</details>
+
+<div class="regla">
+  <h4>Cargar la base</h4>
+  <p>Los scripts van en este orden: <code>ElChip.sql</code> arma la estructura, <code>poblar_elchip.sql</code> carga los datos, y <code>poblar_elchip_compendio.sql</code> agrega los casos límite que hacen falta en las últimas secciones. Los ejemplos que necesitan el tercero lo dicen arriba del código.</p>
+</div>
+
+<h2 id="parte-1">Parte I · Preguntarle a una tabla</h2>
+
+<p>Las cuatro secciones que siguen alcanzan para responder cualquier pregunta que se conteste mirando una tabla sola: qué columnas mostrar, qué filas dejar pasar, qué hacer con lo que falta y en qué orden entregar el resultado.</p>
+
+<h3 id="s1">1 · SELECT y FROM: elegir qué se ve</h3>
+
+<p>Una consulta empieza siempre por dos decisiones: de qué tabla salen los datos y qué columnas se muestran. La cláusula <code>FROM</code> nombra la tabla; <code>SELECT</code> elige las columnas. A esa elección de columnas se la llama <strong>proyección</strong>, y es una de las dos operaciones básicas del álgebra relacional que vimos en la unidad anterior.</p>
+
+<div class="sintaxis">
+SELECT columna_1, columna_2<br>
+FROM tabla;
+</div>
+
+<p>El asterisco trae todas las columnas. Sirve para explorar una tabla que no conocés, y conviene abandonarlo en cuanto sabés qué buscás: una consulta que nombra sus columnas sigue funcionando igual el día que alguien agregue una columna nueva a la tabla, y deja escrito qué necesita.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · las columnas que quiero, de la tabla que quiero</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, apellido
+<span class="sql-keyword">FROM</span> cliente;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>Juan</td><td>Pérez</td></tr>
+                <tr><td>María</td><td>García</td></tr>
+                <tr><td>Carlos</td><td>López</td></tr>
+                <tr><td>Ana</td><td>Martínez</td></tr>
+                <tr><td>Diego</td><td>Rossi</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p></div>
+</div>
+
+<p>El <code>SELECT</code> no está limitado a repetir columnas: puede calcular. Cualquier expresión aritmética sobre las columnas de la fila produce una columna nueva, que se nombra con <code>AS</code>. Ese nombre se llama <strong>alias</strong> y es lo que va a aparecer en el encabezado del resultado.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario,valor_en_deposito">
+  <h4>Ejemplo · una columna que no existe en la tabla</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre,
+       stock,
+       precio_unitario,
+       stock * precio_unitario <span class="sql-keyword">AS</span> valor_en_deposito
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>stock</th><th>precio_unitario</th><th>valor_en_deposito</th></tr></thead>
+              <tbody>
+                <tr><td>Módulo Samsung S21 Original</td><td>5</td><td>45000.00</td><td>225000.00</td></tr>
+                <tr><td>Módulo iPhone 13 Genérico</td><td>3</td><td>32000.00</td><td>96000.00</td></tr>
+                <tr><td>Batería iPhone 11/12</td><td>10</td><td>12000.00</td><td>120000.00</td></tr>
+                <tr><td>Pin de carga Universal USB-C</td><td>50</td><td>1500.00</td><td>75000.00</td></tr>
+                <tr><td>Módulo Motorola Edge 30</td><td>2</td><td>28000.00</td><td>56000.00</td></tr>
+                <tr><td>Batería Samsung Serie A</td><td>8</td><td>9500.00</td><td>76000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">La cuarta columna se calcula fila por fila. En la tabla no hay ninguna columna que se llame así.</p>
+</div>
+
+<p>Las expresiones del <code>SELECT</code> no se limitan a la aritmética. <code>CONCAT()</code> pega textos en una sola columna, y <code>CASE</code> decide un valor distinto según la fila, como un «si… entonces» escrito adentro de la consulta:</p>
+
+<div class="sintaxis">
+CASE WHEN condición THEN valor<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <span class="opcional">[WHEN otra_condición THEN otro_valor]</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp; <span class="opcional">[ELSE valor_por_defecto]</span><br>
+END
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · una etiqueta calculada para cada repuesto</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">CONCAT</span>(nombre, <span class="sql-string">&#x27; (&#x27;</span>, stock, <span class="sql-string">&#x27; u.)&#x27;</span>) <span class="sql-keyword">AS</span> repuesto,
+       <span class="sql-keyword">CASE</span> <span class="sql-keyword">WHEN</span> stock = <span class="sql-number">0</span> <span class="sql-keyword">THEN</span> <span class="sql-string">&#x27;sin stock&#x27;</span>
+            <span class="sql-keyword">WHEN</span> stock &lt; <span class="sql-number">5</span> <span class="sql-keyword">THEN</span> <span class="sql-string">&#x27;reponer&#x27;</span>
+            <span class="sql-keyword">ELSE</span> <span class="sql-string">&#x27;suficiente&#x27;</span>
+       <span class="sql-keyword">END</span> <span class="sql-keyword">AS</span> estado
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> stock;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>repuesto</th><th>estado</th></tr></thead>
+              <tbody>
+                <tr><td>Módulo Motorola Edge 30 (2 u.)</td><td>reponer</td></tr>
+                <tr><td>Módulo iPhone 13 Genérico (3 u.)</td><td>reponer</td></tr>
+                <tr><td>Módulo Samsung S21 Original (5 u.)</td><td>suficiente</td></tr>
+                <tr><td>Batería Samsung Serie A (8 u.)</td><td>suficiente</td></tr>
+                <tr><td>Batería iPhone 11/12 (10 u.)</td><td>suficiente</td></tr>
+                <tr><td>Pin de carga Universal USB-C (50 u.)</td><td>suficiente</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">Las dos columnas se calculan fila por fila y no existen en la tabla. <code>CASE</code> evalúa sus condiciones en orden y se queda con la primera que se cumple.</p>
+</div>
+
+<div class="regla">
+  <h4>Alias con espacios</h4>
+  <p>Si el alias lleva espacios o acentos, va entre comillas simples: <code>AS 'Valor en depósito'</code>. Sin comillas, MySQL corta en el primer espacio y devuelve un error de sintaxis.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#select">Taller: primeras consultas</a>, bloque 1.</span>
+</div>
+
+<h3 id="s2">2 · WHERE: elegir qué filas</h3>
+
+<p>El <code>WHERE</code> se evalúa una vez por cada fila de la tabla y decide si esa fila sigue o se descarta. A esa operación se la llama <strong>selección</strong>. La condición se arma con los operadores de comparación de siempre —<code>=</code>, <code>&lt;&gt;</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>— y se combinan con <code>AND</code>, <code>OR</code> y <code>NOT</code>.</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla<br>
+WHERE condición;
+</div>
+
+<p>Además de la comparación directa hay tres formas que aparecen todo el tiempo:</p>
+
+<ul>
+  <li><code>BETWEEN a AND b</code> pregunta si el valor cae en un rango, con los dos extremos incluidos.</li>
+  <li><code>IN (v1, v2, v3)</code> pregunta si el valor está en una lista. Equivale a varios <code>OR</code> encadenados.</li>
+  <li><code>LIKE 'texto'</code> compara contra un patrón: <code>%</code> reemplaza cualquier cantidad de caracteres, incluso ninguno, y <code>_</code> reemplaza exactamente uno. <code>LIKE '%Batería%'</code> significa «que contenga la palabra Batería en cualquier posición».</li>
+</ul>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario">
+  <h4>Ejemplo · dos condiciones combinadas</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> precio_unitario <span class="sql-keyword">BETWEEN</span> <span class="sql-number">9000</span> <span class="sql-keyword">AND</span> <span class="sql-number">33000</span>
+  <span class="sql-keyword">AND</span> nombre <span class="sql-keyword">LIKE</span> <span class="sql-string">&#x27;%Batería%&#x27;</span>
+<span class="sql-keyword">ORDER BY</span> precio_unitario <span class="sql-keyword">DESC</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Batería iPhone 11/12</td><td>12000.00</td></tr>
+                <tr><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">De los seis repuestos quedan dos: los que cumplen las dos condiciones a la vez.</p>
+</div>
+
+<div class="regla">
+  <h4>LIKE no distingue mayúsculas ni tildes</h4>
+  <p>Las tablas de este año usan la comparación que MySQL trae por defecto, llamada <strong>collation</strong> o cotejamiento (<code>utf8mb4_0900_ai_ci</code>): ignora las mayúsculas y también los acentos. Lo mismo vale para el <code>ORDER BY</code>, que ordena sin mirar tildes ni mayúsculas, y para el <code>=</code> sobre texto. <code>LIKE '%bateria%'</code> encuentra <em>Batería iPhone 11/12</em>, y <code>LIKE '%EL%'</code> encuentra cualquier título que tenga «el» en el medio de una palabra.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario">
+  <h4>Ejemplo · sin una sola mayúscula ni tilde en el patrón</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> nombre <span class="sql-keyword">LIKE</span> <span class="sql-string">&#x27;%bateria%&#x27;</span>
+<span class="sql-keyword">ORDER BY</span> nombre;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Batería iPhone 11/12</td><td>12000.00</td></tr>
+                <tr><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Las dos baterías aparecen igual, aunque en la tabla están escritas con mayúscula y con tilde.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Dos errores de siempre</h4>
+  <p><strong>Mezclar <code>AND</code> y <code>OR</code> sin paréntesis.</strong> <code>AND</code> se evalúa antes que <code>OR</code>, igual que la multiplicación antes que la suma, así que <code>WHERE a = 1 OR a = 2 AND b = 3</code> no filtra lo que parece. Cuando conviven los dos operadores, poné los paréntesis aunque creas que no hacen falta.</p>
+  <p><strong>Escribir <code>WHERE columna = 1 OR 3</code></strong> para pedir «la 1 o la 3». MySQL lee eso como <code>(columna = 1) OR (3)</code>, y un número distinto de cero vale por verdadero: la condición se cumple siempre y la consulta <strong>devuelve la tabla entera</strong>, sin ningún error. Cada valor necesita su comparación completa —<code>columna = 1 OR columna = 3</code>— o, mejor, <code>columna IN (1, 3)</code>.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#select">Taller: primeras consultas</a>, bloques 1 y 2.</span>
+</div>
+
+<h3 id="s3">3 · El valor NULL</h3>
+
+<p><code>NULL</code> ocupa el lugar de un dato que no se sabe. Una fecha de entrega en <code>NULL</code> quiere decir que ese equipo todavía no se entregó; un nombre en <code>NULL</code> quiere decir que nadie lo cargó. El cero y la cadena vacía son datos cargados; <code>NULL</code> marca que no hay ninguno.</p>
+
+<p>De ahí sale la consecuencia que hay que memorizar: <strong>ninguna comparación contra <code>NULL</code> da verdadero</strong>, ni siquiera comparar <code>NULL</code> con <code>NULL</code>. Si no se sabe cuánto vale, tampoco se sabe si es igual a otra cosa. Por eso SQL trabaja con tres valores lógicos —verdadero, falso y desconocido—, lo que se llama <strong>lógica trivalente</strong>, y el <code>WHERE</code> deja pasar únicamente lo verdadero.</p>
+
+<div class="sintaxis">
+WHERE columna IS NULL<br>
+WHERE columna IS NOT NULL
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · las órdenes que todavía no se entregaron</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso, fecha_entrega
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_entrega <span class="sql-keyword">IS</span> <span class="sql-keyword">NULL</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>fecha_entrega</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>2026-05-01 10:00:00</td><td>NULL</td></tr>
+                <tr><td>2</td><td>2026-05-02 11:30:00</td><td>NULL</td></tr>
+                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Escrito como <code>WHERE fecha_entrega = NULL</code>, este mismo listado sale vacío y sin ningún error.</p>
+</div>
+
+<div class="regla">
+  <h4>Lo que hay que saber de memoria</h4>
+  <p><code>columna = NULL</code> nunca es verdadero. Se pregunta con <code>IS NULL</code> y <code>IS NOT NULL</code>, y esas dos son las únicas formas que dan una respuesta.</p>
+  <p>Para reemplazar el nulo por un valor al mostrarlo: <code>COALESCE(columna, 0)</code>, o su versión propia de MySQL, <code>IFNULL(columna, 0)</code>.</p>
+</div>
+
+<p>El <code>NULL</code> vuelve a aparecer en este apunte tres veces más, y siempre como fuente de resultados raros: en los promedios (§5), en las uniones que conservan filas sin pareja (§12 y §13) y en el <code>NOT IN</code> (§19). Conviene tener clara esta sección antes de llegar ahí.</p>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#reto-1-6">Taller: primeras consultas</a>, reto 1.6.</span>
+</div>
+
+<h3 id="s4">4 · Ordenar, quitar repetidos y recortar</h3>
+
+<p>Estas tres cláusulas actúan sobre el resultado ya armado, y por eso van al final de la consulta.</p>
+
+<p><code>ORDER BY</code> ordena. <code>ASC</code> es de menor a mayor y es lo que asume si no se aclara; <code>DESC</code> es al revés. Se puede ordenar por varias columnas, y también por una columna que no está en el <code>SELECT</code>: el motor la usa para ordenar aunque no la muestre.</p>
+
+<p><code>DISTINCT</code> elimina las filas repetidas del resultado. Actúa sobre la fila entera que se proyecta, no sobre una columna suelta, y corre después del <code>SELECT</code>: trabaja sobre lo ya proyectado, no sobre los datos originales (§9).</p>
+
+<p><code>LIMIT n</code> se queda con las primeras <code>n</code> filas, y <code>LIMIT n OFFSET m</code> saltea las primeras <code>m</code>. Así se arma la paginación de cualquier listado.</p>
+
+<div class="sintaxis">
+SELECT <span class="opcional">[DISTINCT]</span> columnas<br>
+FROM tabla<br>
+<span class="opcional">[WHERE condición]</span><br>
+ORDER BY columna <span class="opcional">[ASC | DESC]</span><br>
+LIMIT n <span class="opcional">[OFFSET m]</span>;
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario">
+  <h4>Ejemplo · los tres repuestos más caros</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> precio_unitario <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">3</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Módulo Samsung S21 Original</td><td>45000.00</td></tr>
+                <tr><td>Módulo iPhone 13 Genérico</td><td>32000.00</td></tr>
+                <tr><td>Módulo Motorola Edge 30</td><td>28000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Un <code>LIMIT</code> sin <code>ORDER BY</code> devuelve filas arbitrarias: el motor entrega las primeras que encuentra, y no tiene por qué ser dos veces el mismo conjunto. Si la consulta habla de «los tres más caros» o «los últimos cinco», el <code>ORDER BY</code> es parte de la pregunta.</p>
+  <p>Y aun con <code>ORDER BY</code>, <code>LIMIT 3</code> corta por posición: devuelve tres filas aunque la cuarta empate con la tercera.</p>
+</div>
+
+<div class="regla">
+  <h4>La última página viene incompleta</h4>
+  <p><code>LIMIT n OFFSET m</code> pide <em>hasta</em> <code>n</code> filas después de saltear <code>m</code>. Si quedaban menos, devuelve las que hay, sin error. Con 10 filas en total, <code>LIMIT 4 OFFSET 8</code> devuelve 2; con <code>OFFSET 12</code> devuelve cero filas y tampoco falla. Al paginar, la cantidad de filas de la última página se deduce del total, no del <code>LIMIT</code>.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario">
+  <h4>Ejemplo · la tercera página de un catálogo de seis repuestos</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> precio_unitario <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">4</span> <span class="sql-keyword">OFFSET</span> <span class="sql-number">4</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+                <tr><td>Pin de carga Universal USB-C</td><td>1500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Se piden cuatro y quedaban dos. Esas dos son la respuesta, y la consulta no avisa nada.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#paginacion">Taller: primeras consultas</a>, bloque 6.</span>
+</div>
+
+<h2 id="parte-2">Parte II · Resumir muchas filas en pocas</h2>
+
+<p>Hasta acá cada fila del resultado venía de una fila de la tabla. Lo que sigue rompe esa correspondencia: cuatro cláusulas que toman conjuntos de filas y devuelven una sola por conjunto. Con eso se arma cualquier reporte.</p>
+
+<h3 id="s5">5 · Funciones de agregación</h3>
+
+<p>Una función de agregación recibe un conjunto de valores y devuelve un valor único. Son cinco y alcanzan para casi todo:</p>
+
+<ul>
+  <li><code>COUNT()</code> cuenta filas.</li>
+  <li><code>SUM()</code> suma.</li>
+  <li><code>AVG()</code> promedia.</li>
+  <li><code>MIN()</code> y <code>MAX()</code> devuelven los extremos.</li>
+</ul>
+
+<p>Sin <code>GROUP BY</code>, toda la tabla es un único conjunto y la consulta devuelve exactamente una fila. Las funciones aceptan expresiones, no solamente columnas: <code>SUM(stock * precio_unitario)</code> es válido y multiplica antes de sumar.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="valor_total,precio_promedio">
+  <h4>Ejemplo · el depósito entero, en una fila</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> cantidad,
+       <span class="sql-keyword">SUM</span>(stock * precio_unitario) <span class="sql-keyword">AS</span> valor_total,
+       <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(precio_unitario), <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> precio_promedio
+<span class="sql-keyword">FROM</span> repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>cantidad</th><th>valor_total</th><th>precio_promedio</th></tr></thead>
+              <tbody>
+                <tr><td>6</td><td>648000.00</td><td>21333.33</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Seis filas de la tabla entran; sale una sola.</p>
+</div>
+
+<p>Contar admite tres formas, y dan resultados distintos:</p>
+
+<div class="sintaxis">
+COUNT(*)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcional">— cuenta filas, sin mirar el contenido</span><br>
+COUNT(columna)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcional">— cuenta las filas donde esa columna no es NULL</span><br>
+COUNT(DISTINCT columna)&nbsp;&nbsp;<span class="opcional">— cuenta valores diferentes, sin repetidos ni nulos</span>
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · las tres formas, sobre las mismas tres órdenes</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> filas,
+       <span class="sql-keyword">COUNT</span>(fecha_entrega) <span class="sql-keyword">AS</span> con_entrega,
+       <span class="sql-keyword">COUNT</span>(<span class="sql-keyword">DISTINCT</span> id_cliente) <span class="sql-keyword">AS</span> clientes_distintos
+<span class="sql-keyword">FROM</span> orden_servicio;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>filas</th><th>con_entrega</th><th>clientes_distintos</th></tr></thead>
+              <tbody>
+                <tr><td>3</td><td>0</td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Hay tres órdenes; ninguna tiene fecha de entrega cargada, y las tres son de clientes distintos.</p>
+</div>
+
+<div class="regla">
+  <h4>Los nulos se ignoran en todas las agregaciones</h4>
+  <p><code>AVG()</code> divide por la cantidad de valores no nulos, no por la cantidad de filas. Es el origen número uno de los promedios que «no dan»: si de diez filas tres tienen la columna en nulo, el promedio se calcula sobre siete.</p>
+  <p>Y <code>SUM()</code> de un conjunto vacío devuelve <code>NULL</code>, no cero. Para un reporte que tiene que mostrar un cero contable se envuelve: <code>COALESCE(SUM(monto), 0)</code>.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-agrupacion-consignas.html#agregacion">Taller de agrupación</a>, bloque 1.</span>
+  <span><a href="compendio-agrupacion-consignas.html#agregacion">Compendio de agrupación</a>, bloque 1.</span>
+</div>
+
+<h3 id="s6">6 · GROUP BY: repartir las filas en montones</h3>
+
+<p><code>GROUP BY</code> reparte las filas en grupos según el valor de una o más columnas, y después aplica las funciones de agregación adentro de cada grupo por separado. El resultado tiene una fila por grupo.</p>
+
+<div class="sintaxis">
+SELECT columna_de_agrupamiento, función_de_agregación<br>
+FROM tabla<br>
+GROUP BY columna_de_agrupamiento;
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · cuántos equipos hay de cada tipo</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> tipo, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> cantidad
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">GROUP BY</span> tipo
+<span class="sql-keyword">ORDER BY</span> cantidad <span class="sql-keyword">DESC</span>, tipo;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>tipo</th><th>cantidad</th></tr></thead>
+              <tbody>
+                <tr><td>Celular</td><td>3</td></tr>
+                <tr><td>Smartwatch</td><td>1</td></tr>
+                <tr><td>Tablet</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Cinco equipos entran, tres grupos salen.</p>
+</div>
+
+<p>Se puede agrupar por varias columnas a la vez. <code>GROUP BY a, b</code> arma un grupo por cada combinación distinta de valores de <code>a</code> y <code>b</code>: es un solo agrupamiento por una clave compuesta. También se puede agrupar por una expresión, y de ahí sale cualquier reporte mensual: <code>GROUP BY YEAR(fecha), MONTH(fecha)</code>.</p>
+
+<div class="regla">
+  <h4>La regla del SELECT agrupado</h4>
+  <p>En el <code>SELECT</code> de una consulta agrupada solo pueden aparecer dos cosas: las columnas por las que agrupaste, y funciones de agregación. Cualquier otra columna es ambigua, porque el grupo tiene varios valores para ella y no hay criterio para elegir uno.</p>
+  <p>MySQL 8 hace cumplir esa regla con el modo <code>ONLY_FULL_GROUP_BY</code>, que viene activo: si la violás, rechaza la consulta en lugar de inventar un valor.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Suponer que una categoría sin filas va a aparecer con un cero. Los grupos salen de los datos que llegaron, no del catálogo: un método de pago que nadie usó no genera un grupo con cero, no genera ninguna fila. Para que aparezca hay que traerlo desde su tabla con un <code>LEFT JOIN</code> (§12).</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-agrupacion-consignas.html#agrupamiento">Taller de agrupación</a>, bloque 2.</span>
+  <span><a href="compendio-agrupacion-consignas.html#agrupamiento">Compendio de agrupación</a>, bloques 3 y 5.</span>
+</div>
+
+<h3 id="s7">7 · HAVING: filtrar grupos</h3>
+
+<p><code>WHERE</code> descarta filas antes de agrupar. <code>HAVING</code> descarta grupos después de agrupar. Esa es toda la diferencia, y de ahí se deduce el resto: <code>HAVING</code> puede usar funciones de agregación porque cuando le toca el turno ya están calculadas, y <code>WHERE</code> no puede porque todavía no existen.</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla<br>
+<span class="opcional">[WHERE condición sobre cada fila]</span><br>
+GROUP BY columnas<br>
+HAVING condición sobre el grupo;
+</div>
+
+<p>Las dos cláusulas conviven en la misma consulta, y es lo habitual: el <code>WHERE</code> recorta el universo y el <code>HAVING</code> se queda con los grupos que interesan.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="recaudado">
+  <h4>Ejemplo · los métodos de pago que recaudaron más de $30.000</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> id_metodo_pago,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> pagos,
+       <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> recaudado
+<span class="sql-keyword">FROM</span> orden_servicio_pago
+<span class="sql-keyword">GROUP BY</span> id_metodo_pago
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(monto) &gt; <span class="sql-number">30000</span>
+<span class="sql-keyword">ORDER BY</span> recaudado <span class="sql-keyword">DESC</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_metodo_pago</th><th>pagos</th><th>recaudado</th></tr></thead>
+              <tbody>
+                <tr><td>3</td><td>1</td><td>40500.00</td></tr>
+                <tr><td>2</td><td>1</td><td>33500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Acá el método aparece por su id. Para mostrar el nombre hay que traer la tabla <code>metodo_pago</code>, y eso es la Parte III.</p>
+</div>
+
+<p>Hay un uso de <code>HAVING</code> que conviene reconocer de un vistazo, porque sirve para cualquier tabla: <code>HAVING COUNT(*) &gt; 1</code> detecta duplicados. Agrupás por las columnas que no deberían repetirse y pedís los grupos con más de una fila.</p>
+
+<div class="ejemplo" data-base="ampliado">
+  <h4>Ejemplo · clientes con más de una orden <span class="dato-extra">necesita el script del compendio</span></h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> id_cliente, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> id_cliente
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> ordenes <span class="sql-keyword">DESC</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>ordenes</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>3</td></tr>
+                <tr><td>2</td><td>2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Con el juego de datos chico esta consulta devuelve cero filas: ningún cliente tiene dos órdenes. El script de ampliación agrega esos casos.</p>
+</div>
+
+<div class="regla">
+  <h4>Cómo decidir entre WHERE y HAVING</h4>
+  <p>Si la condición habla de una fila —«que sea de mayo», «que sea celular»— va en <code>WHERE</code>. Si habla del grupo —«que tenga más de dos», «que sume más de mil»— va en <code>HAVING</code>.</p>
+  <p>Poner en <code>HAVING</code> algo que podía ir en <code>WHERE</code> funciona y da el resultado correcto, pero es más lento: armás grupos con filas que después vas a tirar.</p>
+</div>
+
+<div class="regla">
+  <h4>HAVING sin GROUP BY también corre</h4>
+  <p>Una consulta con agregación y sin <code>GROUP BY</code> tiene un solo grupo, que es la tabla entera (§5). Ese grupo también se puede filtrar: <code>SELECT COUNT(*) FROM repuesto HAVING COUNT(*) &gt; 5</code> es válida y devuelve la cuenta si pasa de cinco, o ninguna fila si no. Es raro de ver, y en un examen sirve para reconocer que <code>HAVING</code> no depende de que haya un <code>GROUP BY</code> escrito.</p>
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · filtrar el grupo único</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> repuestos
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">5</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>repuestos</th></tr></thead>
+              <tbody>
+                <tr><td>6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Hay seis repuestos, así que el grupo pasa el filtro y la fila se muestra. Con un <code>&gt; 10</code>, la misma consulta devolvería cero filas.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Escribir <code>WHERE COUNT(*) &gt; 1</code>. MySQL responde <code>ERROR 1111 (HY000): Invalid use of group function</code>. No es un problema de sintaxis: en el momento en que se evalúa el <code>WHERE</code>, ese <code>COUNT</code> todavía no se calculó. La sección que sigue explica por qué.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-agrupacion-consignas.html#filtrado">Taller de agrupación</a>, bloque 3.</span>
+  <span><a href="compendio-agrupacion-consignas.html#having">Compendio de agrupación</a>, bloque 4.</span>
+</div>
+
+<h3 id="s8">8 · Lo que la agrupación devuelve además de números</h3>
+
+<p>Las cinco funciones de §5 devuelven un número por grupo. Hay dos herramientas más que trabajan sobre el grupo entero y que aparecen en cualquier reporte real.</p>
+
+<h4>GROUP_CONCAT: el grupo escrito en una celda</h4>
+
+<p><code>GROUP_CONCAT()</code> es una función de agregación que, en lugar de un número, devuelve el texto de todos los valores del grupo pegados uno detrás del otro. Acepta <code>DISTINCT</code>, su propio <code>ORDER BY</code> y un <code>SEPARATOR</code>.</p>
+
+<div class="sintaxis">
+GROUP_CONCAT(<span class="opcional">[DISTINCT]</span> columna <span class="opcional">[ORDER BY columna]</span> <span class="opcional">[SEPARATOR '&nbsp;/&nbsp;']</span>)
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · qué modelos hay de cada tipo, en una sola fila</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> tipo,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> cantidad,
+       <span class="sql-keyword">GROUP_CONCAT</span>(modelo <span class="sql-keyword">ORDER BY</span> modelo SEPARATOR <span class="sql-string">&#x27; / &#x27;</span>) <span class="sql-keyword">AS</span> modelos
+<span class="sql-keyword">FROM</span> equipo
+<span class="sql-keyword">GROUP BY</span> tipo
+<span class="sql-keyword">ORDER BY</span> cantidad <span class="sql-keyword">DESC</span>, tipo;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>tipo</th><th>cantidad</th><th>modelos</th></tr></thead>
+              <tbody>
+                <tr><td>Celular</td><td>3</td><td>Edge 30 / Galaxy S21 / iPhone 13</td></tr>
+                <tr><td>Smartwatch</td><td>1</td><td>Mi Band 7</td></tr>
+                <tr><td>Tablet</td><td>1</td><td>Tab P11</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">La tercera columna no resume el grupo: lo muestra entero, sin dejar de tener una fila por grupo.</p>
+</div>
+
+<h4>WITH ROLLUP: los subtotales y el total general</h4>
+
+<p>Agregado al final del <code>GROUP BY</code>, <code>WITH ROLLUP</code> suma al resultado una fila de total general, y una fila de subtotal por cada nivel de agrupamiento cuando se agrupa por varias columnas. En esas filas, la columna que «colapsó» viene en <code>NULL</code>.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-decimales="recaudado" data-destacar="3">
+  <h4>Ejemplo · lo recaudado por método, con el total al pie</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> id_metodo_pago,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> pagos,
+       <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> recaudado
+<span class="sql-keyword">FROM</span> orden_servicio_pago
+<span class="sql-keyword">GROUP BY</span> id_metodo_pago <span class="sql-keyword">WITH</span> <span class="sql-keyword">ROLLUP</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_metodo_pago</th><th>pagos</th><th>recaudado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>1</td><td>20000.00</td></tr>
+                <tr><td>2</td><td>1</td><td>33500.00</td></tr>
+                <tr><td>3</td><td>1</td><td>40500.00</td></tr>
+                <tr class="destacada"><td>NULL</td><td>3</td><td>94000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p></div>
+  <p class="result-caption">La fila marcada es el total general. El <code>NULL</code> de su <code>id_metodo_pago</code> marca que esa columna se resumió.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El NULL del ROLLUP se confunde con el de los datos</h4>
+  <p>Si la columna agrupada admite nulos, una fila de subtotal y un grupo de nulos reales se ven exactamente igual. Para distinguirlos existe <code>GROUPING(columna)</code>, que devuelve 1 solo en las filas que agregó el <code>ROLLUP</code>, y con eso se las etiqueta: <code>IF(GROUPING(id_metodo_pago) = 1, 'TOTAL', id_metodo_pago)</code>.</p>
+  <p>Y dos detalles de uso: <code>WITH ROLLUP</code> va pegado al <code>GROUP BY</code>, y no se lleva bien con <code>ORDER BY</code> —el orden lo impone el propio agrupamiento—.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-agrupacion-consignas.html#limite">Compendio de agrupación</a>, bloque 6.</span>
+</div>
+
+<h3 id="s9">9 · El orden en que corre una consulta</h3>
+
+<p>Una consulta no se ejecuta en el orden en que se escribe. Se escribe empezando por <code>SELECT</code>, y se resuelve empezando por <code>FROM</code>. Esa diferencia explica casi todos los errores de las secciones anteriores.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Paso</th><th>Cláusula</th><th>Qué hace</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td><code>FROM</code></td><td>De dónde salen las filas.</td></tr>
+    <tr><td>2</td><td><code>JOIN … ON</code></td><td>Se suman las otras tablas y se emparejan las filas (§11).</td></tr>
+    <tr><td>3</td><td><code>WHERE</code></td><td>Se descartan filas individuales, antes de que exista grupo alguno.</td></tr>
+    <tr><td>4</td><td><code>GROUP BY</code></td><td>Las filas que sobrevivieron se reparten en grupos.</td></tr>
+    <tr><td>5</td><td>Agregación</td><td>Se calculan <code>COUNT</code>, <code>SUM</code>, <code>AVG</code> dentro de cada grupo.</td></tr>
+    <tr><td>6</td><td><code>HAVING</code></td><td>Se descartan grupos enteros, según esos cálculos.</td></tr>
+    <tr><td>7</td><td><code>SELECT</code></td><td>Se arman las columnas finales y recién acá existen los alias.</td></tr>
+    <tr><td>8</td><td><code>DISTINCT</code></td><td>Se sacan las filas repetidas de lo ya proyectado.</td></tr>
+    <tr><td>9</td><td><code>ORDER BY</code></td><td>Se ordena el resultado.</td></tr>
+    <tr><td>10</td><td><code>LIMIT</code></td><td>Se recorta.</td></tr>
+  </tbody>
+</table>
+
+<p>De esa lista se deducen tres cosas que antes había que aprender de memoria:</p>
+
+<ul>
+  <li><strong>Por qué <code>WHERE</code> no puede usar <code>COUNT</code>:</strong> el paso 3 ocurre antes del 5.</li>
+  <li><strong>Por qué <code>HAVING</code> sí puede:</strong> el paso 6 ocurre después del 5.</li>
+  <li><strong>Por qué <code>ORDER BY</code> puede usar un alias y <code>WHERE</code> no:</strong> los alias nacen en el paso 7, antes del 9 y mucho después del 3.</li>
+  <li><strong>Por qué un <code>WHERE</code> sobre la tabla derecha rompe un <code>LEFT JOIN</code> (§12):</strong> el <code>ON</code> es el paso 2 y el <code>WHERE</code> el 3, así que las filas sin pareja ya existen cuando el <code>WHERE</code> las descarta.</li>
+</ul>
+
+<div class="ejemplo" data-base="base" data-decimales="facturado">
+  <h4>Ejemplo · las seis cláusulas en una sola consulta</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> id_cliente,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes,
+       <span class="sql-keyword">SUM</span>(total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> total &gt; <span class="sql-number">0</span>
+<span class="sql-keyword">GROUP BY</span> id_cliente
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(total) &gt; <span class="sql-number">40000</span>
+<span class="sql-keyword">ORDER BY</span> facturado <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">5</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>ordenes</th><th>facturado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>1</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>1</td><td>40500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">La orden 3 tiene total en cero y se cae en el paso 3, antes de que se arme ningún grupo.</p>
+</div>
+
+<div class="regla">
+  <h4>Para cuando un resultado sale raro</h4>
+  <p>Volvé a la tabla de las diez etapas y preguntate en cuál se rompió. Casi siempre la respuesta está ahí: una condición puesta en el paso equivocado, o un alias usado antes de existir.</p>
+</div>
+
+<p>Estas mismas diez etapas, con las filas moviéndose a la vista en cada paso, están en <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>: la consulta crece de a una cláusula y se ve qué descarta cada etapa. Conviene recorrerlo después de leer la Parte III, cuando el <code>FROM</code> ya tenga más de una tabla.</p>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="orden-de-ejecucion.html">El orden en que corre una consulta</a> · el visor completo, etapa por etapa.</span>
+</div>
+
+<h2 id="parte-3">Parte III · Cruzar tablas</h2>
+
+<p>El modelo relacional reparte los datos en tablas y los vincula con claves. Una pregunta de negocio casi nunca cae adentro de una sola: «qué cliente trajo cada orden» necesita <code>orden_servicio</code> y <code>cliente</code> a la vez. Esta parte es cómo se juntan.</p>
+
+<h3 id="s10">10 · El producto cartesiano y la sintaxis de coma</h3>
+
+<p>Nombrar dos tablas separadas por una coma en el <code>FROM</code> le pide al motor que apareje cada fila de la primera con todas las de la segunda. No hace falta que exista ninguna relación entre ellas. El resultado se llama <strong>producto cartesiano</strong> y su tamaño es multiplicativo: 5 clientes por 4 métodos de pago son 20 filas.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · todas las combinaciones posibles</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> combinaciones
+<span class="sql-keyword">FROM</span> cliente, metodo_pago;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>combinaciones</th></tr></thead>
+              <tbody>
+                <tr><td>20</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Nadie pidió esas veinte combinaciones: son todos los pedidos posibles.</p>
+</div>
+
+<p>Ese producto sirve como punto de partida. Agregándole en el <code>WHERE</code> la condición que iguala la clave foránea con su clave primaria, quedan únicamente las combinaciones que corresponden a un dato real. A eso se lo llama <strong>equi-unión</strong> o <em>equi-join</em>, y es la forma en que se cruzaban tablas antes de 1992. Cuando la condición usa un operador que no es la igualdad se habla de <em>theta-join</em>, y el equi-join es apenas su caso particular (§14).</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla_a A, tabla_b B<br>
+WHERE A.clave = B.clave_foránea<br>
+<span class="opcional">&nbsp;&nbsp;AND [filtros del negocio]</span>;
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="total">
+  <h4>Ejemplo · cada orden con su cliente</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, O.total
+<span class="sql-keyword">FROM</span> orden_servicio O, cliente C
+<span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>apellido</th><th>total</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>García</td><td>40500.00</td></tr>
+                <tr><td>3</td><td>Rossi</td><td>0.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">De las quince combinaciones posibles quedan las tres que existen de verdad.</p>
+</div>
+
+<p><code>FROM orden_servicio O, cliente C</code> le pone un <strong>alias</strong> a cada tabla, y desde ahí las columnas se escriben calificadas: <code>O.id_cliente</code>, <code>C.id_cliente</code>. Cuando dos tablas tienen una columna con el mismo nombre, calificar deja de ser opcional.</p>
+
+<div class="regla">
+  <h4>La regla de las N−1 condiciones</h4>
+  <p>Para unir N tablas correctamente hacen falta al menos N−1 condiciones de igualdad. Si unís cuatro tablas y escribiste dos condiciones, tenés un producto cartesiano parcial escondido y los totales van a salir inflados.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Los tres límites de esta sintaxis</h4>
+  <p><strong>El cartesiano accidental es silencioso.</strong> Olvidar una condición de unión no produce ningún error: la consulta corre, devuelve filas y los <code>SUM</code> quedan multiplicados.</p>
+  <p><strong>No hay manera de conservar las filas sin pareja.</strong> Si necesitás las órdenes que todavía no tienen ningún pago, esta sintaxis no alcanza.</p>
+  <p><strong>El <code>WHERE</code> mezcla dos responsabilidades:</strong> qué se une con qué, y qué se filtra. En una consulta de ocho tablas, distinguirlas de un vistazo es imposible.</p>
+  <p>Esos tres límites son la razón por la que SQL-92 introdujo el <code>JOIN</code>. Escribir con coma es cosa del pasado; leerla y entenderla es parte del oficio, porque aparece en todo sistema heredado.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-uniones-consignas.html#cartesiano">Taller: uniones con sintaxis de coma</a>, 19 retos.</span>
+</div>
+
+<h3 id="s11">11 · INNER JOIN: la relación en su propio lugar</h3>
+
+<p>El <code>INNER JOIN</code> devuelve exactamente las mismas filas que la coma con su condición en el <code>WHERE</code>. Lo que cambia es dónde se escribe la relación: en el <code>ON</code>, separada de los filtros del negocio.</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla_a A<br>
+INNER JOIN tabla_b B ON B.clave_foránea = A.clave<br>
+<span class="opcional">[WHERE filtros del negocio]</span>;
+</div>
+
+<p>Cuando la columna se llama igual en las dos tablas, <code>USING (columna)</code> abrevia el <code>ON</code>: <code>INNER JOIN cliente USING (id_cliente)</code> equivale a <code>ON cliente.id_cliente = orden_servicio.id_cliente</code>, y además deja esa columna una sola vez en el resultado. Solo sirve con nombres idénticos, que es justamente el caso de este esquema.</p>
+
+<p>La gramática ayuda: escribir <code>INNER JOIN</code> sin <code>ON</code> es un error de sintaxis y el motor lo rechaza. Olvidarse una condición con la coma, en cambio, no avisa nada. Y la regla N−1 se cuenta sola: hay un <code>ON</code> por cada <code>JOIN</code>.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · tres tablas, dos uniones</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> O.nro_orden, C.apellido, E.nombre <span class="sql-keyword">AS</span> estado
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">INNER JOIN</span> orden_estado E <span class="sql-keyword">ON</span> E.id_orden_estado = O.id_orden_estado
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>apellido</th><th>estado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>Entregado</td></tr>
+                <tr><td>2</td><td>García</td><td>Entregado</td></tr>
+                <tr><td>3</td><td>Rossi</td><td>Pendiente</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Ahora el estado se lee, en lugar de ser un número.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="join.html">Uniones con JOIN</a> · la clase.</span>
+  <span><a href="taller-join-consignas.html#inner">Taller: uniones con JOIN</a>, bloque 1.</span>
+</div>
+
+<h3 id="s12">12 · LEFT JOIN: conservar lo que no tiene pareja</h3>
+
+<p><code>A LEFT JOIN B</code> devuelve todas las filas de <code>A</code>, tengan o no pareja en <code>B</code>. Donde no hay pareja, las columnas de <code>B</code> vienen en <code>NULL</code>. Con eso se contesta la pregunta que el producto cartesiano no puede contestar, porque una fila sin pareja no aparece en ninguna combinación y ningún <code>WHERE</code> puede recuperarla.</p>
+
+<div class="ejemplo" data-base="base" data-destacar="2,3">
+  <h4>Ejemplo · todos los clientes, tengan órdenes o no</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.apellido, O.nro_orden
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">ORDER BY</span> C.id_cliente;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>apellido</th><th>nro_orden</th></tr></thead>
+              <tbody>
+                <tr><td>Pérez</td><td>1</td></tr>
+                <tr><td>García</td><td>2</td></tr>
+                <tr class="destacada"><td>López</td><td>NULL</td></tr>
+                <tr class="destacada"><td>Martínez</td><td>NULL</td></tr>
+                <tr><td>Rossi</td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p></div>
+  <p class="result-caption">Las dos filas marcadas son clientes sin ninguna orden. El <code>NULL</code> no estaba en los datos: lo inventó la unión.</p>
+</div>
+
+<p>De ahí sale el modismo más usado de todo SQL. Para quedarte solamente con los que no tienen pareja, se agrega <code>WHERE B.clave IS NULL</code>:</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · el patrón de la ausencia</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.nombre, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.nro_orden <span class="sql-keyword">IS</span> <span class="sql-keyword">NULL</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>Carlos</td><td>López</td></tr>
+                <tr><td>Ana</td><td>Martínez</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Los clientes que nunca trajeron nada al taller.</p>
+</div>
+
+<div class="regla">
+  <h4>Sobre qué columna preguntar</h4>
+  <p>El <code>IS NULL</code> tiene que ir sobre una columna de la tabla derecha que nunca sea nula cuando hay pareja: la clave primaria o la foránea. Preguntado sobre una columna que admite nulos, el listado devuelve de más.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>La trampa del WHERE en el lugar equivocado</h4>
+  <p>El <code>ON</code> se aplica al armar la unión; el <code>WHERE</code> se aplica después, sobre el resultado. Si el <code>WHERE</code> menciona una columna de la tabla derecha, las filas que vienen con nulos no cumplen la condición y se descartan: el <code>LEFT JOIN</code> se convierte en un <code>INNER JOIN</code>. La consulta corre, no da ningún error y devuelve menos filas de las que corresponde.</p>
+  <p>La excepción es justamente <code>WHERE B.clave IS NULL</code>, que pregunta por las filas sin pareja en lugar de filtrar sobre un valor. Cuando la condición sobre la tabla derecha tiene que aplicarse sin perder las filas sin pareja, va adentro del <code>ON</code>.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-join-consignas.html#left">Taller: uniones con JOIN</a>, bloques 2 y 3.</span>
+</div>
+
+<h3 id="s13">13 · Contar cuando la unión inventó nulos</h3>
+
+<p>Agrupar sobre un <code>LEFT JOIN</code> es la combinación más común de la materia, y también donde aparece el error más difícil de ver: la consulta no falla, devuelve un número, y el número está mal.</p>
+
+<div class="ejemplo" data-base="base" data-destacar="2,3">
+  <h4>Ejemplo · la misma consulta, contada de dos maneras</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.apellido,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> cuenta_mal,
+       <span class="sql-keyword">COUNT</span>(O.nro_orden) <span class="sql-keyword">AS</span> cuenta_bien
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido
+<span class="sql-keyword">ORDER BY</span> C.id_cliente;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>apellido</th><th>cuenta_mal</th><th>cuenta_bien</th></tr></thead>
+              <tbody>
+                <tr><td>Pérez</td><td>1</td><td>1</td></tr>
+                <tr><td>García</td><td>1</td><td>1</td></tr>
+                <tr class="destacada"><td>López</td><td>1</td><td>0</td></tr>
+                <tr class="destacada"><td>Martínez</td><td>1</td><td>0</td></tr>
+                <tr><td>Rossi</td><td>1</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p></div>
+  <p class="result-caption">López y Martínez no tienen ninguna orden. <code>COUNT(*)</code> les cuenta 1: la fila que inventó la unión.</p>
+</div>
+
+<div class="regla">
+  <h4>Qué cuenta cada COUNT, del otro lado</h4>
+  <p><code>COUNT(*)</code> cuenta filas, y un cliente sin órdenes igual produce una fila. <code>COUNT(columna_de_la_tabla_derecha)</code> ignora los nulos y devuelve cero, que es la respuesta correcta.</p>
+  <p>Es la misma regla de §5 llegando desde el otro lado: allá los nulos estaban en los datos, acá los inventa la unión.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="cobrado,cobrado_para_el_reporte" data-destacar="2">
+  <h4>Ejemplo · y lo mismo con SUM</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> O.nro_orden,
+       <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> cobrado,
+       <span class="sql-keyword">COALESCE</span>(<span class="sql-keyword">SUM</span>(P.monto), <span class="sql-number">0</span>) <span class="sql-keyword">AS</span> cobrado_para_el_reporte
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">GROUP BY</span> O.nro_orden
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>cobrado</th><th>cobrado_para_el_reporte</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>53500.00</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>40500.00</td><td>40500.00</td></tr>
+                <tr class="destacada"><td>3</td><td>NULL</td><td>0.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">La orden 3 no tiene pagos. «No tiene pagos» y «pagó cero» son cosas distintas, y confundirlas rompe cualquier balance.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-join-consignas.html#contar">Taller: uniones con JOIN</a>, bloque 4.</span>
+  <span><a href="compendio-agrupacion-consignas.html#limite">Compendio de agrupación</a>, bloque 6.</span>
+</div>
+
+<h3 id="s14">14 · El resto de la familia</h3>
+
+<p>Con <code>INNER</code> y <code>LEFT</code> se resuelve casi todo. Los demás conviene saber leerlos:</p>
+
+<ul>
+  <li><strong><code>RIGHT JOIN</code></strong> conserva la tabla de la derecha. Es el espejo del <code>LEFT</code> y casi no se usa: dar vuelta el orden de las tablas produce lo mismo y se lee mejor. Aparece en código heredado.</li>
+  <li><strong><code>CROSS JOIN</code></strong> es el producto cartesiano declarado a propósito, para grillas y combinatorias. Escribirlo con todas las letras avisa a quien lee que la explosión de filas es intencional.</li>
+  <li><strong><code>FULL OUTER JOIN</code></strong> conserva las filas sin pareja de los dos lados. MySQL no lo tiene; se emula con la unión de un <code>LEFT</code> y un <code>RIGHT</code>.</li>
+</ul>
+
+<p>La <strong>autounión</strong> tampoco es un tipo nuevo: es una tabla unida consigo misma con dos alias distintos, para comparar sus propias filas entre sí. Hace falta cuando la pregunta es «cuál fila se parece a cuál» o «cuál supera a cuál», porque las funciones de agregación resumen hacia abajo y no comparan a lo ancho.</p>
+
+<div class="ejemplo" data-base="ampliado">
+  <h4>Ejemplo · equipos que comparten tipo y marca <span class="dato-extra">necesita el script del compendio</span></h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> E1.modelo <span class="sql-keyword">AS</span> uno, E2.modelo <span class="sql-keyword">AS</span> otro, E1.tipo
+<span class="sql-keyword">FROM</span> equipo E1
+<span class="sql-keyword">INNER JOIN</span> equipo E2
+        <span class="sql-keyword">ON</span> E1.tipo = E2.tipo
+       <span class="sql-keyword">AND</span> E1.id_marca = E2.id_marca
+       <span class="sql-keyword">AND</span> E1.id_equipo &lt; E2.id_equipo;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>uno</th><th>otro</th><th>tipo</th></tr></thead>
+              <tbody>
+                <tr><td>Galaxy S21</td><td>Galaxy A54</td><td>Celular</td></tr>
+                <tr><td>iPhone 13</td><td>iPhone 13</td><td>Celular</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">La condición <code>E1.id_equipo &lt; E2.id_equipo</code> saca de un solo golpe la fila comparada consigo misma y la pareja repetida al revés.</p>
+</div>
+
+<p>Queda una familia más: el <strong>no-equi-join</strong>, donde la condición usa <code>&gt;</code>, <code>&lt;</code>, <code>&lt;&gt;</code> o <code>BETWEEN</code> en lugar de <code>=</code>. Sirve para clasificar por rangos —escalas de precios, categorías de sueldo, vigencias de fechas— uniendo el dato con la escala mediante <code>valor BETWEEN minimo AND maximo</code>. Es la operación de unión más costosa, porque el motor no puede aprovechar los índices como en una igualdad.</p>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-uniones-consignas.html#autounion">Taller: uniones con sintaxis de coma</a>, bloques 3 y 4.</span>
+  <span><a href="taller-join-consignas.html#resto">Taller: uniones con JOIN</a>, bloque 5.</span>
+</div>
+
+<h2 id="parte-4">Parte IV · Consultas adentro de consultas</h2>
+
+<p>Una subconsulta es un <code>SELECT</code> escrito adentro de otro. Se usa cuando para contestar la pregunta hace falta antes calcular un dato que sale de la misma base: «los repuestos que están por debajo del precio promedio» necesita el promedio antes de poder comparar.</p>
+
+<h3 id="s15">15 · La subconsulta escalar</h3>
+
+<p>Una subconsulta <strong>escalar</strong> devuelve exactamente una fila y una columna: una sola celda. Al devolver un valor único se la puede comparar con los operadores de siempre, y por eso vive habitualmente en el <code>WHERE</code>.</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla<br>
+WHERE columna &lt; (SELECT AVG(otra) FROM otra_tabla);
+</div>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario">
+  <h4>Ejemplo · los repuestos por debajo del precio promedio</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> precio_unitario &lt; (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(precio_unitario) <span class="sql-keyword">FROM</span> repuesto)
+<span class="sql-keyword">ORDER BY</span> precio_unitario <span class="sql-keyword">DESC</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Batería iPhone 11/12</td><td>12000.00</td></tr>
+                <tr><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+                <tr><td>Pin de carga Universal USB-C</td><td>1500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">La subconsulta se resuelve primero, una sola vez, y devuelve 21333.333333 —<code>AVG</code> sobre una columna <code>DECIMAL(10,2)</code> agrega cuatro decimales—. Recién después se compara cada fila contra ese número.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Que la subconsulta devuelva más de una fila cuando el operador esperaba una sola. MySQL corta con <code>ERROR 1242: Subquery returns more than 1 row</code>. Antes de escribirla con <code>=</code> o <code>&gt;</code>, ejecutá la subconsulta sola y mirá cuántas filas trae.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-subconsultas-consignas.html#escalares">Taller de subconsultas</a>, bloque 1.</span>
+</div>
+
+<h3 id="s16">16 · IN y NOT IN: comparar contra un conjunto</h3>
+
+<p>Cuando la subconsulta devuelve una columna con varias filas, la comparación deja de ser contra un valor y pasa a ser contra un conjunto. <code>IN</code> pregunta si el valor de la fila coincide con alguno de los elementos; <code>NOT IN</code>, que no coincida con ninguno.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · los métodos de pago que se usaron alguna vez</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre
+<span class="sql-keyword">FROM</span> metodo_pago
+<span class="sql-keyword">WHERE</span> id_metodo_pago <span class="sql-keyword">IN</span> (<span class="sql-keyword">SELECT</span> id_metodo_pago <span class="sql-keyword">FROM</span> orden_servicio_pago)
+<span class="sql-keyword">ORDER BY</span> nombre;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td></tr>
+                <tr><td>Tarjeta</td></tr>
+                <tr><td>Transferencia</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · y los que no se usaron nunca</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nombre
+<span class="sql-keyword">FROM</span> metodo_pago
+<span class="sql-keyword">WHERE</span> id_metodo_pago <span class="sql-keyword">NOT</span> <span class="sql-keyword">IN</span> (<span class="sql-keyword">SELECT</span> id_metodo_pago <span class="sql-keyword">FROM</span> orden_servicio_pago)
+<span class="sql-keyword">ORDER BY</span> nombre;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th></tr></thead>
+              <tbody>
+                <tr><td>Billetera Virtual</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Esta consulta tiene un problema que no se ve acá y que aparece en §19.</p>
+</div>
+
+<p>Hay dos operadores emparentados que conviene reconocer. <code>op ANY</code> —que también se escribe <code>op SOME</code>, son la misma cosa— es verdadero si la comparación se cumple contra al menos un elemento del conjunto; <code>op ALL</code>, solo si se cumple contra todos. En una carrera, <code>&gt; ALL</code> es «le ganaste a todos» y <code>&gt; ANY</code> es «le ganaste a alguno».</p>
+
+<div class="regla">
+  <h4>Dos equivalencias para saber de memoria</h4>
+  <p><code>x IN (subconsulta)</code> es lo mismo que <code>x = ANY (subconsulta)</code>.</p>
+  <p><code>x NOT IN (subconsulta)</code> es lo mismo que <code>x &lt;&gt; ALL (subconsulta)</code>.</p>
+  <p>Y <code>&gt; ALL (SELECT p FROM t)</code> da el mismo resultado que <code>&gt; (SELECT MAX(p) FROM t)</code>, salvo con el conjunto vacío: ahí <code>&gt; ALL</code> es verdadero para todas las filas, por vacuidad, mientras que la versión con <code>MAX</code> devuelve <code>NULL</code> y no incluye nada.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-subconsultas-consignas.html#listas">Taller de subconsultas</a>, bloque 2.</span>
+  <span><a href="compendio-subconsultas-consignas.html#anyall">Compendio de subconsultas</a>, bloque 2.</span>
+</div>
+
+<h3 id="s17">17 · EXISTS y las subconsultas correlacionadas</h3>
+
+<p>Una subconsulta <strong>correlacionada</strong> menciona adentro una columna de la consulta externa. Eso la obliga a ejecutarse una vez por cada fila que procesa la consulta de afuera, en lugar de una sola vez al principio.</p>
+
+<p><code>EXISTS</code> no compara valores: pregunta si la subconsulta devolvió al menos una fila. Si devolvió alguna, la fila externa entra en el resultado. Como lo único que importa es la existencia, adentro se escribe <code>SELECT 1</code>: el motor no gasta nada en armar columnas que nadie va a leer.</p>
+
+<div class="sintaxis">
+SELECT columnas<br>
+FROM tabla_externa X<br>
+WHERE EXISTS (SELECT 1 FROM tabla_interna I WHERE I.clave = X.clave);
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · los clientes que alguna vez trajeron un equipo</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.nombre, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">EXISTS</span> (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span>
+              <span class="sql-keyword">FROM</span> orden_servicio O
+              <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente);</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>Juan</td><td>Pérez</td></tr>
+                <tr><td>María</td><td>García</td></tr>
+                <tr><td>Diego</td><td>Rossi</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Por cada cliente, el motor va a buscar si hay alguna orden suya. Tres veces encuentra; dos veces no.</p>
+</div>
+
+<p>Cambiando <code>EXISTS</code> por <code>NOT EXISTS</code> se obtiene la pregunta inversa, y es la tercera forma de escribir el listado de §12: el patrón de la ausencia con <code>LEFT JOIN</code>, el <code>NOT IN</code> de §16 y este <code>NOT EXISTS</code> contestan la misma pregunta por tres caminos distintos.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · los clientes que nunca trajeron nada</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.nombre, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span>
+                  <span class="sql-keyword">FROM</span> orden_servicio O
+                  <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente);</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>Carlos</td><td>López</td></tr>
+                <tr><td>Ana</td><td>Martínez</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-subconsultas-consignas.html#existencia">Taller de subconsultas</a>, bloque 3.</span>
+</div>
+
+<h3 id="s18">18 · Los otros lugares donde entra una subconsulta</h3>
+
+<p>Una subconsulta puede ir en casi cualquier parte de la consulta, y en cada lugar hace algo distinto.</p>
+
+<h4>En el SELECT: una columna calculada</h4>
+
+<p>Puesta en la lista del <code>SELECT</code>, genera una columna más. Se ejecuta una vez por cada fila de la consulta externa, así que en la práctica es siempre correlacionada, y tiene que ser escalar. Su ventaja sobre el agrupamiento es que conserva todas las filas de la tabla externa, incluidas las que dan cero.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · cada cliente con su cantidad de órdenes</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.apellido,
+       (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*)
+        <span class="sql-keyword">FROM</span> orden_servicio O
+        <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">ORDER BY</span> C.id_cliente;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>apellido</th><th>ordenes</th></tr></thead>
+              <tbody>
+                <tr><td>Pérez</td><td>1</td></tr>
+                <tr><td>García</td><td>1</td></tr>
+                <tr><td>López</td><td>0</td></tr>
+                <tr><td>Martínez</td><td>0</td></tr>
+                <tr><td>Rossi</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p></div>
+  <p class="result-caption">Es la columna «saldo» del resumen bancario: no está guardada en ningún lado, se calcula al imprimir cada línea.</p>
+</div>
+
+<h4>En el FROM: una tabla derivada</h4>
+
+<p>Puesta en el <code>FROM</code>, la subconsulta produce un conjunto de filas que la consulta externa trata como si fuera una tabla. Resuelve el problema de las agregaciones en dos niveles: SQL no permite anidar funciones de agregación —<code>AVG(SUM(x))</code> es un error— y la única salida es agrupar adentro y volver a agregar afuera.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="promedio_por_orden">
+  <h4>Ejemplo · el promedio de lo cobrado por orden</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> <span class="sql-keyword">ROUND</span>(<span class="sql-keyword">AVG</span>(T.total_orden), <span class="sql-number">2</span>) <span class="sql-keyword">AS</span> promedio_por_orden
+<span class="sql-keyword">FROM</span> (<span class="sql-keyword">SELECT</span> nro_orden, <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> total_orden
+      <span class="sql-keyword">FROM</span> orden_servicio_pago
+      <span class="sql-keyword">GROUP BY</span> nro_orden) <span class="sql-keyword">AS</span> T;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>promedio_por_orden</th></tr></thead>
+              <tbody>
+                <tr><td>47000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Es la hoja borrador: primero anotás el total de cada orden, y recién con esa lista calculás el promedio.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Olvidar el alias de la tabla derivada. Toda derivada tiene que tener nombre, y MySQL corta con <code>ERROR 1248: Every derived table must have its own alias</code>. Es el error más frecuente del tema y reconocerlo de inmediato ahorra minutos en el examen.</p>
+</div>
+
+<h4>En el HAVING: comparar cada grupo contra el todo</h4>
+
+<p>Una subconsulta en el <code>HAVING</code> calcula una referencia global una sola vez, y cada grupo se mide contra ella. Va ahí y no en el <code>WHERE</code> por lo que dice §9: el <code>WHERE</code> corre antes de que existan las agregaciones.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="recaudado">
+  <h4>Ejemplo · los métodos que recaudaron más que el pago promedio</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> id_metodo_pago, <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> recaudado
+<span class="sql-keyword">FROM</span> orden_servicio_pago
+<span class="sql-keyword">GROUP BY</span> id_metodo_pago
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(monto) &gt; (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(monto) <span class="sql-keyword">FROM</span> orden_servicio_pago)
+<span class="sql-keyword">ORDER BY</span> recaudado <span class="sql-keyword">DESC</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_metodo_pago</th><th>recaudado</th></tr></thead>
+              <tbody>
+                <tr><td>3</td><td>40500.00</td></tr>
+                <tr><td>2</td><td>33500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+</div>
+
+<div class="regla">
+  <h4>Una precisión que se cobra en el examen</h4>
+  <p>«El promedio de los pagos individuales» y «el promedio de los totales por método» son dos cantidades distintas, y coinciden solo si cada grupo tiene exactamente una fila. Elegir mal cuál calcular es un error de interpretación, no de sintaxis, y por eso no lo marca ningún motor.</p>
+</div>
+
+<h4>Comparar varias columnas a la vez</h4>
+
+<p>La sintaxis <code>(col_a, col_b)</code> agrupa varias columnas en un valor compuesto, llamado <strong>constructor de fila</strong>, que se compara con otro de la misma cantidad de columnas. <code>WHERE (a, b) IN (SELECT x, y FROM t)</code> verifica la pertenencia de un par a un conjunto de pares. Es la forma natural de trabajar con las claves primarias compuestas de <code>orden_servicio_pago</code> y <code>orden_servicio_has_equipo</code>.</p>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-subconsultas-consignas.html#enselect">Compendio de subconsultas</a>, bloques 3, 4, 5 y 6.</span>
+</div>
+
+<h3 id="s19">19 · NOT IN contra NOT EXISTS: por qué el NULL rompe uno de los dos</h3>
+
+<p>Las dos formas contestan la misma pregunta, y con datos limpios dan el mismo resultado. Con un solo <code>NULL</code> adentro del conjunto, una de las dos devuelve la hoja en blanco.</p>
+
+<p>El motor expande <code>x NOT IN (1, 2, NULL)</code> como <code>x &lt;&gt; 1 AND x &lt;&gt; 2 AND x &lt;&gt; NULL</code>. Ese último término nunca vale verdadero: vale desconocido, porque nada se puede comparar contra lo que no se sabe. Y verdadero <em>y</em> desconocido da desconocido, que el <code>WHERE</code> no deja pasar. Ninguna fila califica, y tampoco hay error: la consulta «funciona».</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · las marcas sin ningún equipo, preguntado con NOT EXISTS</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> M.nombre
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> equipo E <span class="sql-keyword">WHERE</span> E.id_marca = M.id_marca)
+<span class="sql-keyword">ORDER BY</span> M.nombre;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th></tr></thead>
+              <tbody>
+                <tr><td>Google</td></tr>
+                <tr><td>Sony</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">Dos marcas cargadas que todavía no tienen ningún equipo.</p>
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · la misma pregunta con NOT IN, con un solo NULL en el conjunto</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> M.nombre
+<span class="sql-keyword">FROM</span> marca M
+<span class="sql-keyword">WHERE</span> M.id_marca <span class="sql-keyword">NOT</span> <span class="sql-keyword">IN</span> (<span class="sql-keyword">SELECT</span> id_marca <span class="sql-keyword">FROM</span> equipo
+                         <span class="sql-keyword">UNION ALL</span>
+                         <span class="sql-keyword">SELECT</span> <span class="sql-keyword">NULL</span>)
+<span class="sql-keyword">ORDER BY</span> M.nombre;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th></tr></thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">0 filas</p></div>
+  <p class="result-caption">El mismo listado, un solo nulo agregado al conjunto, cero filas. Sin error, sin aviso.</p>
+</div>
+
+<p><code>NOT EXISTS</code> no sufre el problema porque no compara valores: cuenta filas. La pregunta «¿este conjunto tiene registros?» siempre tiene respuesta verdadera o falsa, nunca desconocida. Es la diferencia entre el portero que tiene un renglón borroneado en la lista —y en la duda no deja entrar a nadie— y el que pregunta si tu nombre figura escrito en algún renglón legible.</p>
+
+<div class="regla">
+  <h4>Regla práctica</h4>
+  <p>En negativo, usá <code>NOT EXISTS</code>. Si necesitás <code>NOT IN</code> sí o sí, blindá la subconsulta con <code>WHERE columna IS NOT NULL</code>.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-subconsultas-consignas.html#nulls">Compendio de subconsultas</a>, bloque 7 · el duelo completo, con datos.</span>
+</div>
+
+<h3 id="s20">20 · WITH: ponerle nombre a los pasos</h3>
+
+<p>Una <strong>CTE</strong> (<em>common table expression</em>) es una tabla derivada a la que se le pone nombre por adelantado, con la cláusula <code>WITH</code>, antes del <code>SELECT</code> principal. Existe desde MySQL 8.</p>
+
+<p>El resultado y el plan de ejecución son equivalentes a los de la tabla derivada. Lo que cambia es que la consulta se lee de arriba hacia abajo, como pasos numerados, en lugar de desde adentro hacia afuera. Se pueden encadenar varias separadas por coma, cada una usando las anteriores, y una CTE se puede referenciar más de una vez sin repetir su código.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="total,cobrado" data-destacar="2">
+  <h4>Ejemplo · lo facturado contra lo cobrado, orden por orden</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">WITH</span> pagos_por_orden <span class="sql-keyword">AS</span> (
+    <span class="sql-keyword">SELECT</span> nro_orden, <span class="sql-keyword">SUM</span>(monto) <span class="sql-keyword">AS</span> cobrado
+    <span class="sql-keyword">FROM</span> orden_servicio_pago
+    <span class="sql-keyword">GROUP BY</span> nro_orden
+)
+<span class="sql-keyword">SELECT</span> O.nro_orden, O.total, P.cobrado
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">LEFT JOIN</span> pagos_por_orden P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>total</th><th>cobrado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>53500.00</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>40500.00</td><td>40500.00</td></tr>
+                <tr class="destacada"><td>3</td><td>0.00</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">La orden 3 quedó facturada en cero y sin cobrar. La CTE se escribe una vez y se usa como cualquier tabla.</p>
+</div>
+
+<p>Con <code>WITH RECURSIVE</code> se resuelven estructuras jerárquicas —árboles de categorías, organigramas—, que quedan fuera del programa de este año.</p>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-subconsultas-consignas.html#cte">Compendio de subconsultas</a>, bloque 9.</span>
+</div>
+
+<h3 id="s21">21 · Preguntar por «todos»: la división relacional</h3>
+
+<p>SQL tiene operadores para «existe alguno» —<code>EXISTS</code>, <code>IN</code>, <code>ANY</code>— y no tiene ninguno para «para todos». Esa operación existe en el álgebra de Codd con el nombre de <strong>división relacional</strong>, y en SQL se escribe dándola vuelta.</p>
+
+<div class="regla">
+  <h4>La traducción que hay que saber hacer</h4>
+  <p>«X cumple para todos los elementos de S» se reescribe como <strong>«no existe ningún elemento de S para el cual X no cumpla»</strong>. Esa doble negación es, tal cual, un <code>NOT EXISTS</code> que contiene otro <code>NOT EXISTS</code>.</p>
+  <p>Demostrar que un alumno aprobó todas las materias es incómodo de verificar de frente; buscar una sola materia desaprobada es fácil, y si no aparece ninguna, aprobó todas.</p>
+</div>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · clientes que usaron todos los métodos de pago de la orden 1</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (
+        <span class="sql-comment">-- el conjunto que hay que cubrir: los métodos de la orden 1</span>
+        <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span>
+        <span class="sql-keyword">FROM</span> orden_servicio_pago P1
+        <span class="sql-keyword">WHERE</span> P1.nro_orden = <span class="sql-number">1</span>
+          <span class="sql-keyword">AND</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (
+                <span class="sql-comment">-- ...y que este cliente no haya usado nunca</span>
+                <span class="sql-keyword">SELECT</span> <span class="sql-number">1</span>
+                <span class="sql-keyword">FROM</span> orden_servicio O, orden_servicio_pago P2
+                <span class="sql-keyword">WHERE</span> O.id_cliente = C.id_cliente
+                  <span class="sql-keyword">AND</span> P2.nro_orden = O.nro_orden
+                  <span class="sql-keyword">AND</span> P2.id_metodo_pago = P1.id_metodo_pago));</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Se leen de adentro hacia afuera: el <code>NOT EXISTS</code> interno busca el contraejemplo, y el externo se queda con los clientes que no tienen ninguno.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>La trampa del conjunto vacío</h4>
+  <p>Si el conjunto a cubrir resulta vacío, la condición se cumple <em>por vacuidad</em> para todas las filas y la consulta devuelve la tabla entera. Es correcto en lógica y sorprendente al leerlo: quien no tiene ninguna materia las aprobó todas. Antes de interpretar el resultado, conviene mirar cuántos elementos tenía el conjunto.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-subconsultas-consignas.html#desafios">Compendio de subconsultas</a>, bloque 10.</span>
+</div>
+
+<h2 id="parte-5">Parte V · Modificar los datos</h2>
+
+<p>Las cuatro partes anteriores leen. Las tres secciones que siguen escriben: agregar filas, cambiarlas y borrarlas. La consulta se aprende ejecutándola y mirando; estas sentencias dejan la base distinta de como estaba, así que se aprenden con otra disciplina.</p>
+
+<div class="regla">
+  <h4>La regla que ordena toda esta parte</h4>
+  <p>Escribí primero la sentencia como <code>SELECT * FROM tabla WHERE …</code>, mirá que las filas que ves sean exactamente las que querés tocar, y recién ahí reemplazá el <code>SELECT *</code> por el <code>UPDATE</code> o el <code>DELETE</code>. Nunca al revés: el <code>WHERE</code> es la puntería y la sentencia es el disparo.</p>
+</div>
+
+<h3 id="s22">22 · INSERT: agregar filas</h3>
+
+<div class="sintaxis">
+INSERT INTO tabla (columna_1, columna_2)<br>
+VALUES (valor_1, valor_2);
+</div>
+
+<p>Nombrar las columnas es lo que hace que la sentencia siga funcionando el día que alguien agregue una columna nueva a la tabla. Sobre qué columnas van y cuáles no:</p>
+
+<ul>
+  <li><strong>Las que no se escriben:</strong> las <code>AUTO_INCREMENT</code>, que el motor numera solo, y las que tienen un valor por defecto, que lo toman si se las omite.</li>
+  <li><strong>Las que sí o sí van:</strong> las declaradas <code>NOT NULL</code> sin valor por defecto. Si falta una, MySQL rechaza la fila con el error <code>1048</code>.</li>
+  <li><strong>Las claves foráneas:</strong> el valor tiene que existir en la tabla referenciada. Si no existe, la inserción falla con el error <code>1452</code>. Para insertar una orden hay que conocer los id del cliente, del empleado y del estado.</li>
+  <li><strong>Las fechas:</strong> <code>NOW()</code> da fecha y hora; <code>CURDATE()</code>, solo la fecha.</li>
+</ul>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario" data-destacar="6">
+  <h4>Ejemplo · un repuesto nuevo en el depósito</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">INSERT INTO</span> repuesto (nombre, stock, precio_unitario)
+<span class="sql-keyword">VALUES</span> (<span class="sql-string">&#x27;Vidrio templado universal&#x27;</span>, <span class="sql-number">20</span>, <span class="sql-number">2500</span>);
+
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, stock, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> id_repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_repuesto</th><th>nombre</th><th>stock</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Módulo Samsung S21 Original</td><td>5</td><td>45000.00</td></tr>
+                <tr><td>2</td><td>Módulo iPhone 13 Genérico</td><td>3</td><td>32000.00</td></tr>
+                <tr><td>3</td><td>Batería iPhone 11/12</td><td>10</td><td>12000.00</td></tr>
+                <tr><td>4</td><td>Pin de carga Universal USB-C</td><td>50</td><td>1500.00</td></tr>
+                <tr><td>5</td><td>Módulo Motorola Edge 30</td><td>2</td><td>28000.00</td></tr>
+                <tr><td>6</td><td>Batería Samsung Serie A</td><td>8</td><td>9500.00</td></tr>
+                <tr class="destacada"><td>7</td><td>Vidrio templado universal</td><td>20</td><td>2500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">7 filas</p></div>
+  <p class="result-caption">La fila marcada es la nueva. No se escribió ningún <code>id_repuesto</code>: el 7 lo puso el motor.</p>
+</div>
+
+<div class="regla">
+  <h4>El contador no vuelve atrás</h4>
+  <p>El número que reparte <code>AUTO_INCREMENT</code> solo avanza. Si borrás la última fila, el número que quedó libre <strong>no se reutiliza</strong>: la próxima inserción toma el siguiente. Lo mismo pasa con una inserción que falla o con una transacción que se deshace, porque el contador ya se consumió.</p>
+  <p>Es a propósito: ese número identifica una fila para siempre, y reutilizarlo haría que un registro viejo apunte a una fila nueva que no tiene nada que ver.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-decimales="precio_unitario" data-destacar="5">
+  <h4>Ejemplo · borrar el último y volver a insertar</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">DELETE</span> <span class="sql-keyword">FROM</span> repuesto <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">6</span>;
+
+<span class="sql-keyword">INSERT INTO</span> repuesto (nombre, stock, precio_unitario)
+<span class="sql-keyword">VALUES</span> (<span class="sql-string">&#x27;Vidrio templado universal&#x27;</span>, <span class="sql-number">20</span>, <span class="sql-number">2500</span>);
+
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> id_repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_repuesto</th><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Módulo Samsung S21 Original</td><td>45000.00</td></tr>
+                <tr><td>2</td><td>Módulo iPhone 13 Genérico</td><td>32000.00</td></tr>
+                <tr><td>3</td><td>Batería iPhone 11/12</td><td>12000.00</td></tr>
+                <tr><td>4</td><td>Pin de carga Universal USB-C</td><td>1500.00</td></tr>
+                <tr><td>5</td><td>Módulo Motorola Edge 30</td><td>28000.00</td></tr>
+                <tr class="destacada"><td>7</td><td>Vidrio templado universal</td><td>2500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">Se borró el repuesto 6 y el nuevo recibió el 7: el 6 quedó vacante para siempre.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#insert">Taller: primeras consultas</a>, bloque 2.</span>
+</div>
+
+<h3 id="s23">23 · UPDATE: cambiar filas que ya existen</h3>
+
+<div class="sintaxis">
+UPDATE tabla<br>
+SET columna = valor<br>
+WHERE condición;
+</div>
+
+<p>El <code>SET</code> puede leer la misma columna que escribe: <code>SET precio = precio * 1.10</code> es válido, porque el motor lee el valor viejo y escribe el nuevo en un solo paso. Se pueden cambiar varias columnas separándolas por coma.</p>
+
+<p><strong>Sin <code>WHERE</code>, el <code>UPDATE</code> alcanza a todas las filas de la tabla.</strong> A veces es exactamente lo que se quiere —un aumento general—, y entonces es una decisión consciente, no un olvido.</p>
+
+<div class="ejemplo" data-base="base" data-destacar="1,4">
+  <h4>Ejemplo · reponer lo que está por debajo del mínimo</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> stock = stock + <span class="sql-number">10</span>
+<span class="sql-keyword">WHERE</span> stock &lt; <span class="sql-number">5</span>;
+
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, stock
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> id_repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_repuesto</th><th>nombre</th><th>stock</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Módulo Samsung S21 Original</td><td>5</td></tr>
+                <tr class="destacada"><td>2</td><td>Módulo iPhone 13 Genérico</td><td>13</td></tr>
+                <tr><td>3</td><td>Batería iPhone 11/12</td><td>10</td></tr>
+                <tr><td>4</td><td>Pin de carga Universal USB-C</td><td>50</td></tr>
+                <tr class="destacada"><td>5</td><td>Módulo Motorola Edge 30</td><td>12</td></tr>
+                <tr><td>6</td><td>Batería Samsung Serie A</td><td>8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">Dos filas cumplían la condición y son las dos marcadas: 3 pasó a 13, y 2 pasó a 12. Las otras cuatro no se tocaron.</p>
+</div>
+
+<div class="regla">
+  <h4>Cuántas filas toca, y cómo saberlo antes</h4>
+  <p>MySQL informa siempre <code>Rows matched: X&nbsp; Changed: Y</code>. Los dos números pueden no coincidir: una fila que ya tenía el valor que se le asigna cuenta como encontrada pero no como cambiada.</p>
+  <p>Para saberlo <strong>antes</strong> de ejecutar, se cuenta con el mismo <code>WHERE</code>: <code>SELECT COUNT(*) FROM repuesto WHERE stock &lt; 5</code>. El <code>UPDATE</code> tiene que informar ese mismo número. Si no coincide, la condición no decía lo que creías.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Un <code>UPDATE</code> cuyo <code>WHERE</code> alcanza más filas de las previstas, sobre todo con <code>LIKE</code>. <code>WHERE nombre LIKE '%bateria%'</code> toca las dos baterías aunque el patrón esté sin tilde ni mayúscula (§2), y un patrón demasiado corto puede tocar media tabla.</p>
+  <p>Y la variante peor: ejecutar el <code>UPDATE</code> sin el <code>WHERE</code>, porque quedó en la línea de abajo y se seleccionó solo la primera parte al ejecutar.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#update">Taller: primeras consultas</a>, bloque 3.</span>
+</div>
+
+<h3 id="s24">24 · DELETE y la integridad referencial</h3>
+
+<div class="sintaxis">
+DELETE FROM tabla<br>
+WHERE condición;
+</div>
+
+<p>No se nombran columnas: el <code>DELETE</code> saca la fila entera. Para vaciar el dato de una columna sin perder la fila se usa <code>UPDATE tabla SET columna = NULL</code>.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · sacar del catálogo una marca que nadie usa</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">DELETE</span> <span class="sql-keyword">FROM</span> marca <span class="sql-keyword">WHERE</span> nombre = <span class="sql-string">&#x27;Sony&#x27;</span>;
+
+<span class="sql-keyword">SELECT</span> id_marca, nombre
+<span class="sql-keyword">FROM</span> marca
+<span class="sql-keyword">ORDER BY</span> id_marca;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_marca</th><th>nombre</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Samsung</td></tr>
+                <tr><td>2</td><td>Apple</td></tr>
+                <tr><td>3</td><td>Lenovo</td></tr>
+                <tr><td>4</td><td>Motorola</td></tr>
+                <tr><td>5</td><td>Xiaomi</td></tr>
+                <tr><td>6</td><td>Google</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">Sony sale del catálogo. Se pudo borrar porque no tenía ningún equipo cargado: es una de las dos marcas que §19 encuentra sin equipos.</p>
+</div>
+
+<p>Con Samsung la historia es otra. Hay equipos que la referencian por su clave foránea, y borrarla los dejaría apuntando a una marca que no existe. La base no lo permite:</p>
+
+<div class="error-tipico">
+  <h4>Error 1451 · Cannot delete or update a parent row</h4>
+  <p>Las claves foráneas de El Chip están declaradas <code>ON DELETE NO ACTION</code>, que en InnoDB se comporta como <code>RESTRICT</code>: el motor rechaza el borrado. Es la integridad referencial funcionando, no una falla.</p>
+  <p>Las otras dos políticas son decisiones de diseño, y se eligen al crear la tabla: <code>ON DELETE CASCADE</code> borra también las filas hijas, y <code>ON DELETE SET NULL</code> les deja la referencia en nulo. Ninguna se decide en el momento de borrar.</p>
+</div>
+
+<div class="regla">
+  <h4>Antes de un DELETE o un UPDATE grande</h4>
+  <p>Van adentro de una transacción: <code>START TRANSACTION</code>, la sentencia, el <code>SELECT</code> que comprueba, y recién entonces <code>COMMIT</code>; si algo salió mal, <code>ROLLBACK</code> y la base queda como estaba. El contador de <code>AUTO_INCREMENT</code> es la única cosa que no vuelve atrás. Las transacciones se ven completas en la segunda parte de la unidad.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-sql-practica-consignas.html#delete">Taller: primeras consultas</a>, bloque 4.</span>
+</div>
+
+<h3 id="s25">25 · Sentencias gobernadas por un SELECT</h3>
+
+<p>Las tres sentencias de esta parte aceptan una subconsulta, y con eso dejan de operar sobre valores escritos a mano para operar sobre lo que la base ya sabe.</p>
+
+<h4>INSERT … SELECT: alimentar una tabla con el resultado de una consulta</h4>
+
+<p>En lugar de <code>VALUES</code>, la inserción se alimenta de un <code>SELECT</code>. Las columnas tienen que coincidir en cantidad y ser compatibles en tipo, en el mismo orden. Es la forma estándar de armar tablas de auditoría, históricos y tablas de campaña.</p>
+
+<div class="ejemplo" data-base="base">
+  <h4>Ejemplo · la lista de clientes a los que no se puede contactar</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">CREATE</span> TABLE campania_contacto (
+    id_cliente INT PRIMARY KEY,
+    apellido   VARCHAR(<span class="sql-number">100</span>),
+    nombre     VARCHAR(<span class="sql-number">100</span>));
+
+<span class="sql-keyword">INSERT INTO</span> campania_contacto (id_cliente, apellido, nombre)
+<span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, C.nombre
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">WHERE</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> telefono T <span class="sql-keyword">WHERE</span> T.id_cliente = C.id_cliente)
+  <span class="sql-keyword">AND</span> <span class="sql-keyword">NOT</span> <span class="sql-keyword">EXISTS</span> (<span class="sql-keyword">SELECT</span> <span class="sql-number">1</span> <span class="sql-keyword">FROM</span> email E <span class="sql-keyword">WHERE</span> E.id_cliente = C.id_cliente);
+
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> campania_contacto <span class="sql-keyword">ORDER BY</span> id_cliente;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>nombre</th></tr></thead>
+              <tbody>
+                <tr><td>5</td><td>Rossi</td><td>Diego</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Rossi es el único sin teléfono ni correo. La tabla se llenó sin escribir un solo dato: los trajo el <code>SELECT</code>.</p>
+</div>
+
+<h4>UPDATE y DELETE con subconsulta</h4>
+
+<p>La subconsulta puede ir en el <code>WHERE</code>, para decidir qué filas se tocan, o en el <code>SET</code>, para calcular con qué valor. El patrón es el mismo de §16: <code>WHERE columna IN (SELECT …)</code> o <code>WHERE NOT EXISTS (…)</code>.</p>
+
+<div class="ejemplo" data-base="base" data-decimales="precio_unitario" data-destacar="0,1,2,3">
+  <h4>Ejemplo · aumentar solo los repuestos que se usan en alguna reparación</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> precio_unitario = precio_unitario * <span class="sql-number">1.10</span>
+<span class="sql-keyword">WHERE</span> id_repuesto <span class="sql-keyword">IN</span> (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> id_repuesto
+                      <span class="sql-keyword">FROM</span> problema_has_repuesto);
+
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">ORDER BY</span> id_repuesto;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_repuesto</th><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>1</td><td>Módulo Samsung S21 Original</td><td>49500.00</td></tr>
+                <tr class="destacada"><td>2</td><td>Módulo iPhone 13 Genérico</td><td>35200.00</td></tr>
+                <tr class="destacada"><td>3</td><td>Batería iPhone 11/12</td><td>13200.00</td></tr>
+                <tr class="destacada"><td>4</td><td>Pin de carga Universal USB-C</td><td>1650.00</td></tr>
+                <tr><td>5</td><td>Módulo Motorola Edge 30</td><td>28000.00</td></tr>
+                <tr><td>6</td><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p></div>
+  <p class="result-caption">Las cuatro primeras filas subieron un 10%: son las que aparecen en la tabla de repuestos por problema. Las otras dos quedaron con su precio.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Error 1093 · You can't specify target table for update in FROM clause</h4>
+  <p>MySQL prohíbe que un <code>UPDATE</code> o un <code>DELETE</code> lean, en su subconsulta, <strong>la misma tabla que están modificando</strong>. Esto falla:</p>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span></div>
+    <pre><code data-sql><span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> stock = stock + <span class="sql-number">5</span>
+<span class="sql-keyword">WHERE</span> precio_unitario &lt; (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(precio_unitario) <span class="sql-keyword">FROM</span> repuesto);</code></pre>
+  </div>
+  <p>Es una restricción propia de MySQL que otros motores no tienen. Se esquiva envolviendo la subconsulta en una tabla derivada (§18), lo que obliga al motor a calcular el valor antes de empezar a escribir:</p>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span></div>
+    <pre><code data-sql><span class="sql-keyword">UPDATE</span> repuesto
+<span class="sql-keyword">SET</span> stock = stock + <span class="sql-number">5</span>
+<span class="sql-keyword">WHERE</span> precio_unitario &lt; (<span class="sql-keyword">SELECT</span> promedio
+                         <span class="sql-keyword">FROM</span> (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(precio_unitario) <span class="sql-keyword">AS</span> promedio
+                               <span class="sql-keyword">FROM</span> repuesto) <span class="sql-keyword">AS</span> T);</code></pre>
+  </div>
+</div>
+
+<div class="regla">
+  <h4>La disciplina, otra vez</h4>
+  <p>Todo <code>UPDATE</code> o <code>DELETE</code> con subconsulta se escribe primero como <code>SELECT</code>, para ver exactamente qué filas alcanza. Recién cuando el listado es el correcto se lo convierte, y siempre adentro de una transacción con posibilidad de <code>ROLLBACK</code>.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="compendio-subconsultas-consignas.html#dml">Compendio de subconsultas</a>, bloque 8.</span>
+</div>
+
+<h2 id="cierre">Cierre</h2>
+
+<h3 id="errores">Los errores de MySQL que van a aparecer</h3>
+
+<p>Cuando el motor devuelve un número de error, casi siempre está señalando uno de los conceptos de este apunte. Conviene reconocerlos sin tener que buscarlos.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Error</th><th>Qué dice</th><th>Qué pasó</th><th>Dónde</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>1052</code></td>
+      <td>Column … is ambiguous</td>
+      <td>Dos tablas del <code>FROM</code> tienen una columna con el mismo nombre y no la calificaste con el alias.</td>
+      <td>§10</td>
+    </tr>
+    <tr>
+      <td><code>1054</code></td>
+      <td>Unknown column …</td>
+      <td>La columna no existe, está mal escrita, o es un alias usado en el <code>WHERE</code>, donde todavía no nació.</td>
+      <td>§9</td>
+    </tr>
+    <tr>
+      <td><code>1055</code></td>
+      <td>… not in GROUP BY clause</td>
+      <td>Pusiste en el <code>SELECT</code> de una consulta agrupada una columna que no está agrupada ni agregada. Es <code>ONLY_FULL_GROUP_BY</code> trabajando.</td>
+      <td>§6</td>
+    </tr>
+    <tr>
+      <td><code>1140</code></td>
+      <td>In aggregated query without GROUP BY …</td>
+      <td>El mismo problema sin <code>GROUP BY</code>: mezclaste una columna suelta con una función de agregación, y el resultado tendría una columna de muchos valores y otra de uno solo.</td>
+      <td>§5</td>
+    </tr>
+    <tr>
+      <td><code>1066</code></td>
+      <td>Not unique table/alias</td>
+      <td>Nombraste dos veces la misma tabla sin darle alias distintos, en una autounión.</td>
+      <td>§14</td>
+    </tr>
+    <tr>
+      <td><code>1111</code></td>
+      <td>Invalid use of group function</td>
+      <td>Usaste una función de agregación en el <code>WHERE</code>. Va en el <code>HAVING</code>.</td>
+      <td>§7</td>
+    </tr>
+    <tr>
+      <td><code>1242</code></td>
+      <td>Subquery returns more than 1 row</td>
+      <td>Comparaste con <code>=</code> o <code>&gt;</code> contra una subconsulta que devolvió varias filas.</td>
+      <td>§15</td>
+    </tr>
+    <tr>
+      <td><code>1248</code></td>
+      <td>Every derived table must have its own alias</td>
+      <td>La subconsulta del <code>FROM</code> quedó sin nombre.</td>
+      <td>§18</td>
+    </tr>
+    <tr>
+      <td><code>1093</code></td>
+      <td>You can't specify target table … in FROM clause</td>
+      <td>Un <code>UPDATE</code> o un <code>DELETE</code> leen, en su subconsulta, la misma tabla que modifican. Se esquiva con una tabla derivada.</td>
+      <td>§25</td>
+    </tr>
+    <tr>
+      <td><code>1048</code></td>
+      <td>Column … cannot be null</td>
+      <td>Un <code>INSERT</code> dejó sin valor una columna declarada <code>NOT NULL</code> que no tiene valor por defecto.</td>
+      <td>§22</td>
+    </tr>
+    <tr>
+      <td><code>1452</code></td>
+      <td>Cannot add or update a child row</td>
+      <td>La clave foránea que estás insertando no existe en la tabla a la que apunta.</td>
+      <td>§22</td>
+    </tr>
+    <tr>
+      <td><code>1451</code></td>
+      <td>Cannot delete or update a parent row</td>
+      <td>Quisiste borrar una fila de la que cuelgan otras. La integridad referencial funcionando.</td>
+      <td>§24</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Dos situaciones no dan ningún error y son peores, porque el resultado parece correcto: el producto cartesiano accidental por una condición de unión faltante (§10) y el <code>NOT IN</code> con un nulo adentro (§19).</p>
+
+<h3 id="mapa-talleres">Dónde practicar cada tema</h3>
+
+<p>Este apunte explica; los talleres ejercitan. Cada uno tiene sus consignas y sus resoluciones enlazadas ejercicio por ejercicio.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Secciones</th><th>Taller</th><th>Retos</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>§1 a §4, §22 a §24</td>
+      <td><a href="taller-sql-practica-consignas.html">Taller: primeras consultas</a></td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>§5 a §7</td>
+      <td><a href="taller-agrupacion-consignas.html">Taller de agrupación</a></td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>§5 a §9, §13</td>
+      <td><a href="compendio-agrupacion-consignas.html">Compendio de agrupación</a></td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>§10, §14</td>
+      <td><a href="taller-uniones-consignas.html">Taller: uniones con sintaxis de coma</a></td>
+      <td>19</td>
+    </tr>
+    <tr>
+      <td>§11 a §14</td>
+      <td><a href="taller-join-consignas.html">Taller: uniones con JOIN</a></td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <td>§15 a §17</td>
+      <td><a href="taller-subconsultas-consignas.html">Taller de subconsultas</a></td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>§15 a §21, §25</td>
+      <td><a href="compendio-subconsultas-consignas.html">Compendio de subconsultas</a></td>
+      <td>27</td>
+    </tr>
+    <tr>
+      <td>§9</td>
+      <td><a href="orden-de-ejecucion.html">El orden en que corre una consulta</a></td>
+      <td>las diez etapas, en visor</td>
+    </tr>
+    <tr>
+      <td>todas</td>
+      <td><a href="taller-integracion-consignas.html">Taller de integración</a></td>
+      <td>12</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="lo-que-sigue">Lo que este apunte todavía no cubre</h3>
+
+<p>La segunda parte de la unidad, que se dicta en el tercer trimestre, tiene su propio tomo: <a href="apunte-sql-2.html"><strong>Apunte de SQL · segunda parte</strong></a>, que sigue la numeración desde §26 y cubre la definición de la base, las fechas, las vistas, los procedimientos, los disparadores, los permisos, las transacciones y los índices.</p>
+
+<p>Cada uno de esos temas tiene además su taller:</p>
+
+<ul>
+  <li><a href="taller-fechas-consignas.html">Fechas y horas</a>: mostrar, filtrar y calcular con fechas.</li>
+  <li><a href="taller-vistas-procedimientos-triggers-consignas.html">Índices, vistas, procedimientos y disparadores</a>: cuando la base empieza a reaccionar sola.</li>
+  <li><a href="taller-control-consignas.html">Permisos y transacciones</a>: quién puede qué, y el todo o nada.</li>
+  <li><a href="taller-optimizacion-consignas.html">Optimización</a>: medir, leer el plan de ejecución y decidir qué indexar.</li>
+</ul>
+
+<p>Los compendios de agrupación y de subconsultas recorren los mismos temas con muchos más casos, y algunos de sus bloques van más lejos que los ejemplos de acá. Cuando un tema no termina de cerrar, ahí está desarrollado entero.</p>
+
+<p>La definición de datos —<code>CREATE</code>, <code>ALTER</code> y <code>DROP</code>— abre ese segundo tomo, en §26 a §29, y también está en la presentación <a href="sql.html">SQL: definición de datos</a>. La Parte V cubre la manipulación de datos hasta donde hace falta para trabajar con la base; el recorrido completo, con la presentación de la clase, está en <a href="sql-practica.html">Práctica de SQL</a> y en el primer taller.</p>
+
+<div class="descargas">
+  <h4>Para seguir</h4>
+  <a class="salto-nav" href="apunte-sql-2.html">Apunte de SQL · segunda parte</a>
+  <a class="salto-nav" href="../../consola.html">Abrir la consola de El Chip</a>
+  <a class="salto-nav" href="analisis-examen-sql.html">Análisis del examen de SQL</a>
+  <a class="salto-nav" href="../../glosario.html">Glosario de la materia</a>
+  <a class="salto-nav" href="../../index.html#u4a">Todo el material de la unidad</a>
+</div>
+
+</article>
+
+</main>
+
+<footer>
+  <p>Bases de Datos · 4.º año · Ciclo 2026</p>
+</footer>
+
+</body>
+</html>

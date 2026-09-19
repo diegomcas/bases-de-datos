@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El modelo de El Chip</title>
+<link rel="stylesheet" href="../../assets/css/fuentes.css">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/apunte.css">
+<link rel="stylesheet" href="../../assets/css/estudio.css">
+<link rel="stylesheet" href="../../assets/css/modelo.css">
+<script src="../../assets/js/resaltador.js" defer></script>
+</head>
+<body data-tema="apunte">
+
+<div class="progreso-lectura" aria-hidden="true"></div>
+
+<header>
+  <div class="header-container">
+    <span class="badge">Hoja de referencia</span>
+    <h1>El modelo de El Chip</h1>
+    <p>Las {{N_TABLAS}} tablas de la base, sus columnas y las {{N_FK}} claves foráneas que las unen. Imprimila una vez y tenela al lado mientras escribís consultas.</p>
+  </div>
+</header>
+
+<nav class="mapa-lateral" aria-label="Partes del modelo">
+  <h2>El modelo</h2>
+  <ol>
+    <li><a href="#mapa" class="parte">El mapa</a></li>
+    <li><a href="#orden">La orden de trabajo</a></li>
+    <li><a href="#equipo">Equipo y problema</a></li>
+    <li><a href="#repuesto">Los repuestos</a></li>
+    <li><a href="#pago">El cobro</a></li>
+    <li><a href="#contacto">Los contactos</a></li>
+    <li><a href="#referencia" class="parte">Todas las tablas</a></li>
+    <li><a href="#como-leerlo">Cómo leer el diagrama</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<nav class="migas" aria-label="Ubicación">
+  <a href="../../index.html">Índice</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <a href="../../index.html#casos">Casos de estudio</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <span aria-current="page">El modelo de El Chip</span>
+</nav>
+
+<article class="apunte">
+
+<h2 id="mapa" class="sin-corte">El mapa</h2>
+
+<p>La base del taller de Martín son {{N_TABLAS}} tablas. Puestas todas juntas en un solo dibujo no se entienden, así que están repartidas en cuatro bloques según de qué hablan. Todo pasa por la orden de trabajo: es la tabla que conecta a las demás.</p>
+
+<figure class="figura-modelo">
+{{MAPA}}
+<figcaption>Cada bloque se explica abajo con sus tablas, sus columnas y sus claves. La referencia completa, tabla por tabla, está al final.</figcaption>
+</figure>
+
+<div class="regla">
+  <h4>Cómo se usa esta hoja</h4>
+  <p>Los apuntes de SQL no repiten el modelo: lo referencian. La idea es imprimir esta hoja <strong>una vez</strong> y tenerla al lado, sea cual sea el apunte o el taller que estés haciendo.</p>
+  <p>En pantalla, cada nombre de tabla de la referencia final tiene su ancla: <code>modelo.html#t-orden_servicio</code> lleva directo a esa tabla.</p>
+</div>
+
+{{DIAGRAMAS}}
+
+<h2 id="referencia">Todas las tablas</h2>
+
+<p>La referencia completa: cada tabla con sus columnas, el tipo de cada una y las claves. <span class="marca-pk">PK</span> es clave primaria, <span class="marca-fk">FK</span> clave foránea —con la flecha a dónde apunta—, <span class="marca-ai">AI</span> es <code>AUTO_INCREMENT</code> y <span class="marca-nn">NN</span> es <code>NOT NULL</code>.</p>
+
+<div class="rejilla-modelo">
+{{FICHAS}}
+</div>
+
+<h2 id="como-leerlo">Cómo leer el diagrama</h2>
+
+<p>Cada caja es una tabla y cada renglón, una columna con su tipo a la derecha. Las líneas salen de la columna que <em>tiene</em> la clave foránea y llegan a la columna a la que apunta, que siempre es la clave primaria de la otra tabla. Esa línea es exactamente la condición que se escribe en un <code>ON</code>:</p>
+
+<div class="code-container">
+  <div class="code-header"><span class="code-lang">SQL</span></div>
+<pre><code><span class="sql-comment">-- la línea de orden_servicio.id_cliente → cliente.id_cliente, escrita</span>
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente</code></pre>
+</div>
+
+<p>Por eso el diagrama sirve para escribir consultas: cada flecha es un <code>JOIN</code> posible, y para unir dos tablas que no tienen flecha directa hay que pasar por las del medio. Para ir de <code>cliente</code> a <code>repuesto</code>, por ejemplo, el camino son cuatro saltos: orden, equipo y problema.</p>
+
+<div class="descargas">
+  <h4>Para seguir</h4>
+  <a class="salto-nav" href="../../unidades/04-sql/apunte-sql.html">Apunte de SQL · primera parte</a>
+  <a class="salto-nav" href="../../unidades/04-sql/apunte-sql-2.html">Apunte de SQL · segunda parte</a>
+  <a class="salto-nav" href="../../consola.html">Abrir la consola</a>
+  <a class="salto-nav" href="der.png">El DER original (Workbench)</a>
+</div>
+
+</article>
+
+</main>
+
+<footer>
+  <p>Bases de Datos · 4.º año · Ciclo 2026</p>
+</footer>
+
+</body>
+</html>

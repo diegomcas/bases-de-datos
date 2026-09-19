@@ -71,6 +71,8 @@ Las páginas no llevan estilos propios: comparten ocho hojas en `assets/css/`.
 | `base.css` | tokens, tipografía, encabezado, bloques de código, tablas anchas y navegación |
 | `taller.css` | consignas, resoluciones, tablas de resultados |
 | `apunte.css` | texto corrido de las clases |
+| `estudio.css` | lo que necesita un apunte largo: resaltador, índice lateral, sintaxis, ejemplos y una impresión para marcar en papel |
+| `modelo.css` | los diagramas del esquema y la referencia de tablas, con tokens que se reskinean para pantalla y para papel |
 | `documento.css` | informes y notas técnicas: cifras, decisiones, avisos, anexos |
 | `presentacion.css` | diapositivas convertidas a página |
 | `indice.css` | la portada |
@@ -132,16 +134,136 @@ taller se corrige, el ciclo viejo muestra la versión corregida.
 La unidad se referencia **por nombre**, nunca por número: los números cambian con cada
 programa.
 
-### Los tres comandos
+### Los comandos
 
 ```bash
 python herramientas/generar_indice.py    # arma index.html
 python herramientas/generar_ciclos.py    # arma las páginas de ciclo
+python herramientas/generar_apunte.py <página>   # resuelve el SQL de un apunte
+python herramientas/generar_modelo.py    # arma el modelo y la referencia de los apuntes
 python herramientas/verificar.py         # revisa todo antes de publicar
+
+# control contra el motor de verdad, cuando cambian los ejemplos de un apunte
+python herramientas/verificar_apunte_mysql.py <página>
 ```
 
 `index.html` y `ciclos/*.html` **se generan**: editarlos a mano se pierde en la próxima
 corrida. Lo que se toca son los `.toml` y la plantilla.
+
+### El apunte de estudio
+
+El apunte de SQL son **dos tomos** que reúnen en un texto continuo lo que estaba repartido
+entre las presentaciones y las cajas de teoría de los talleres. Son para leer de corrido,
+marcar con el resaltador y llevar impresos; los ejercicios siguen en los talleres,
+enlazados al pie de cada tema.
+
+| Tomo | Secciones | Qué cubre |
+|---|---|---|
+| `unidades/04-sql/apunte-sql.html` | §1 a §25 | Consultar, resumir, cruzar, anidar y modificar |
+| `unidades/04-sql/apunte-sql-2.html` | §26 a §45 | Definir la base, fechas, vistas, procedimientos, disparadores, permisos, transacciones e índices |
+
+**La numeración es continua entre los dos**: «§12» identifica una sola sección en todo el
+material, y las referencias cruzadas funcionan sin aclarar de cuál tomo se habla.
+
+Tres piezas lo sostienen, y sirven para cualquier apunte que venga después:
+
+- **`assets/css/estudio.css`** — el resaltado, el índice lateral y la hoja impresa.
+- **`assets/js/resaltador.js`** — marcar y subrayar con el mouse. Lo marcado se guarda en
+  el navegador del alumno (`localStorage`), no viaja a ningún lado y vuelve al recargar.
+
+  Cada marca se guarda con el índice de su párrafo, los dos offsets y **una copia del
+  texto marcado**. Al abrir la página se busca primero en ese párrafo, después en los de
+  alrededor y al final en todo el apunte, así que **corregir el texto o agregar secciones
+  no borra lo que los alumnos marcaron**: la marca se reubica sola y se guarda el índice
+  nuevo. Si el texto marcado ya no existe, la marca no se pinta pero **tampoco se borra**
+  —el alumno recibe un aviso— y vuelve si ese párrafo regresa.
+
+  El guardado es por navegador, así que para llevárselo a otra máquina o al celular el
+  menú `⋯` de la barra abre dos puertas, con el mismo contenido: **bajar un archivo
+  `.json`** o **copiar un código** (el mismo JSON comprimido con `CompressionStream` y
+  pasado a base64; unas 60 marcas entran en 3 KB). Al traerlos, lo que viene **se suma**
+  a lo que ya había y no se repite: una marca ya está si coincide el color y el texto
+  marcado, o el color y la posición exacta. El archivo lleva las marcas de todas las
+  páginas de estudio de ese navegador, no solo de la abierta, y sirve también para
+  repartir un juego de marcas hecho por el docente.
+
+  ```json
+  { "formato": "marcas-bdd/1", "generado": "2026-09-19",
+    "paginas": { "apunte-sql.html": [ {"b": 1, "d": 0, "h": 40, "t": "…", "c": "marca-amarilla"} ] } }
+  ```
+
+  Nada de esto sale del navegador del alumno por sí solo: no hay servidor, no lo ve el
+  docente y no se sincroniza entre dispositivos salvo que el alumno mueva el archivo o
+  el código.
+- **`herramientas/generar_apunte.py`** — resuelve los bloques de SQL de la página.
+
+**Ninguna salida de consulta se escribe a mano.** El ejemplo declara su consulta y con
+qué juego de datos corre, y el generador la ejecuta y escribe la tabla:
+
+```html
+<div class="ejemplo" data-base="base" data-decimales="total" data-destacar="2">
+  ...<pre><code data-sql>SELECT ...</code></pre>
+  <div data-resultado></div>
+</div>
+```
+
+Un ejemplo puede traer un `UPDATE` o un `DELETE` antes de su consulta: todo corre dentro
+de una transacción que se deshace, así que los ejemplos siguientes encuentran la base como
+estaba. Para que las tablas salgan como las ve el alumno, SQLite recibe el `LIKE` y el
+orden de MySQL (`utf8mb4_0900_ai_ci`: sin distinguir mayúsculas ni tildes).
+
+Lo que SQLite no puede reproducir —el contador de `AUTO_INCREMENT`, que en MySQL no vuelve
+atrás después de un `DELETE`— se marca con `data-motor="mysql"`, y esa tabla la escribe
+`verificar_apunte_mysql.py --escribir`.
+
+```bash
+python herramientas/generar_apunte.py unidades/04-sql/apunte-sql.html
+```
+
+Es idempotente: lee el SQL de la propia página publicada, así que se puede correr las
+veces que haga falta y la página es su propio original. La base se arma en SQLite desde
+`assets/consola/elchip.js` —el mismo modelo que usa la consola—, en sus dos juegos de
+datos: `base` y `ampliado`. Si cambia el modelo o cambian los datos, se vuelve a correr y
+las salidas se acomodan solas.
+
+SQLite alcanza para el SQL de consulta y no pide servidor, pero el motor que usan los
+alumnos es MySQL. El control contra el motor de verdad es un comando aparte:
+
+```bash
+python herramientas/verificar_apunte_mysql.py unidades/04-sql/apunte-sql.html
+```
+
+Corre cada consulta en MySQL y la compara con la tabla publicada, en dos esquemas
+propios (`el_chip_ap_base` y `el_chip_ap_amp`) que borra al terminar: la `el_chip` que ya
+esté cargada no se toca. Necesita un login-path, que se crea una sola vez:
+
+```
+mysql_config_editor set --login-path=prueba --user=root --password
+```
+
+### El modelo de la base
+
+`casos/el-chip/modelo.html` es **la hoja de referencia del esquema**: cinco diagramas por
+subsistema, la referencia completa de las 19 tablas con sus tipos y claves, y una lectura
+de cómo cada flecha se convierte en un `JOIN`. Está pensada para imprimirse **una vez** y
+quedar al lado de cualquier apunte o taller.
+
+La escribe `herramientas/generar_modelo.py` leyendo `ElChip.sql`: los nombres, los tipos,
+las claves primarias y las foráneas salen del esquema, nunca de lo que alguien recuerde.
+Lo único escrito a mano es la composición —qué tabla entra en qué diagrama—, porque un
+diagrama es una decisión editorial y no un volcado.
+
+El mismo script escribe la referencia corta que los apuntes muestran en pantalla, en el
+hueco `<div data-fichas>`: una sola fuente, tres destinos. En papel esa referencia no se
+imprime —queda la línea que remite a la hoja del modelo—, así el alumno no imprime dos
+veces lo mismo.
+
+Los diagramas son SVG sin un solo color adentro: todo sale de los tokens de `modelo.css`,
+que cambian en `@media print`. El mismo dibujo se ve oscuro en pantalla y en negro sobre
+blanco en papel, sin generarlo dos veces. Los criterios de dibujo —presupuesto de tablas
+por diagrama, conectores ortogonales de columna a columna, un acento por diagrama— vienen
+de la guía [diagram-design](https://github.com/cathrynlavery/diagram-design), con la
+paleta y las tipografías del sitio.
 
 El verificador comprueba ocho cosas —enlaces, saltos entre consigna y resolución, nombres
 aptos para URL, colisiones de mayúsculas, clases CSS sin definir, correspondencia entre el

@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apunte de SQL · segunda parte</title>
+<link rel="stylesheet" href="../../assets/css/fuentes.css">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/apunte.css">
+<link rel="stylesheet" href="../../assets/css/estudio.css">
+<script src="../../assets/js/resaltador.js" defer></script>
+</head>
+<body data-tema="apunte">
+
+<div class="progreso-lectura" aria-hidden="true"></div>
+
+<header>
+  <div class="header-container">
+    <span class="badge">Apunte · Unidad IV · segunda parte</span>
+    <h1>Apunte de SQL · segunda parte</h1>
+    <p>Definir la base, manejar fechas, hacer que reaccione sola, decidir quién puede qué y lograr que ande rápido. Continúa el apunte de consultas.</p>
+  </div>
+</header>
+
+<nav class="mapa-lateral" aria-label="Secciones del apunte">
+  <h2>En este apunte</h2>
+  <ol>
+    <li><a href="#como-usarlo" class="parte">Cómo usarlo</a></li>
+    <li><a href="#parte-6" class="parte">VI · Definir</a></li>
+    <li><a href="#s26">26 · Los cinco sublenguajes</a></li>
+    <li><a href="#s27">27 · CREATE TABLE y los tipos</a></li>
+    <li><a href="#s28">28 · Las restricciones</a></li>
+    <li><a href="#s29">29 · ALTER y DROP</a></li>
+    <li><a href="#parte-7" class="parte">VII · Fechas</a></li>
+    <li><a href="#s30">30 · Cómo se guarda una fecha</a></li>
+    <li><a href="#s31">31 · Leerla y mostrarla</a></li>
+    <li><a href="#s32">32 · Filtrar por fechas</a></li>
+    <li><a href="#s33">33 · Calcular con fechas</a></li>
+    <li><a href="#s34">34 · De texto a fecha</a></li>
+    <li><a href="#parte-8" class="parte">VIII · Reaccionar sola</a></li>
+    <li><a href="#s35">35 · Vistas</a></li>
+    <li><a href="#s36">36 · Procedimientos</a></li>
+    <li><a href="#s37">37 · Disparadores</a></li>
+    <li><a href="#parte-9" class="parte">IX · Control</a></li>
+    <li><a href="#s38">38 · Permisos</a></li>
+    <li><a href="#s39">39 · La vista como frontera</a></li>
+    <li><a href="#s40">40 · Transacciones</a></li>
+    <li><a href="#s41">41 · Las cuatro letras de ACID</a></li>
+    <li><a href="#parte-10" class="parte">X · Rendimiento</a></li>
+    <li><a href="#s42">42 · Medir antes de opinar</a></li>
+    <li><a href="#s43">43 · El índice</a></li>
+    <li><a href="#s44">44 · Cuando no sirve</a></li>
+    <li><a href="#s45">45 · Qué indexar</a></li>
+    <li><a href="#cierre" class="parte">Cierre</a></li>
+    <li><a href="#errores">Los errores de MySQL</a></li>
+    <li><a href="#mapa-talleres">Dónde practicar cada tema</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<nav class="migas" aria-label="Ubicación">
+  <a href="../../index.html">Índice</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <a href="../../index.html#u4b">Unidad IV · SQL</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <span aria-current="page">Apunte de SQL · segunda parte</span>
+</nav>
+
+<div class="indice-apunte">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#como-usarlo">Cómo usar este apunte</a></li>
+    <li><a href="#parte-6">Parte VI · Definir la base</a></li>
+    <li><a href="#parte-7">Parte VII · Fechas y horas</a></li>
+    <li><a href="#parte-8">Parte VIII · Cuando la base reacciona sola</a></li>
+    <li><a href="#parte-9">Parte IX · Quién puede qué, y el todo o nada</a></li>
+    <li><a href="#parte-10">Parte X · Que ande rápido</a></li>
+    <li><a href="#cierre">Cierre · errores, mapa de talleres y el final del año</a></li>
+  </ol>
+</div>
+
+<article class="apunte">
+
+<h2 id="como-usarlo" class="sin-corte">Cómo usar este apunte</h2>
+
+<p>Este es el segundo tomo. El <a href="apunte-sql.html">primero</a> cubre el lenguaje de consulta —preguntar, resumir, cruzar, anidar y modificar— en las secciones §1 a §25. Acá sigue la numeración desde §26, así que una referencia como «§12» apunta siempre a la misma sección, esté en el tomo que esté.</p>
+
+<p>Funciona igual que el otro: cada tema dice qué resuelve, cómo se escribe, un ejemplo sobre El Chip con su resultado, el error que se comete siempre y el taller donde están los ejercicios. Se marca con el resaltador de la barra y se imprime desde ahí.</p>
+
+<div class="regla">
+  <h4>Una advertencia sobre los motores</h4>
+  <p>Todo este apunte está escrito para <strong>MySQL 8</strong>, que es el motor del año, y sus salidas salen de ahí. Dos excepciones que conviene tener presentes:</p>
+  <p>La <a href="../../consola.html">consola del sitio</a> corre <strong>PostgreSQL</strong>. Para consultar sirve igual, pero los procedimientos, los disparadores y los permisos se escriben distinto, y el plan de ejecución se lee con otros nombres. El taller de optimización está pensado para la consola justamente porque ahí se pueden generar medio millón de filas sin ocupar la máquina del aula.</p>
+  <p>Cuando una diferencia importa, está dicha en su lugar.</p>
+</div>
+
+<div class="hoja-modelo">
+  <p><strong>El modelo completo está en su propia hoja.</strong> Los diagramas de las tablas, sus columnas y las claves que las unen: imprimila una vez y tenela al lado con cualquiera de los dos apuntes.</p>
+  <a class="salto-nav" href="../../casos/el-chip/modelo.html">Ver el modelo de El Chip</a>
+</div>
+
+<details class="referencia-base" data-referencia-base open>
+<summary>Las tablas y sus columnas, para no salir de acá</summary>
+<div data-fichas>
+<div class="fichas-tablas">
+  <div class="ficha-tabla">
+    <h4>cliente</h4>
+    <ul>
+      <li><span class="pk">id_cliente</span></li>
+      <li>nombre</li>
+      <li>apellido</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span></li>
+      <li>fecha_ingreso</li>
+      <li>fecha_entrega</li>
+      <li>descuento</li>
+      <li>total</li>
+      <li><span class="fk">id_empleado</span></li>
+      <li><span class="fk">id_cliente</span></li>
+      <li><span class="fk">id_orden_estado</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_estado</h4>
+    <ul>
+      <li><span class="pk">id_orden_estado</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>empleado</h4>
+    <ul>
+      <li><span class="pk">id_empleado</span></li>
+      <li>usuario</li>
+      <li>password</li>
+      <li><span class="fk">id_rol</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>equipo</h4>
+    <ul>
+      <li><span class="pk">id_equipo</span></li>
+      <li>tipo</li>
+      <li><span class="fk">id_marca</span></li>
+      <li>modelo</li>
+      <li>nro_serie</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>marca</h4>
+    <ul>
+      <li><span class="pk">id_marca</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>problema</h4>
+    <ul>
+      <li><span class="pk">id_problema</span></li>
+      <li>descripcion</li>
+      <li>mano_obra</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>repuesto</h4>
+    <ul>
+      <li><span class="pk">id_repuesto</span></li>
+      <li>nombre</li>
+      <li>stock</li>
+      <li>precio_unitario</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>metodo_pago</h4>
+    <ul>
+      <li><span class="pk">id_metodo_pago</span></li>
+      <li>nombre</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio_pago</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_metodo_pago</span> <span class="fk">↗</span></li>
+      <li>monto</li>
+      <li>fecha_pago</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>orden_servicio_has_equipo</h4>
+    <ul>
+      <li><span class="pk">nro_orden</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_equipo</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_problema</span> <span class="fk">↗</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>problema_has_repuesto</h4>
+    <ul>
+      <li><span class="pk">id_problema</span> <span class="fk">↗</span></li>
+      <li><span class="pk">id_repuesto</span> <span class="fk">↗</span></li>
+      <li>cantidad</li>
+      <li>precio_unitario</li>
+      <li>mano_obra</li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>telefono</h4>
+    <ul>
+      <li><span class="pk">id_telefono</span></li>
+      <li>numero</li>
+      <li>descripcion</li>
+      <li><span class="fk">id_telefonotipo</span></li>
+      <li><span class="fk">id_cliente</span></li>
+    </ul>
+  </div>
+  <div class="ficha-tabla">
+    <h4>email</h4>
+    <ul>
+      <li><span class="pk">id_email</span></li>
+      <li>email</li>
+      <li><span class="fk">id_emailtipo</span></li>
+      <li><span class="fk">id_cliente</span></li>
+    </ul>
+  </div>
+</div>
+<p>El modelo entero —las 19 tablas, con los tipos de cada columna y los diagramas de cómo se unen— está en <a href="../../casos/el-chip/modelo.html">la hoja del modelo</a>.</p>
+</div>
+</details>
+
+<h2 id="parte-6">Parte VI · Definir la base</h2>
+
+<p>Hasta acá la base venía dada: alguien había creado las tablas y nosotros escribíamos consultas. Esta parte es el otro lado, el que ya se había trabajado al modelar: convertir un diseño en tablas que existen de verdad.</p>
+
+<h3 id="s26">26 · Los cinco sublenguajes</h3>
+
+<p>SQL no es un lenguaje uniforme: sus sentencias se agrupan en cinco conjuntos, según lo que hacen. La división sirve para ubicarse, y también para entender por qué algunas sentencias se pueden deshacer y otras no.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Sigla</th><th>Qué hace</th><th>Sentencias</th><th>Dónde</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>DDL</strong></td>
+      <td>Definición: crea y modifica la estructura</td>
+      <td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>, <code>TRUNCATE</code></td>
+      <td>§27 a §29</td>
+    </tr>
+    <tr>
+      <td><strong>DML</strong></td>
+      <td>Manipulación: agrega, cambia y borra filas</td>
+      <td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td>
+      <td>§22 a §25</td>
+    </tr>
+    <tr>
+      <td><strong>DQL</strong></td>
+      <td>Consulta: pregunta sin cambiar nada</td>
+      <td><code>SELECT</code></td>
+      <td>§1 a §21</td>
+    </tr>
+    <tr>
+      <td><strong>DCL</strong></td>
+      <td>Control de datos: quién puede qué</td>
+      <td><code>CREATE USER</code>, <code>GRANT</code>, <code>REVOKE</code></td>
+      <td>§38 y §39</td>
+    </tr>
+    <tr>
+      <td><strong>TCL</strong></td>
+      <td>Control de transacciones: confirmar o deshacer</td>
+      <td><code>START TRANSACTION</code>, <code>COMMIT</code>, <code>ROLLBACK</code>, <code>SAVEPOINT</code></td>
+      <td>§40 y §41</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="regla">
+  <h4>El DDL confirma solo, y eso no se puede deshacer</h4>
+  <p>En MySQL, toda sentencia DDL provoca un <em>commit implícito</em>: cierra la transacción abierta y se confirma sola. Un <code>CREATE TABLE</code> o un <code>DROP TABLE</code> adentro de una transacción no se deshacen con <code>ROLLBACK</code> (§40).</p>
+  <p>Por eso el DML se puede ensayar y el DDL se piensa antes. <code>DROP TABLE</code> no tiene vuelta atrás.</p>
+</div>
+
+<h3 id="s27">27 · CREATE TABLE y los tipos de dato</h3>
+
+<p>Crear una tabla es declarar sus columnas, y cada columna necesita un tipo: qué clase de dato admite y cuánto espacio ocupa. El tipo es la primera regla de calidad del dato, porque impide de entrada lo que no tiene sentido.</p>
+
+<div class="sintaxis">
+CREATE TABLE <span class="opcional">[IF NOT EXISTS]</span> nombre_tabla (<br>
+&nbsp;&nbsp;columna_1 TIPO <span class="opcional">[restricciones]</span>,<br>
+&nbsp;&nbsp;columna_2 TIPO <span class="opcional">[restricciones]</span>,<br>
+&nbsp;&nbsp;<span class="opcional">[restricciones de tabla]</span>);
+</div>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Tipo</th><th>Para qué</th><th>En El Chip</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>INT</code></td><td>Números enteros: identificadores, cantidades.</td><td><code>id_cliente</code>, <code>stock</code></td></tr>
+    <tr><td><code>DECIMAL(p,e)</code></td><td>Números exactos con decimales: dinero. <code>p</code> son los dígitos totales y <code>e</code> los de la parte decimal.</td><td><code>precio_unitario DECIMAL(10,2)</code></td></tr>
+    <tr><td><code>VARCHAR(n)</code></td><td>Texto de largo variable, hasta <code>n</code> caracteres.</td><td><code>apellido VARCHAR(100)</code></td></tr>
+    <tr><td><code>CHAR(n)</code></td><td>Texto de largo fijo. Para códigos que siempre miden lo mismo.</td><td>—</td></tr>
+    <tr><td><code>TEXT</code></td><td>Texto largo, sin límite práctico. No admite valor por defecto.</td><td>—</td></tr>
+    <tr><td><code>DATE</code> / <code>DATETIME</code></td><td>Día, o día y hora (§30).</td><td><code>fecha_ingreso DATETIME</code></td></tr>
+    <tr><td><code>BOOLEAN</code></td><td>Verdadero o falso. En MySQL es un <code>TINYINT(1)</code>: guarda 1 y 0.</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Guardar dinero en <code>FLOAT</code> o <code>DOUBLE</code>. Esos tipos son aproximados: <code>0.1 + 0.2</code> no da exactamente <code>0.3</code>, y en una suma de miles de operaciones la diferencia aparece. Para plata, siempre <code>DECIMAL</code>.</p>
+  <p>Y el opuesto: guardar números en <code>VARCHAR</code>. Un <code>ORDER BY</code> sobre texto ordena <code>'10'</code> antes que <code>'9'</code>, porque compara carácter por carácter.</p>
+</div>
+
+<h3 id="s28">28 · Las restricciones</h3>
+
+<p>Una restricción es una regla que la base hace cumplir por su cuenta, sin depender de que el programa se acuerde. Es lo que vuelve confiable a los datos: lo que la restricción prohíbe, no puede entrar por ningún camino.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Restricción</th><th>Qué garantiza</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>PRIMARY KEY</code></td><td>Identifica la fila. Es única y no admite nulos. El motor le crea un índice solo (§43).</td></tr>
+    <tr><td><code>AUTO_INCREMENT</code></td><td>El motor numera solo, y el contador no vuelve atrás (§22).</td></tr>
+    <tr><td><code>FOREIGN KEY</code></td><td>El valor tiene que existir en la tabla referenciada. Es la integridad referencial (§24).</td></tr>
+    <tr><td><code>NOT NULL</code></td><td>La columna no puede quedar sin dato.</td></tr>
+    <tr><td><code>UNIQUE</code></td><td>No se repite el valor. A diferencia de la clave primaria, admite nulos.</td></tr>
+    <tr><td><code>DEFAULT valor</code></td><td>Si el <code>INSERT</code> no la nombra, toma ese valor.</td></tr>
+    <tr><td><code>CHECK (condición)</code></td><td>La fila solo entra si cumple la condición. MySQL la hace cumplir desde la versión 8.0.16.</td></tr>
+  </tbody>
+</table>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-sin-tabla="1">
+  <h4>Ejemplo · una tabla con todas sus reglas puestas</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">CREATE</span> TABLE garantia (
+    id_garantia  INT AUTO_INCREMENT,
+    nro_orden    INT <span class="sql-keyword">NOT</span> <span class="sql-keyword">NULL</span>,
+    dias         INT <span class="sql-keyword">NOT</span> <span class="sql-keyword">NULL</span> DEFAULT <span class="sql-number">90</span>,
+    observacion  VARCHAR(<span class="sql-number">200</span>) <span class="sql-keyword">NULL</span>,
+    emitida      DATETIME <span class="sql-keyword">NOT</span> <span class="sql-keyword">NULL</span> DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_garantia),
+    UNIQUE (nro_orden),
+    CONSTRAINT fk_garantia_orden
+        FOREIGN KEY (nro_orden) REFERENCES orden_servicio (nro_orden),
+    CONSTRAINT ck_garantia_dias CHECK (dias &gt; <span class="sql-number">0</span>));</code></pre>
+  </div>
+  <p class="result-caption">Una garantía por orden (<code>UNIQUE</code>), que no puede apuntar a una orden inexistente (<code>FOREIGN KEY</code>), con noventa días si nadie dice otra cosa (<code>DEFAULT</code>) y nunca con días negativos (<code>CHECK</code>).</p>
+</div>
+
+<div class="regla">
+  <h4>Nombrar las restricciones</h4>
+  <p><code>CONSTRAINT nombre</code> le pone nombre a la regla. Sin eso el motor le inventa uno, y cuando la restricción salta, el mensaje de error no dice nada útil. Con nombre, el error trae <code>ck_garantia_dias</code> y se sabe al instante qué regla se violó.</p>
+</div>
+
+<h3 id="s29">29 · ALTER y DROP: cambiar lo que ya existe</h3>
+
+<p>Una base en uso cambia: aparece un dato que no se había previsto, una regla que hay que agregar, una tabla que dejó de servir. <code>ALTER TABLE</code> modifica la estructura sin perder los datos.</p>
+
+<div class="sintaxis">
+ALTER TABLE tabla ADD COLUMN columna TIPO <span class="opcional">[restricciones]</span>;<br>
+ALTER TABLE tabla MODIFY COLUMN columna TIPO_NUEVO;<br>
+ALTER TABLE tabla CHANGE COLUMN vieja nueva TIPO;<br>
+ALTER TABLE tabla DROP COLUMN columna;<br>
+ALTER TABLE tabla ADD CONSTRAINT nombre FOREIGN KEY (col) REFERENCES otra (col);<br>
+ALTER TABLE tabla DROP FOREIGN KEY nombre;
+</div>
+
+<div class="regla">
+  <h4>Agregar una columna NOT NULL a una tabla con datos</h4>
+  <p>Si la tabla ya tiene filas, la columna nueva necesita un <code>DEFAULT</code>: si no, las filas existentes quedarían con un nulo que la restricción prohíbe, y el <code>ALTER</code> falla. La otra salida es en tres pasos: agregarla nula, completarla con un <code>UPDATE</code> (§23) y recién entonces marcarla <code>NOT NULL</code>.</p>
+</div>
+
+<p>Para eliminar hay tres sentencias que se confunden seguido y hacen cosas muy distintas:</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Sentencia</th><th>Qué borra</th><th>¿Se deshace?</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>DELETE FROM t WHERE …</code></td><td>Las filas que cumplen la condición. Sin <code>WHERE</code>, todas.</td><td>Sí, con <code>ROLLBACK</code> (es DML).</td></tr>
+    <tr><td><code>TRUNCATE TABLE t</code></td><td>Todas las filas de un saque, y reinicia el <code>AUTO_INCREMENT</code>.</td><td>No: es DDL.</td></tr>
+    <tr><td><code>DROP TABLE t</code></td><td>La tabla entera: filas, estructura, índices y permisos.</td><td>No: es DDL.</td></tr>
+  </tbody>
+</table>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Confundir <code>TRUNCATE</code> con <code>DELETE</code> porque «hacen lo mismo». <code>TRUNCATE</code> es más rápido y deja la tabla como recién creada, pero no se puede deshacer, no dispara los <em>triggers</em> (§37) y el motor lo rechaza si alguna clave foránea apunta a esa tabla.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="sql.html">SQL: definición de datos</a> · la clase, con un ejemplo completo de normalización.</span>
+</div>
+
+<h2 id="parte-7">Parte VII · Fechas y horas</h2>
+
+<p>Las fechas parecen texto y no lo son. Tienen su tipo, su aritmética y una forma de compararse que se lleva mal con la intuición. Casi todo reporte que se pide en un trabajo real tiene una fecha adentro.</p>
+
+<h3 id="s30">30 · Cómo se guarda una fecha</h3>
+
+<ul>
+  <li><code>DATE</code> guarda solo el día: <code>2026-05-22</code>.</li>
+  <li><code>DATETIME</code> guarda el día y la hora: <code>2026-05-22 11:05:00</code>.</li>
+</ul>
+
+<p>MySQL escribe y lee las fechas siempre en el mismo orden, <strong>del año al segundo</strong>: <code>'AAAA-MM-DD hh:mm:ss'</code>. Ese formato no depende del país ni de la configuración; el formato argentino aparece recién al mostrar (§31).</p>
+
+<p>En El Chip, <code>fecha_ingreso</code>, <code>fecha_entrega</code> y <code>fecha_pago</code> son <code>DATETIME</code>. Que guarden la hora es lo que hace interesante —y traicionero— el filtrado de §32.</p>
+
+<div class="regla">
+  <h4>La fecha de hoy</h4>
+  <p><code>CURDATE()</code> devuelve el día de hoy y <code>NOW()</code>, el día y la hora. Una consulta que las usa devuelve algo distinto cada vez que se ejecuta, así que no sirve para comparar resultados entre dos días ni para un examen: por eso los ejemplos de acá usan fechas escritas.</p>
+</div>
+
+<h3 id="s31">31 · Leer una fecha: sacarle partes y mostrarla</h3>
+
+<p>De un <code>DATETIME</code> se pueden extraer pedazos, y cada función devuelve un número:</p>
+
+<div class="sintaxis">
+DATE(f) TIME(f)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcional">— separan el día y la hora</span><br>
+YEAR(f) MONTH(f) DAY(f)&nbsp;&nbsp;<span class="opcional">— el número de año, mes y día</span><br>
+HOUR(f) MINUTE(f)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="opcional">— la hora y los minutos</span>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · las órdenes que entraron por la mañana</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden,
+       DATE(fecha_ingreso) <span class="sql-keyword">AS</span> dia,
+       HOUR(fecha_ingreso) <span class="sql-keyword">AS</span> hora
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> HOUR(fecha_ingreso) &lt; <span class="sql-number">12</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>dia</th><th>hora</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>2026-05-01</td><td>10</td></tr>
+                <tr><td>2</td><td>2026-05-02</td><td>11</td></tr>
+                <tr><td>3</td><td>2026-05-10</td><td>10</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Este <code>WHERE</code> funciona, pero tiene un costo que se ve en §44: una función sobre la columna deja sin efecto cualquier índice.</p>
+</div>
+
+<p>Para <em>mostrar</em> una fecha como se escribe acá se usa <code>DATE_FORMAT()</code>, que arma un texto siguiendo un patrón:</p>
+
+<table class="tabla-apunte">
+  <thead><tr><th>Símbolo</th><th>Qué pone</th><th>Símbolo</th><th>Qué pone</th></tr></thead>
+  <tbody>
+    <tr><td><code>%d</code></td><td>día, dos dígitos</td><td><code>%H</code></td><td>hora, de 00 a 23</td></tr>
+    <tr><td><code>%m</code></td><td>mes, dos dígitos</td><td><code>%i</code></td><td>minutos</td></tr>
+    <tr><td><code>%Y</code></td><td>año, cuatro dígitos</td><td><code>%s</code></td><td>segundos</td></tr>
+  </tbody>
+</table>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · la misma fecha, escrita como en Argentina</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden,
+       fecha_ingreso,
+       DATE_FORMAT(fecha_ingreso, <span class="sql-string">&#x27;%d/%m/%Y %H:%i&#x27;</span>) <span class="sql-keyword">AS</span> ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>ingreso</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>2026-05-01 10:00:00</td><td>01/05/2026 10:00</td></tr>
+                <tr><td>2</td><td>2026-05-02 11:30:00</td><td>02/05/2026 11:30</td></tr>
+                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>10/05/2026 10:45</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Ordenar por la fecha ya formateada. <code>DATE_FORMAT</code> devuelve <strong>texto</strong>, y el texto se ordena carácter por carácter: <code>'02/01/2027'</code> va antes que <code>'15/05/2026'</code>, porque el 0 es menor que el 1. El <code>ORDER BY</code> tiene que ir sobre la columna original, que se ordena como fecha, y el formato queda solo para mostrar.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-fechas-consignas.html#leer">Taller: fechas y horas</a>, bloque 1.</span>
+</div>
+
+<h3 id="s32">32 · Filtrar por fechas</h3>
+
+<p>Las fechas se comparan con los operadores de siempre contra un literal entre comillas: <code>fecha_ingreso &gt;= '2026-05-15'</code>. Lo que hay que tener presente es qué pasa con la hora.</p>
+
+<div class="regla">
+  <h4>Si el literal no trae hora, MySQL le pone 00:00:00</h4>
+  <p><code>'2026-05-22'</code> equivale a <code>'2026-05-22 00:00:00'</code>, que es el primer instante del día. Por eso un <code>BETWEEN '2026-05-15' AND '2026-05-22'</code> sobre una columna <code>DATETIME</code> <strong>deja afuera casi todo el día 22</strong>: solo entra lo que haya ocurrido exactamente a la medianoche.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · el rango que se come el último día</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_ingreso <span class="sql-keyword">BETWEEN</span> <span class="sql-string">&#x27;2026-05-01&#x27;</span> <span class="sql-keyword">AND</span> <span class="sql-string">&#x27;2026-05-10&#x27;</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>fecha_ingreso</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>2026-05-01 10:00:00</td></tr>
+                <tr><td>2</td><td>2026-05-02 11:30:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p></div>
+  <p class="result-caption">La orden 3 entró el 10 de mayo a las 10:45 y no aparece: el rango termina el 10 a las 00:00.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · la forma que sí incluye el último día</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden, fecha_ingreso
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> fecha_ingreso &gt;= <span class="sql-string">&#x27;2026-05-01&#x27;</span>
+  <span class="sql-keyword">AND</span> fecha_ingreso &lt;  <span class="sql-string">&#x27;2026-05-11&#x27;</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>fecha_ingreso</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>2026-05-01 10:00:00</td></tr>
+                <tr><td>2</td><td>2026-05-02 11:30:00</td></tr>
+                <tr><td>3</td><td>2026-05-10 10:45:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">El límite de arriba es el día siguiente, con <code>&lt;</code> estricto. Ahora sí entra el 10 completo, hasta las 23:59:59.</p>
+</div>
+
+<div class="regla">
+  <h4>La forma recomendada para cualquier rango de fechas</h4>
+  <p><code>columna &gt;= inicio AND columna &lt; día_siguiente_al_final</code>. Además de incluir el último día entero, es la forma que permite al motor usar el índice, cosa que <code>DATE(columna) = '…'</code> impide (§44).</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-fechas-consignas.html#filtrar">Taller: fechas y horas</a>, bloque 2.</span>
+</div>
+
+<h3 id="s33">33 · Calcular con fechas</h3>
+
+<table class="tabla-apunte">
+  <thead><tr><th>Función</th><th>Qué devuelve</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>DATEDIFF(fin, inicio)</code></td>
+      <td>Días de calendario entre las dos fechas. <strong>Ignora la hora.</strong></td>
+    </tr>
+    <tr>
+      <td><code>TIMESTAMPDIFF(unidad, inicio, fin)</code></td>
+      <td>Cuántas unidades <strong>completas</strong> pasaron: <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code>, <code>MONTH</code>, <code>YEAR</code>.</td>
+    </tr>
+    <tr>
+      <td><code>DATE_ADD(f, INTERVAL n unidad)</code><br><code>DATE_SUB(f, INTERVAL n unidad)</code></td>
+      <td>La fecha corrida hacia adelante o hacia atrás.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="error-tipico">
+  <h4>Las dos funciones de diferencia llevan los argumentos al revés</h4>
+  <p><code>DATEDIFF(fin, inicio)</code> empieza por el final; <code>TIMESTAMPDIFF(unidad, inicio, fin)</code> empieza por el principio. Invertirlos no da error: da el número en negativo, que pasa desapercibido en un promedio.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · dos horas de diferencia, un día de diferencia</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> DATEDIFF(<span class="sql-string">&#x27;2026-05-02 01:00&#x27;</span>, <span class="sql-string">&#x27;2026-05-01 23:00&#x27;</span>)             <span class="sql-keyword">AS</span> datediff_dias,
+       TIMESTAMPDIFF(DAY,  <span class="sql-string">&#x27;2026-05-01 23:00&#x27;</span>, <span class="sql-string">&#x27;2026-05-02 01:00&#x27;</span>) <span class="sql-keyword">AS</span> timestampdiff_dias,
+       TIMESTAMPDIFF(HOUR, <span class="sql-string">&#x27;2026-05-01 23:00&#x27;</span>, <span class="sql-string">&#x27;2026-05-02 01:00&#x27;</span>) <span class="sql-keyword">AS</span> horas;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>datediff_dias</th><th>timestampdiff_dias</th><th>horas</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>0</td><td>2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Entre los dos momentos pasaron dos horas. <code>DATEDIFF</code> contesta «un día» porque cambió la fecha; <code>TIMESTAMPDIFF(DAY, …)</code> contesta «cero» porque no pasaron veinticuatro horas. Las dos tienen razón, y contestan preguntas distintas.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Una trampa de los datos de El Chip</h4>
+  <p>La columna <code>fecha_pago</code> está declarada <code>DEFAULT CURRENT_TIMESTAMP</code> y el script de carga no la completa, así que <strong>todos los pagos quedan con la fecha y hora en que se cargó la base</strong>, no con la del pago real. Cualquier cuenta de «cuánto tardó en cobrarse» da un número distinto en cada máquina y crece cada día. Es un buen recordatorio de que un valor por defecto se elige pensando en qué significa el dato.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · cuándo vence cada orden pendiente</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> nro_orden,
+       fecha_ingreso,
+       DATE_ADD(fecha_ingreso, INTERVAL <span class="sql-number">60</span> DAY) <span class="sql-keyword">AS</span> vence,
+       DATEDIFF(<span class="sql-string">&#x27;2026-07-15&#x27;</span>, fecha_ingreso)    <span class="sql-keyword">AS</span> dias_esperando
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> id_orden_estado = <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>fecha_ingreso</th><th>vence</th><th>dias_esperando</th></tr></thead>
+              <tbody>
+                <tr><td>3</td><td>2026-05-10 10:45:00</td><td>2026-07-09 10:45:00</td><td>66</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">El estado 1 es «Pendiente». La fecha de referencia va escrita para que el resultado no cambie según el día en que se ejecute.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-fechas-consignas.html#calcular">Taller: fechas y horas</a>, bloque 3.</span>
+</div>
+
+<h3 id="s34">34 · De texto a fecha</h3>
+
+<p><code>STR_TO_DATE(texto, patrón)</code> hace el camino inverso a <code>DATE_FORMAT</code>: lee un texto según el patrón y devuelve una fecha de verdad, con la que ya se puede comparar y calcular. Los símbolos del patrón son los mismos de §31.</p>
+
+<p>Hace falta cada vez que un dato llega escrito por una persona: una planilla, un cuaderno, un formulario viejo. Y el patrón es lo que decide qué número es el día y cuál el mes.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · el mismo texto, dos fechas distintas</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">SELECT</span> STR_TO_DATE(<span class="sql-string">&#x27;10/03/2026 15:30&#x27;</span>, <span class="sql-string">&#x27;%d/%m/%Y %H:%i&#x27;</span>) <span class="sql-keyword">AS</span> argentino,
+       STR_TO_DATE(<span class="sql-string">&#x27;10/03/2026 15:30&#x27;</span>, <span class="sql-string">&#x27;%m/%d/%Y %H:%i&#x27;</span>) <span class="sql-keyword">AS</span> estadounidense;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>argentino</th><th>estadounidense</th></tr></thead>
+              <tbody>
+                <tr><td>2026-03-10 15:30:00</td><td>2026-10-03 15:30:00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">El mismo texto es el 10 de marzo o el 3 de octubre según el patrón. Ninguna de las dos lecturas da error: las dos son fechas válidas.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>El error de siempre</h4>
+  <p>Suponer el formato de un archivo que vino de otro lado. Si el patrón no coincide, MySQL devuelve <code>NULL</code> y una advertencia —no un error—, así que la fila se carga con la fecha vacía y nadie se entera hasta que el reporte sale mal. Conviene probar primero con un <code>SELECT</code> sobre un puñado de filas.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-fechas-consignas.html#texto">Taller: fechas y horas</a>, bloque 4.</span>
+</div>
+
+<h2 id="parte-8">Parte VIII · Cuando la base reacciona sola</h2>
+
+<p>Todo lo anterior son órdenes que alguien escribe y el motor obedece. Lo que sigue queda guardado adentro de la base y actúa después: una consulta con nombre, un procedimiento que se llama, un disparador que se activa solo.</p>
+
+<h3 id="s35">35 · Vistas</h3>
+
+<p>Una vista es <strong>una consulta guardada con un nombre</strong>. No duplica los datos ni ocupa espacio: cada vez que alguien la consulta, el motor ejecuta por debajo el <code>SELECT</code> que la define. Desde afuera se usa igual que una tabla.</p>
+
+<div class="sintaxis">
+CREATE <span class="opcional">[OR REPLACE]</span> VIEW nombre AS<br>
+&nbsp;&nbsp;SELECT …;<br><br>
+DROP VIEW <span class="opcional">[IF EXISTS]</span> nombre;
+</div>
+
+<p>Sirve para tres cosas distintas: guardar de una vez una consulta con uniones complicadas, presentar los datos con los nombres que entiende quien los lee, y mostrar solo una parte de la tabla (§39).</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · la consulta del mostrador, guardada</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">CREATE</span> VIEW orden_para_mostrador <span class="sql-keyword">AS</span>
+<span class="sql-keyword">SELECT</span> O.nro_orden,
+       C.apellido,
+       O.fecha_ingreso,
+       E.nombre <span class="sql-keyword">AS</span> estado
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">INNER JOIN</span> cliente C      <span class="sql-keyword">ON</span> C.id_cliente = O.id_cliente
+<span class="sql-keyword">INNER JOIN</span> orden_estado E <span class="sql-keyword">ON</span> E.id_orden_estado = O.id_orden_estado;
+
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> orden_para_mostrador <span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>apellido</th><th>fecha_ingreso</th><th>estado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>2026-05-01 10:00:00</td><td>Entregado</td></tr>
+                <tr><td>2</td><td>García</td><td>2026-05-02 11:30:00</td><td>Entregado</td></tr>
+                <tr><td>3</td><td>Rossi</td><td>2026-05-10 10:45:00</td><td>Pendiente</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Quien atiende el mostrador escribe <code>SELECT * FROM orden_para_mostrador</code> y no necesita saber que abajo hay dos uniones.</p>
+</div>
+
+<div class="regla">
+  <h4>La vista siempre muestra los datos de ahora</h4>
+  <p>No es una foto: es la consulta. Si entra una orden nueva, la vista la muestra en la próxima consulta sin que nadie la actualice. Y si cambia la estructura de las tablas de abajo, la vista puede romperse: quedan apuntando a una columna que ya no existe.</p>
+  <p><code>CREATE OR REPLACE VIEW</code> la redefine sin tener que borrarla primero.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Lo que una vista no puede hacer</h4>
+  <p>Una vista con <code>GROUP BY</code>, <code>DISTINCT</code> o uniones no admite <code>INSERT</code> ni <code>UPDATE</code>: el motor no sabría a qué fila original corresponde cada fila del resumen. Las vistas simples —un <code>SELECT</code> de columnas de una sola tabla— sí son actualizables, pero conviene tratarlas como de solo lectura y escribir siempre sobre las tablas.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-vistas-procedimientos-triggers-consignas.html#vistas">Taller: índices, vistas, procedimientos y triggers</a>, bloque 1.</span>
+</div>
+
+<h3 id="s36">36 · Procedimientos almacenados</h3>
+
+<p>Un procedimiento es <strong>un bloque de sentencias guardado en el servidor con un nombre</strong>, que recibe parámetros y se ejecuta con <code>CALL</code>. En lugar de que cada persona escriba el <code>UPDATE</code> completo —y se olvide el <code>WHERE</code>—, llama al procedimiento y le pasa los datos.</p>
+
+<div class="sintaxis">
+DELIMITER //<br>
+CREATE PROCEDURE nombre(IN parametro TIPO, OUT resultado TIPO)<br>
+BEGIN<br>
+&nbsp;&nbsp;sentencias;<br>
+END //<br>
+DELIMITER ;<br><br>
+CALL nombre(valor, @variable);
+</div>
+
+<div class="regla">
+  <h4>Para qué es el DELIMITER</h4>
+  <p>El cliente de MySQL corta las sentencias en cada <code>;</code>, y el cuerpo del procedimiento está lleno de <code>;</code>. <code>DELIMITER //</code> le dice «de acá en adelante, una sentencia termina con <code>//</code>», y así el <code>CREATE PROCEDURE</code> entero le llega al servidor de una pieza. Al terminar se vuelve a <code>;</code>.</p>
+  <p>Es una instrucción del cliente, no del servidor: en una herramienta gráfica puede no hacer falta, y en la consola del sitio no existe.</p>
+</div>
+
+<p>Los parámetros llevan una marca según para qué lado va el dato: <code>IN</code> entra, <code>OUT</code> sale, <code>INOUT</code> hace las dos cosas.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-decimales="precio_unitario">
+  <h4>Ejemplo · cambiar un precio sin escribir el UPDATE</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql>DELIMITER //
+<span class="sql-keyword">CREATE</span> PROCEDURE cambiar_precio_repuesto(
+    <span class="sql-keyword">IN</span> p_id_repuesto INT,
+    <span class="sql-keyword">IN</span> p_nuevo_precio DECIMAL(<span class="sql-number">10</span>,<span class="sql-number">2</span>))
+BEGIN
+    <span class="sql-keyword">UPDATE</span> repuesto
+    <span class="sql-keyword">SET</span> precio_unitario = p_nuevo_precio
+    <span class="sql-keyword">WHERE</span> id_repuesto = p_id_repuesto;
+<span class="sql-keyword">END</span> //
+DELIMITER ;
+
+CALL cambiar_precio_repuesto(<span class="sql-number">1</span>, <span class="sql-number">48000.00</span>);
+
+<span class="sql-keyword">SELECT</span> id_repuesto, nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_repuesto</th><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Módulo Samsung S21 Original</td><td>48000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">El módulo de Samsung valía 45000.00. Quien atiende no escribió ningún <code>UPDATE</code>: pasó el id y el precio nuevo.</p>
+</div>
+
+<div class="regla">
+  <h4>Qué se gana</h4>
+  <p>La regla queda escrita en un solo lugar, el <code>WHERE</code> no se puede olvidar, y se puede dar permiso para ejecutar el procedimiento sin dar permiso para modificar la tabla (§38). Además el motor lo tiene ya preparado, sin analizarlo de nuevo en cada llamada.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-vistas-procedimientos-triggers-consignas.html#procedimientos">Taller: índices, vistas, procedimientos y triggers</a>, bloque 3.</span>
+</div>
+
+<h3 id="s37">37 · Disparadores</h3>
+
+<p>Un disparador —<em>trigger</em>— es un bloque de código que <strong>el motor ejecuta solo</strong> cuando ocurre algo en una tabla. Nadie lo llama: se declara una vez y queda activo. Es un sensor de movimiento, no un interruptor.</p>
+
+<div class="sintaxis">
+CREATE TRIGGER nombre<br>
+{BEFORE | AFTER} {INSERT | UPDATE | DELETE} ON tabla<br>
+FOR EACH ROW<br>
+BEGIN<br>
+&nbsp;&nbsp;sentencias;<br>
+END
+</div>
+
+<p>Adentro del cuerpo hay dos palabras que dan acceso a la fila involucrada:</p>
+
+<ul>
+  <li><code>NEW.columna</code> — el valor que se está por guardar. Existe en <code>INSERT</code> y en <code>UPDATE</code>.</li>
+  <li><code>OLD.columna</code> — el valor que había antes. Existe en <code>UPDATE</code> y en <code>DELETE</code>.</li>
+</ul>
+
+<p>Un disparador <code>BEFORE</code> corre antes de escribir, así que puede revisar o corregir el dato; uno <code>AFTER</code> corre después, y sirve para registrar lo que pasó en otra tabla.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-sin-tabla="1">
+  <h4>Ejemplo · impedir que el stock quede en negativo</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql>DELIMITER //
+<span class="sql-keyword">CREATE</span> TRIGGER trg_control_stock_negativo
+BEFORE <span class="sql-keyword">UPDATE</span> <span class="sql-keyword">ON</span> repuesto
+FOR EACH ROW
+BEGIN
+    IF NEW.stock &lt; <span class="sql-number">0</span> <span class="sql-keyword">THEN</span>
+        SIGNAL SQLSTATE <span class="sql-string">&#x27;45000&#x27;</span>
+        <span class="sql-keyword">SET</span> MESSAGE_TEXT = <span class="sql-string">&#x27;No se puede dejar el stock en negativo.&#x27;</span>;
+    <span class="sql-keyword">END</span> IF;
+<span class="sql-keyword">END</span> //
+DELIMITER ;
+
+<span class="sql-comment">-- Con el disparador puesto, esto ya no entra:</span>
+<span class="sql-keyword">UPDATE</span> repuesto <span class="sql-keyword">SET</span> stock = -<span class="sql-number">5</span> <span class="sql-keyword">WHERE</span> id_repuesto = <span class="sql-number">1</span>;
+<span class="sql-comment">-- ERROR 1644 (45000): No se puede dejar el stock en negativo.</span></code></pre>
+  </div>
+  <p class="result-caption"><code>SIGNAL SQLSTATE '45000'</code> es la forma de que un disparador cancele la operación con un mensaje propio. El error llega como <strong>1644</strong>, que es el código de los errores definidos por quien programó la base.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Por qué conviene usarlos con medida</h4>
+  <p>Un disparador es código que corre <strong>sin que nadie lo vea en la consulta</strong>. Cuando un <code>UPDATE</code> de una línea hace cosas que no están escritas ahí, depurar se vuelve difícil: hay que acordarse de ir a buscar qué disparadores tiene esa tabla.</p>
+  <p>Por eso, para una regla simple sobre una columna conviene primero un <code>CHECK</code> (§28), que dice lo mismo y queda a la vista en la definición de la tabla. El disparador se justifica cuando hay que tocar <em>otra</em> tabla: llevar un registro de cambios, mantener un total acumulado.</p>
+  <p>Y recordá que <code>TRUNCATE</code> no los dispara (§29).</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-vistas-procedimientos-triggers-consignas.html#triggers">Taller: índices, vistas, procedimientos y triggers</a>, bloque 4.</span>
+</div>
+
+<h2 id="parte-9">Parte IX · Quién puede qué, y el todo o nada</h2>
+
+<p>Los dos sublenguajes que faltaban. Uno decide quién entra y hasta dónde; el otro, qué pasa cuando una operación son varias sentencias y no pueden quedar hechas a medias.</p>
+
+<h3 id="s38">38 · Permisos: el DCL</h3>
+
+<p>El DCL tiene tres verbos: <code>CREATE USER</code> crea a quien se conecta, <code>GRANT</code> le da permisos y <code>REVOKE</code> se los quita. El permiso se otorga <strong>por operación y por objeto</strong>, y lo que no se otorga no se puede.</p>
+
+<div class="sintaxis">
+CREATE USER 'nombre'@'localhost' IDENTIFIED BY 'clave';<br>
+GRANT SELECT, INSERT ON esquema.tabla TO 'nombre'@'localhost';<br>
+REVOKE INSERT ON esquema.tabla FROM 'nombre'@'localhost';<br>
+SHOW GRANTS FOR 'nombre'@'localhost';
+</div>
+
+<div class="regla">
+  <h4>Un usuario de la base no es un empleado</h4>
+  <p>La tabla <code>empleado</code> de El Chip guarda a quién contrató Martín: son datos. El usuario de MySQL es quién puede conectarse al servidor: es una cuenta del motor. Son dos cosas distintas y conviene no mezclarlas, aunque a veces se correspondan.</p>
+  <p>El <code>'localhost'</code> del final forma parte del nombre: <code>'sofia'@'localhost'</code> y <code>'sofia'@'%'</code> son dos usuarios diferentes, y el segundo puede conectarse desde cualquier máquina.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-sin-tabla="1">
+  <h4>Ejemplo · darle a alguien lo mínimo que necesita</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">CREATE</span> USER <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span> IDENTIFIED BY <span class="sql-string">&#x27;una_clave_larga&#x27;</span>;
+
+GRANT <span class="sql-keyword">SELECT</span>, INSERT <span class="sql-keyword">ON</span> el_chip.orden_servicio TO <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span>;
+GRANT <span class="sql-keyword">SELECT</span>         <span class="sql-keyword">ON</span> el_chip.cliente        TO <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span>;
+
+SHOW GRANTS FOR <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span>;</code></pre>
+  </div>
+  <p class="result-caption">Sofía puede leer los clientes y cargar órdenes. No puede ver <code>empleado</code>, ni cambiar un precio, ni borrar nada: para el motor, esas operaciones no existen para ella.</p>
+</div>
+
+<div class="regla">
+  <h4>El principio de mínimo privilegio</h4>
+  <p>Se otorga lo que hace falta para trabajar, y nada más. No porque se desconfíe de la persona: porque una cuenta con permisos de más convierte cualquier error —o cualquier contraseña filtrada— en un problema mucho más grande.</p>
+  <p>Eso es lo que hace un DBA: decide quién ve qué, y lo escribe en SQL.</p>
+</div>
+
+<h3 id="s39">39 · La vista como frontera</h3>
+
+<p><code>GRANT SELECT</code> se da sobre la tabla <strong>completa</strong>. Si alguien necesita ver el número y el estado de las órdenes pero no los montos, el permiso por tabla no alcanza: o ve todo, o no ve nada.</p>
+
+<p>La salida es una vista (§35). Se crea mostrando solo lo que corresponde, y el permiso se otorga sobre la vista en lugar de sobre las tablas:</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-sin-tabla="1">
+  <h4>Ejemplo · el permiso apoyado en una vista</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-comment">-- La vista recorta: nro_orden, apellido, fecha y estado. El total no está.</span>
+REVOKE <span class="sql-keyword">SELECT</span> <span class="sql-keyword">ON</span> el_chip.orden_servicio       <span class="sql-keyword">FROM</span> <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span>;
+GRANT  <span class="sql-keyword">SELECT</span> <span class="sql-keyword">ON</span> el_chip.orden_para_mostrador TO   <span class="sql-string">&#x27;sofia&#x27;</span>@<span class="sql-string">&#x27;localhost&#x27;</span>;</code></pre>
+  </div>
+  <p class="result-caption">Sofía consulta la vista sin tener permiso sobre ninguna de las tablas que la componen.</p>
+</div>
+
+<div class="regla">
+  <h4>Por qué funciona</h4>
+  <p>Una vista se ejecuta con los permisos de <strong>quien la creó</strong>, no de quien la consulta. Por eso alcanza con darle acceso a la vista: el motor lee las tablas de abajo por cuenta del creador.</p>
+  <p>Es el mismo objeto de §35 con otro uso. Allá la vista servía para no repetir una consulta complicada; acá dibuja una frontera.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-control-consignas.html#quien">Taller: permisos y transacciones</a>, bloques 1 y 2.</span>
+</div>
+
+<h3 id="s40">40 · Transacciones: el todo o nada</h3>
+
+<p>Una transacción es <strong>un bloque de sentencias que el motor trata como una sola</strong>. Se abre con <code>START TRANSACTION</code> y se cierra de dos maneras: <code>COMMIT</code> confirma todo, <code>ROLLBACK</code> deshace todo.</p>
+
+<div class="sintaxis">
+START TRANSACTION;<br>
+&nbsp;&nbsp;sentencias;<br>
+&nbsp;&nbsp;<span class="opcional">SAVEPOINT nombre;</span><br>
+&nbsp;&nbsp;<span class="opcional">ROLLBACK TO nombre;</span><br>
+COMMIT;&nbsp;&nbsp;<span class="opcional">— o ROLLBACK;</span>
+</div>
+
+<p>Hace falta cada vez que una operación del negocio son varias sentencias. Dar de alta un cliente con su teléfono son dos <code>INSERT</code>, y un cliente cargado sin teléfono porque el segundo falló es peor que no haberlo cargado.</p>
+
+<div class="regla">
+  <h4>El modo automático</h4>
+  <p>Por omisión, MySQL confirma cada sentencia apenas se ejecuta: cada <code>UPDATE</code> es su propia transacción, ya cerrada. <code>START TRANSACTION</code> suspende ese comportamiento hasta el <code>COMMIT</code>.</p>
+  <p>Hasta ese <code>COMMIT</code>, <strong>nadie más ve los cambios</strong>: quien consulte desde otra conexión sigue viendo los datos viejos.</p>
+</div>
+
+<div class="ejemplo" data-base="base" data-motor="mysql" data-destacar="0">
+  <h4>Ejemplo · deshacer una parte sin abandonar el resto</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">INSERT INTO</span> cliente (nombre, apellido) <span class="sql-keyword">VALUES</span> (<span class="sql-string">&#x27;Laura&#x27;</span>, <span class="sql-string">&#x27;Fernández&#x27;</span>);
+
+SAVEPOINT alta_laura;
+
+<span class="sql-keyword">INSERT INTO</span> cliente (nombre, apellido) <span class="sql-keyword">VALUES</span> (<span class="sql-string">&#x27;ERROR&#x27;</span>, <span class="sql-string">&#x27;ERROR&#x27;</span>);
+
+ROLLBACK TO alta_laura;
+
+<span class="sql-keyword">SELECT</span> id_cliente, nombre, apellido
+<span class="sql-keyword">FROM</span> cliente
+<span class="sql-keyword">ORDER BY</span> id_cliente <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">3</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>6</td><td>Laura</td><td>Fernández</td></tr>
+                <tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+                <tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p></div>
+  <p class="result-caption">Laura quedó cargada y la fila errónea no. El <code>SAVEPOINT</code> marca un punto intermedio al que se puede volver sin tirar abajo toda la transacción.</p>
+</div>
+
+<div class="error-tipico">
+  <h4>Lo que el ROLLBACK no deshace</h4>
+  <p><strong>El contador de <code>AUTO_INCREMENT</code></strong> (§22): los números que consumió una transacción deshecha quedan consumidos. Es a propósito, para que dos sesiones simultáneas nunca reciban el mismo id.</p>
+  <p><strong>Las sentencias DDL</strong> (§26): un <code>CREATE</code>, un <code>ALTER</code> o un <code>DROP</code> confirman solos y cierran la transacción abierta.</p>
+</div>
+
+<h3 id="s41">41 · Las cuatro letras de ACID</h3>
+
+<p>ACID nombra las cuatro garantías que da una transacción. Son cuatro cosas que se pueden ver funcionando, no una sigla para repetir de memoria.</p>
+
+<table class="tabla-apunte">
+  <thead><tr><th>Letra</th><th>Qué garantiza</th><th>Cómo se ve</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A</strong>tomicidad</td>
+      <td>La transacción entra entera o no entra.</td>
+      <td>Un <code>ROLLBACK</code> después de dos <code>INSERT</code>: no queda ninguno.</td>
+    </tr>
+    <tr>
+      <td><strong>C</strong>onsistencia</td>
+      <td>Al terminar, la base cumple todas sus reglas: claves foráneas, <code>NOT NULL</code>, <code>UNIQUE</code>, <code>CHECK</code>.</td>
+      <td>Una sentencia que violaría una restricción no se ejecuta, esté o no en una transacción.</td>
+    </tr>
+    <tr>
+      <td><strong>A</strong>islamiento</td>
+      <td>Lo que hace una transacción no lo ve otra hasta el <code>COMMIT</code>.</td>
+      <td>Hacen falta dos sesiones abiertas a la vez para comprobarlo.</td>
+    </tr>
+    <tr>
+      <td><strong>D</strong>urabilidad</td>
+      <td>Una vez confirmado, sobrevive a que se corte la luz.</td>
+      <td>Es la única que no se puede demostrar en el aula sin desenchufar algo.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-control-consignas.html#todoonada">Taller: permisos y transacciones</a>, bloques 3 y 4.</span>
+</div>
+
+<h2 id="parte-10">Parte X · Que ande rápido</h2>
+
+<p>Todo lo anterior da resultados correctos. Esta parte es sobre el tiempo que tardan en llegar, que con ocho órdenes no se nota y con medio millón de filas decide si el sistema sirve.</p>
+
+<h3 id="s42">42 · Medir antes de opinar</h3>
+
+<p>La base de El Chip tiene ocho órdenes: cualquier consulta responde en 0,00 segundos, con índice o sin él. Sobre datos de juguete todas las consultas parecen buenas, y por eso el primer paso de cualquier trabajo de optimización es <strong>generar volumen</strong>.</p>
+
+<p>El segundo paso es <code>EXPLAIN</code>, que no mide tiempo: muestra <strong>cómo piensa resolver el motor la consulta</strong> antes de ejecutarla. Sirve incluso cuando la tabla es chica, porque revela si va a recorrerla entera o a usar un índice.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · qué piensa hacer el motor</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql>EXPLAIN <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido = <span class="sql-string">&#x27;García&#x27;</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id</th><th>select_type</th><th>table</th><th>partitions</th><th>type</th><th>possible_keys</th><th>key</th><th>key_len</th><th>ref</th><th>rows</th><th>filtered</th><th>Extra</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>SIMPLE</td><td>cliente</td><td>NULL</td><td>ALL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>NULL</td><td>7</td><td>14.29</td><td>Using where</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Las columnas que importan: <code>type</code> dice cómo accede —<code>ALL</code> es recorrer todo—, <code>key</code> dice qué índice usa —<code>NULL</code>, ninguno— y <code>rows</code>, cuántas filas estima mirar.</p>
+</div>
+
+<div class="regla">
+  <h4>Optimizar sin medir es adivinar</h4>
+  <p>La intuición sobre qué es lento se equivoca seguido, y el motor a veces tiene razones que uno no ve. Antes de crear un índice: medir el tiempo, mirar el plan, cambiar una sola cosa y volver a medir.</p>
+  <p>En la consola del sitio, que corre PostgreSQL, el plan se pide igual con <code>EXPLAIN</code> pero se lee distinto: ahí donde MySQL dice <code>type: ALL</code>, PostgreSQL dice <code>Seq Scan</code>; y el uso de índice aparece como <code>Index Scan</code>.</p>
+</div>
+
+<h3 id="s43">43 · El índice</h3>
+
+<p>Un índice es <strong>una copia ordenada de una columna, con un puntero a la fila completa</strong>. Es el índice alfabético del libro: en vez de leer todas las páginas buscando una palabra, se va a la letra.</p>
+
+<div class="sintaxis">
+CREATE INDEX nombre ON tabla (columna);<br>
+CREATE INDEX nombre ON tabla (columna_a, columna_b);&nbsp;&nbsp;<span class="opcional">— compuesto</span><br>
+DROP INDEX nombre ON tabla;<br>
+SHOW INDEX FROM tabla;
+</div>
+
+<p>Una vez creado, el motor lo usa solo cuando le conviene: no hay que nombrarlo en la consulta. Sirve para buscar por igualdad o por rango, para ordenar y para unir por la clave foránea.</p>
+
+<div class="ejemplo" data-base="base" data-motor="mysql">
+  <h4>Ejemplo · el mismo plan, después del índice</h4>
+  <div class="code-container">
+    <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn">Copiar</button></div>
+    <pre><code data-sql><span class="sql-keyword">CREATE</span> INDEX ix_cliente_apellido <span class="sql-keyword">ON</span> cliente (apellido);
+
+EXPLAIN <span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> cliente <span class="sql-keyword">WHERE</span> apellido = <span class="sql-string">&#x27;García&#x27;</span>;</code></pre>
+  </div>
+  <div data-resultado><div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id</th><th>select_type</th><th>table</th><th>partitions</th><th>type</th><th>possible_keys</th><th>key</th><th>key_len</th><th>ref</th><th>rows</th><th>filtered</th><th>Extra</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>SIMPLE</td><td>cliente</td><td>NULL</td><td>ref</td><td>ix_cliente_apellido</td><td>ix_cliente_apellido</td><td>402</td><td>const</td><td>1</td><td>100.00</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p></div>
+  <p class="result-caption">Ahora <code>key</code> nombra el índice y <code>rows</code> baja a una fila. Con cinco clientes el tiempo es el mismo; con medio millón, la diferencia es de segundos a milisegundos.</p>
+</div>
+
+<div class="regla">
+  <h4>La clave primaria ya tiene índice</h4>
+  <p>El motor lo crea solo al declararla. Por eso buscar por <code>id_cliente</code> siempre fue rápido sin que nadie hiciera nada. Las claves foráneas, en MySQL con InnoDB, también reciben uno automáticamente.</p>
+</div>
+
+<h3 id="s44">44 · Cuando el índice no sirve</h3>
+
+<p>Crear un índice no garantiza que se use. Hay cuatro situaciones que conviene reconocer, porque explican la mayoría de los casos en que «el índice no hizo nada».</p>
+
+<div class="error-tipico">
+  <h4>Una función sobre la columna lo anula</h4>
+  <p>El índice guarda <code>fecha_ingreso</code>, no <code>YEAR(fecha_ingreso)</code>. Si la consulta pregunta por el resultado de una función, el motor no puede buscarlo en el índice y recorre la tabla entera.</p>
+  <p>Por eso <code>WHERE fecha &gt;= '2026-05-01' AND fecha &lt; '2026-06-01'</code> puede usar el índice y <code>WHERE MONTH(fecha) = 5</code> no. Es la misma pregunta escrita de dos maneras, y es el motivo de la forma recomendada de §32.</p>
+</div>
+
+<ul>
+  <li><strong>Un <code>LIKE</code> que empieza con comodín.</strong> <code>'Mov%'</code> se puede buscar en un índice ordenado, porque se sabe por dónde empezar; <code>'%999%'</code> no.</li>
+  <li><strong>Cada índice hace más lenta la escritura.</strong> Todo <code>INSERT</code>, <code>UPDATE</code> y <code>DELETE</code> tiene que actualizar también los índices de esa tabla. Un índice que nadie usa solo cuesta.</li>
+  <li><strong>El motor puede decidir ignorarlo.</strong> Si estima que recorrer la tabla entera sale más barato que ir y volver del índice, lo hace, y casi siempre tiene razón. Pasa cuando la consulta va a devolver buena parte de la tabla.</li>
+</ul>
+
+<h3 id="s45">45 · Qué indexar</h3>
+
+<table class="tabla-apunte">
+  <thead><tr><th>Candidatas</th><th>Por qué</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Las claves foráneas</td>
+      <td>Son las columnas por las que se unen las tablas. Una unión sin índice del lado «muchos» es lo primero que se pone lento cuando la base crece.</td>
+    </tr>
+    <tr>
+      <td>Las columnas por las que se busca seguido</td>
+      <td>Un número de documento, un número de serie, una fecha de ingreso.</td>
+    </tr>
+    <tr>
+      <td>Las que se usan para ordenar listados grandes</td>
+      <td>El índice ya está ordenado: el motor se ahorra ordenar.</td>
+    </tr>
+    <tr>
+      <td><strong>Casi nunca</strong>: estados, tipos, banderas de sí o no</td>
+      <td>Son de baja selectividad: con cuatro estados posibles, buscar uno devuelve la cuarta parte de la tabla y recorrerla entera sale más barato.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="regla">
+  <h4>El índice compuesto y el orden de sus columnas</h4>
+  <p><code>CREATE INDEX ix ON t (a, b)</code> sirve para buscar por <code>a</code>, y para buscar por <code>a</code> y <code>b</code> juntas. <strong>No sirve para buscar solo por <code>b</code></strong>: es una guía telefónica ordenada por apellido y nombre, que no ayuda a encontrar a todos los «Martín».</p>
+  <p>La columna más selectiva —la que más descarta— va primero.</p>
+</div>
+
+<div class="a-practicar">
+  <strong>A practicar</strong>
+  <span><a href="taller-optimizacion-consignas.html">Taller de optimización</a> · 14 retos sobre 500.000 filas, en la consola del sitio.</span>
+  <span><a href="taller-vistas-procedimientos-triggers-consignas.html#indices">Taller: índices, vistas…</a>, bloque 2.</span>
+</div>
+
+<h2 id="cierre">Cierre</h2>
+
+<h3 id="errores">Los errores de MySQL de esta parte</h3>
+
+<p>Los del lenguaje de consulta están en <a href="apunte-sql.html#errores">el primer tomo</a>. Estos son los que aparecen al definir, controlar y automatizar.</p>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Error</th><th>Qué dice</th><th>Qué pasó</th><th>Dónde</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>1050</code></td>
+      <td>Table … already exists</td>
+      <td>La tabla ya está. <code>CREATE TABLE IF NOT EXISTS</code> evita el error si la intención es «créala si no está».</td>
+      <td>§27</td>
+    </tr>
+    <tr>
+      <td><code>1051</code> / <code>1146</code></td>
+      <td>Unknown table · Table doesn't exist</td>
+      <td>Se nombró una tabla que no existe, o se está en otro esquema del que se cree.</td>
+      <td>§27</td>
+    </tr>
+    <tr>
+      <td><code>1062</code></td>
+      <td>Duplicate entry … for key</td>
+      <td>Se repitió un valor en una columna <code>UNIQUE</code> o en la clave primaria.</td>
+      <td>§28</td>
+    </tr>
+    <tr>
+      <td><code>3819</code></td>
+      <td>Check constraint … is violated</td>
+      <td>La fila no cumple un <code>CHECK</code>. El nombre de la restricción viene en el mensaje, si se lo pusieron.</td>
+      <td>§28</td>
+    </tr>
+    <tr>
+      <td><code>1091</code></td>
+      <td>Can't DROP …; check that it exists</td>
+      <td>Se quiso borrar una columna, un índice o una restricción que no está con ese nombre.</td>
+      <td>§29</td>
+    </tr>
+    <tr>
+      <td><code>1292</code></td>
+      <td>Incorrect date value</td>
+      <td>Un texto que no es una fecha válida llegó a una columna de fecha. Suele venir de un <code>STR_TO_DATE</code> con el patrón equivocado.</td>
+      <td>§34</td>
+    </tr>
+    <tr>
+      <td><code>1356</code></td>
+      <td>View … references invalid tables or columns</td>
+      <td>La vista quedó apuntando a algo que cambió de nombre o se borró.</td>
+      <td>§35</td>
+    </tr>
+    <tr>
+      <td><code>1064</code></td>
+      <td>You have an error in your SQL syntax</td>
+      <td>El error más genérico. En esta parte casi siempre es el <code>DELIMITER</code> que falta antes de un procedimiento o un disparador.</td>
+      <td>§36</td>
+    </tr>
+    <tr>
+      <td><code>1644</code></td>
+      <td>El mensaje que escribió quien programó la base</td>
+      <td>Un disparador canceló la operación con <code>SIGNAL</code>. No es una falla del motor: es la regla funcionando.</td>
+      <td>§37</td>
+    </tr>
+    <tr>
+      <td><code>1142</code> / <code>1045</code></td>
+      <td>… command denied to user · Access denied</td>
+      <td>El usuario no tiene el permiso para esa operación sobre ese objeto, o la contraseña es incorrecta.</td>
+      <td>§38</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="mapa-talleres">Dónde practicar cada tema</h3>
+
+<table class="tabla-apunte">
+  <thead>
+    <tr><th>Secciones</th><th>Taller</th><th>Retos</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>§26 a §29</td>
+      <td><a href="sql.html">SQL: definición de datos</a> (la clase) y <a href="taller-sql-practica-consignas.html">Taller: primeras consultas</a></td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <td>§30 a §34</td>
+      <td><a href="taller-fechas-consignas.html">Taller: fechas y horas</a></td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>§35 a §37, §43</td>
+      <td><a href="taller-vistas-procedimientos-triggers-consignas.html">Taller: índices, vistas, procedimientos y triggers</a></td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>§38 a §41</td>
+      <td><a href="taller-control-consignas.html">Taller: permisos y transacciones</a></td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>§42 a §45</td>
+      <td><a href="taller-optimizacion-consignas.html">Taller de optimización</a></td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <td>todas las anteriores</td>
+      <td><a href="taller-integracion-consignas.html">Taller de integración</a></td>
+      <td>12</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="lo-que-sigue">Con esto se cierra SQL</h3>
+
+<p>Entre los dos tomos quedan documentados los cinco sublenguajes: consultar (§1 a §21), modificar (§22 a §25), definir (§26 a §29), controlar el acceso (§38 y §39) y las transacciones (§40 y §41), más las fechas, la automatización y el rendimiento.</p>
+
+<div class="descargas">
+  <h4>Para seguir</h4>
+  <a class="salto-nav" href="apunte-sql.html">Apunte de SQL · primera parte</a>
+  <a class="salto-nav" href="../../consola.html">Abrir la consola de El Chip</a>
+  <a class="salto-nav" href="../../glosario.html">Glosario de la materia</a>
+  <a class="salto-nav" href="../../index.html#u4b">Todo el material de la unidad</a>
+</div>
+
+</article>
+
+</main>
+
+<footer>
+  <p>Bases de Datos · 4.º año · Ciclo 2026</p>
+</footer>
+
+</body>
+</html>
