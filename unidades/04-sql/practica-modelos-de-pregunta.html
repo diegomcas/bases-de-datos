@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica · Los modelos de pregunta · Bases de Datos</title>
+    <link rel="stylesheet" href="../../assets/css/fuentes.css">
+    <link rel="stylesheet" href="../../assets/css/base.css">
+
+    <style>
+    /* propio de esta página: la tarjeta de ejercicio con sus opciones, las
+       tablas de datos compactas y el recorrido por etapas. */
+    .practica { display: grid; gap: 22px; }
+    .practica-intro { color: var(--text-body); line-height: 1.7; display: grid; gap: 10px; max-width: 78ch; }
+    .practica-intro a, .indice-ej a { color: var(--accent); }
+
+    .indice-ej { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px;
+                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .indice-ej a { text-decoration: none; display: flex; gap: 10px; align-items: baseline;
+                   padding: 6px 10px; border-radius: var(--radio-chico); font-size: 0.92rem; }
+    .indice-ej a:hover { background: var(--velo-medio); }
+    .indice-num { font-family: 'Fira Code', monospace; color: var(--text-muted); font-size: 0.8rem; }
+    .indice-mec { color: var(--text-main); }
+
+    .barra-practica { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .boton { font: inherit; font-size: 0.88rem; cursor: pointer; color: var(--text-main);
+             background: var(--velo-medio); border: 1px solid var(--linea-media);
+             border-radius: var(--radio-chico); padding: 8px 14px; }
+    .boton:hover { border-color: var(--accent); }
+    .boton:focus-visible, .opc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .ej { background: var(--bg-card); border: 1px solid var(--linea-media);
+          border-radius: var(--radio); padding: 24px 26px; display: grid; gap: 16px;
+          scroll-margin-top: 16px; min-width: 0; }
+    .ej-cab { display: flex; gap: 14px; align-items: center; }
+    .ej-num { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.5rem;
+              color: var(--accent); min-width: 1.6em; }
+    .ej-mec { font-size: 0.76rem; letter-spacing: .1em; text-transform: uppercase;
+              color: var(--accent); margin: 0 0 2px; }
+    .ej h2 { font-size: 1.3rem; color: var(--text-main); margin: 0; }
+    .ej p { color: var(--text-body); line-height: 1.65; margin: 0; }
+    .ej-enun { display: grid; gap: 12px; min-width: 0; }
+    .ej-preg { font-size: 1.08rem; color: var(--text-main); font-weight: 600; }
+    .ej-sql { background: var(--bg-code); border: 1px solid var(--linea-sutil);
+              border-radius: var(--radio-chico); padding: 14px 16px; margin: 0;
+              font-size: 0.92rem; line-height: 1.55; overflow-x: auto; white-space: pre; }
+    .ej-sql code { font-size: inherit; }
+
+    .variantes { display: grid; gap: 10px; }
+    .variante { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 8px; align-items: start; }
+    .variante-rot { font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--text-muted);
+                    padding-top: 13px; text-align: right; }
+
+    .ej-datos { border: 1px solid var(--linea-sutil); border-radius: var(--radio-chico);
+                padding: 8px 12px; background: var(--velo-sutil); }
+    .ej-datos summary { cursor: pointer; font-size: 0.82rem; color: var(--text-muted); }
+    .datos-fila { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 10px; align-items: flex-start; }
+    .dato { min-width: 0; max-width: 100%; }
+    .dato-nombre { font-family: 'Fira Code', monospace; font-size: 0.76rem; margin-bottom: 4px; }
+    .ej .dato-nombre { color: var(--text-muted); }
+    .dato-tabla { border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 0.74rem; }
+    .dato-tabla th { text-align: left; color: var(--text-muted); font-weight: 500;
+                     padding: 3px 9px; border-bottom: 1px solid var(--linea-media); white-space: nowrap; }
+    .dato-tabla td { padding: 2px 9px; color: var(--text-body); white-space: nowrap;
+                     border-bottom: 1px solid var(--linea-sutil); }
+    .dato-tabla td.nulo, .etapa-tabla td.nulo { color: var(--bloque-ambar); font-style: italic; }
+
+    .ej-opc { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .opc { width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px;
+           align-items: center; text-align: left; font: inherit; font-size: 1rem; cursor: pointer;
+           color: var(--text-main); background: var(--velo-sutil);
+           border: 1px solid var(--linea-media); border-radius: var(--radio-chico); padding: 10px 14px; }
+    .opc:hover { border-color: var(--accent); }
+    .opc-letra { font-family: 'Fira Code', monospace; font-weight: 700; width: 28px; height: 28px;
+                 display: grid; place-items: center; border-radius: 6px;
+                 border: 1px solid var(--linea-media); color: var(--text-muted); }
+    .opc-texto code { font-size: 0.9rem; }
+    .opc.acierto { border-color: var(--bloque-verde); background: rgba(16, 185, 129, 0.10); }
+    .opc.acierto .opc-letra { background: var(--bloque-verde); border-color: var(--bloque-verde); color: #06281d; }
+    .opc.fallo { border-color: var(--bloque-carmin); background: rgba(244, 63, 94, 0.08); }
+    .opc.fallo .opc-letra { border-color: var(--bloque-carmin); color: var(--bloque-carmin); }
+    .opc-porque { font-size: 0.92rem; padding: 6px 14px 4px 56px; }
+    .ej .opc-porque { color: var(--text-muted); }
+
+    .ej-ver { justify-self: start; }
+    /* display:grid le gana al atributo hidden si no se lo repone */
+    .ej-res[hidden], .opc-porque[hidden] { display: none; }
+    .ej-res { border-top: 1px solid var(--linea-media); padding-top: 16px; display: grid; gap: 12px; min-width: 0; }
+    .ej-res h3 { font-size: 0.8rem; letter-spacing: .1em; text-transform: uppercase;
+                 color: var(--bloque-verde); margin: 0; }
+    .ej-ref { border: 1px solid var(--linea-media); border-left: 3px solid var(--accent);
+              border-radius: 0 var(--radio-chico) var(--radio-chico) 0; padding: 10px 14px;
+              display: grid; gap: 6px; }
+    .ej .ref-titulo { font-size: 0.8rem; letter-spacing: .06em; text-transform: uppercase;
+                      color: var(--accent); }
+    .ej-ref ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap;
+                 gap: 4px 26px; color: var(--text-body); }
+    .ej-ref strong { font-family: 'Fira Code', monospace; color: var(--text-main); }
+    .ref-rot { color: var(--text-muted); }
+    .ej .ref-nota { font-size: 0.82rem; color: var(--text-muted); }
+    .ej .ej-debate { border-left: 3px solid var(--accent); background: var(--velo-sutil);
+                     padding: 10px 14px; border-radius: 0 var(--radio-chico) var(--radio-chico) 0; }
+    .ej-debate strong { color: var(--accent); }
+    .indice-debate { font-size: 0.72rem; letter-spacing: .08em; text-transform: uppercase;
+                     color: var(--accent); margin-left: 6px; }
+    /* la ayuda: el recorrido por etapas, con las clases del visor de
+       orden-de-ejecucion.html para que se lea igual que en la clase */
+    .ej-ayuda { border: 1px solid var(--linea-media); border-radius: var(--radio-chico);
+                padding: 10px 14px; background: var(--velo-sutil); min-width: 0; }
+    .ej-ayuda > summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 0.95rem; }
+    .ej-ayuda[open] > summary { margin-bottom: 10px; }
+    .ej .ayuda-intro { font-size: 0.9rem; margin-bottom: 12px; max-width: 78ch; }
+    .ayuda-intro a { color: var(--accent); }
+    .recorrido { border: 1px solid var(--linea-media); border-radius: var(--radio-chico);
+                 background: var(--bg-card); padding: 14px 16px; display: grid; gap: 12px;
+                 min-width: 0; }
+    .recorrido + .recorrido { margin-top: 12px; }
+    .ej .rec-titulo { font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--text-main); }
+    .rec-barra { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rec-chip { font-family: 'Fira Code', monospace; font-size: 0.74rem; cursor: pointer;
+                color: var(--text-muted); background: transparent;
+                border: 1px solid var(--linea-media); border-radius: 999px; padding: 4px 10px; }
+    .rec-chip:hover { color: var(--text-main); border-color: var(--accent); }
+    .rec-chip[aria-current="step"] { color: #04222a; background: var(--accent);
+                                     border-color: var(--accent); font-weight: 700; }
+    .rec-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .rec-etapa { min-width: 0; }
+    .rec-etapa[hidden] { display: none; }
+    .rec-nav { display: flex; gap: 10px; }
+    .rec-nav .boton:disabled { opacity: .4; cursor: default; border-color: var(--linea-media); }
+    .visor-titulo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .visor-titulo h3 { margin: 0; font-size: 1.02rem; color: var(--text-main); }
+    .visor-etapa { font-family: 'Fira Code', monospace; font-size: 0.7rem; color: var(--accent);
+                   border: 1px solid var(--accent); border-radius: 999px; padding: 2px 8px; }
+    .ej .visor-dice { font-size: 0.9rem; margin: 8px 0 12px; }
+    .ej .visor-cuenta { font-family: 'Fira Code', monospace; font-size: 0.76rem;
+                        color: var(--text-muted); margin-bottom: 10px; }
+    .visor-cuenta strong { color: var(--text-main); }
+    .visor-cuenta .baja { color: var(--bloque-carmin); }
+    .recorrido .ej-sql { margin-bottom: 10px; }
+    .visor-scroll { max-height: 480px; overflow: auto; border: 1px solid var(--linea-sutil);
+                    border-radius: var(--radio-chico); }
+    .visor-tabla { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .visor-tabla th, .visor-tabla td { text-align: left; padding: 5px 10px;
+                                       border-bottom: 1px solid var(--linea-sutil);
+                                       font-family: 'Fira Code', ui-monospace, monospace;
+                                       white-space: nowrap; }
+    .visor-tabla thead th { position: sticky; top: 0; z-index: 1; background: var(--bg-theory);
+                            color: var(--text-muted); font-size: 0.7rem; letter-spacing: .04em; }
+    .visor-tabla td { color: var(--text-body); }
+    .visor-tabla tr.se-va td { color: var(--bloque-carmin); text-decoration: line-through; }
+    .visor-tabla td.nulo { color: var(--bloque-ambar); font-style: italic; opacity: .8; }
+    .visor-tabla td.nuevo { color: var(--bloque-verde); }
+    .visor-tabla td.pendiente { color: var(--text-muted); opacity: .45; }
+    .visor-tabla tr.con-nulos td:first-child { border-left: 3px solid var(--bloque-ambar); }
+    .visor-tabla tr.ida td { color: var(--text-muted); opacity: .35; text-decoration: line-through; }
+    .visor-tabla tr.grupo-cab td { background: var(--velo-medio); color: var(--text-main);
+                                   font-weight: 700; border-top: 1px solid var(--linea-media);
+                                   padding-top: 9px; }
+    .visor-tabla tr.grupo-cab .chapa { display: inline-block; width: 9px; height: 9px;
+                                       border-radius: 2px; margin-right: 8px;
+                                       background: var(--tono); vertical-align: middle; }
+    .visor-tabla tr.del-grupo td:first-child { border-left: 3px solid var(--tono); }
+    .visor-tabla tr.grupo-calc td { color: var(--text-muted); font-size: 0.75rem;
+                                    white-space: normal; padding-bottom: 9px; }
+    .visor-tabla tr.grupo-calc .fn { color: var(--bloque-verde); font-weight: 700; }
+    .visor-tabla tr.grupo-calc .igual { color: var(--text-main); font-weight: 700; }
+    .visor-salida { border-color: color-mix(in srgb, var(--bloque-verde) 40%, transparent); }
+    .visor-salida .visor-tabla thead th { color: var(--bloque-verde); }
+    .ej .visor-leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0 0;
+                         font-size: 0.74rem; color: var(--text-muted); }
+    .visor-leyenda span::before { content: ''; display: inline-block; width: 8px; height: 8px;
+                                  border-radius: 2px; margin-right: 6px; vertical-align: middle;
+                                  background: currentColor; }
+    .visor-leyenda .l-queda { color: var(--bloque-verde); }
+    .visor-leyenda .l-sale { color: var(--bloque-carmin); }
+    .visor-leyenda .l-ida { color: var(--text-muted); }
+    .visor-leyenda .l-nula { color: var(--bloque-ambar); }
+    .visor-nota { margin-top: 14px; padding: 10px 12px; border-left: 3px solid var(--bloque-ambar);
+                  background: var(--velo-sutil); color: var(--text-body); font-size: 0.9rem; }
+    .visor-nota strong { color: var(--bloque-ambar); }
+    .ej-error { border-left: 3px solid var(--bloque-ambar); background: rgba(245, 158, 11, 0.07);
+                padding: 10px 14px; border-radius: 0 var(--radio-chico) var(--radio-chico) 0; }
+    .ej-error strong { color: var(--bloque-ambar); }
+    .ej .ej-examen { font-size: 0.88rem; color: var(--text-muted); }
+    .res-fila { display: flex; flex-wrap: wrap; gap: 6px 26px; align-items: flex-start; }
+    .res-tabla { min-width: 0; max-width: 100%; }
+    .res-tabla .result-table { width: auto; }
+    .ej .res-rotulo { font-family: 'Fira Code', monospace; font-size: 0.78rem; color: var(--text-muted); }
+    .ej .filas-devueltas { font-size: 0.78rem; color: var(--text-muted); font-family: 'Fira Code', monospace; }
+
+    .etapas { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: flex-start; }
+    .etapa { min-width: 0; }
+    .ej .etapa-nombre { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px; }
+    .etapa-num { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em;
+                 border-radius: 50%; background: var(--accent); color: #04222a;
+                 font-weight: 700; font-size: 0.78rem; }
+    .etapa-tabla { border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+    .etapa-tabla th { text-align: left; color: var(--text-muted); font-weight: 500;
+                      padding: 4px 12px; border-bottom: 1px solid var(--linea-media); }
+    .etapa-tabla td { padding: 3px 12px; color: var(--text-body); }
+    .etapa-tabla tr.se-va td { color: var(--bloque-carmin); text-decoration: line-through; }
+    .etapa-tabla tr.grupo-cab td { background: var(--velo-medio); color: var(--text-main);
+                                   font-weight: 700; border-top: 1px solid var(--linea-media); }
+    .etapa-tabla tr.grupo-calc td { color: var(--text-muted); font-size: 0.76rem; padding-bottom: 8px; }
+    .etapa-tabla .fn { color: var(--bloque-verde); font-weight: 700; }
+    .etapa-tabla tbody.grupo td:first-child { border-left: 3px solid var(--accent); }
+    .etapa-tabla tbody.se-va-grupo td { color: var(--bloque-carmin); text-decoration: line-through; }
+    .etapa-tabla tbody.se-va-grupo td:first-child { border-left-color: var(--bloque-carmin); }
+    .etapa-tabla tbody.se-va-grupo tr.grupo-calc td { text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .ej { padding: 18px 14px; }
+      .opc-porque { padding-left: 14px; }
+    }
+    @media print {
+      .barra-practica, .ej-acciones, .ej-ayuda { display: none; }
+      .ej { break-inside: avoid; }
+    }
+    </style>
+</head>
+<body data-tema="presentacion">
+<!-- GENERADO por herramientas/generar_practica.py: los ejercicios se editan ahí. -->
+
+    <header>
+        <div class="header-container">
+            <span class="badge">práctica</span>
+            <h1>Los modelos de pregunta</h1>
+            <p>Trece ejercicios sobre El Chip para practicar cómo se va a preguntar en el recuperatorio de SQL</p>
+            <a href="../../index.html" class="nav-alumno">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Unidad IV · SQL
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <nav class="migas" aria-label="Ubicación">
+            <a href="../../index.html">Índice</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <a href="../../index.html#u4a">Unidad IV · SQL</a>
+            <span class="sep" aria-hidden="true">›</span>
+            <span aria-current="page">Los modelos de pregunta</span>
+        </nav>
+
+<div class="practica">
+  <div class="practica-intro">
+    <p>Cada ejercicio muestra una forma de preguntar y apunta a un error que se repitió en el
+       <a href="analisis-examen-sql.html">examen de SQL</a>. Todas las consultas corren: ninguna
+       respuesta depende de adivinar si el motor da error. Se piensa la respuesta, se elige una
+       opción y recién después se abre la resolución, que muestra la salida real de la consulta.</p>
+    <p>Los datos son los de El Chip en su juego ampliado. Para probar cualquier consulta, abrí la
+       <a href="../../consola.html">consola</a> y elegí <strong>2 · Compendio</strong>. El esquema
+       completo está en <a href="../../casos/el-chip/modelo.html">la hoja del modelo</a>, y el
+       recorrido de una consulta etapa por etapa, en
+       <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>.</p>
+    <p>Los ejercicios 10 a 13 son más difíciles y se resuelven
+       debatiendo en clase. Cada uno trae una consigna para discutir en grupo antes de elegir
+       una opción, y el resultado de la consulta ya está a la vista. Si el grupo no avanza,
+       debajo de las opciones hay una ayuda que recorre la consulta etapa por etapa, con el
+       mismo método de <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>.</p>
+  </div>
+
+  <ol class="indice-ej">
+<li><a href="#ej-1"><span class="indice-num">01</span><span><span class="indice-mec">¿Una fila por cada qué?</span> · Clientes, órdenes y pagos en una sola consulta</span></a></li>
+<li><a href="#ej-2"><span class="indice-num">02</span><span><span class="indice-mec">Del resultado a la consulta</span> · Cuántos pagos recibió cada método</span></a></li>
+<li><a href="#ej-3"><span class="indice-num">03</span><span><span class="indice-mec">Del SQL al castellano</span> · Qué pedido responde esta consulta</span></a></li>
+<li><a href="#ej-4"><span class="indice-num">04</span><span><span class="indice-mec">Del castellano al SQL, con un hueco</span> · Métodos con los que se cobró más de $30.000</span></a></li>
+<li><a href="#ej-5"><span class="indice-num">05</span><span><span class="indice-mec">La condición en dos lugares</span> · Clientes que acumulan más de $50.000</span></a></li>
+<li><a href="#ej-6"><span class="indice-num">06</span><span><span class="indice-mec">Corre, pero responde otra cosa</span> · El total facturado a cada cliente</span></a></li>
+<li><a href="#ej-7"><span class="indice-num">07</span><span><span class="indice-mec">Corre, pero responde otra cosa</span> · Clientes que nunca trajeron un equipo</span></a></li>
+<li><a href="#ej-8"><span class="indice-num">08</span><span><span class="indice-mec">Subconsulta en dos pasos</span> · Repuestos más caros que el promedio</span></a></li>
+<li><a href="#ej-9"><span class="indice-num">09</span><span><span class="indice-mec">El estado después de un cambio</span> · Cargar la fecha de entrega</span></a></li>
+<li><a href="#ej-10"><span class="indice-num">10</span><span><span class="indice-mec">¿Por qué falta?</span> · Todos los clientes, con sus órdenes entregadas<span class="indice-debate">debate</span></span></a></li>
+<li><a href="#ej-11"><span class="indice-num">11</span><span><span class="indice-mec">Lo que se pidió y lo que hace</span> · Órdenes en las que no se usó efectivo<span class="indice-debate">debate</span></span></a></li>
+<li><a href="#ej-12"><span class="indice-num">12</span><span><span class="indice-mec">Corre, pero responde otra cosa</span> · Cuántas órdenes tiene cada cliente<span class="indice-debate">debate</span></span></a></li>
+<li><a href="#ej-13"><span class="indice-num">13</span><span><span class="indice-mec">Dos caminos que hoy coinciden</span> · La orden de mayor importe<span class="indice-debate">debate</span></span></a></li>
+  </ol>
+
+  <div class="barra-practica">
+    <button type="button" class="boton" id="reiniciar">Empezar de nuevo</button>
+    <button type="button" class="boton" id="plegar-datos">Plegar o desplegar las tablas</button>
+  </div>
+
+<section class="ej" id="ej-1" aria-labelledby="ej-1-titulo">
+<div class="ej-cab"><span class="ej-num">1</span><div><p class="ej-mec">¿Una fila por cada qué?</p><h2 id="ej-1-titulo">Clientes, órdenes y pagos en una sola consulta</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">cliente · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>2</td><td>María</td><td>García</td></tr>
+<tr><td>3</td><td>Carlos</td><td>López</td></tr>
+<tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+<tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+<tr><td>6</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>7</td><td>Sofía</td><td>Rossi</td></tr>
+<tr><td>8</td><td>Marcos</td><td>Ferreyra</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio_pago · 10 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_metodo_pago</th><th>monto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>20000.00</td></tr>
+<tr><td>1</td><td>2</td><td>33500.00</td></tr>
+<tr><td>2</td><td>3</td><td>40500.00</td></tr>
+<tr><td>4</td><td>1</td><td>10000.00</td></tr>
+<tr><td>4</td><td>4</td><td>8500.00</td></tr>
+<tr><td>5</td><td>2</td><td>27000.00</td></tr>
+<tr><td>6</td><td>1</td><td>15000.00</td></tr>
+<tr><td>6</td><td>2</td><td>5000.00</td></tr>
+<tr><td>8</td><td>1</td><td>4000.00</td></tr>
+<tr><td>8</td><td>3</td><td>5000.00</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Esta consulta cruza tres tablas y muestra los pagos de las órdenes de los clientes:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.apellido, O.nro_orden, P.monto
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre></div>
+<p class="ej-preg">¿De qué hay exactamente una fila en el resultado?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">Una por cada cliente</span></button>
+<p class="opc-porque" hidden>El cruce no devuelve una fila por cliente. Un cliente con tres órdenes pagadas aparece varias veces, y uno sin órdenes no aparece.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Una por cada orden</span></button>
+<p class="opc-porque" hidden>Sería así si la consulta terminara en <code>orden_servicio</code>. El segundo <code>JOIN</code> abre cada orden en tantas filas como pagos tenga, y deja afuera las que no tienen ninguno.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">c</span><span class="opc-texto">Una por cada pago registrado</span></button>
+<p class="opc-porque" hidden>Hay una fila por pago. Cada una muestra además la orden y el cliente de ese pago, y por eso el cliente y la orden se repiten.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Una por cada cliente que hizo algún pago</span></button>
+<p class="opc-porque" hidden>Son 3 los clientes distintos que aparecen, pero la consulta no los resume: cada uno figura una vez por cada pago.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: c</h3>
+<p>La cadena va de cliente a orden y de orden a pago. Cada <code>JOIN</code> conserva las combinaciones que encuentran pareja, así que el resultado termina con una fila por pago: 10. Las órdenes 3 y 7 no tienen pagos y quedan afuera; la orden 1 tiene dos y aparece dos veces.</p><div class="res-tabla">
+<p class="res-rotulo">Lo que devuelve la consulta</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>apellido</th><th>nro_orden</th><th>monto</th></tr></thead>
+              <tbody>
+                <tr><td>Pérez</td><td>1</td><td>20000.00</td></tr>
+                <tr><td>Pérez</td><td>1</td><td>33500.00</td></tr>
+                <tr><td>García</td><td>2</td><td>40500.00</td></tr>
+                <tr><td>Pérez</td><td>4</td><td>10000.00</td></tr>
+                <tr><td>Pérez</td><td>4</td><td>8500.00</td></tr>
+                <tr><td>Pérez</td><td>5</td><td>27000.00</td></tr>
+                <tr><td>García</td><td>6</td><td>15000.00</td></tr>
+                <tr><td>García</td><td>6</td><td>5000.00</td></tr>
+                <tr><td>Rossi</td><td>8</td><td>4000.00</td></tr>
+                <tr><td>Rossi</td><td>8</td><td>5000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">10 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Leer el resultado de un cruce como si tuviera una fila por cada registro de la primera tabla del <code>FROM</code>. El resultado tiene una fila por cada registro de la tabla más «fina» de la cadena, que acá es <code>orden_servicio_pago</code>.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-2" aria-labelledby="ej-2-titulo">
+<div class="ej-cab"><span class="ej-num">2</span><div><p class="ej-mec">Del resultado a la consulta</p><h2 id="ej-2-titulo">Cuántos pagos recibió cada método</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">metodo_pago · 6 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_metodo_pago</th><th>nombre</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Efectivo</td></tr>
+<tr><td>2</td><td>Tarjeta</td></tr>
+<tr><td>3</td><td>Transferencia</td></tr>
+<tr><td>4</td><td>Billetera Virtual</td></tr>
+<tr><td>5</td><td>Cheque</td></tr>
+<tr><td>6</td><td>Crédito en cuenta</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio_pago · 10 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_metodo_pago</th><th>monto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>20000.00</td></tr>
+<tr><td>1</td><td>2</td><td>33500.00</td></tr>
+<tr><td>2</td><td>3</td><td>40500.00</td></tr>
+<tr><td>4</td><td>1</td><td>10000.00</td></tr>
+<tr><td>4</td><td>4</td><td>8500.00</td></tr>
+<tr><td>5</td><td>2</td><td>27000.00</td></tr>
+<tr><td>6</td><td>1</td><td>15000.00</td></tr>
+<tr><td>6</td><td>2</td><td>5000.00</td></tr>
+<tr><td>8</td><td>1</td><td>4000.00</td></tr>
+<tr><td>8</td><td>3</td><td>5000.00</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Una consulta devolvió este resultado:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>pagos</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td><td>4</td></tr>
+                <tr><td>Tarjeta</td><td>3</td></tr>
+                <tr><td>Transferencia</td><td>2</td></tr>
+                <tr><td>Billetera Virtual</td><td>1</td></tr>
+                <tr class="destacada"><td>Cheque</td><td>0</td></tr>
+                <tr class="destacada"><td>Crédito en cuenta</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p>
+</div><p>Hay tres candidatas:</p><div class="variantes">
+<div class="variante"><span class="variante-rot">I</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> M.nombre, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> pagos
+<span class="sql-keyword">FROM</span> metodo_pago M
+<span class="sql-keyword">JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.id_metodo_pago, M.nombre
+<span class="sql-keyword">ORDER BY</span> M.id_metodo_pago;</code></pre></div>
+<div class="variante"><span class="variante-rot">II</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> M.nombre, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> pagos
+<span class="sql-keyword">FROM</span> metodo_pago M
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.id_metodo_pago, M.nombre
+<span class="sql-keyword">ORDER BY</span> M.id_metodo_pago;</code></pre></div>
+<div class="variante"><span class="variante-rot">III</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> M.nombre, <span class="sql-keyword">COUNT</span>(P.nro_orden) <span class="sql-keyword">AS</span> pagos
+<span class="sql-keyword">FROM</span> metodo_pago M
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.id_metodo_pago, M.nombre
+<span class="sql-keyword">ORDER BY</span> M.id_metodo_pago;</code></pre></div>
+</div></div>
+<p class="ej-preg">¿Cuál de las tres lo produjo?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">La I</span></button>
+<p class="opc-porque" hidden>El <code>JOIN</code> descarta los métodos sin pagos: la I devuelve 4 filas y en el resultado hay seis.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">La II</span></button>
+<p class="opc-porque" hidden>La II trae los seis métodos, pero <code>COUNT(*)</code> cuenta filas, y la fila que el <code>LEFT JOIN</code> arma para un método sin pagos también es una fila: mostraría 1.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">La II y la III, que devuelven lo mismo</span></button>
+<p class="opc-porque" hidden>Coinciden en los métodos que tienen pagos y difieren justo en los que no tienen: la II les pone 1 y la III les pone 0.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">d</span><span class="opc-texto">La III</span></button>
+<p class="opc-porque" hidden>El <code>LEFT JOIN</code> conserva los seis métodos y <code>COUNT(P.nro_orden)</code> cuenta solo los valores cargados, así que un método sin pagos da 0.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: d</h3>
+<p>Cheque y Crédito en cuenta no se usaron nunca. Para que aparezcan hace falta el <code>LEFT JOIN</code>, y para que muestren 0 hay que contar una columna de la tabla de la derecha, que en esas filas vale NULL.</p><div class="res-fila"><div class="res-tabla">
+<p class="res-rotulo">I · JOIN y COUNT(*)</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>pagos</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td><td>4</td></tr>
+                <tr><td>Tarjeta</td><td>3</td></tr>
+                <tr><td>Transferencia</td><td>2</td></tr>
+                <tr><td>Billetera Virtual</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">II · LEFT JOIN y COUNT(*)</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>pagos</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td><td>4</td></tr>
+                <tr><td>Tarjeta</td><td>3</td></tr>
+                <tr><td>Transferencia</td><td>2</td></tr>
+                <tr><td>Billetera Virtual</td><td>1</td></tr>
+                <tr class="destacada"><td>Cheque</td><td>1</td></tr>
+                <tr class="destacada"><td>Crédito en cuenta</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">III · LEFT JOIN y COUNT(P.nro_orden)</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>pagos</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td><td>4</td></tr>
+                <tr><td>Tarjeta</td><td>3</td></tr>
+                <tr><td>Transferencia</td><td>2</td></tr>
+                <tr><td>Billetera Virtual</td><td>1</td></tr>
+                <tr class="destacada"><td>Cheque</td><td>0</td></tr>
+                <tr class="destacada"><td>Crédito en cuenta</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p>
+</div></div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Dos errores encadenados: creer que un grupo vacío aparece solo con valor 0, y creer que <code>COUNT(*)</code> sobre un <code>LEFT JOIN</code> devuelve 0 cuando no hay pareja.</p>
+<p class="ej-examen">Es el tema de las preguntas 19, 20 y 21 del examen, las de la editorial sin libros. La 20 fue una de las tres con menos aciertos.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-3" aria-labelledby="ej-3-titulo">
+<div class="ej-cab"><span class="ej-num">3</span><div><p class="ej-mec">Del SQL al castellano</p><h2 id="ej-3-titulo">Qué pedido responde esta consulta</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Alguien escribió esta consulta y no anotó para qué era:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> id_cliente, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> id_cliente
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">COUNT</span>(*) &gt; <span class="sql-number">1</span>;</code></pre></div>
+<p class="ej-preg">¿Qué pedido responde?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">Las órdenes que tienen más de un cliente</span></button>
+<p class="opc-porque" hidden>Los grupos son clientes, porque se agrupa por <code>id_cliente</code>. Además, en este modelo una orden tiene un solo cliente.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">b</span><span class="opc-texto">Los clientes que tienen más de una orden</span></button>
+<p class="opc-porque" hidden>Se agrupa por cliente, se cuentan las filas de cada grupo —sus órdenes— y quedan los grupos con más de una.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">Cuántas órdenes tiene cada uno de los clientes</span></button>
+<p class="opc-porque" hidden>Eso es la consulta sin el <code>HAVING</code>. Con el <code>HAVING</code> ya no están todos los clientes.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Los clientes que tienen al menos una orden</span></button>
+<p class="opc-porque" hidden>«Al menos una» es <code>COUNT(*) &gt;= 1</code>, que se cumple para todo grupo. La consulta pide más de una.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: b</h3>
+<p>Para leer una consulta con grupos conviene ir en este orden: de qué tabla salen las filas, por qué columna se agrupan, qué se calcula en cada grupo y qué grupos quedan.</p><div class="res-tabla">
+<p class="res-rotulo">Lo que devuelve</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>ordenes</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>3</td></tr>
+                <tr><td>2</td><td>2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Leer la consulta de corrido sin identificar qué es un grupo. La pregunta que ordena la lectura es por qué columna se agrupa: eso dice de qué habla cada fila del resultado.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-4" aria-labelledby="ej-4-titulo">
+<div class="ej-cab"><span class="ej-num">4</span><div><p class="ej-mec">Del castellano al SQL, con un hueco</p><h2 id="ej-4-titulo">Métodos con los que se cobró más de $30.000</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">metodo_pago · 6 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_metodo_pago</th><th>nombre</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Efectivo</td></tr>
+<tr><td>2</td><td>Tarjeta</td></tr>
+<tr><td>3</td><td>Transferencia</td></tr>
+<tr><td>4</td><td>Billetera Virtual</td></tr>
+<tr><td>5</td><td>Cheque</td></tr>
+<tr><td>6</td><td>Crédito en cuenta</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio_pago · 10 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_metodo_pago</th><th>monto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>20000.00</td></tr>
+<tr><td>1</td><td>2</td><td>33500.00</td></tr>
+<tr><td>2</td><td>3</td><td>40500.00</td></tr>
+<tr><td>4</td><td>1</td><td>10000.00</td></tr>
+<tr><td>4</td><td>4</td><td>8500.00</td></tr>
+<tr><td>5</td><td>2</td><td>27000.00</td></tr>
+<tr><td>6</td><td>1</td><td>15000.00</td></tr>
+<tr><td>6</td><td>2</td><td>5000.00</td></tr>
+<tr><td>8</td><td>1</td><td>4000.00</td></tr>
+<tr><td>8</td><td>3</td><td>5000.00</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín pide los métodos de pago con los que se cobró <strong>más de $30.000 en total</strong>. La consulta está escrita, salvo una cláusula:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> M.nombre, <span class="sql-keyword">SUM</span>(P.monto) <span class="sql-keyword">AS</span> cobrado
+<span class="sql-keyword">FROM</span> metodo_pago M
+<span class="sql-keyword">JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.id_metodo_pago = M.id_metodo_pago
+<span class="sql-keyword">GROUP BY</span> M.id_metodo_pago, M.nombre
+________________________
+<span class="sql-keyword">ORDER BY</span> M.id_metodo_pago;</code></pre></div>
+<p class="ej-preg">¿Qué va en el hueco?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc" data-ok><span class="opc-letra">a</span><span class="opc-texto"><code>HAVING SUM(P.monto) &gt; 30000</code></span></button>
+<p class="opc-porque" hidden>«En total» es la suma de los montos del grupo.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto"><code>HAVING MAX(P.monto) &gt; 30000</code></span></button>
+<p class="opc-porque" hidden>Eso pide que algún pago individual supere los $30.000. Devuelve 2 métodos: deja afuera a Efectivo, que junta más de $30.000 con cuatro pagos chicos.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto"><code>HAVING COUNT(*) &gt; 30000</code></span></button>
+<p class="opc-porque" hidden><code>COUNT(*)</code> cuenta pagos, no pesos: pediría más de 30.000 pagos por método.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto"><code>HAVING AVG(P.monto) &gt; 30000</code></span></button>
+<p class="opc-porque" hidden>El promedio por pago es otra medida: ningún método promedia más de $30.000 por pago.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: a</h3>
+<p>Las cuatro opciones corren. Cambia qué grupos pasan:</p><div class="res-fila"><div class="res-tabla">
+<p class="res-rotulo">HAVING SUM(P.monto) &gt; 30000</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>cobrado</th></tr></thead>
+              <tbody>
+                <tr><td>Efectivo</td><td>49000.00</td></tr>
+                <tr><td>Tarjeta</td><td>65500.00</td></tr>
+                <tr><td>Transferencia</td><td>45500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">HAVING MAX(P.monto) &gt; 30000</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>cobrado</th></tr></thead>
+              <tbody>
+                <tr><td>Tarjeta</td><td>65500.00</td></tr>
+                <tr><td>Transferencia</td><td>45500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p>
+</div></div><p>Con <code>COUNT(*)</code> y con <code>AVG</code> no pasa ningún grupo: 0 y 0 filas.</p>
+<p class="ej-error"><strong>El error al que apunta.</strong> Elegir la función de agregación por parecido y no por lo que pide el enunciado. «En total», «el más caro», «cuántos» y «en promedio» son cuatro funciones distintas.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-5" aria-labelledby="ej-5-titulo">
+<div class="ej-cab"><span class="ej-num">5</span><div><p class="ej-mec">La condición en dos lugares</p><h2 id="ej-5-titulo">Clientes que acumulan más de $50.000</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín quiere los clientes que <strong>acumulan más de $50.000 entre todas sus órdenes</strong>. Hay dos consultas parecidas:</p><div class="variantes">
+<div class="variante"><span class="variante-rot">I</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> id_cliente, <span class="sql-keyword">SUM</span>(total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> total &gt; <span class="sql-number">50000</span>
+<span class="sql-keyword">GROUP BY</span> id_cliente;</code></pre></div>
+<div class="variante"><span class="variante-rot">II</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> id_cliente, <span class="sql-keyword">SUM</span>(total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">GROUP BY</span> id_cliente
+<span class="sql-keyword">HAVING</span> <span class="sql-keyword">SUM</span>(total) &gt; <span class="sql-number">50000</span>;</code></pre></div>
+</div></div>
+<p class="ej-preg">¿Cuál responde el pedido?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">La I</span></button>
+<p class="opc-porque" hidden>La I descarta primero toda orden de $50.000 o menos y suma lo que queda. Responde otro pedido: cuánto suman las órdenes grandes de cada cliente.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Las dos: devuelven lo mismo</span></button>
+<p class="opc-porque" hidden>Devuelven distinta cantidad de filas: la I, 1; la II, 2.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">Ninguna: para filtrar por una suma hace falta una subconsulta</span></button>
+<p class="opc-porque" hidden>El <code>HAVING</code> filtra grupos por un valor calculado, como la suma. La II lo usa así y alcanza.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">d</span><span class="opc-texto">La II</span></button>
+<p class="opc-porque" hidden>La II suma todas las órdenes de cada cliente y después se queda con los grupos cuya suma pasa de $50.000.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: d</h3>
+<p>El cliente 2 no tiene ninguna orden de más de $50.000, pero entre las dos que tiene supera ese monto. La I lo pierde y la II lo encuentra. En el cliente 1 las dos consultas coinciden en la fila y difieren en la suma.</p><div class="res-fila"><div class="res-tabla">
+<p class="res-rotulo">I · la condición en el WHERE</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>facturado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>53500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">II · la condición en el HAVING</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>facturado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>99000.00</td></tr>
+                <tr><td>2</td><td>60500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p>
+</div></div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Poner la condición donde «suena» y no donde corresponde. Si la condición habla de cada orden, va en el <code>WHERE</code>; si habla del acumulado del cliente, va en el <code>HAVING</code>.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-6" aria-labelledby="ej-6-titulo">
+<div class="ej-cab"><span class="ej-num">6</span><div><p class="ej-mec">Corre, pero responde otra cosa</p><h2 id="ej-6-titulo">El total facturado a cada cliente</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">cliente · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>2</td><td>María</td><td>García</td></tr>
+<tr><td>3</td><td>Carlos</td><td>López</td></tr>
+<tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+<tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+<tr><td>6</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>7</td><td>Sofía</td><td>Rossi</td></tr>
+<tr><td>8</td><td>Marcos</td><td>Ferreyra</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio_pago · 10 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_metodo_pago</th><th>monto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>20000.00</td></tr>
+<tr><td>1</td><td>2</td><td>33500.00</td></tr>
+<tr><td>2</td><td>3</td><td>40500.00</td></tr>
+<tr><td>4</td><td>1</td><td>10000.00</td></tr>
+<tr><td>4</td><td>4</td><td>8500.00</td></tr>
+<tr><td>5</td><td>2</td><td>27000.00</td></tr>
+<tr><td>6</td><td>1</td><td>15000.00</td></tr>
+<tr><td>6</td><td>2</td><td>5000.00</td></tr>
+<tr><td>8</td><td>1</td><td>4000.00</td></tr>
+<tr><td>8</td><td>3</td><td>5000.00</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín pide <strong>cuánto se le facturó a cada cliente</strong>, sumando el total de sus órdenes. Se escribe esta consulta, que corre sin problemas:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, <span class="sql-keyword">SUM</span>(O.total) <span class="sql-keyword">AS</span> facturado
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.apellido
+<span class="sql-keyword">ORDER BY</span> C.id_cliente;</code></pre><p>Al cliente 1 le informa $171000.00, y sus tres órdenes suman $99000.00.</p></div>
+<p class="ej-preg">¿Cuál es el cambio mínimo que la corrige?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">Agregar <code>DISTINCT</code> después del <code>SELECT</code></span></button>
+<p class="opc-porque" hidden><code>DISTINCT</code> quita filas repetidas del resultado final, y ahí ya hay una fila por cliente. La suma inflada se calculó antes.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">b</span><span class="opc-texto">Sacar el cruce con <code>orden_servicio_pago</code></span></button>
+<p class="opc-porque" hidden>El pedido no usa ningún dato de los pagos. Ese cruce repite cada orden una vez por pago, y el total de la orden se suma repetido.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">Cambiar los dos <code>JOIN</code> por <code>LEFT JOIN</code></span></button>
+<p class="opc-porque" hidden>Agregaría los clientes sin órdenes, pero las órdenes con dos pagos seguirían contando doble.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Agrupar también por <code>O.nro_orden</code></span></button>
+<p class="opc-porque" hidden>Daría una fila por orden, no por cliente, y cada orden con dos pagos seguiría sumando su total dos veces.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: b</h3>
+<p>La orden 1 tiene dos pagos: después del segundo cruce aparece en dos filas y su total entra dos veces en la suma. Lo mismo pasa con las órdenes 4, 6 y 8.</p><div class="res-fila"><div class="res-tabla">
+<p class="res-rotulo">Con el cruce de más</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>facturado</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>1</td><td>Pérez</td><td>171000.00</td></tr>
+                <tr class="destacada"><td>2</td><td>García</td><td>80500.00</td></tr>
+                <tr class="destacada"><td>7</td><td>Rossi</td><td>18000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">Sin ese cruce</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>facturado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>99000.00</td></tr>
+                <tr><td>2</td><td>García</td><td>60500.00</td></tr>
+                <tr><td>5</td><td>Rossi</td><td>0.00</td></tr>
+                <tr><td>6</td><td>Pérez</td><td>0.00</td></tr>
+                <tr><td>7</td><td>Rossi</td><td>9000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p>
+</div></div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Cruzar una tabla de más. Cada cruce puede multiplicar filas, y una suma calculada sobre filas repetidas da un número que parece razonable y está mal. Antes de sumar conviene preguntarse de qué hay una fila en el cruce.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-7" aria-labelledby="ej-7-titulo">
+<div class="ej-cab"><span class="ej-num">7</span><div><p class="ej-mec">Corre, pero responde otra cosa</p><h2 id="ej-7-titulo">Clientes que nunca trajeron un equipo</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">cliente · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>2</td><td>María</td><td>García</td></tr>
+<tr><td>3</td><td>Carlos</td><td>López</td></tr>
+<tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+<tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+<tr><td>6</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>7</td><td>Sofía</td><td>Rossi</td></tr>
+<tr><td>8</td><td>Marcos</td><td>Ferreyra</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Para listar los clientes que <strong>no tienen ninguna orden</strong> se escribe:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.nombre, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.nro_orden = <span class="sql-keyword">NULL</span>;</code></pre></div>
+<p class="ej-preg">¿Qué pasa al ejecutarla?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">Devuelve los 3 clientes sin órdenes</span></button>
+<p class="opc-porque" hidden>Eso devolvería con <code>IS NULL</code>. Con <code>=</code> la comparación nunca da verdadero.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Devuelve los 8 clientes</span></button>
+<p class="opc-porque" hidden>El <code>WHERE</code> sí filtra: deja pasar solo las filas donde la condición es verdadera, y acá no lo es en ninguna.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">c</span><span class="opc-texto">Devuelve 0 filas, sin ningún aviso</span></button>
+<p class="opc-porque" hidden>Comparar con NULL usando <code>=</code> da «desconocido» para toda fila. Ninguna pasa el filtro, y el motor no lo considera un error.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">No corre: NULL no se puede comparar con <code>=</code></span></button>
+<p class="opc-porque" hidden>La sentencia es válida y el motor la ejecuta. El problema está en el resultado.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: c</h3>
+<p>NULL significa «no se sabe», y preguntarle al motor si algo es igual a un valor que no se sabe da «desconocido». Para preguntar si un dato falta existe <code>IS NULL</code>:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.nombre, C.apellido
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.nro_orden <span class="sql-keyword">IS</span> <span class="sql-keyword">NULL</span>;</code></pre><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th></tr></thead>
+              <tbody>
+                <tr><td>Carlos</td><td>López</td></tr>
+                <tr><td>Ana</td><td>Martínez</td></tr>
+                <tr><td>Marcos</td><td>Ferreyra</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">3 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Tratar a NULL como un valor más y suponer que, si la consulta está mal pensada, el motor avisa. Una consulta puede correr sin error y devolver una hoja en blanco.</p>
+<p class="ej-examen">Fue la pregunta 11 del examen, la de menos aciertos junto con otras dos. La respuesta más elegida fue que daba error de sintaxis.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-8" aria-labelledby="ej-8-titulo">
+<div class="ej-cab"><span class="ej-num">8</span><div><p class="ej-mec">Subconsulta en dos pasos</p><h2 id="ej-8-titulo">Repuestos más caros que el promedio</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">repuesto · 9 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_repuesto</th><th>nombre</th><th>precio_unitario</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Módulo Samsung S21 Original</td><td>45000.00</td></tr>
+<tr><td>2</td><td>Módulo iPhone 13 Genérico</td><td>32000.00</td></tr>
+<tr><td>3</td><td>Batería iPhone 11/12</td><td>12000.00</td></tr>
+<tr><td>4</td><td>Pin de carga Universal USB-C</td><td>1500.00</td></tr>
+<tr><td>5</td><td>Módulo Motorola Edge 30</td><td>28000.00</td></tr>
+<tr><td>6</td><td>Batería Samsung Serie A</td><td>9500.00</td></tr>
+<tr><td>7</td><td>Flex de carga Xiaomi</td><td>2200.00</td></tr>
+<tr><td>8</td><td>Vidrio templado universal</td><td>800.00</td></tr>
+<tr><td>9</td><td>Módulo Google Pixel 7</td><td>38000.00</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Se ejecuta:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> nombre, precio_unitario
+<span class="sql-keyword">FROM</span> repuesto
+<span class="sql-keyword">WHERE</span> precio_unitario &gt; (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">AVG</span>(precio_unitario) <span class="sql-keyword">FROM</span> repuesto);</code></pre><div class="ej-ref">
+<p class="ref-titulo">Datos de referencia · <code>repuesto</code></p>
+<ul><li><span class="ref-rot">Cantidad de repuestos</span> <strong>9</strong></li><li><span class="ref-rot">Suma de precios</span> <strong>169000.00</strong></li><li><span class="ref-rot">Precio promedio</span> <strong>18777.78</strong></li><li><span class="ref-rot">Precio mínimo</span> <strong>800.00</strong></li><li><span class="ref-rot">Precio máximo</span> <strong>45000.00</strong></li></ul>
+<p class="ref-nota">Se dan calculados: el ejercicio no espera que hagas la cuenta a mano.</p>
+</div></div>
+<p class="ej-preg">¿Qué devuelve la consulta de adentro, y qué hace la de afuera con eso?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc" data-ok><span class="opc-letra">a</span><span class="opc-texto">Un solo valor, el promedio; la de afuera lista los repuestos cuyo precio lo supera</span></button>
+<p class="opc-porque" hidden>La de adentro se resuelve una vez y deja un número. La de afuera compara contra ese número el precio de cada repuesto.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Un valor por cada repuesto; la de afuera compara cada precio con el suyo</span></button>
+<p class="opc-porque" hidden><code>AVG</code> sin <code>GROUP BY</code> resume toda la tabla en una sola fila.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">Un solo valor; la de afuera también queda resumida en una sola fila</span></button>
+<p class="opc-porque" hidden>La que queda en una fila es la de adentro. La de afuera no agrega nada: lista los repuestos que pasan el filtro.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">No corre: una consulta no puede ir dentro del <code>WHERE</code></span></button>
+<p class="opc-porque" hidden>Puede. Una subconsulta que devuelve un solo valor se usa en el <code>WHERE</code> como cualquier número.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: a</h3>
+<p><strong>Paso 1.</strong> La de adentro devuelve un valor: <code>18777.78</code>.</p><p><strong>Paso 2.</strong> La de afuera queda como <code>WHERE precio_unitario &gt; 18777.78</code>:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>precio_unitario</th></tr></thead>
+              <tbody>
+                <tr><td>Módulo Samsung S21 Original</td><td>45000.00</td></tr>
+                <tr><td>Módulo iPhone 13 Genérico</td><td>32000.00</td></tr>
+                <tr><td>Módulo Motorola Edge 30</td><td>28000.00</td></tr>
+                <tr><td>Módulo Google Pixel 7</td><td>38000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Leer la consulta entera de una vez. Una subconsulta se resuelve por separado: primero la de adentro, se anota qué devuelve, y recién después se lee la de afuera con ese resultado en el lugar del paréntesis.</p>
+<p class="ej-examen">En la pregunta 10 del examen, casi un tercio del curso respondió que no se puede usar una consulta dentro del <code>WHERE</code>.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-9" aria-labelledby="ej-9-titulo">
+<div class="ej-cab"><span class="ej-num">9</span><div><p class="ej-mec">El estado después de un cambio</p><h2 id="ej-9-titulo">Cargar la fecha de entrega</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Las 8 órdenes tienen <code>fecha_entrega</code> en NULL. Se cargan las fechas de las que están en estado 3, «Entregado»:</p><pre class="ej-sql"><code><span class="sql-keyword">UPDATE</span> orden_servicio
+<span class="sql-keyword">SET</span> fecha_entrega = <span class="sql-string">&#x27;2026-06-05 10:00:00&#x27;</span>
+<span class="sql-keyword">WHERE</span> id_orden_estado = <span class="sql-number">3</span>;</code></pre><p>Inmediatamente después se ejecuta:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">COUNT</span>(*), <span class="sql-keyword">COUNT</span>(fecha_entrega) <span class="sql-keyword">FROM</span> orden_servicio;</code></pre></div>
+<p class="ej-preg">¿Qué muestra esta segunda consulta?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">8 y 8</span></button>
+<p class="opc-porque" hidden><code>COUNT(fecha_entrega)</code> saltea las filas donde la fecha sigue en NULL.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">4 y 4</span></button>
+<p class="opc-porque" hidden>El <code>UPDATE</code> cambia un dato en algunas filas; no borra las demás. <code>COUNT(*)</code> sigue contando todas.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">c</span><span class="opc-texto">8 y 4</span></button>
+<p class="opc-porque" hidden><code>COUNT(*)</code> cuenta filas. <code>COUNT(fecha_entrega)</code> cuenta las filas que tienen la fecha cargada.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">8 y 0</span></button>
+<p class="opc-porque" hidden>Ese era el estado anterior al <code>UPDATE</code>.</p></li>
+</ol>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: c</h3>
+<p>El <code>UPDATE</code> toca las 4 órdenes en estado 3. Las otras 4 conservan el NULL, y <code>COUNT(fecha_entrega)</code> no las cuenta. Las dos funciones comparten la única fila del resultado.</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>COUNT(*)</th><th>COUNT(fecha_entrega)</th></tr></thead>
+              <tbody>
+                <tr><td>8</td><td>4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p>
+</div><div class="res-tabla">
+<p class="res-rotulo">La tabla después del UPDATE</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>id_orden_estado</th><th>fecha_entrega</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>3</td><td>2026-06-05 10:00:00</td></tr>
+                <tr><td>2</td><td>3</td><td>2026-06-05 10:00:00</td></tr>
+                <tr class="destacada"><td>3</td><td>1</td><td>NULL</td></tr>
+                <tr class="destacada"><td>4</td><td>2</td><td>NULL</td></tr>
+                <tr><td>5</td><td>3</td><td>2026-06-05 10:00:00</td></tr>
+                <tr><td>6</td><td>3</td><td>2026-06-05 10:00:00</td></tr>
+                <tr class="destacada"><td>7</td><td>1</td><td>NULL</td></tr>
+                <tr class="destacada"><td>8</td><td>4</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">8 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Dos cosas: suponer que <code>COUNT(columna)</code> cuenta filas, y leer el <code>WHERE</code> de un <code>UPDATE</code> como si fuera un filtro de lo que queda en la tabla.</p>
+<p class="ej-examen">La pregunta 14 del examen pedía lo mismo sobre la fecha de devolución, y la 8 mostró que varios esperan una fila por cada función de agregación.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-10" aria-labelledby="ej-10-titulo">
+<div class="ej-cab"><span class="ej-num">10</span><div><p class="ej-mec">¿Por qué falta?</p><h2 id="ej-10-titulo">Todos los clientes, con sus órdenes entregadas</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">cliente · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>2</td><td>María</td><td>García</td></tr>
+<tr><td>3</td><td>Carlos</td><td>López</td></tr>
+<tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+<tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+<tr><td>6</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>7</td><td>Sofía</td><td>Rossi</td></tr>
+<tr><td>8</td><td>Marcos</td><td>Ferreyra</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín pide la lista de <strong>todos los clientes</strong> y, al lado de cada uno, sus órdenes entregadas (estado 3) si tiene alguna. Se usa un <code>LEFT JOIN</code> para que no falte ningún cliente:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, O.nro_orden
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">WHERE</span> O.id_orden_estado = <span class="sql-number">3</span>
+<span class="sql-keyword">ORDER BY</span> C.id_cliente, O.nro_orden;</code></pre><p>El resultado trae solo a los clientes 1 y 2:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>nro_orden</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>1</td></tr>
+                <tr><td>1</td><td>Pérez</td><td>5</td></tr>
+                <tr><td>2</td><td>García</td><td>2</td></tr>
+                <tr><td>2</td><td>García</td><td>6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p>
+</div></div>
+<p class="ej-debate"><strong>Para debatir antes de elegir.</strong> ¿Qué valor tiene <code>O.id_orden_estado</code> en la fila de un cliente que no tiene órdenes? ¿Y qué resultado da compararlo con 3?</p>
+<p class="ej-preg">¿Por qué faltan los demás clientes?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">El <code>LEFT JOIN</code> solo conserva los clientes que tienen alguna orden</span></button>
+<p class="opc-porque" hidden>Eso hace el <code>JOIN</code>. El <code>LEFT JOIN</code> arma una fila para cada cliente sin órdenes, con NULL en las columnas de la orden.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">b</span><span class="opc-texto">El <code>WHERE</code> corre después del cruce y descarta toda fila donde <code>O.id_orden_estado</code> no vale 3, incluidas las que tienen NULL</span></button>
+<p class="opc-porque" hidden>El cruce conserva a todos los clientes. Después el <code>WHERE</code> revisa fila por fila, y en la fila de un cliente sin órdenes <code>NULL = 3</code> no da verdadero.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">El <code>ORDER BY</code> por <code>O.nro_orden</code> deja afuera las filas con NULL</span></button>
+<p class="opc-porque" hidden><code>ORDER BY</code> ordena las filas que llegan y no quita ninguna.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Falta un <code>GROUP BY C.id_cliente</code> para que haya una fila por cliente</span></button>
+<p class="opc-porque" hidden>Agrupar resume las filas que quedaron. Las que el <code>WHERE</code> descartó ya no están para agruparse.</p></li>
+</ol>
+<details class="ej-ayuda">
+<summary>¿Necesitan ayuda? Recorran la consulta por etapas</summary>
+<p class="ayuda-intro">Este es el método de <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>: seguirla en el orden en que la resuelve el motor y mirar, en cada etapa, qué filas hay y cuáles se van. Avancen de a una etapa y contesten la pregunta de cada paso antes de pasar al siguiente.</p>
+<div class="recorrido">
+<div class="rec-barra" role="group" aria-label="Etapas de la consulta"><button type="button" class="rec-chip" aria-current="step">1 · FROM</button><button type="button" class="rec-chip">2 · LEFT JOIN</button><button type="button" class="rec-chip">3 · WHERE</button><button type="button" class="rec-chip">4 · SELECT</button><button type="button" class="rec-chip">5 · ORDER BY</button></div>
+<div class="rec-etapa">
+<div class="visor-titulo"><span class="visor-etapa">etapa 1 de 5 · FROM</span><h3>Las filas de la tabla</h3></div>
+<p class="visor-dice">De acá salen las filas: la tabla <code>cliente</code> completa.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th><th>O.id_orden_estado</th></tr></thead><tbody><tr><td>1</td><td>Pérez</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>2</td><td>García</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>3</td><td>López</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>4</td><td>Martínez</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>5</td><td>Rossi</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>6</td><td>Pérez</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>7</td><td>Rossi</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>8</td><td>Ferreyra</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Están todos los clientes en este momento?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 2 de 5 · LEFT JOIN</span><h3>Se suma la tabla orden_servicio</h3></div>
+<p class="visor-dice">Cada fila busca sus parejas en <code>orden_servicio</code> con la condición <code>O.id_cliente = C.id_cliente</code>. La que no encuentra ninguna queda igual, con NULL en las columnas nuevas.</p>
+<p class="visor-cuenta">8 filas → <strong>11 filas</strong> · 3 con NULL</p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th><th>O.id_orden_estado</th></tr></thead><tbody><tr><td>1</td><td>Pérez</td><td class="nuevo">1</td><td class="nuevo">1</td><td class="nuevo">3</td></tr><tr><td>1</td><td>Pérez</td><td class="nuevo">4</td><td class="nuevo">1</td><td class="nuevo">2</td></tr><tr><td>1</td><td>Pérez</td><td class="nuevo">5</td><td class="nuevo">1</td><td class="nuevo">3</td></tr><tr><td>2</td><td>García</td><td class="nuevo">2</td><td class="nuevo">2</td><td class="nuevo">3</td></tr><tr><td>2</td><td>García</td><td class="nuevo">6</td><td class="nuevo">2</td><td class="nuevo">3</td></tr><tr class="con-nulos"><td>3</td><td>López</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr><tr class="con-nulos"><td>4</td><td>Martínez</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr><tr><td>5</td><td>Rossi</td><td class="nuevo">3</td><td class="nuevo">5</td><td class="nuevo">1</td></tr><tr><td>6</td><td>Pérez</td><td class="nuevo">7</td><td class="nuevo">6</td><td class="nuevo">1</td></tr><tr><td>7</td><td>Rossi</td><td class="nuevo">8</td><td class="nuevo">7</td><td class="nuevo">4</td></tr><tr class="con-nulos"><td>8</td><td>Ferreyra</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-nula">sin pareja: el LEFT JOIN las completa con NULL</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Qué clientes quedaron con NULL en las columnas de la orden? ¿Siguen en juego o se fueron?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 3 de 5 · WHERE</span><h3>Se descartan filas</h3></div>
+<p class="visor-dice">La condición <code>O.id_orden_estado = 3</code> se prueba fila por fila. Siguen las filas en las que da verdadero.</p>
+<p class="visor-cuenta">11 filas → <strong>4 filas</strong> <span class="baja">(−7)</span></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th><th>O.id_orden_estado</th></tr></thead><tbody><tr><td>1</td><td>Pérez</td><td>1</td><td>1</td><td>3</td></tr><tr class="se-va"><td>1</td><td>Pérez</td><td>4</td><td>1</td><td>2</td></tr><tr><td>1</td><td>Pérez</td><td>5</td><td>1</td><td>3</td></tr><tr><td>2</td><td>García</td><td>2</td><td>2</td><td>3</td></tr><tr><td>2</td><td>García</td><td>6</td><td>2</td><td>3</td></tr><tr class="se-va con-nulos"><td>3</td><td>López</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr><tr class="se-va con-nulos"><td>4</td><td>Martínez</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr><tr class="se-va"><td>5</td><td>Rossi</td><td>3</td><td>5</td><td>1</td></tr><tr class="se-va"><td>6</td><td>Pérez</td><td>7</td><td>6</td><td>1</td></tr><tr class="se-va"><td>7</td><td>Rossi</td><td>8</td><td>7</td><td>4</td></tr><tr class="se-va con-nulos"><td>8</td><td>Ferreyra</td><td class="nulo">NULL</td><td class="nulo">NULL</td><td class="nulo">NULL</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-sale">las descarta esta etapa</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Revisen las filas tachadas una por una. ¿Qué valor tenía <code>O.id_orden_estado</code> en cada una?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 4 de 5 · SELECT</span><h3>Se arman las columnas de salida</h3></div>
+<p class="visor-dice">De cada fila que sigue en juego se toman las columnas que pide el <code>SELECT</code>. Las demás dejan de verse.</p>
+<p class="visor-cuenta"><strong>4 filas</strong> · 3 columnas</p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>id_cliente</th><th>apellido</th><th>nro_orden</th></tr></thead><tbody><tr><td>1</td><td>Pérez</td><td>1</td></tr><tr><td>1</td><td>Pérez</td><td>5</td></tr><tr><td>2</td><td>García</td><td>2</td></tr><tr><td>2</td><td>García</td><td>6</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿En qué etapa se fue cada uno de los clientes que faltan?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 5 de 5 · ORDER BY</span><h3>Se ordena el resultado</h3></div>
+<p class="visor-dice">Las filas son las mismas de la etapa anterior, en otro orden.</p>
+<p class="visor-cuenta"><strong>4 filas</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>id_cliente</th><th>apellido</th><th>nro_orden</th></tr></thead><tbody><tr><td>1</td><td>Pérez</td><td>1</td></tr><tr><td>1</td><td>Pérez</td><td>5</td></tr><tr><td>2</td><td>García</td><td>2</td></tr><tr><td>2</td><td>García</td><td>6</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+</div>
+<div class="rec-nav"><button type="button" class="boton" data-ir="-1">Etapa anterior</button><button type="button" class="boton" data-ir="1">Etapa siguiente</button></div>
+</div>
+</details>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: b</h3>
+<p>Este es el cruce antes del <code>WHERE</code>. Las filas marcadas son las que el filtro descarta: las de los clientes 3, 4 y 8, que no tienen órdenes y llevan NULL, y las de los clientes 5, 6 y 7, cuyas órdenes están en otro estado.</p><div class="res-tabla">
+<p class="res-rotulo">El LEFT JOIN sin el WHERE</p>
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>nro_orden</th><th>id_orden_estado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>1</td><td>3</td></tr>
+                <tr class="destacada"><td>1</td><td>Pérez</td><td>4</td><td>2</td></tr>
+                <tr><td>1</td><td>Pérez</td><td>5</td><td>3</td></tr>
+                <tr><td>2</td><td>García</td><td>2</td><td>3</td></tr>
+                <tr><td>2</td><td>García</td><td>6</td><td>3</td></tr>
+                <tr class="destacada"><td>3</td><td>López</td><td>NULL</td><td>NULL</td></tr>
+                <tr class="destacada"><td>4</td><td>Martínez</td><td>NULL</td><td>NULL</td></tr>
+                <tr class="destacada"><td>5</td><td>Rossi</td><td>3</td><td>1</td></tr>
+                <tr class="destacada"><td>6</td><td>Pérez</td><td>7</td><td>1</td></tr>
+                <tr class="destacada"><td>7</td><td>Rossi</td><td>8</td><td>4</td></tr>
+                <tr class="destacada"><td>8</td><td>Ferreyra</td><td>NULL</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">11 filas</p>
+</div><p>Una forma de corregirlo es llevar la condición al <code>ON</code>. Ahí decide qué órdenes se emparejan con cada cliente, y el cliente que no empareja ninguna queda igual en el resultado:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.id_cliente, C.apellido, O.nro_orden
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">LEFT JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+                          <span class="sql-keyword">AND</span> O.id_orden_estado = <span class="sql-number">3</span>
+<span class="sql-keyword">ORDER BY</span> C.id_cliente, O.nro_orden;</code></pre><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>apellido</th><th>nro_orden</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Pérez</td><td>1</td></tr>
+                <tr><td>1</td><td>Pérez</td><td>5</td></tr>
+                <tr><td>2</td><td>García</td><td>2</td></tr>
+                <tr><td>2</td><td>García</td><td>6</td></tr>
+                <tr class="destacada"><td>3</td><td>López</td><td>NULL</td></tr>
+                <tr class="destacada"><td>4</td><td>Martínez</td><td>NULL</td></tr>
+                <tr class="destacada"><td>5</td><td>Rossi</td><td>NULL</td></tr>
+                <tr class="destacada"><td>6</td><td>Pérez</td><td>NULL</td></tr>
+                <tr class="destacada"><td>7</td><td>Rossi</td><td>NULL</td></tr>
+                <tr class="destacada"><td>8</td><td>Ferreyra</td><td>NULL</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">10 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Suponer que el <code>LEFT JOIN</code> garantiza que la tabla izquierda llegue completa al resultado. Lo garantiza al salir del cruce; un <code>WHERE</code> sobre una columna de la tabla derecha vuelve a sacar las filas sin pareja.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-11" aria-labelledby="ej-11-titulo">
+<div class="ej-cab"><span class="ej-num">11</span><div><p class="ej-mec">Lo que se pidió y lo que hace</p><h2 id="ej-11-titulo">Órdenes en las que no se usó efectivo</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio_pago · 10 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_metodo_pago</th><th>monto</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>20000.00</td></tr>
+<tr><td>1</td><td>2</td><td>33500.00</td></tr>
+<tr><td>2</td><td>3</td><td>40500.00</td></tr>
+<tr><td>4</td><td>1</td><td>10000.00</td></tr>
+<tr><td>4</td><td>4</td><td>8500.00</td></tr>
+<tr><td>5</td><td>2</td><td>27000.00</td></tr>
+<tr><td>6</td><td>1</td><td>15000.00</td></tr>
+<tr><td>6</td><td>2</td><td>5000.00</td></tr>
+<tr><td>8</td><td>1</td><td>4000.00</td></tr>
+<tr><td>8</td><td>3</td><td>5000.00</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">metodo_pago · 6 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_metodo_pago</th><th>nombre</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Efectivo</td></tr>
+<tr><td>2</td><td>Tarjeta</td></tr>
+<tr><td>3</td><td>Transferencia</td></tr>
+<tr><td>4</td><td>Billetera Virtual</td></tr>
+<tr><td>5</td><td>Cheque</td></tr>
+<tr><td>6</td><td>Crédito en cuenta</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín pide <strong>las órdenes en las que no se usó efectivo</strong> (método 1). Se propone esta consulta:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">DISTINCT</span> O.nro_orden, O.total
+<span class="sql-keyword">FROM</span> orden_servicio O
+<span class="sql-keyword">JOIN</span> orden_servicio_pago P <span class="sql-keyword">ON</span> P.nro_orden = O.nro_orden
+<span class="sql-keyword">WHERE</span> P.id_metodo_pago &lt;&gt; <span class="sql-number">1</span>
+<span class="sql-keyword">ORDER BY</span> O.nro_orden;</code></pre><p>Devuelve:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>total</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>1</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>40500.00</td></tr>
+                <tr class="destacada"><td>4</td><td>18500.00</td></tr>
+                <tr><td>5</td><td>27000.00</td></tr>
+                <tr class="destacada"><td>6</td><td>20000.00</td></tr>
+                <tr class="destacada"><td>8</td><td>9000.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">6 filas</p>
+</div></div>
+<p class="ej-debate"><strong>Para debatir antes de elegir.</strong> Busquen en el resultado una orden que tenga un pago en efectivo. ¿Por qué pasó el filtro?</p>
+<p class="ej-preg">¿Qué órdenes lista esta consulta?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">Las órdenes en las que no se usó efectivo, como pidió Martín</span></button>
+<p class="opc-porque" hidden>La orden 1 está en el resultado y tiene un pago en efectivo. El <code>WHERE</code> revisa cada pago por separado y deja pasar su otro pago.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Las órdenes que se pagaron únicamente en efectivo</span></button>
+<p class="opc-porque" hidden>Una orden pagada solo en efectivo no tiene ningún pago que pase la condición <code>&lt;&gt; 1</code>, así que no aparecería.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto">Las órdenes que no tienen ningún pago registrado</span></button>
+<p class="opc-porque" hidden>Las órdenes 3 y 7 no tienen pagos y no aparecen: el <code>JOIN</code> las deja afuera antes de llegar al <code>WHERE</code>.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">d</span><span class="opc-texto">Las órdenes que tienen al menos un pago hecho con otro método</span></button>
+<p class="opc-porque" hidden>Cada fila del cruce es un pago. La condición conserva los pagos que no son en efectivo, y el <code>DISTINCT</code> deja una fila por cada orden que tiene alguno.</p></li>
+</ol>
+<details class="ej-ayuda">
+<summary>¿Necesitan ayuda? Recorran la consulta por etapas</summary>
+<p class="ayuda-intro">Este es el método de <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>: seguirla en el orden en que la resuelve el motor y mirar, en cada etapa, qué filas hay y cuáles se van. Avancen de a una etapa y contesten la pregunta de cada paso antes de pasar al siguiente.</p>
+<div class="recorrido">
+<div class="rec-barra" role="group" aria-label="Etapas de la consulta"><button type="button" class="rec-chip" aria-current="step">1 · FROM</button><button type="button" class="rec-chip">2 · JOIN</button><button type="button" class="rec-chip">3 · WHERE</button><button type="button" class="rec-chip">4 · SELECT</button><button type="button" class="rec-chip">5 · DISTINCT</button><button type="button" class="rec-chip">6 · ORDER BY</button></div>
+<div class="rec-etapa">
+<div class="visor-titulo"><span class="visor-etapa">etapa 1 de 6 · FROM</span><h3>Las filas de la tabla</h3></div>
+<p class="visor-dice">De acá salen las filas: la tabla <code>orden_servicio</code> completa.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>O.nro_orden</th><th>O.total</th><th>P.nro_orden</th><th>P.id_metodo_pago</th><th>P.monto</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>2</td><td>40500.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>3</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>4</td><td>18500.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>5</td><td>27000.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>6</td><td>20000.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>7</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>8</td><td>9000.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span></p>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 2 de 6 · JOIN</span><h3>Se suma la tabla orden_servicio_pago</h3></div>
+<p class="visor-dice">Cada fila busca sus parejas en <code>orden_servicio_pago</code> con la condición <code>P.nro_orden = O.nro_orden</code>. La que no encuentra ninguna se descarta.</p>
+<p class="visor-cuenta">8 filas → <strong>10 filas</strong> <span class="baja">(−2 sin pareja)</span></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>O.nro_orden</th><th>O.total</th><th>P.nro_orden</th><th>P.id_metodo_pago</th><th>P.monto</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td><td class="nuevo">1</td><td class="nuevo">1</td><td class="nuevo">20000.00</td></tr><tr><td>1</td><td>53500.00</td><td class="nuevo">1</td><td class="nuevo">2</td><td class="nuevo">33500.00</td></tr><tr><td>2</td><td>40500.00</td><td class="nuevo">2</td><td class="nuevo">3</td><td class="nuevo">40500.00</td></tr><tr class="se-va"><td>3</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>4</td><td>18500.00</td><td class="nuevo">4</td><td class="nuevo">1</td><td class="nuevo">10000.00</td></tr><tr><td>4</td><td>18500.00</td><td class="nuevo">4</td><td class="nuevo">4</td><td class="nuevo">8500.00</td></tr><tr><td>5</td><td>27000.00</td><td class="nuevo">5</td><td class="nuevo">2</td><td class="nuevo">27000.00</td></tr><tr><td>6</td><td>20000.00</td><td class="nuevo">6</td><td class="nuevo">1</td><td class="nuevo">15000.00</td></tr><tr><td>6</td><td>20000.00</td><td class="nuevo">6</td><td class="nuevo">2</td><td class="nuevo">5000.00</td></tr><tr class="se-va"><td>7</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>8</td><td>9000.00</td><td class="nuevo">8</td><td class="nuevo">1</td><td class="nuevo">4000.00</td></tr><tr><td>8</td><td>9000.00</td><td class="nuevo">8</td><td class="nuevo">3</td><td class="nuevo">5000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-sale">sin pareja: las descarta el JOIN</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Después del cruce, ¿de qué hay una fila: de cada orden o de cada pago? ¿Qué órdenes se fueron acá?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 3 de 6 · WHERE</span><h3>Se descartan filas</h3></div>
+<p class="visor-dice">La condición <code>P.id_metodo_pago &lt;&gt; 1</code> se prueba fila por fila. Siguen las filas en las que da verdadero.</p>
+<p class="visor-cuenta">10 filas → <strong>6 filas</strong> <span class="baja">(−4)</span></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>O.nro_orden</th><th>O.total</th><th>P.nro_orden</th><th>P.id_metodo_pago</th><th>P.monto</th></tr></thead><tbody><tr class="se-va"><td>1</td><td>53500.00</td><td>1</td><td>1</td><td>20000.00</td></tr><tr><td>1</td><td>53500.00</td><td>1</td><td>2</td><td>33500.00</td></tr><tr><td>2</td><td>40500.00</td><td>2</td><td>3</td><td>40500.00</td></tr><tr class="ida"><td>3</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="se-va"><td>4</td><td>18500.00</td><td>4</td><td>1</td><td>10000.00</td></tr><tr><td>4</td><td>18500.00</td><td>4</td><td>4</td><td>8500.00</td></tr><tr><td>5</td><td>27000.00</td><td>5</td><td>2</td><td>27000.00</td></tr><tr class="se-va"><td>6</td><td>20000.00</td><td>6</td><td>1</td><td>15000.00</td></tr><tr><td>6</td><td>20000.00</td><td>6</td><td>2</td><td>5000.00</td></tr><tr class="ida"><td>7</td><td>0.00</td><td class="pendiente">·</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="se-va"><td>8</td><td>9000.00</td><td>8</td><td>1</td><td>4000.00</td></tr><tr><td>8</td><td>9000.00</td><td>8</td><td>3</td><td>5000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-sale">las descarta esta etapa</span><span class="l-ida">ya estaban descartadas</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Sigan a la orden 1. ¿Cuántas filas tenía antes de esta etapa y qué pasó con cada una?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 4 de 6 · SELECT</span><h3>Se arman las columnas de salida</h3></div>
+<p class="visor-dice">De cada fila que sigue en juego se toman las columnas que pide el <code>SELECT</code>. Las demás dejan de verse.</p>
+<p class="visor-cuenta"><strong>6 filas</strong> · 2 columnas</p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>40500.00</td></tr><tr><td>4</td><td>18500.00</td></tr><tr><td>5</td><td>27000.00</td></tr><tr><td>6</td><td>20000.00</td></tr><tr><td>8</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Queda en estas filas algún rastro de los pagos que se descartaron?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 5 de 6 · DISTINCT</span><h3>Se descartan las filas repetidas</h3></div>
+<p class="visor-dice">Se comparan las filas ya armadas por el <code>SELECT</code>, completas, y de las que son iguales queda una.</p>
+<p class="visor-cuenta">6 filas → <strong>6 filas</strong> <span class="baja">(−0)</span></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>40500.00</td></tr><tr><td>4</td><td>18500.00</td></tr><tr><td>5</td><td>27000.00</td></tr><tr><td>6</td><td>20000.00</td></tr><tr><td>8</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Había filas repetidas para sacar?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 6 de 6 · ORDER BY</span><h3>Se ordena el resultado</h3></div>
+<p class="visor-dice">Las filas son las mismas de la etapa anterior, en otro orden.</p>
+<p class="visor-cuenta"><strong>6 filas</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>40500.00</td></tr><tr><td>4</td><td>18500.00</td></tr><tr><td>5</td><td>27000.00</td></tr><tr><td>6</td><td>20000.00</td></tr><tr><td>8</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+</div>
+<div class="rec-nav"><button type="button" class="boton" data-ir="-1">Etapa anterior</button><button type="button" class="boton" data-ir="1">Etapa siguiente</button></div>
+</div>
+</details>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: d</h3>
+<p>Las órdenes marcadas en el resultado (1, 4, 6 y 8) tienen un pago en efectivo y otro con un método distinto. Para el pedido de Martín se arma primero la lista de órdenes que sí usaron efectivo y se piden las que no están en ella:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> nro_orden, total
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> nro_orden <span class="sql-keyword">NOT</span> <span class="sql-keyword">IN</span> (<span class="sql-keyword">SELECT</span> nro_orden
+                        <span class="sql-keyword">FROM</span> orden_servicio_pago
+                        <span class="sql-keyword">WHERE</span> id_metodo_pago = <span class="sql-number">1</span>)
+<span class="sql-keyword">ORDER BY</span> nro_orden;</code></pre><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>total</th></tr></thead>
+              <tbody>
+                <tr><td>2</td><td>40500.00</td></tr>
+                <tr><td>3</td><td>0.00</td></tr>
+                <tr><td>5</td><td>27000.00</td></tr>
+                <tr><td>7</td><td>0.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p>
+</div><p>Este resultado incluye las órdenes 3 y 7, que todavía no tienen ningún pago. Queda para discutir si Martín las quiere en la lista.</p>
+<p class="ej-error"><strong>El error al que apunta.</strong> Traducir «no se usó» como <code>&lt;&gt;</code>. Una condición del <code>WHERE</code> mira una fila por vez; que una orden no tenga ningún pago de cierto tipo es una afirmación sobre todos sus pagos juntos.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-12" aria-labelledby="ej-12-titulo">
+<div class="ej-cab"><span class="ej-num">12</span><div><p class="ej-mec">Corre, pero responde otra cosa</p><h2 id="ej-12-titulo">Cuántas órdenes tiene cada cliente</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">cliente · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>2</td><td>María</td><td>García</td></tr>
+<tr><td>3</td><td>Carlos</td><td>López</td></tr>
+<tr><td>4</td><td>Ana</td><td>Martínez</td></tr>
+<tr><td>5</td><td>Diego</td><td>Rossi</td></tr>
+<tr><td>6</td><td>Juan</td><td>Pérez</td></tr>
+<tr><td>7</td><td>Sofía</td><td>Rossi</td></tr>
+<tr><td>8</td><td>Marcos</td><td>Ferreyra</td></tr>
+</tbody></table></div>
+</div>
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Martín pide <strong>cuántas órdenes tiene cada cliente</strong>, con nombre y apellido. La consulta:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.nombre, C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.nombre, C.apellido
+<span class="sql-keyword">ORDER BY</span> ordenes <span class="sql-keyword">DESC</span>, C.apellido, C.nombre;</code></pre><p>Devuelve:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nombre</th><th>apellido</th><th>ordenes</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>Juan</td><td>Pérez</td><td>4</td></tr>
+                <tr><td>María</td><td>García</td><td>2</td></tr>
+                <tr><td>Diego</td><td>Rossi</td><td>1</td></tr>
+                <tr><td>Sofía</td><td>Rossi</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">4 filas</p>
+</div><p>En <code>orden_servicio</code>, el cliente 1 —Juan Pérez— figura en 3 órdenes, y el resultado le informa 4.</p></div>
+<p class="ej-debate"><strong>Para debatir antes de elegir.</strong> ¿Qué filas del cruce caen en el grupo de Juan Pérez? Sigan cada una hasta la tabla <code>cliente</code>.</p>
+<p class="ej-preg">¿De dónde sale la orden de más?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc" data-ok><span class="opc-letra">a</span><span class="opc-texto">Hay dos clientes llamados Juan Pérez, y agrupar por nombre y apellido los junta en un solo grupo</span></button>
+<p class="opc-porque" hidden>Los clientes 1 y 6 son personas distintas con el mismo nombre. El grupo se arma con las columnas del <code>GROUP BY</code>, y en esas dos columnas los dos clientes valen lo mismo.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">El <code>JOIN</code> repite una de las órdenes del cliente 1</span></button>
+<p class="opc-porque" hidden>Cada orden tiene un solo cliente, así que el cruce de cliente con orden deja una fila por orden, sin repetidas.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">c</span><span class="opc-texto"><code>COUNT(*)</code> suma una fila con NULL que no corresponde a ninguna orden</span></button>
+<p class="opc-porque" hidden>Con <code>JOIN</code> no hay filas sin pareja. Las filas con NULL aparecerían con un <code>LEFT JOIN</code>.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Al agrupar por dos columnas, una orden se cuenta una vez por cada columna</span></button>
+<p class="opc-porque" hidden>El <code>GROUP BY</code> agrupa por la combinación de las dos columnas. Cada fila cae en un solo grupo.</p></li>
+</ol>
+<details class="ej-ayuda">
+<summary>¿Necesitan ayuda? Recorran la consulta por etapas</summary>
+<p class="ayuda-intro">Este es el método de <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>: seguirla en el orden en que la resuelve el motor y mirar, en cada etapa, qué filas hay y cuáles se van. Avancen de a una etapa y contesten la pregunta de cada paso antes de pasar al siguiente.</p>
+<div class="recorrido">
+<div class="rec-barra" role="group" aria-label="Etapas de la consulta"><button type="button" class="rec-chip" aria-current="step">1 · FROM</button><button type="button" class="rec-chip">2 · JOIN</button><button type="button" class="rec-chip">3 · GROUP BY</button><button type="button" class="rec-chip">4 · agregados</button><button type="button" class="rec-chip">5 · SELECT</button><button type="button" class="rec-chip">6 · ORDER BY</button></div>
+<div class="rec-etapa">
+<div class="visor-titulo"><span class="visor-etapa">etapa 1 de 6 · FROM</span><h3>Las filas de la tabla</h3></div>
+<p class="visor-dice">De acá salen las filas: la tabla <code>cliente</code> completa.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.nombre</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th></tr></thead><tbody><tr><td>1</td><td>Juan</td><td>Pérez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>2</td><td>María</td><td>García</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>3</td><td>Carlos</td><td>López</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>4</td><td>Ana</td><td>Martínez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>5</td><td>Diego</td><td>Rossi</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>6</td><td>Juan</td><td>Pérez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>7</td><td>Sofía</td><td>Rossi</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>8</td><td>Marcos</td><td>Ferreyra</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span></p>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 2 de 6 · JOIN</span><h3>Se suma la tabla orden_servicio</h3></div>
+<p class="visor-dice">Cada fila busca sus parejas en <code>orden_servicio</code> con la condición <code>O.id_cliente = C.id_cliente</code>. La que no encuentra ninguna se descarta.</p>
+<p class="visor-cuenta">8 filas → <strong>8 filas</strong> <span class="baja">(−3 sin pareja)</span></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.nombre</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th></tr></thead><tbody><tr><td>1</td><td>Juan</td><td>Pérez</td><td class="nuevo">1</td><td class="nuevo">1</td></tr><tr><td>1</td><td>Juan</td><td>Pérez</td><td class="nuevo">4</td><td class="nuevo">1</td></tr><tr><td>1</td><td>Juan</td><td>Pérez</td><td class="nuevo">5</td><td class="nuevo">1</td></tr><tr><td>2</td><td>María</td><td>García</td><td class="nuevo">2</td><td class="nuevo">2</td></tr><tr><td>2</td><td>María</td><td>García</td><td class="nuevo">6</td><td class="nuevo">2</td></tr><tr class="se-va"><td>3</td><td>Carlos</td><td>López</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="se-va"><td>4</td><td>Ana</td><td>Martínez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr><td>5</td><td>Diego</td><td>Rossi</td><td class="nuevo">3</td><td class="nuevo">5</td></tr><tr><td>6</td><td>Juan</td><td>Pérez</td><td class="nuevo">7</td><td class="nuevo">6</td></tr><tr><td>7</td><td>Sofía</td><td>Rossi</td><td class="nuevo">8</td><td class="nuevo">7</td></tr><tr class="se-va"><td>8</td><td>Marcos</td><td>Ferreyra</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-sale">sin pareja: las descarta el JOIN</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Después del cruce, ¿de qué hay una fila? ¿Alguna orden aparece dos veces?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 3 de 6 · GROUP BY</span><h3>Las filas se reparten en grupos</h3></div>
+<p class="visor-dice">Van al mismo grupo las filas que coinciden en <code>C.nombre</code> y <code>C.apellido</code>. Ninguna fila se pierde.</p>
+<p class="visor-cuenta">8 filas → <strong>4 grupos</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.nombre</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th></tr></thead><tbody><tr class="grupo-cab" style="--tono: var(--bloque-cian)"><td colspan="5"><span class="chapa"></span>grupo «Juan Pérez» · 4 filas</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>1</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>4</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>5</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>6</td><td>Juan</td><td>Pérez</td><td>7</td><td>6</td></tr><tr class="grupo-cab" style="--tono: var(--bloque-violeta)"><td colspan="5"><span class="chapa"></span>grupo «María García» · 2 filas</td></tr><tr class="del-grupo" style="--tono: var(--bloque-violeta)"><td>2</td><td>María</td><td>García</td><td>2</td><td>2</td></tr><tr class="del-grupo" style="--tono: var(--bloque-violeta)"><td>2</td><td>María</td><td>García</td><td>6</td><td>2</td></tr><tr class="grupo-cab" style="--tono: var(--bloque-ambar)"><td colspan="5"><span class="chapa"></span>grupo «Diego Rossi» · 1 fila</td></tr><tr class="del-grupo" style="--tono: var(--bloque-ambar)"><td>5</td><td>Diego</td><td>Rossi</td><td>3</td><td>5</td></tr><tr class="grupo-cab" style="--tono: var(--bloque-rosa)"><td colspan="5"><span class="chapa"></span>grupo «Sofía Rossi» · 1 fila</td></tr><tr class="del-grupo" style="--tono: var(--bloque-rosa)"><td>7</td><td>Sofía</td><td>Rossi</td><td>8</td><td>7</td></tr><tr class="ida"><td>3</td><td>Carlos</td><td>López</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="ida"><td>4</td><td>Ana</td><td>Martínez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="ida"><td>8</td><td>Marcos</td><td>Ferreyra</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">cada bloque es un grupo</span><span class="l-ida">filas descartadas antes de agrupar</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Miren la columna <code>C.id_cliente</code> dentro de cada bloque. ¿Todas las filas de un grupo son del mismo cliente?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 4 de 6 · agregados</span><h3>Se calculan las funciones de cada grupo</h3></div>
+<p class="visor-dice">La función trabaja sobre las filas de cada bloque y deja un valor por grupo.</p>
+<p class="visor-cuenta">4 grupos · 1 función</p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>C.id_cliente</th><th>C.nombre</th><th>C.apellido</th><th>O.nro_orden</th><th>O.id_cliente</th></tr></thead><tbody><tr class="grupo-cab" style="--tono: var(--bloque-cian)"><td colspan="5"><span class="chapa"></span>grupo «Juan Pérez» · 4 filas</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>1</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>4</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>1</td><td>Juan</td><td>Pérez</td><td>5</td><td>1</td></tr><tr class="del-grupo" style="--tono: var(--bloque-cian)"><td>6</td><td>Juan</td><td>Pérez</td><td>7</td><td>6</td></tr><tr class="grupo-calc"><td colspan="5"><span class="fn">COUNT(*)</span> cuenta las 4 filas del grupo = 4 → <span class="igual">ordenes</span></td></tr><tr class="grupo-cab" style="--tono: var(--bloque-violeta)"><td colspan="5"><span class="chapa"></span>grupo «María García» · 2 filas</td></tr><tr class="del-grupo" style="--tono: var(--bloque-violeta)"><td>2</td><td>María</td><td>García</td><td>2</td><td>2</td></tr><tr class="del-grupo" style="--tono: var(--bloque-violeta)"><td>2</td><td>María</td><td>García</td><td>6</td><td>2</td></tr><tr class="grupo-calc"><td colspan="5"><span class="fn">COUNT(*)</span> cuenta las 2 filas del grupo = 2 → <span class="igual">ordenes</span></td></tr><tr class="grupo-cab" style="--tono: var(--bloque-ambar)"><td colspan="5"><span class="chapa"></span>grupo «Diego Rossi» · 1 fila</td></tr><tr class="del-grupo" style="--tono: var(--bloque-ambar)"><td>5</td><td>Diego</td><td>Rossi</td><td>3</td><td>5</td></tr><tr class="grupo-calc"><td colspan="5"><span class="fn">COUNT(*)</span> cuenta la fila del grupo = 1 → <span class="igual">ordenes</span></td></tr><tr class="grupo-cab" style="--tono: var(--bloque-rosa)"><td colspan="5"><span class="chapa"></span>grupo «Sofía Rossi» · 1 fila</td></tr><tr class="del-grupo" style="--tono: var(--bloque-rosa)"><td>7</td><td>Sofía</td><td>Rossi</td><td>8</td><td>7</td></tr><tr class="grupo-calc"><td colspan="5"><span class="fn">COUNT(*)</span> cuenta la fila del grupo = 1 → <span class="igual">ordenes</span></td></tr><tr class="ida"><td>3</td><td>Carlos</td><td>López</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="ida"><td>4</td><td>Ana</td><td>Martínez</td><td class="pendiente">·</td><td class="pendiente">·</td></tr><tr class="ida"><td>8</td><td>Marcos</td><td>Ferreyra</td><td class="pendiente">·</td><td class="pendiente">·</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">cada bloque es un grupo</span><span class="l-ida">filas descartadas antes de agrupar</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Qué está contando <code>COUNT(*)</code> en cada bloque?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 5 de 6 · SELECT</span><h3>Cada grupo colapsa en una fila</h3></div>
+<p class="visor-dice">De cada grupo queda una sola fila, con las columnas que pide el <code>SELECT</code>.</p>
+<p class="visor-cuenta">8 filas en 4 grupos → <strong>4 filas</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nombre</th><th>apellido</th><th>ordenes</th></tr></thead><tbody><tr><td>Juan</td><td>Pérez</td><td>4</td></tr><tr><td>María</td><td>García</td><td>2</td></tr><tr><td>Diego</td><td>Rossi</td><td>1</td></tr><tr><td>Sofía</td><td>Rossi</td><td>1</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> Al colapsar cada grupo en una fila, ¿qué columna de la tabla de trabajo deja de verse?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 6 de 6 · ORDER BY</span><h3>Se ordena el resultado</h3></div>
+<p class="visor-dice">Las filas son las mismas de la etapa anterior, en otro orden.</p>
+<p class="visor-cuenta"><strong>4 filas</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nombre</th><th>apellido</th><th>ordenes</th></tr></thead><tbody><tr><td>Juan</td><td>Pérez</td><td>4</td></tr><tr><td>María</td><td>García</td><td>2</td></tr><tr><td>Diego</td><td>Rossi</td><td>1</td></tr><tr><td>Sofía</td><td>Rossi</td><td>1</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+</div>
+<div class="rec-nav"><button type="button" class="boton" data-ir="-1">Etapa anterior</button><button type="button" class="boton" data-ir="1">Etapa siguiente</button></div>
+</div>
+</details>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: a</h3>
+<p>Con <code>id_cliente</code> en el <code>GROUP BY</code> cada cliente tiene su grupo, aunque comparta nombre y apellido con otro:</p><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> C.id_cliente, C.nombre, C.apellido, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> ordenes
+<span class="sql-keyword">FROM</span> cliente C
+<span class="sql-keyword">JOIN</span> orden_servicio O <span class="sql-keyword">ON</span> O.id_cliente = C.id_cliente
+<span class="sql-keyword">GROUP BY</span> C.id_cliente, C.nombre, C.apellido
+<span class="sql-keyword">ORDER BY</span> C.id_cliente;</code></pre><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>id_cliente</th><th>nombre</th><th>apellido</th><th>ordenes</th></tr></thead>
+              <tbody>
+                <tr class="destacada"><td>1</td><td>Juan</td><td>Pérez</td><td>3</td></tr>
+                <tr><td>2</td><td>María</td><td>García</td><td>2</td></tr>
+                <tr><td>5</td><td>Diego</td><td>Rossi</td><td>1</td></tr>
+                <tr class="destacada"><td>6</td><td>Juan</td><td>Pérez</td><td>1</td></tr>
+                <tr><td>7</td><td>Sofía</td><td>Rossi</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">5 filas</p>
+</div>
+<p class="ej-error"><strong>El error al que apunta.</strong> Agrupar por un dato que describe al cliente pero no lo identifica. Dos filas van al mismo grupo cuando coinciden en todas las columnas del <code>GROUP BY</code>; para que haya un grupo por cliente, entre esas columnas tiene que estar su clave.</p>
+</div>
+</section>
+
+<section class="ej" id="ej-13" aria-labelledby="ej-13-titulo">
+<div class="ej-cab"><span class="ej-num">13</span><div><p class="ej-mec">Dos caminos que hoy coinciden</p><h2 id="ej-13-titulo">La orden de mayor importe</h2></div></div>
+<details class="ej-datos" open>
+<summary>Las tablas que usa</summary>
+<div class="datos-fila">
+<div class="dato">
+<p class="dato-nombre">orden_servicio · 8 filas</p>
+<div class="table-scroll"><table class="dato-tabla">
+<thead><tr><th>nro_orden</th><th>id_cliente</th><th>id_orden_estado</th><th>total</th><th>fecha_entrega</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>1</td><td>3</td><td>53500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>2</td><td>2</td><td>3</td><td>40500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>3</td><td>5</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>4</td><td>1</td><td>2</td><td>18500.00</td><td class="nulo">NULL</td></tr>
+<tr><td>5</td><td>1</td><td>3</td><td>27000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>6</td><td>2</td><td>3</td><td>20000.00</td><td class="nulo">NULL</td></tr>
+<tr><td>7</td><td>6</td><td>1</td><td>0.00</td><td class="nulo">NULL</td></tr>
+<tr><td>8</td><td>7</td><td>4</td><td>9000.00</td><td class="nulo">NULL</td></tr>
+</tbody></table></div>
+</div>
+</div>
+</details>
+<div class="ej-enun"><p>Para encontrar <strong>la orden de mayor importe</strong> hay dos consultas:</p><div class="variantes">
+<div class="variante"><span class="variante-rot">I</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> nro_orden, total
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> total = (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">MAX</span>(total) <span class="sql-keyword">FROM</span> orden_servicio);</code></pre></div>
+<div class="variante"><span class="variante-rot">II</span><pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> nro_orden, total
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">ORDER BY</span> total <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">1</span>;</code></pre></div>
+</div><p>Con los datos de hoy las dos devuelven lo mismo:</p><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>total</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>53500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">1 fila</p>
+</div></div>
+<p class="ej-debate"><strong>Para debatir antes de elegir.</strong> Piensen qué órdenes podrían cargarse mañana y qué haría cada consulta con ellas.</p>
+<p class="ej-preg">¿En qué situación dejarían de devolver lo mismo?</p>
+<ol class="ej-opc">
+<li><button type="button" class="opc"><span class="opc-letra">a</span><span class="opc-texto">En ninguna: son dos maneras de escribir la misma consulta</span></button>
+<p class="opc-porque" hidden>Coinciden mientras el importe más alto lo tenga una sola orden. La I filtra por un valor y la II corta por cantidad de filas.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">b</span><span class="opc-texto">Si alguna orden tiene el total en NULL</span></button>
+<p class="opc-porque" hidden><code>MAX</code> saltea los NULL y el orden descendente los deja al final. Mientras haya otra orden con el total cargado, ninguna de las dos consultas llega a tomarlos.</p></li>
+<li><button type="button" class="opc" data-ok><span class="opc-letra">c</span><span class="opc-texto">Si dos órdenes empatan en el importe más alto</span></button>
+<p class="opc-porque" hidden>La I devuelve todas las órdenes que tienen ese importe. La II devuelve una sola fila porque <code>LIMIT 1</code> corta ahí.</p></li>
+<li><button type="button" class="opc"><span class="opc-letra">d</span><span class="opc-texto">Si la tabla tiene una sola orden</span></button>
+<p class="opc-porque" hidden>Con una sola orden, esa es la de mayor importe para las dos consultas.</p></li>
+</ol>
+<details class="ej-ayuda">
+<summary>¿Necesitan ayuda? Recorran la consulta por etapas</summary>
+<p class="ayuda-intro">Este es el método de <a href="orden-de-ejecucion.html">El orden en que corre una consulta</a>: seguirla en el orden en que la resuelve el motor y mirar, en cada etapa, qué filas hay y cuáles se van. Avancen de a una etapa y contesten la pregunta de cada paso antes de pasar al siguiente.</p>
+<div class="recorrido">
+<p class="rec-titulo">Consulta I</p>
+<div class="rec-barra" role="group" aria-label="Etapas de la consulta"><button type="button" class="rec-chip" aria-current="step">1 · subconsulta</button><button type="button" class="rec-chip">2 · FROM</button><button type="button" class="rec-chip">3 · WHERE</button><button type="button" class="rec-chip">4 · SELECT</button></div>
+<div class="rec-etapa">
+<div class="visor-titulo"><span class="visor-etapa">etapa 1 de 4 · subconsulta</span><h3>La consulta de adentro se resuelve primero</h3></div>
+<p class="visor-dice">Corre una sola vez, antes de que empiece el recorrido de afuera, y deja su resultado en el lugar del paréntesis.</p>
+<p class="visor-cuenta"><strong>1 fila</strong> · 1 columna</p>
+<pre class="ej-sql"><code><span class="sql-keyword">SELECT</span> <span class="sql-keyword">MAX</span>(total) <span class="sql-keyword">FROM</span> orden_servicio;</code></pre><div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>MAX(total)</th></tr></thead><tbody><tr><td>53500</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">lo que devuelve la subconsulta</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Qué deja la subconsulta en el lugar del paréntesis: una orden o un valor?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 2 de 4 · FROM</span><h3>Las filas de la tabla</h3></div>
+<p class="visor-dice">De acá salen las filas: la tabla <code>orden_servicio</code> completa.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>id_cliente</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>2</td><td>40500.00</td></tr><tr><td>3</td><td>5</td><td>0.00</td></tr><tr><td>4</td><td>1</td><td>18500.00</td></tr><tr><td>5</td><td>1</td><td>27000.00</td></tr><tr><td>6</td><td>2</td><td>20000.00</td></tr><tr><td>7</td><td>6</td><td>0.00</td></tr><tr><td>8</td><td>7</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span></p>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 3 de 4 · WHERE</span><h3>Se descartan filas</h3></div>
+<p class="visor-dice">La condición <code>total = 53500.00</code> se prueba fila por fila. Siguen las filas en las que da verdadero.</p>
+<p class="visor-cuenta">8 filas → <strong>1 fila</strong> <span class="baja">(−7)</span></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>id_cliente</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>53500.00</td></tr><tr class="se-va"><td>2</td><td>2</td><td>40500.00</td></tr><tr class="se-va"><td>3</td><td>5</td><td>0.00</td></tr><tr class="se-va"><td>4</td><td>1</td><td>18500.00</td></tr><tr class="se-va"><td>5</td><td>1</td><td>27000.00</td></tr><tr class="se-va"><td>6</td><td>2</td><td>20000.00</td></tr><tr class="se-va"><td>7</td><td>6</td><td>0.00</td></tr><tr class="se-va"><td>8</td><td>7</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span><span class="l-sale">las descarta esta etapa</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿De qué depende la cantidad de filas que pasan esta condición?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 4 de 4 · SELECT</span><h3>Se arman las columnas de salida</h3></div>
+<p class="visor-dice">De cada fila que sigue en juego se toman las columnas que pide el <code>SELECT</code>. Las demás dejan de verse.</p>
+<p class="visor-cuenta"><strong>1 fila</strong> · 2 columnas</p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+</div>
+<div class="rec-nav"><button type="button" class="boton" data-ir="-1">Etapa anterior</button><button type="button" class="boton" data-ir="1">Etapa siguiente</button></div>
+</div>
+<div class="recorrido">
+<p class="rec-titulo">Consulta II</p>
+<div class="rec-barra" role="group" aria-label="Etapas de la consulta"><button type="button" class="rec-chip" aria-current="step">1 · FROM</button><button type="button" class="rec-chip">2 · SELECT</button><button type="button" class="rec-chip">3 · ORDER BY</button><button type="button" class="rec-chip">4 · LIMIT</button></div>
+<div class="rec-etapa">
+<div class="visor-titulo"><span class="visor-etapa">etapa 1 de 4 · FROM</span><h3>Las filas de la tabla</h3></div>
+<p class="visor-dice">De acá salen las filas: la tabla <code>orden_servicio</code> completa.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>id_cliente</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>2</td><td>40500.00</td></tr><tr><td>3</td><td>5</td><td>0.00</td></tr><tr><td>4</td><td>1</td><td>18500.00</td></tr><tr><td>5</td><td>1</td><td>27000.00</td></tr><tr><td>6</td><td>2</td><td>20000.00</td></tr><tr><td>7</td><td>6</td><td>0.00</td></tr><tr><td>8</td><td>7</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">siguen en juego</span></p>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 2 de 4 · SELECT</span><h3>Se arman las columnas de salida</h3></div>
+<p class="visor-dice">De cada fila que sigue en juego se toman las columnas que pide el <code>SELECT</code>. Las demás dejan de verse.</p>
+<p class="visor-cuenta"><strong>8 filas</strong> · 2 columnas</p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>40500.00</td></tr><tr><td>3</td><td>0.00</td></tr><tr><td>4</td><td>18500.00</td></tr><tr><td>5</td><td>27000.00</td></tr><tr><td>6</td><td>20000.00</td></tr><tr><td>7</td><td>0.00</td></tr><tr><td>8</td><td>9000.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 3 de 4 · ORDER BY</span><h3>Se ordena el resultado</h3></div>
+<p class="visor-dice">Las filas son las mismas de la etapa anterior, en otro orden.</p>
+<p class="visor-cuenta"><strong>8 filas</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr><td>2</td><td>40500.00</td></tr><tr><td>5</td><td>27000.00</td></tr><tr><td>6</td><td>20000.00</td></tr><tr><td>4</td><td>18500.00</td></tr><tr><td>8</td><td>9000.00</td></tr><tr><td>3</td><td>0.00</td></tr><tr><td>7</td><td>0.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">filas del resultado</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿Qué decide cuál queda primera entre dos filas que tienen el mismo total?</div>
+</div>
+<div class="rec-etapa" hidden>
+<div class="visor-titulo"><span class="visor-etapa">etapa 4 de 4 · LIMIT</span><h3>Se corta el resultado</h3></div>
+<p class="visor-dice">Se devuelve la primera fila en el orden en que quedaron.</p>
+<p class="visor-cuenta">8 filas → <strong>1 fila</strong></p>
+<div class="visor-scroll visor-salida"><table class="visor-tabla"><thead><tr><th>nro_orden</th><th>total</th></tr></thead><tbody><tr><td>1</td><td>53500.00</td></tr><tr class="se-va"><td>2</td><td>40500.00</td></tr><tr class="se-va"><td>5</td><td>27000.00</td></tr><tr class="se-va"><td>6</td><td>20000.00</td></tr><tr class="se-va"><td>4</td><td>18500.00</td></tr><tr class="se-va"><td>8</td><td>9000.00</td></tr><tr class="se-va"><td>3</td><td>0.00</td></tr><tr class="se-va"><td>7</td><td>0.00</td></tr></tbody></table></div>
+<p class="visor-leyenda"><span class="l-queda">se devuelven</span><span class="l-sale">las corta el LIMIT</span></p>
+<div class="visor-nota"><strong>Para mirar.</strong> ¿El <code>LIMIT</code> mira el valor de <code>total</code> para decidir dónde cortar?</div>
+</div>
+<div class="rec-nav"><button type="button" class="boton" data-ir="-1">Etapa anterior</button><button type="button" class="boton" data-ir="1">Etapa siguiente</button></div>
+</div>
+</details>
+<div class="ej-acciones"><button type="button" class="boton ej-ver" aria-expanded="false">Ver la resolución</button></div>
+<div class="ej-res" hidden>
+<h3>Respuesta: c</h3>
+<p>Para verlo se le pone a la orden 2 el mismo total que tiene la orden 1 y se vuelve a correr la I:</p><pre class="ej-sql"><code><span class="sql-keyword">UPDATE</span> orden_servicio <span class="sql-keyword">SET</span> total = <span class="sql-number">53500.00</span> <span class="sql-keyword">WHERE</span> nro_orden = <span class="sql-number">2</span>;
+<span class="sql-keyword">SELECT</span> nro_orden, total
+<span class="sql-keyword">FROM</span> orden_servicio
+<span class="sql-keyword">WHERE</span> total = (<span class="sql-keyword">SELECT</span> <span class="sql-keyword">MAX</span>(total) <span class="sql-keyword">FROM</span> orden_servicio);</code></pre><div class="res-tabla">
+<div class="table-scroll">
+            <table class="result-table">
+              <thead><tr><th>nro_orden</th><th>total</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>53500.00</td></tr>
+                <tr><td>2</td><td>53500.00</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filas-devueltas">2 filas</p>
+</div><p>Con ese mismo cambio la II sigue devolviendo una fila. Cuál de las dos órdenes empatadas muestra depende del motor, porque el <code>ORDER BY</code> no dice cómo desempatar. Cuál conviene depende del pedido: «la orden de mayor importe» supone que hay una sola.</p>
+<p class="ej-error"><strong>El error al que apunta.</strong> Dar por equivalentes dos consultas porque coinciden sobre los datos que se tienen a la vista. Para compararlas hay que pensar qué datos podrían cargarse mañana.</p>
+</div>
+</section>
+</div>
+    </main>
+
+<script>
+document.querySelectorAll('.ej').forEach(function (ej) {
+  var resolucion = ej.querySelector('.ej-res');
+  var boton = ej.querySelector('.ej-ver');
+
+  function abrir(ver) {
+    resolucion.hidden = !ver;
+    boton.textContent = ver ? 'Ocultar la resolución' : 'Ver la resolución';
+    boton.setAttribute('aria-expanded', ver ? 'true' : 'false');
+    if (ver) ej.querySelector('.opc[data-ok]').classList.add('acierto');
+  }
+
+  ej.querySelectorAll('.opc').forEach(function (opc) {
+    opc.addEventListener('click', function () {
+      opc.classList.add(opc.hasAttribute('data-ok') ? 'acierto' : 'fallo');
+      opc.parentElement.querySelector('.opc-porque').hidden = false;
+    });
+  });
+
+  boton.addEventListener('click', function () { abrir(resolucion.hidden); });
+
+  ej.reiniciar = function () {
+    abrir(false);
+    ej.querySelectorAll('.opc').forEach(function (o) { o.classList.remove('acierto', 'fallo'); });
+    ej.querySelectorAll('.opc-porque').forEach(function (p) { p.hidden = true; });
+  };
+});
+
+document.querySelectorAll('.recorrido').forEach(function (rec) {
+  var chips = rec.querySelectorAll('.rec-chip');
+  var etapas = rec.querySelectorAll('.rec-etapa');
+  var anterior = rec.querySelector('[data-ir="-1"]');
+  var siguiente = rec.querySelector('[data-ir="1"]');
+  var actual = 0;
+
+  rec.ir = function (n) {
+    actual = Math.max(0, Math.min(etapas.length - 1, n));
+    etapas.forEach(function (e, i) { e.hidden = i !== actual; });
+    chips.forEach(function (c, i) {
+      if (i === actual) c.setAttribute('aria-current', 'step');
+      else c.removeAttribute('aria-current');
+    });
+    anterior.disabled = actual === 0;
+    siguiente.disabled = actual === etapas.length - 1;
+  };
+
+  chips.forEach(function (c, i) { c.addEventListener('click', function () { rec.ir(i); }); });
+  anterior.addEventListener('click', function () { rec.ir(actual - 1); });
+  siguiente.addEventListener('click', function () { rec.ir(actual + 1); });
+  rec.ir(0);
+});
+
+document.getElementById('reiniciar').addEventListener('click', function () {
+  document.querySelectorAll('.ej').forEach(function (ej) { ej.reiniciar(); });
+  document.querySelectorAll('.recorrido').forEach(function (rec) { rec.ir(0); });
+  document.querySelectorAll('.ej-ayuda').forEach(function (d) { d.open = false; });
+  window.scrollTo({ top: 0 });
+});
+document.getElementById('plegar-datos').addEventListener('click', function () {
+  var todas = document.querySelectorAll('.ej-datos');
+  var abrir = !todas[0].open;
+  todas.forEach(function (d) { d.open = abrir; });
+});
+</script>
+
+</body>
+</html>

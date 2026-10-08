@@ -227,6 +227,12 @@ consola_texto = "El Chip cargado en el navegador, sin instalar nada. Dejala abie
   nota = "Sobre el caso Biblioteca Municipal. El análisis acompaña la autocorrección: cada pregunta lleva al caso de estudio donde se trabaja el tema."
   materiales = ["analisis-del-examen-de-sql"]
 
+  [[unidad.clase]]
+  numero = "Repaso"
+  titulo = "Los modelos de pregunta"
+  nota = "Antes del recuperatorio: ejercicios de opción múltiple sobre El Chip, cada uno apuntado a un error del examen. Los cuatro últimos se resuelven debatiendo en clase, con una ayuda que recorre la consulta etapa por etapa."
+  materiales = ["practica-modelos-de-pregunta"]
+
 [[unidad]]
 id = "u4b"
 numero = "IV"

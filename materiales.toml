@@ -570,6 +570,20 @@ ciclos = [2026]
   variante = "principal"
 
 [[material]]
+id = "practica-modelos-de-pregunta"
+titulo = "Práctica · Los modelos de pregunta"
+descripcion = "Trece ejercicios de opción múltiple sobre El Chip: una forma de preguntar y un error frecuente del examen en cada uno; los cuatro últimos, más difíciles, para debatir en clase"
+unidad = "SQL · primera parte"
+icono = "taller"
+caso = "el-chip"
+estado = "vigente"
+ciclos = [2026]
+  [[material.formato]]
+  texto = "Ver"
+  href = "unidades/04-sql/practica-modelos-de-pregunta.html"
+  variante = "principal"
+
+[[material]]
 id = "apunte-de-sql-2"
 titulo = "Apunte de SQL · segunda parte"
 descripcion = "Definir la base, manejar fechas, hacer que reaccione sola, decidir quién puede qué y lograr que ande rápido. Continúa el apunte de consultas."
